@@ -23,9 +23,8 @@
 			<ftpserverPWD>fucktheworld</ftpserverPWD>
 			<ftpserverUSR>simboss</ftpserverUSR>
 			<ftpserverHost>ftp.geo-solutions.it</ftpserverHost>
-            <ftpserverPort/>
-            <connectMode>PASSIVE</connectMode>
-            <writeMode>OVERWRITE</writeMode>
+            <ftpserverPort>21</ftpserverPort>
+            <connectMode>ACTIVE</connectMode>
 			<serviceID>ftpUploadActionService</serviceID>
 			<id>a1</id>
 			<description>description</description>
