@@ -26,6 +26,10 @@ public class Alias {
                         "GeoTiffOverviewConfiguration",
                         it.geosolutions.iengine.geotiff.overview.GeoTiffOverviewsEmbedderConfiguration.class);
         xstream
+        .alias(
+                "GeoTiffRetilerConfiguration",
+                it.geosolutions.iengine.geotiff.retile.GeoTiffRetilerConfiguration.class);        
+        xstream
                 .alias(
                         "GeoServerActionConfiguration",
                         it.geosolutions.iengine.configuration.event.action.geoserver.GeoServerActionConfiguration.class);

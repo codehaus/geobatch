@@ -8,9 +8,17 @@ import it.geosolutions.iengine.configuration.flow.file.FileBasedCatalogConfigura
 import it.geosolutions.iengine.xstream.Alias;
 import java.io.File;
 import java.io.FileInputStream;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
+/**
+ * 
+ * @author Simone Giannecchini, GeoSolutions SAS
+ *
+ */
 public class XStreamCatalogDAO extends XStreamDAO<CatalogConfiguration> implements
         CatalogConfigurationDAO {
+	
+	public final static Logger LOGGER= Logger.getLogger(XStreamCatalogDAO.class.toString());
 
     public XStreamCatalogDAO(String directory) {
         super(directory);
@@ -29,13 +37,15 @@ public class XStreamCatalogDAO extends XStreamDAO<CatalogConfiguration> implemen
                 FileBasedCatalogConfiguration obj = (FileBasedCatalogConfiguration) xstream.fromXML(new FileInputStream(entityfile));
                 if (obj.getWorkingDirectory() == null)
                     obj.setWorkingDirectory(getBaseDirectory());
-                System.out.println("XStreamCatalogDAO:: FOUND " + id + ">" + obj + "<");
+                if(LOGGER.isLoggable(Level.INFO))
+             	   LOGGER.info("XStreamCatalogDAO:: FOUND " + id + ">" + obj + "<");
                 return obj;
 
             }
         } catch (Throwable e) {
-            e.printStackTrace();
-        }
+           if(LOGGER.isLoggable(Level.SEVERE))
+        	   LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
+           }
         return null;
     }
 

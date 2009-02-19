@@ -102,9 +102,15 @@ public class XStreamCatalogLoader extends CatalogHolder implements ApplicationCo
                     else {
                         if (this.context instanceof WebApplicationContext) {
                             String rootDir = ((WebApplicationContext) context).getServletContext()
-                                    .getRealPath("/WEB-INF/data");
-                            if (rootDir != null)
-                                dataDir = new File(rootDir);
+                            .getInitParameter("INGESTIONENGINE_DATA_DIR");
+		                    if (rootDir != null)
+		                        dataDir = new File(rootDir);     
+		                    else {
+	                            rootDir = ((WebApplicationContext) context).getServletContext()
+	                                    .getRealPath("/WEB-INF/data");
+	                            if (rootDir != null)
+	                                dataDir = new File(rootDir);
+		                    }
                         } else
                             dataDir = new File("./data");
                     }
