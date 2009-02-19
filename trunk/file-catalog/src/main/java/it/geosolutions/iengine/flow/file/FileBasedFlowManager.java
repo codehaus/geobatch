@@ -28,13 +28,14 @@ import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.iengine.catalog.file.FileBaseCatalog;
 import it.geosolutions.iengine.catalog.impl.BasePersistentResource;
 import it.geosolutions.iengine.configuration.event.consumer.file.FileBasedEventConsumerConfiguration;
-import it.geosolutions.iengine.configuration.event.generator.file.FileBasedEventGeneratorConfiguration;
+import it.geosolutions.iengine.configuration.event.generator.EventGeneratorConfiguration;
 import it.geosolutions.iengine.configuration.flow.file.FileBasedFlowConfiguration;
 import it.geosolutions.iengine.flow.FlowManager;
 import it.geosolutions.iengine.flow.event.consumer.BaseEventConsumer;
 import it.geosolutions.iengine.flow.event.consumer.EventConsumerStatus;
 import it.geosolutions.iengine.flow.event.consumer.file.FileBasedEventConsumer;
 import it.geosolutions.iengine.flow.event.generator.EventGenerator;
+import it.geosolutions.iengine.flow.event.generator.EventGeneratorService;
 import it.geosolutions.iengine.flow.event.generator.FlowEventListener;
 import it.geosolutions.iengine.flow.event.generator.file.FileBasedEventGenerator;
 import it.geosolutions.iengine.global.CatalogHolder;
@@ -199,7 +200,8 @@ public class FileBasedFlowManager
     /**
      * File System Monitor
      */
-    private FileBasedEventGenerator eventGenerator;
+//    private FileBasedEventGenerator eventGenerator;
+    private EventGenerator eventGenerator;
 
     private final List<BaseEventConsumer<FileSystemMonitorEvent, FileBasedEventConsumerConfiguration>> collectingEventConsumers = new ArrayList<BaseEventConsumer<FileSystemMonitorEvent, FileBasedEventConsumerConfiguration>>();
 
@@ -302,13 +304,24 @@ public class FileBasedFlowManager
                 try {
                     if (initialized && ((eventGenerator == null) || !eventGenerator.isRunning())) {
                         // //
-                        // Creating the FileBasedEventGenerator, which waits for new events, and the
-                        // FileCreatorThread, which creates the files rising events.
+                        // Creating the FileBasedEventGenerator, which waits for new events
                         // //
                         try {
-                            eventGenerator = new FileBasedEventGenerator((FileBasedEventGeneratorConfiguration) getConfiguration().getEventGeneratorConfiguration());
-                            eventGenerator.addListener(this);
-                            eventGenerator.start();
+                            LOGGER.info("EventGeneratorCreationStart");
+                            final EventGeneratorConfiguration generatorConfig = getConfiguration().getEventGeneratorConfiguration();
+                            final String serviceID = generatorConfig.getServiceID();
+                            LOGGER.info("EventGeneratorCreationServiceID: "+ serviceID);
+                            final EventGeneratorService<EventObject, EventGeneratorConfiguration> generatorService = getCatalog().getResource(serviceID, EventGeneratorService.class);
+                            if (generatorService != null) {
+                                LOGGER.info("EventGeneratorCreationFound!");
+                                eventGenerator = generatorService.createEventGenerator(generatorConfig);
+                                LOGGER.info("EventGeneratorCreationCreated!");
+                                eventGenerator.addListener(this);
+                                LOGGER.info("EventGeneratorCreationAdded!");
+                                eventGenerator.start();
+                                LOGGER.info("EventGeneratorCreationStarted!");
+                            }
+                            LOGGER.info("EventGeneratorCreationEnd");
                         } catch (Throwable t) {
                             LOGGER.log(Level.SEVERE, "Error on FS-Monitor initialization: " + t.getLocalizedMessage(), t);
                             throw new RuntimeException(t);

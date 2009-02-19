@@ -24,7 +24,16 @@
 package it.geosolutions.iengine.configuration.event.generator;
 
 import it.geosolutions.iengine.catalog.Configuration;
+import it.geosolutions.iengine.catalog.impl.BaseConfiguration;
 
-public interface EventGeneratorConfiguration extends Configuration {
+public class EventGeneratorConfiguration extends BaseConfiguration implements Configuration {
+
+     public EventGeneratorConfiguration() {
+        super();
+}
+
+    public EventGeneratorConfiguration(String id, String name, String description, boolean dirty) {
+        super(id, name, description, dirty);
+    }
 
 }

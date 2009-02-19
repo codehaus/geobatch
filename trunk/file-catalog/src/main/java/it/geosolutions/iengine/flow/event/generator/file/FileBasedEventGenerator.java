@@ -34,6 +34,7 @@ import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.filesystemmonitor.monitor.impl.BaseFileSystemMonitor;
 import it.geosolutions.iengine.catalog.file.FileBaseCatalog;
 import it.geosolutions.iengine.configuration.event.generator.file.FileBasedEventGeneratorConfiguration;
+import it.geosolutions.iengine.flow.event.generator.BaseEventGenerator;
 import it.geosolutions.iengine.flow.event.generator.EventGenerator;
 import it.geosolutions.iengine.flow.event.generator.FlowEventListener;
 import it.geosolutions.iengine.global.CatalogHolder;
@@ -41,19 +42,22 @@ import it.geosolutions.iengine.io.utils.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.EventObject;
+import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
-/**
+
+    /**
  * Comments here ...
  * 
  * @author AlFa (Alessio Fabiani)
- * @version $ FileBasedEventGenerator.java $ Revision: 0.1 $ 22/gen/07 16:14:11
+ * @author Ivano Picco
  */
-public class FileBasedEventGenerator implements EventGenerator<FileSystemMonitorEvent> {
+public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGenerator<T> implements EventGenerator<T> {
     // ----------------------------------------------- PRIVATE ATTRIBUTES
     /**
      * Private Logger
@@ -218,11 +222,11 @@ public class FileBasedEventGenerator implements EventGenerator<FileSystemMonitor
      * @return the watchDirectory
      * @uml.property name="watchDirectory"
      */
-    public File getWatchDirectory() {
+    public File getWatchDirectory(){
         return watchDirectory;
     }
 
-    /**
+/**
      * @return the wildCard
      * @uml.property name="wildCard"
      */
@@ -355,7 +359,7 @@ public class FileBasedEventGenerator implements EventGenerator<FileSystemMonitor
      * @param fileListener
      *            Listener to add.
      */
-    public synchronized void addListener(FlowEventListener<FileSystemMonitorEvent> fileListener) {
+    public synchronized void addListener(FlowEventListener<T> fileListener) {
         // Don't add if its already there
 
         // Guaranteed to return a non-null array
@@ -379,7 +383,7 @@ public class FileBasedEventGenerator implements EventGenerator<FileSystemMonitor
      * @param fileListener
      *            Listener to remove.
      */
-    public synchronized void removeListener(FlowEventListener<FileSystemMonitorEvent> fileListener) {
+    public synchronized void removeListener(FlowEventListener<T> fileListener) {
         listeners.remove(FlowEventListener.class, fileListener);
 
     }

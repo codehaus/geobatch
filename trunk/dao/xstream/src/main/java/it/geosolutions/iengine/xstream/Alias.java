@@ -26,7 +26,7 @@ package it.geosolutions.iengine.xstream;
 import com.thoughtworks.xstream.XStream;
 
 /**
- * TODO: We need to have one (or more) XML file and to bind aliases dynamically.
+ * TODO: We XStreamFlowConfigurationDAOneed to have one (or more) XML file and to bind aliases dynamically.
  * 
  * @author etj
  */
@@ -69,12 +69,21 @@ public class Alias {
         
         xstream
                 .alias(
-                        "EventGeneratorConfiguration",
-                        it.geosolutions.iengine.configuration.event.generator.EventGeneratorConfiguration.class,
+                        "FsEventGeneratorConfiguration",
+//                        it.geosolutions.iengine.configuration.event.generator.EventGeneratorConfiguration.class,
                         it.geosolutions.iengine.configuration.event.generator.file.FileBasedEventGeneratorConfiguration.class);
-        xstream.aliasField("EventGeneratorConfiguration",
-                it.geosolutions.iengine.configuration.flow.file.FileBasedFlowConfiguration.class,
-                "eventGeneratorConfiguration");
+//        xstream.aliasField("FsEventGeneratorConfiguration",
+//                it.geosolutions.iengine.configuration.flow.file.FileBasedFlowConfiguration.class,
+//                "eventGeneratorConfiguration");
+
+        xstream
+                .alias(
+                        "FtpEventGeneratorConfiguration",
+//                        it.geosolutions.iengine.configuration.event.generator.EventGeneratorConfiguration.class,
+                        it.geosolutions.iengine.configuration.event.generator.ftp.FtpBasedEventGeneratorConfiguration.class);
+//        xstream.aliasField("FtpEventGeneratorConfiguration",
+//                it.geosolutions.iengine.configuration.flow.file.FileBasedFlowConfiguration.class,
+//                "eventGeneratorConfiguration");
 
         xstream
                 .addImplicitCollection(
