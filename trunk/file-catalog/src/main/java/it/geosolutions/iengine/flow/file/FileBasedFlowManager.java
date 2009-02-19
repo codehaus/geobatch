@@ -52,8 +52,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.sun.swing.internal.plaf.synth.resources.synth;
-
 /**
  * @author Alessio Fabiani, GeoSolutions
  * 
@@ -112,9 +110,13 @@ public class FileBasedFlowManager
                     // //
                     // waiting for a new event
                     // //
-                    final FileSystemMonitorEvent event = FileBasedFlowManager.this.eventMailBox
-                            .take();
-
+                	final FileSystemMonitorEvent event;
+                	try{
+                		event = FileBasedFlowManager.this.eventMailBox.take();
+                	}catch (InterruptedException e) {
+                		this.interrupt();
+                		return;
+					}
                     // //
                     // is there some Event BaseEventConsumer waiting for a particular event?
                     // //
