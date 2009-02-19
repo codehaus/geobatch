@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FlowConfiguration>
-	<workingDirectory>flow2workingdir</workingDirectory>
+	<workingDirectory>flow3workingdir</workingDirectory>
 	<EventConsumerConfiguration>
-		<workingDirectory>flow2workingdir</workingDirectory>
+		<workingDirectory>flow3workingdir</workingDirectory>
 		<performBackup>false</performBackup>
 
        <FileEventRule>
@@ -15,13 +15,18 @@
 		</FileEventRule>
 
         <FtpServerActionConfiguration>
-			<workingDirectory>flow2workingdir</workingDirectory>
+			<workingDirectory>flow3workingdir</workingDirectory>
 			<dataTransferMethod/>
-			<ftpserverPWD>xxxxx</ftpserverPWD>
-			<ftpserverUSR>ftpuser</ftpserverUSR>
-			<ftpserverHost>ftp.server.com</ftpserverHost>
+			<timeout>10000</timeout>
+			<zipInput>true</zipInput>
+			<zipFileName>testZip</zipFileName>
+			<ftpserverPWD>fucktheworld</ftpserverPWD>
+			<ftpserverUSR>simboss</ftpserverUSR>
+			<ftpserverHost>ftp.geo-solutions.it</ftpserverHost>
             <ftpserverPort/>
-			<serviceID>shapefileFtpServerEventAction</serviceID>
+            <connectMode>PASSIVE</connectMode>
+            <writeMode>OVERWRITE</writeMode>
+			<serviceID>ftpUploadActionService</serviceID>
 			<id>a1</id>
 			<description>description</description>
 			<name>test</name>
@@ -34,11 +39,10 @@
 
 	<eventGeneratorConfiguration class="FsEventGeneratorConfiguration">
 		<wildCard>*.*</wildCard>
-         <watchDirectory>flow1workingdir/in</watchDirectory>
+         <watchDirectory>flow3workingdir/in</watchDirectory>
 		<osType>OS_UNDEFINED</osType>
 		<eventType>FILE_ADDED</eventType>
         <serviceID>fsEventGeneratorService</serviceID>
-        <!-- TODO ftpserverPort -->
 		<id>id</id>
 		<description>description</description>
 		<name>test</name>

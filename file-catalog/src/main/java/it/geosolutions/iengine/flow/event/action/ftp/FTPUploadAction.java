@@ -22,23 +22,23 @@
 
 
 
-package it.geosolutions.iengine.ftpserver.shapefile;
+package it.geosolutions.iengine.flow.event.action.ftp;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.iengine.catalog.file.FileBaseCatalog;
-import it.geosolutions.iengine.configuration.event.action.ftpserver.FtpServerEventActionConfiguration;
-import it.geosolutions.iengine.flow.event.action.ftpserver.FtpServerEventAction;
-import it.geosolutions.iengine.flow.event.action.ftpserver.FtpServerHelper;
+import it.geosolutions.iengine.configuration.event.action.ftp.FTPUploadActionConfiguration;
 import it.geosolutions.iengine.global.CatalogHolder;
 import it.geosolutions.iengine.io.utils.IOUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.logging.Level;
+
+import com.enterprisedt.net.ftp.FTPConnectMode;
+import com.enterprisedt.net.ftp.WriteMode;
 
 
 /**
@@ -47,41 +47,21 @@ import java.util.logging.Level;
  * @author Ivano Picco
  * 
  */
-public class ShapeFileFtpServerEventAction extends
-        FtpServerEventAction<FileSystemMonitorEvent> {
+public class FTPUploadAction extends
+        FTPBaseAction<FileSystemMonitorEvent> {
 
-    protected ShapeFileFtpServerEventAction(FtpServerEventActionConfiguration configuration)
+    private boolean zipMe;
+    
+	private String zipFileName;
+
+
+	protected FTPUploadAction(FTPUploadActionConfiguration configuration)
             throws IOException {
         super(configuration);
+        this.zipMe=configuration.isZipInput();
+        this.zipFileName=configuration.getZipFileName();
     }
 
-    /**
-     * It just send file to remote by FTP
-     * @param data
-     * @throws java.net.MalformedURLException
-     * @throws java.io.FileNotFoundException
-     */
-    public void send(File data) {
-
-        boolean sent = false;
-
-        if (data == null) {
-            LOGGER
-                    .info("ShapeFile FtpServerConfiguratorAction: cannot send file to FtpServer, input data null!");
-            return;
-        }
-
-        sent = FtpServerHelper.putBinaryFileTo(ftpserverHost, data.getAbsolutePath(),
-                ftpserverUSR, ftpserverPWD, ftpserverPort);
-
-        if (sent) {
-            LOGGER
-                    .info("ShapeFile FtpServerConfiguratorAction: file SUCCESSFULLY sent to FtpServer!");
-        } else {
-            LOGGER
-                    .info("ShapeFile FtpServerConfiguratorAction: file was NOT sent to FtpServer due to connection errors!");
-        }
-    }
 
     public Queue<FileSystemMonitorEvent> execute(Queue<FileSystemMonitorEvent> events)
             throws Exception {
@@ -92,9 +72,9 @@ public class ShapeFileFtpServerEventAction extends
             //
             // ////////////////////////////////////////////////////////////////////
             if (configuration == null) {
-                LOGGER.log(Level.SEVERE, "DataFlowConfig is null.");
                 throw new IllegalStateException("DataFlowConfig is null.");
             }
+            
             // ////////////////////////////////////////////////////////////////////
             //
             // Initializing input variables
@@ -102,7 +82,6 @@ public class ShapeFileFtpServerEventAction extends
             // ////////////////////////////////////////////////////////////////////
             final File workingDir = IOUtils.findLocation(configuration.getWorkingDirectory(),
                     new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
-            final String configId = configuration.getName();
 
             // ////////////////////////////////////////////////////////////////////
             //
@@ -110,12 +89,10 @@ public class ShapeFileFtpServerEventAction extends
             //
             // ////////////////////////////////////////////////////////////////////
             if ((workingDir == null) || !workingDir.exists() || !workingDir.isDirectory()) {
-                LOGGER.log(Level.SEVERE, "FtpServerDataDirectory is null or does not exist.");
                 throw new IllegalStateException("FtpServerDataDirectory is null or does not exist.");
             }
 
             if ((ftpserverHost == null) || "".equals(ftpserverHost)) {
-                LOGGER.log(Level.SEVERE, "FtpServerHost is null.");
                 throw new IllegalStateException("FtpServerHost is null.");
             }
 
@@ -124,48 +101,53 @@ public class ShapeFileFtpServerEventAction extends
             // Creating Shapefile dataStore.
             //
             // ////////////////////////////////////////////////////////////////////
-            // //
-            // looking for file
-            // //
-            // XXX FIX ME
+            final List<File> filesToSend= new ArrayList<File>();
+            for(FileSystemMonitorEvent event:events)
+        	{
+            	final File input=event.getSource();
+            	if(input.exists()&&input.isFile()&&input.canRead())
+            		filesToSend.add(input);
+            	//else LOG ME
+        	}
 
-
-            FileSystemMonitorEvent event = events.peek();
-            File dataDir = new File(event.getSource().getParent());
-            String shpFileName = null;
-            String dataStoreId = null;
-            File[] files = dataDir.listFiles(new FilenameFilter() {
-                public boolean accept(File dir, String name) {
-                    final String filePrefix = name.substring(0, name.lastIndexOf("."));
-                    final String fileSuffix = name
-                            .substring(filePrefix.length() + 1, name.length());
-
-                     if ("shp".equalsIgnoreCase(fileSuffix)) return true;
-                    
-                     return false;
-                }
-            });
-
-            if (files.length != 1) {
-                LOGGER.log(Level.SEVERE, "No valid ShapeFile Names found for this Data Flow!");
+            if (filesToSend.size() <=0) {
                 throw new IllegalStateException(
                         "No valid ShapeFile Names found for this Data Flow!");
             }
-
-            String path = files[0].getAbsolutePath();
-            path = path.replaceAll("\\\\", "/");
-            shpFileName = path.substring(path.lastIndexOf("/") + 1, path.length());
-            dataStoreId = shpFileName.substring(0, shpFileName.lastIndexOf("."));
+            
+            
 
             // ////////////////////////////////////////////////////////////////////
             //
             // SENDING data to FtpServer via FTP.
             //
             // ////////////////////////////////////////////////////////////////////
-            LOGGER.info("Sending ShapeFile to FtpServer ... " + ftpserverHost);
-            
-//            send(files[0] , 
-           send(IOUtils.deflate(dataDir,dataStoreId));
+            LOGGER.info("Sending file to FtpServer ... " + ftpserverHost);
+            boolean sent=false;
+            final WriteMode writeMode=configuration.getWriteMode();
+            final FTPConnectMode connectMode=configuration.getConnectMode();
+            final int timeout=configuration.getTimeout();
+			if(zipMe){
+	            sent = FTPHelper.putBinaryFileTo(ftpserverHost, IOUtils.deflate(workingDir,zipFileName,filesToSend.toArray(new File[filesToSend.size()])).getAbsolutePath(),
+	                    ftpserverUSR, ftpserverPWD, ftpserverPort,WriteMode.OVERWRITE,FTPConnectMode.PASV,timeout);
+            }
+            else
+            {
+            	for(File file: filesToSend)
+            	{
+            		sent = FTPHelper.putBinaryFileTo(ftpserverHost, file.getAbsolutePath(),
+    	                    ftpserverUSR, ftpserverPWD, ftpserverPort,WriteMode.OVERWRITE,FTPConnectMode.PASV,timeout);
+            		if(!sent)
+            			break;
+            	}
+            }
+            if (sent) {
+                LOGGER
+                        .info("ShapeFile FtpServerConfiguratorAction: file SUCCESSFULLY sent to FtpServer!");
+            } else {
+                LOGGER
+                        .info("ShapeFile FtpServerConfiguratorAction: file was NOT sent to FtpServer due to connection errors!");
+            }
 
             return events;
         } catch (Throwable t) {

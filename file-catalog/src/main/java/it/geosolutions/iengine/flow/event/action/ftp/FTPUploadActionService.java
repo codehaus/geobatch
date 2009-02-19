@@ -22,13 +22,14 @@
 
 
 
-package it.geosolutions.iengine.flow.event.action.ftpserver;
+package it.geosolutions.iengine.flow.event.action.ftp;
 
+import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.iengine.catalog.impl.BaseService;
-import it.geosolutions.iengine.configuration.event.action.ActionConfiguration;
+import it.geosolutions.iengine.configuration.event.action.ftp.FTPUploadActionConfiguration;
 import it.geosolutions.iengine.flow.event.action.ActionService;
 
-import java.util.EventObject;
+import java.io.IOException;
 
 /**
  * Comments here ...
@@ -37,16 +38,27 @@ import java.util.EventObject;
  * 
  * @version $ GeoServerConfiguratorService.java $ Revision: 0.1 $ 12/feb/07 12:07:32
  */
-public abstract class FtpServerEventActionService<T extends EventObject, C extends ActionConfiguration>
-        extends BaseService implements ActionService<T, C> {
+public class FTPUploadActionService
+        extends BaseService implements ActionService<FileSystemMonitorEvent, FTPUploadActionConfiguration> {
 
-    public FtpServerEventActionService() {
+    public FTPUploadActionService() {
         super(true);
     }
 
-    public boolean canCreateAction(C configuration) {
+    public boolean canCreateAction(FTPUploadActionConfiguration configuration) {
         // XXX ImPLEMENT ME
         return true;
     }
+
+	public FTPUploadAction createAction(FTPUploadActionConfiguration configuration) {
+		// TODO Auto-generated method stub
+		try {
+			return new FTPUploadAction(configuration);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 }

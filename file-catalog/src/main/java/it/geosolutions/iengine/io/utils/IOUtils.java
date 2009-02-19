@@ -911,21 +911,31 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
             return null;
 
         // get files to zip
-        final File[] files = inputDir
-                .listFiles((FilenameFilter) new PrefixFileFilter(zipFilePrefix));
+        final File[] files = inputDir.listFiles((FilenameFilter) new PrefixFileFilter(zipFilePrefix));
 
-        // Create a buffer for reading the files
+        return deflate(inputDir, zipFilePrefix, files);
+    }
+
+	/**
+	 * @param inputDir
+	 * @param zipFilePrefix
+	 * @param files
+	 * @return
+	 */
+	public static File deflate(final File inputDir,
+			final String zipFilePrefix, final File[] files) {
+		// Create a buffer for reading the files
         byte[] buf = new byte[4096];
 
         final File outZipFile = new File(inputDir, zipFilePrefix + ".zip");
         try {
             // Create the ZIP file
-            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(
+            final ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(
                     new FileOutputStream(outZipFile)));
 
             // Compress the files
             for (File file : files) {
-                FileInputStream in = new FileInputStream(file);
+                final FileInputStream in = new FileInputStream(file);
 
                 // Add ZIP entry to output stream.
                 out.putNextEntry(new ZipEntry(FilenameUtils.getName(file.getAbsolutePath())));
@@ -949,7 +959,7 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
         }
 
         return outZipFile;
-    }
+	}
 
     /**
      * Create a subDirectory having the actual date as name, within a specified destination

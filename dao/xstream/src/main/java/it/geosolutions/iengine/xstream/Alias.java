@@ -57,7 +57,7 @@ public class Alias {
         xstream
                 .alias(
                         "FtpServerActionConfiguration",
-                        it.geosolutions.iengine.configuration.event.action.ftpserver.FtpServerEventActionConfiguration.class);
+                        it.geosolutions.iengine.configuration.event.action.ftp.FTPUploadActionConfiguration.class);
         xstream
                 .alias(
                         "EventConsumerConfiguration",
