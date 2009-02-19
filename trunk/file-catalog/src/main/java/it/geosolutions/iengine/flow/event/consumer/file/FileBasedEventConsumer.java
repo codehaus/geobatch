@@ -134,11 +134,13 @@ public class FileBasedEventConsumer extends
         final String fileName = FilenameUtils.getName(path);
         final String filePrefix = FilenameUtils.getBaseName(fileName);
 
-        boolean res = this.checkMandatoryRuleConsistency(event.getNotification(), filePrefix,
-                fileName);
+        //check mandatory rules
+        boolean res = this.checkRuleConsistency(event.getNotification(), filePrefix,
+                fileName,true);
 
+        //check optinal rules if needed
         if (!res) {
-            res = this.checkOptionalRuleConsistency(event.getNotification(), filePrefix, fileName);
+            res = this.checkRuleConsistency(event.getNotification(), filePrefix, fileName,false);
         }
         return res;
     }
@@ -153,12 +155,13 @@ public class FileBasedEventConsumer extends
      * @return boolean
      * 
      */
-    private boolean checkMandatoryRuleConsistency(final FileSystemMonitorNotifications eventType,
-            final String prefix, final String fileName) {
+    private boolean checkRuleConsistency(final FileSystemMonitorNotifications eventType,
+            final String prefix, final String fileName, final boolean mandatory) {
 
         int occurrencies;
 
-        for (FileEventRule rule : this.mandatoryRules) {
+        final List<FileEventRule> rules = (mandatory?this.mandatoryRules:this.optionalRules);
+        for (FileEventRule rule :rules) {
 
             // check event type
             final List<FileSystemMonitorNotifications> eventTypes = rule.getAcceptableNotifications();
@@ -168,19 +171,22 @@ public class FileBasedEventConsumer extends
 		    //check occurencies for this file in case we have multiple occurrencies
 		    occurrencies = rule.getActualOccurrencies();
 		    final int originalOccurrencies = rule.getOriginalOccurrencies();
-		    //we cannot exceed the number of needed occurrencies!
-		    if(occurrencies>=originalOccurrencies)
-		    	return false;
 		    final Pattern p = Pattern.compile(rule.getRegex());
 		    if (p.matcher(fileName).matches()) {
+			    //we cannot exceed the number of needed occurrencies!
+			    if(occurrencies>originalOccurrencies)
+			    	return false;
+			    
 		        if (this.commonPrefixRegex == null) {
 		            this.commonPrefixRegex = prefix;
 		            rule.setActualOccurrencies(occurrencies+ 1);
-		
+		            if(mandatory)
+		            	this.numInputFiles--;
 		            return true;
 		        } else if (prefix.startsWith(this.commonPrefixRegex)) {
-		            rule.setActualOccurrencies(occurrencies + 1);
-		
+		        	rule.setActualOccurrencies(occurrencies + 1);
+		        	if(mandatory)
+		            	this.numInputFiles--;
 		            return true;
 		        }
 		    }
@@ -203,49 +209,49 @@ public class FileBasedEventConsumer extends
         return false;
     }
 
-    /**
-     * Helper method to check for optional rules consistency.
-     * 
-     * @param fileName
-     * 
-     * @return boolean
-     */
-    private boolean checkOptionalRuleConsistency(final FileSystemMonitorNotifications eventType,
-            final String prefix, final String fileName) {
-        int occurrencies;
-
-        for (FileEventRule rule : this.optionalRules) {
-            // check event type, incase we have a filter on that
-            final List<FileSystemMonitorNotifications> eventTypes = rule
-                    .getAcceptableNotifications();
-            if (!checkEvent(eventType, eventTypes))
-                return false;
-            
-            //check occurencies for this file in case we have multiple occurrencies
-            occurrencies = rule.getActualOccurrencies();
-            final int originalOccurrencies = rule.getOriginalOccurrencies();
-            //we cannot exceed the number of needed occurrencies!
-            if(occurrencies>=originalOccurrencies)
-            	return false;
-            final Pattern p = Pattern.compile(rule.getRegex());
-            if (p.matcher(fileName).matches()) {
-                if (this.commonPrefixRegex == null) {
-                    this.commonPrefixRegex = prefix;
-                    rule.setActualOccurrencies(occurrencies+ 1);
-
-                    return true;
-                } else if (prefix.startsWith(this.commonPrefixRegex)) {
-                    rule.setActualOccurrencies(occurrencies + 1);
-
-                    return true;
-                }
-            }
-            
-            
-        }
-
-        return false;
-    }
+//    /**
+//     * Helper method to check for optional rules consistency.
+//     * 
+//     * @param fileName
+//     * 
+//     * @return boolean
+//     */
+//    private boolean checkOptionalRuleConsistency(final FileSystemMonitorNotifications eventType,
+//            final String prefix, final String fileName) {
+//        int occurrencies;
+//
+//        for (FileEventRule rule : this.optionalRules) {
+//            // check event type, incase we have a filter on that
+//            final List<FileSystemMonitorNotifications> eventTypes = rule
+//                    .getAcceptableNotifications();
+//            if (!checkEvent(eventType, eventTypes))
+//                return false;
+//            
+//            //check occurencies for this file in case we have multiple occurrencies
+//            occurrencies = rule.getActualOccurrencies();
+//            final int originalOccurrencies = rule.getOriginalOccurrencies();
+//            //we cannot exceed the number of needed occurrencies!
+//            if(occurrencies>=originalOccurrencies)
+//            	return false;
+//            final Pattern p = Pattern.compile(rule.getRegex());
+//            if (p.matcher(fileName).matches()) {
+//                if (this.commonPrefixRegex == null) {
+//                    this.commonPrefixRegex = prefix;
+//                    rule.setActualOccurrencies(occurrencies+ 1);
+//
+//                    return true;
+//                } else if (prefix.startsWith(this.commonPrefixRegex)) {
+//                    rule.setActualOccurrencies(occurrencies + 1);
+//
+//                    return true;
+//                }
+//            }
+//            
+//            
+//        }
+//
+//        return false;
+//    }
 
     /**
      * FileBasedEventConsumer initialization.
@@ -449,15 +455,13 @@ public class FileBasedEventConsumer extends
             return false;
         super.consume(event);
 
-        this.numInputFiles--;
+        //start execution
         if (numInputFiles == 0)
             setStatus(EventConsumerStatus.EXECUTING);
 
+        // move to waiting
         if (getStatus() == EventConsumerStatus.IDLE)
             setStatus(EventConsumerStatus.WAITING);
-        else if (getStatus() == EventConsumerStatus.WAITING)
-            setStatus(EventConsumerStatus.EXECUTING);
-        // else throw error
 
         return true;
     }
