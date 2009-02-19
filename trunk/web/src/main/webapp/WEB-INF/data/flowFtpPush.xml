@@ -20,8 +20,8 @@
 			<timeout>10000</timeout>
 			<zipInput>true</zipInput>
 			<zipFileName>testZip</zipFileName>
-			<ftpserverPWD>fucktheworld</ftpserverPWD>
-			<ftpserverUSR>simboss</ftpserverUSR>
+			<ftpserverPWD>.....</ftpserverPWD>
+			<ftpserverUSR>.....</ftpserverUSR>
 			<ftpserverHost>ftp.geo-solutions.it</ftpserverHost>
             <ftpserverPort>21</ftpserverPort>
             <connectMode>ACTIVE</connectMode>
