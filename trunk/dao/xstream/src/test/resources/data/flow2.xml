@@ -65,6 +65,7 @@
 		<watchDirectory>flow2workingdir\in</watchDirectory>
 		<osType>OS_UNDEFINED</osType>
 		<eventType>FILE_ADDED</eventType>
+        <serviceID>fsEventGeneratorService</serviceID>
 		<id>id</id>
 		<description>description</description>
 		<name>test</name>
