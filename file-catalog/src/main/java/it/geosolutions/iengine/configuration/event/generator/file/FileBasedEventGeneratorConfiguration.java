@@ -26,7 +26,7 @@ package it.geosolutions.iengine.configuration.event.generator.file;
 
 import it.geosolutions.filesystemmonitor.OsType;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
-import it.geosolutions.iengine.catalog.impl.BaseConfiguration;
+import it.geosolutions.iengine.catalog.Configuration;
 import it.geosolutions.iengine.configuration.event.generator.EventGeneratorConfiguration;
 
 /**
@@ -36,8 +36,8 @@ import it.geosolutions.iengine.configuration.event.generator.EventGeneratorConfi
  * 
  * @author Simone Giannecchini, GeoSolutions
  */
-public class FileBasedEventGeneratorConfiguration extends BaseConfiguration implements
-        EventGeneratorConfiguration {
+public class FileBasedEventGeneratorConfiguration extends EventGeneratorConfiguration implements
+     Configuration{
 
     /**
      * The type of OS which will be used by the embedded File System Watcher.

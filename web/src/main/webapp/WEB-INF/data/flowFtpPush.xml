@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FlowConfiguration>
 	<workingDirectory>flow2workingdir</workingDirectory>
-    <!--ftpserverPort -->
 	<EventConsumerConfiguration>
 		<workingDirectory>flow2workingdir</workingDirectory>
 		<performBackup>false</performBackup>
@@ -33,15 +32,17 @@
 		<name>test</name>
 	</EventConsumerConfiguration>
 
-	<EventGeneratorConfiguration>
+	<eventGeneratorConfiguration class="FsEventGeneratorConfiguration">
 		<wildCard>*.*</wildCard>
-		<watchDirectory>flow2workingdir/in</watchDirectory>
+         <watchDirectory>flow1workingdir/in</watchDirectory>
 		<osType>OS_UNDEFINED</osType>
 		<eventType>FILE_ADDED</eventType>
+        <serviceID>fsEventGeneratorService</serviceID>
+        <!-- TODO ftpserverPort -->
 		<id>id</id>
 		<description>description</description>
 		<name>test</name>
-	</EventGeneratorConfiguration>
+	</eventGeneratorConfiguration>
 
     <id>flowFtpPush</id>
 	<description>test ftp push</description>

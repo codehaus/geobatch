@@ -49,15 +49,16 @@
 		<description>description</description>
 		<name>test</name>
 	</EventConsumerConfiguration>
-	<EventGeneratorConfiguration>
+	<eventGeneratorConfiguration class="FsEventGeneratorConfiguration">
 		<wildCard>*.*</wildCard>
 		<watchDirectory>flow1workingdir/in</watchDirectory>
 		<osType>OS_UNDEFINED</osType>
 		<eventType>FILE_ADDED</eventType>
 		<id>id</id>
+        <serviceID>fsEventGeneratorService</serviceID>
 		<description>description</description>
 		<name>test</name>
-	</EventGeneratorConfiguration>
+	</eventGeneratorConfiguration>
 	<id>flow1</id>
 	<description>flow1</description>
 	<name>flow1</name>

@@ -28,30 +28,28 @@ import it.geosolutions.factory.NotSupportedException;
 import it.geosolutions.filesystemmonitor.OsType;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
+import it.geosolutions.iengine.catalog.file.FileBaseCatalog;
 import it.geosolutions.iengine.catalog.impl.BaseService;
 import it.geosolutions.iengine.configuration.event.generator.file.FileBasedEventGeneratorConfiguration;
-import it.geosolutions.iengine.flow.event.generator.EventGeneratorService;
-
+import it.geosolutions.iengine.flow.event.generator.BaseEventGeneratorService;
+import it.geosolutions.iengine.global.CatalogHolder;
+import it.geosolutions.iengine.io.utils.IOUtils;
 import java.io.File;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * @author Simone Giannecchini, GeoSolutions
+ * @author Ivano Picco
  * 
  */
-public class FileBasedEventGeneratorService extends BaseService implements
-        EventGeneratorService<FileSystemMonitorEvent, FileBasedEventGeneratorConfiguration> {
+public class FileBasedEventGeneratorService
+        extends BaseEventGeneratorService<FileSystemMonitorEvent,FileBasedEventGeneratorConfiguration>{
 
     private final static Logger LOGGER = Logger.getLogger(FileBasedEventGeneratorService.class
             .toString());
 
-    /**
-	 * 
-	 */
-    private FileBasedEventGeneratorService() {
-        super(true);
-    }
 
     /*
      * (non-Javadoc)
@@ -64,14 +62,18 @@ public class FileBasedEventGeneratorService extends BaseService implements
         final OsType osType = configuration.getOsType();
         if (osType == null)
             return false;
-        final String sensedDir = configuration.getWorkingDirectory();
-        if (sensedDir != null) {
-            final File dir = new File((String) sensedDir);
-            if (!dir.exists() || !dir.isDirectory() || !dir.canRead())
-                // TODO message
-                return false;
+        final File sensedDir;
+        try {
+            sensedDir = IOUtils.findLocation(configuration.getWorkingDirectory(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
+            if (sensedDir != null) {
+                if (sensedDir.exists() && sensedDir.isDirectory() && sensedDir.canRead()) // TODO message
+                 return true;
+            }
+        } catch (IOException ex) {
+            if (LOGGER.isLoggable(Level.SEVERE))
+                LOGGER.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
         }
-        return true;
+        return false;
     }
 
     /*
@@ -87,19 +89,24 @@ public class FileBasedEventGeneratorService extends BaseService implements
         try {
             final OsType osType = configuration.getOsType();
             final FileSystemMonitorNotifications eventType = configuration.getEventType();
-            final String sensedDir = configuration.getWorkingDirectory();
+        final File sensedDir;
+            sensedDir = IOUtils.findLocation(configuration.getWorkingDirectory(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
             if (sensedDir != null) {
-                final File dir = new File((String) sensedDir);
-                if (!dir.exists() || !dir.isDirectory() || !dir.canRead())
-                    // TODO message
+                if (!sensedDir.exists() || !sensedDir.isDirectory() || !sensedDir.canRead()) // TODO message
                     return null;
             }
             if (configuration.getWildCard() == null)
-                return new FileBasedEventGenerator(osType, eventType, new File(sensedDir));
+                return new FileBasedEventGenerator(osType, eventType, sensedDir);
             else
-                return new FileBasedEventGenerator(osType, eventType, new File(sensedDir),
+                return new FileBasedEventGenerator(osType, eventType, sensedDir,
                         configuration.getWildCard());
+        } catch (IOException ex) {
+            if (LOGGER.isLoggable(Level.SEVERE))
+                LOGGER.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
         } catch (NotSupportedException e) {
+            if (LOGGER.isLoggable(Level.SEVERE))
+                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+        } catch (Exception e) {
             if (LOGGER.isLoggable(Level.SEVERE))
                 LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
         }

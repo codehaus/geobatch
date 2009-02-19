@@ -28,6 +28,7 @@ import it.geosolutions.iengine.configuration.event.consumer.EventConsumerConfigu
 import it.geosolutions.iengine.configuration.event.consumer.file.FileBasedEventConsumerConfiguration;
 import it.geosolutions.iengine.configuration.event.generator.EventGeneratorConfiguration;
 import it.geosolutions.iengine.configuration.event.generator.file.FileBasedEventGeneratorConfiguration;
+import it.geosolutions.iengine.configuration.event.generator.ftp.FtpBasedEventGeneratorConfiguration;
 import it.geosolutions.iengine.configuration.flow.BaseFlowConfiguration;
 import it.geosolutions.iengine.configuration.flow.FlowConfiguration;
 
@@ -38,6 +39,7 @@ import it.geosolutions.iengine.configuration.flow.FlowConfiguration;
  * 
  * @author Simone Giannecchini, GeoSolutions
  * @author Alessio Fabiani, GeoSolutions
+ * @author Ivano Picco
  */
 public class FileBasedFlowConfiguration extends BaseFlowConfiguration implements FlowConfiguration {
 
@@ -67,6 +69,12 @@ public class FileBasedFlowConfiguration extends BaseFlowConfiguration implements
      */
     public FileBasedFlowConfiguration(String id, String name,
             FileBasedEventGeneratorConfiguration eventGeneratorConfiguration, String description,
+            FileBasedEventConsumerConfiguration eventConsumerConfiguration) {
+        super(id, name, eventGeneratorConfiguration, description, eventConsumerConfiguration);
+    }
+//TODO: USE GENERICS!!!!
+    public FileBasedFlowConfiguration(String id, String name,
+            FtpBasedEventGeneratorConfiguration eventGeneratorConfiguration, String description,
             FileBasedEventConsumerConfiguration eventConsumerConfiguration) {
         super(id, name, eventGeneratorConfiguration, description, eventConsumerConfiguration);
     }

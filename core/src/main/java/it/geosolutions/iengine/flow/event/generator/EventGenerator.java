@@ -28,13 +28,21 @@ import java.util.EventObject;
 
 /**
  * 
- * @author Simone Giannecchini, GeoSolutions SAS
+ * @author Simone Giannecchini, Ivano Picco
  * 
  */
 public interface EventGenerator<T extends EventObject> {
 
     public void addListener(FlowEventListener<T> fileListener);
 
+    public void dispose();
+
+    public boolean isRunning();
+
     public void removeListener(FlowEventListener<T> fileListener);
+
+    public void start();
+
+    public void stop();
 
 }
