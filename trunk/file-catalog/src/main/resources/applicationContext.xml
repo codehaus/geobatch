@@ -90,6 +90,23 @@
     </bean>  
     
     
+    <!-- File based flow manager service-->
+    <bean id="ftpUploadActionService" class="it.geosolutions.iengine.flow.event.action.ftp.FTPUploadActionService" >
+    	<property  name="available">
+    		<value>true</value>
+    	</property>
+    	<property  name="id">
+    		<value>ftpUploadActionService</value>
+    	</property>
+    	<property name="description">
+    		<value>ftpUploadActionService</value>
+    	</property>
+    	<property name="name">
+    		<value>fsFlowManagerService</value>
+    	</property>    	
+    </bean>      
+    
+    
     <!-- JIBX flow manager DAO-->
 <!--
     <bean id="JIBXFlowConfigurationDAOService" class="it.geosolutions.iengine.catalog.dao.file.jibx.JIBXDAOService" >

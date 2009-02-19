@@ -22,10 +22,10 @@
 
 
 
-package it.geosolutions.iengine.flow.event.action.ftpserver;
+package it.geosolutions.iengine.flow.event.action.ftp;
 
 import it.geosolutions.iengine.configuration.event.action.ActionConfiguration;
-import it.geosolutions.iengine.configuration.event.action.ftpserver.FtpServerEventActionConfiguration;
+import it.geosolutions.iengine.configuration.event.action.ftp.FTPUploadActionConfiguration;
 import it.geosolutions.iengine.flow.event.action.Action;
 import it.geosolutions.iengine.flow.event.action.BaseAction;
 
@@ -40,14 +40,14 @@ import java.util.logging.Logger;
  * 
  * @version $ GeoServerConfiguratorAction.java $ Revision: 0.1 $ 12/feb/07 12:07:06
  */
-public abstract class FtpServerEventAction<T extends EventObject> extends BaseAction<T>
+public abstract class FTPBaseAction<T extends EventObject> extends BaseAction<T>
         implements Action<T> {
     /**
      * Default logger
      */
-    protected final static Logger LOGGER = Logger.getLogger(FtpServerEventAction.class.toString());
+    protected final static Logger LOGGER = Logger.getLogger(FTPBaseAction.class.toString());
 
-    protected final FtpServerEventActionConfiguration configuration;
+    protected final FTPUploadActionConfiguration configuration;
 
     protected final String ftpserverHost;
 
@@ -67,7 +67,7 @@ public abstract class FtpServerEventAction<T extends EventObject> extends BaseAc
      *            The parameters descriptor.
      * @throws IOException
      */
-    public FtpServerEventAction(FtpServerEventActionConfiguration configuration)
+    public FTPBaseAction(FTPUploadActionConfiguration configuration)
             throws IOException {
         this.configuration = configuration;
         // //
@@ -95,7 +95,7 @@ public abstract class FtpServerEventAction<T extends EventObject> extends BaseAc
         try {
         return Integer.valueOf(Port);
         } catch (NumberFormatException ex) {
-            return (21); //set to default
+            return (Integer.valueOf(FTPUploadActionConfiguration.DEFAULT_PORT)); //set to default
         }
     }
 

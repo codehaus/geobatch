@@ -22,19 +22,25 @@
 
 
 
-package it.geosolutions.iengine.configuration.event.action.ftpserver;
+package it.geosolutions.iengine.configuration.event.action.ftp;
 
 import it.geosolutions.iengine.catalog.Configuration;
 import it.geosolutions.iengine.configuration.event.action.ActionConfiguration;
+
+import com.enterprisedt.net.ftp.FTPConnectMode;
+import com.enterprisedt.net.ftp.WriteMode;
 
 /**
  *
  * @author Ivano Picco
  */
+public class FTPUploadActionConfiguration extends ActionConfiguration implements Configuration {
 
-public class FtpServerEventActionConfiguration extends ActionConfiguration implements Configuration {
+    public static final String DEFAULT_PORT = "21";
+    
+    public static final int defaultTimeout=5000;//5 seconds default timeout
 
-    private String ftpserverHost;
+	private String ftpserverHost;
 
     private String ftpserverPWD;
 
@@ -45,8 +51,59 @@ public class FtpServerEventActionConfiguration extends ActionConfiguration imple
     private String workingDirectory;
 
     private String dataTransferMethod;
+    
+    private int timeout;
+    
+    private boolean zipInput;
+    
+    private String zipFileName;
+    
+    private WriteMode writeMode;
+    
+	private FTPConnectMode connectMode;
+    
+    public FTPConnectMode getConnectMode() {
+		return connectMode;
+	}
 
-    public FtpServerEventActionConfiguration() {
+	public void setConnectMode(FTPConnectMode connectMode) {
+		this.connectMode = connectMode;
+	}
+
+    
+    public WriteMode getWriteMode() {
+		return writeMode;
+	}
+
+	public void setWriteMode(WriteMode writeMode) {
+		this.writeMode = writeMode;
+	}
+
+	public String getZipFileName() {
+		return zipFileName;
+	}
+
+	public void setZipFileName(String zipFileName) {
+		this.zipFileName = zipFileName;
+	}
+
+	public boolean isZipInput() {
+		return zipInput;
+	}
+
+	public void setZipInput(boolean zipInput) {
+		this.zipInput = zipInput;
+	}
+
+	public int getTimeout() {
+		return timeout;
+	}
+
+	public void setTimeout(int timeout) {
+		this.timeout = timeout;
+	}
+
+	public FTPUploadActionConfiguration() {
         super();
     }
 
@@ -80,10 +137,11 @@ public class FtpServerEventActionConfiguration extends ActionConfiguration imple
 
     public void setFtpserverPort(String ftpserverPort) {
         try {
-        int i = Integer.valueOf(ftpserverPort);
+        @SuppressWarnings("unused")
+		final int portNumber = Integer.valueOf(ftpserverPort);
         this.ftpserverPort = ftpserverPort;
         } catch (NumberFormatException ex) {
-            this.ftpserverPort = "21"; //set to default
+            this.ftpserverPort = DEFAULT_PORT; //set to default
         }
     }
 

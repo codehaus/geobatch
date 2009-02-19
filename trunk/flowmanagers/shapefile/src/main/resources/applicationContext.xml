@@ -17,19 +17,6 @@
 	</bean>
     
 
-	<bean id="shapefileFtpServerEventAction" class="it.geosolutions.iengine.ftpserver.shapefile.ShapeFileFtpServerEventActionService">
-		<property  name="id">
-    		<value>shapefileFtpServerEventAction</value>
-    	</property>
-    	<property name="description">
-    		<value>shapefileFtpServerEventAction</value>
-    	</property>
-    	<property name="name">
-    		<value>shapefileFtpServerEventAction</value>
-    	</property>
-	</bean>
-
-
 
 
 </beans>
