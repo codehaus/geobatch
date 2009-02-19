@@ -20,8 +20,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 package it.geosolutions.iengine.geoserver.geotiff;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
@@ -55,92 +53,12 @@ import org.geotools.gce.geotiff.GeoTiffReader;
  * 
  * @version $ GeoTIFFOverviewsEmbedder.java $ Revision: x.x $ 23/mar/07 11:42:25
  */
-public class GeoTIFFGeoServerGenerator extends GeoServerConfiguratorAction<FileSystemMonitorEvent> {
+public class GeoTIFFGeoServerGenerator
+		extends GeoServerConfiguratorAction<FileSystemMonitorEvent> {
 
     protected GeoTIFFGeoServerGenerator(GeoServerActionConfiguration configuration)
             throws IOException {
         super(configuration);
-    }
-
-    /**
-     * @param inputDataDir
-     * @param geoserverBaseURL
-     * @param storeFilePrefix
-     * @param timeStamp
-     * @param dataStyles
-     * @param configId
-     * @param defaultStyle
-     * @param coverageStoreId
-     * @param files
-     * @throws MalformedURLException
-     * @throws FileNotFoundException
-     */
-    public void send(final File inputDataDir, final File data, final String geoserverBaseURL,
-            final String timeStamp, final String coverageStoreId, final String storeFilePrefix,
-            final List<String> dataStyles, final String configId, final String defaultStyle,
-            final Map<String, String> queryParams) throws MalformedURLException,
-            FileNotFoundException {
-        URL geoserverREST_URL = null;
-        boolean sent = false;
-
-        if ("DIRECT".equals(dataTransferMethod)) {
-            geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
-                    + "/layers/" + (storeFilePrefix != null ? storeFilePrefix : coverageStoreId)
-                    + "/file.geotiff?" + getQueryString(queryParams));
-            sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
-                    new FileInputStream(data), geoserverUID, geoserverPWD);
-        } else if ("URL".equals(dataTransferMethod)) {
-            geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
-                    + "/layers/" + (storeFilePrefix != null ? storeFilePrefix : coverageStoreId)
-                    + "/url.geotiff");
-            sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data.toURL().toExternalForm(),
-                    geoserverUID, geoserverPWD);
-        }
-
-        if (sent) {
-            LOGGER
-                    .info("GeoTIFF GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
-
-            // //
-            // Storing SLDs
-            // //
-            boolean sldsCreatedOK = true;
-
-            for (String styleName : dataStyles) {
-                File sldFile = new File(inputDataDir, "/" + configId + "/" + timeStamp + "/"
-                        + styleName + ".sld");
-                geoserverREST_URL = new URL(geoserverBaseURL + "/rest/styles/" + styleName);
-
-                if (GeoServerRESTHelper.putTextFileTo(geoserverREST_URL, new FileInputStream(
-                        sldFile), geoserverUID, geoserverPWD)) {
-                    geoserverREST_URL = new URL(geoserverBaseURL + "/rest/sldservice/updateLayer/"
-                            + storeFilePrefix);
-                    GeoServerRESTHelper.putContent(geoserverREST_URL, "<LayerConfig><Style>"
-                            + styleName + "</Style></LayerConfig>", geoserverUID, geoserverPWD);
-
-                    LOGGER
-                            .info("GeoTIFF GeoServerConfiguratorAction: SLD SUCCESSFULLY sent to GeoServer!");
-                } else {
-                    LOGGER
-                            .info("GeoTIFF GeoServerConfiguratorAction: SLD was NOT sent to GeoServer!");
-                    sldsCreatedOK = false;
-                }
-            }
-
-            // //
-            // if it's all OK, set the Default SLD
-            // //
-            if (sldsCreatedOK) {
-                geoserverREST_URL = new URL(geoserverBaseURL + "/rest/sldservice/updateLayer/"
-                        + storeFilePrefix);
-                GeoServerRESTHelper.putContent(geoserverREST_URL, "<LayerConfig><DefaultStyle>"
-                        + defaultStyle + "</DefaultStyle></LayerConfig>", geoserverUID,
-                        geoserverPWD);
-            }
-        } else {
-            LOGGER
-                    .info("GeoTIFF GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
-        }
     }
 
     public Queue<FileSystemMonitorEvent> execute(Queue<FileSystemMonitorEvent> events)
@@ -179,23 +97,34 @@ public class GeoTIFFGeoServerGenerator extends GeoServerConfiguratorAction<FileS
                 throw new IllegalStateException("GeoServerDataDirectory is null or does not exist.");
             }
 
-            if ((geoserverURL == null) || "".equals(geoserverURL)) {
-                LOGGER.log(Level.SEVERE, "GeoServerCatalogServiceURL is null.");
-                throw new IllegalStateException("GeoServerCatalogServiceURL is null.");
-            }
+			// checked by superclass
+//            if ((geoserverURL == null) || "".equals(geoserverURL)) {
+//                LOGGER.log(Level.SEVERE, "GeoServerCatalogServiceURL is null.");
+//                throw new IllegalStateException("GeoServerCatalogServiceURL is null.");
+//            }
 
             String inputFileName = event.getSource().getAbsolutePath();
             final String filePrefix = FilenameUtils.getBaseName(inputFileName);
             final String fileSuffix = FilenameUtils.getExtension(inputFileName);
+			final String fileNameFilter = getConfiguration().getStoreFilePrefix();
 
-            if (storeFilePrefix != null) {
-                if ((filePrefix.equals(storeFilePrefix) || filePrefix.matches(storeFilePrefix))
+			String baseFileName = null;
+
+            if (fileNameFilter != null) {
+                if ((filePrefix.equals(fileNameFilter) || filePrefix.matches(fileNameFilter))
                         && ("tif".equalsIgnoreCase(fileSuffix) || "tiff"
                                 .equalsIgnoreCase(fileSuffix))) {
+					// etj: are we missing something here?
+					baseFileName = filePrefix;
                 }
             } else if ("tif".equalsIgnoreCase(fileSuffix) || "tiff".equalsIgnoreCase(fileSuffix)) {
-                storeFilePrefix = filePrefix;
+                baseFileName = filePrefix;
             }
+
+			if(baseFileName == null) {
+                LOGGER.log(Level.SEVERE, "Unexpected file '" + inputFileName + "'");
+                throw new IllegalStateException("Unexpected file '" + inputFileName + "'");
+			}
 
             inputFileName = FilenameUtils.getName(inputFileName);
             final String coverageStoreId = FilenameUtils.getBaseName(inputFileName);
@@ -237,19 +166,64 @@ public class GeoTIFFGeoServerGenerator extends GeoServerConfiguratorAction<FileS
             //
             // ////////////////////////////////////////////////////////////////////
             Map<String, String> queryParams = new HashMap<String, String>();
-            queryParams.put("namespace", defaultNamespace);
-            queryParams.put("wmspath", wmsPath);
-            send(workingDir, event.getSource(), geoserverURL, new Long(event.getTimestamp())
-                    .toString(), coverageStoreId, storeFilePrefix, styles, configId, defaultStyle,
+            queryParams.put("namespace",	getConfiguration().getDefaultNamespace());
+            queryParams.put("wmspath",		getConfiguration().getWmsPath());
+            send(workingDir,
+					event.getSource(),
+					getConfiguration().getGeoserverURL(),
+					new Long(event.getTimestamp()).toString(),
+					coverageStoreId,
+					baseFileName,
+					getConfiguration().getStyles(),
+					configId,
+					getConfiguration().getDefaultStyle(),
                     queryParams);
 
             return events;
         } catch (Throwable t) {
-            if (LOGGER.isLoggable(Level.SEVERE))
-                LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
+            LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
             return null;
         }
 
+    }
+
+
+    /**
+     */
+    public void send(final File inputDataDir, final File data, final String geoserverBaseURL,
+            final String timeStamp, final String coverageStoreId, final String storeFilePrefix,
+            final List<String> dataStyles, final String configId, final String defaultStyle,
+            final Map<String, String> queryParams) 
+			throws MalformedURLException, FileNotFoundException {
+        URL geoserverREST_URL = null;
+        boolean sent = false;
+
+		String layerName = storeFilePrefix != null ? storeFilePrefix : coverageStoreId;
+
+        if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
+            geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
+                    + "/layers/" + layerName
+                    + "/file.geotiff?" + getQueryString(queryParams));
+            sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
+                    new FileInputStream(data), 
+					getConfiguration().getGeoserverUID(),
+					getConfiguration().getGeoserverPWD());
+        } else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
+            geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
+                    + "/layers/" + layerName
+                    + "/url.geotiff");
+            sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
+					data.toURL().toExternalForm(),
+					getConfiguration().getGeoserverUID(),
+					getConfiguration().getGeoserverPWD());
+        }
+
+        if (sent) {
+            LOGGER.info("GeoTIFF GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
+			boolean sldSent = configureStyles(layerName);
+        } else {
+            LOGGER.info("GeoTIFF GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
+        }
     }
 
 }
