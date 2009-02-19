@@ -37,7 +37,6 @@ import java.util.logging.Logger;
  * 
  * @author Ivano Picco
  * 
- * @version $ ShapeFileFtpServerEventActionService.java $ Revision: x.x $ 19/feb/07 16:16:13
  */
 public class ShapeFileFtpServerEventActionService extends
         FtpServerEventActionService<FileSystemMonitorEvent, FtpServerEventActionConfiguration> {

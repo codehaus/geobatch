@@ -40,6 +40,8 @@ public class FtpServerEventActionConfiguration extends ActionConfiguration imple
 
     private String ftpserverUSR;
 
+    private String ftpserverPort;
+
     private String workingDirectory;
 
     private String dataTransferMethod;
@@ -70,6 +72,19 @@ public class FtpServerEventActionConfiguration extends ActionConfiguration imple
 
     public void setFtpserverPWD(String ftpserverPWD) {
         this.ftpserverPWD = ftpserverPWD;
+    }
+
+    public String getFtpserverPort() {
+        return ftpserverPort;
+    }
+
+    public void setFtpserverPort(String ftpserverPort) {
+        try {
+        int i = Integer.valueOf(ftpserverPort);
+        this.ftpserverPort = ftpserverPort;
+        } catch (NumberFormatException ex) {
+            this.ftpserverPort = "21"; //set to default
+        }
     }
 
     /**
