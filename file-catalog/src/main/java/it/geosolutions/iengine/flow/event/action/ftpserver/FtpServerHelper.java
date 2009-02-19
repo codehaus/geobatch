@@ -50,7 +50,7 @@ public class FtpServerHelper {
      * @return
      */
     public static boolean putBinaryFileTo(String ftpserverHost, String binaryFile,
-            String ftpserverUser, String ftpserverPassword) {
+            String ftpserverUser, String ftpserverPassword,int ftpserverPort ) {
 
         LOGGER.info("[FTP::PutBinaryFileTo]: " + "start");
 
@@ -59,6 +59,7 @@ public class FtpServerHelper {
             final String host = ftpserverHost;
             final String login = ftpserverUser;
             final String password = ftpserverPassword;
+            final int port = ftpserverPort;
 
             String remoteFileName = null;
 
@@ -72,6 +73,7 @@ public class FtpServerHelper {
             ftp.setRemoteHost(host);
             ftp.setUserName(login);
             ftp.setPassword(password);
+            ftp.setRemotePort(port);
 
             ftp.setTimeout(3000); //millis
 
@@ -79,7 +81,7 @@ public class FtpServerHelper {
             remoteFileName = remoteFileName.substring(remoteFileName.lastIndexOf("/") + 1, remoteFileName.length());
 
             // connect to the server
-            LOGGER.info("[FTP::PutBinaryFileTo]: " + "Connect to:" + host);
+            LOGGER.info("[FTP::PutBinaryFileTo]: " + "Connect to :" + host+":"+port);
             ftp.connect();
 
             LOGGER.info("[FTP::PutBinaryFileTo]: " + "send: " + binaryFile+ " to: " + remoteFileName);
@@ -114,12 +116,13 @@ public class FtpServerHelper {
      * @return
      */
 public static boolean putTextFileTo(String ftpserverHost, String textFile,
-            String ftpserverUser, String ftpserverPassword) {
+            String ftpserverUser, String ftpserverPassword, int ftpserverPort) {
         boolean res = false;
 
             final String host = ftpserverHost;
             final String login = ftpserverUser;
             final String password = ftpserverPassword;
+            final int port = ftpserverPort;
 
             String remoteFileName = null;
             
@@ -133,13 +136,15 @@ public static boolean putTextFileTo(String ftpserverHost, String textFile,
             ftp.setRemoteHost(host);
             ftp.setUserName(login);
             ftp.setPassword(password);
+            ftp.setRemotePort(port);
 
             ftp.setTimeout(3000); //millis
             remoteFileName = textFile.substring(textFile.lastIndexOf("/") + 1, textFile.length());
 
-            // connect to the server
+            LOGGER.info("[FTP::PutBinaryFileTo]: " + "Connect to :" + host+":"+port);
             ftp.connect();
 
+            LOGGER.info("[FTP::PutBinaryFileTo]: " + "send: " + textFile+ " to: " + remoteFileName);
             ftp.setContentType(FTPTransferType.ASCII);
             ftp.uploadFile(textFile, remoteFileName);
 
