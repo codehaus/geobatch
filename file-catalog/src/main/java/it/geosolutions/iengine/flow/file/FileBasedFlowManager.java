@@ -59,6 +59,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.swing.internal.plaf.synth.resources.synth;
+
 /**
  * @author Alessio Fabiani, GeoSolutions
  * 
@@ -246,7 +248,7 @@ public class FileBasedFlowManager
      * 
      * @see it.geosolutions.iengine.catalog.FlowManager#dispose()
      */
-    public void dispose() {
+    public synchronized void dispose() {
         LOGGER.info("Disposing: " + this.getId());
         this.termination = true;
         this.notify();
