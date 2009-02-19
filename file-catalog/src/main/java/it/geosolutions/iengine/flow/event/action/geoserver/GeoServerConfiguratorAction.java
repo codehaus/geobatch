@@ -24,15 +24,17 @@
 
 package it.geosolutions.iengine.flow.event.action.geoserver;
 
-import it.geosolutions.iengine.configuration.event.action.ActionConfiguration;
 import it.geosolutions.iengine.configuration.event.action.geoserver.GeoServerActionConfiguration;
-import it.geosolutions.iengine.flow.event.action.Action;
 import it.geosolutions.iengine.flow.event.action.BaseAction;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.EventObject;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -42,51 +44,23 @@ import java.util.logging.Logger;
  * 
  * @version $ GeoServerConfiguratorAction.java $ Revision: 0.1 $ 12/feb/07 12:07:06
  */
-public abstract class GeoServerConfiguratorAction<T extends EventObject> extends BaseAction<T>
-        implements Action<T> {
-    /**
+
+public abstract class GeoServerConfiguratorAction<T extends EventObject>
+	extends BaseAction<T> {
+	/**
      * Default logger
      */
     protected final static Logger LOGGER = Logger.getLogger(GeoServerConfiguratorAction.class.toString());
 
     protected final GeoServerActionConfiguration configuration;
 
-    protected final String geoserverURL;
-
-    protected final String geoserverUID;
-
-    protected final String geoserverPWD;
-
-    protected String storeFilePrefix;
-
-    protected final List<String> styles;
-
-    protected final String envelope;
-
-    protected final String crs;
-
-    protected final String datatype;
-
-    protected final String defaultNamespace;
-
-    protected final String defaultNamespaceUri;
-
-    protected final String defaultStyle;
-
-    protected final String wmsPath;
-
-    protected final String dataTransferMethod;
-
     /**
-     * Constructs a producer. The operation name will be the same than the parameter descriptor
-     * name.
-     * 
-     * @param descriptor
-     *            The parameters descriptor.
+     * Constructs a producer.
+	 * The operation name will be the same than the parameter descriptor name.
+     *
      * @throws IOException
      */
-    public GeoServerConfiguratorAction(GeoServerActionConfiguration configuration)
-            throws IOException {
+    public GeoServerConfiguratorAction(GeoServerActionConfiguration configuration) {
         this.configuration = configuration;
         // //
         //
@@ -94,43 +68,10 @@ public abstract class GeoServerConfiguratorAction<T extends EventObject> extends
         //
         // //
 
-        // geoserver URL
-        geoserverURL = configuration.getGeoserverURL();
-
-        // geoserver UID
-        geoserverUID = configuration.getGeoserverUID();
-
-        // geoserver PWD
-        geoserverPWD = configuration.getGeoserverPWD();
-
-        // DataFilePrefix
-        storeFilePrefix = configuration.getStoreFilePrefix();
-
-        // styles
-        styles = configuration.getStyles();
-
-        // //
-        //
-        // get optional parameters
-        //
-        // //
-
-        // geoserver UID
-        envelope = configuration.getEnvelope();
-
-        crs = configuration.getCrs();
-
-        datatype = configuration.getDatatype();
-
-        defaultNamespace = configuration.getDefaultNamespace();
-
-        defaultNamespaceUri = configuration.getDefaultNamespaceUri();
-
-        defaultStyle = configuration.getDefaultStyle();
-
-        wmsPath = configuration.getWmsPath();
-
-        dataTransferMethod = configuration.getDataTransferMethod();
+		if ((configuration.getGeoserverURL() == null) || "".equals(configuration.getGeoserverURL())) {
+			LOGGER.log(Level.SEVERE, "GeoServerURL is null.");
+			throw new IllegalStateException("GeoServerURL is null.");
+		}
 
     }
 
@@ -138,19 +79,88 @@ public abstract class GeoServerConfiguratorAction<T extends EventObject> extends
      * @param queryParams
      * @return
      */
-    public static String getQueryString(Map<String, String> queryParams) {
-        String queryString = "";
+    protected static String getQueryString(Map<String, String> queryParams) {
+        StringBuffer queryString = new StringBuffer();
 
         if (queryParams != null)
-            for (String key : queryParams.keySet()) {
-                queryString += (queryString.length() == 0 ? "" : "&") + key + "="
-                        + queryParams.get(key);
+            for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+				if(queryString.length() > 0)
+					queryString.append("&");
+				queryString.append(entry.getKey()).append("=").append(entry.getValue());
             }
 
-        return queryString;
+        return queryString.toString();
     }
 
-    public ActionConfiguration getConfiguration() {
+
+	/**
+	 * Configures the styles associated in this class' GeoServerActionConfiguration
+	 * to the layer passed as parameter.
+	 *
+	 * @param layerName the layer to associate to the given styles.
+	 * @return true if there were no errors in setting the styles.
+	 * @throws java.net.MalformedURLException
+	 * @throws java.io.FileNotFoundException
+	 */
+	protected boolean configureStyles(String layerName)
+			throws MalformedURLException, FileNotFoundException {
+		return configureStyles(layerName,
+								getConfiguration().getDefaultStyle(),
+								getConfiguration().getStyles(),
+								getConfiguration().getGeoserverURL(),
+								getConfiguration().getGeoserverUID(),
+								getConfiguration().getGeoserverPWD());
+	}
+
+	/**
+	 * Set the default style and the associable styles for the layer.
+	 *
+	 * @param layerName
+	 * @param defaultStyle the name of the style to configure as default style to the layer.
+	 * @param dataStyles the names of the styles to associate to the layer.
+	 * @param gsUrl Geoserver base URL
+	 * @param gsUser Geoserver admin username
+	 * @param gsPw Geoserver admin password
+	 * @return true if there were no errors in setting the styles.
+	 * @throws java.net.MalformedURLException
+	 * @throws java.io.FileNotFoundException
+	 */
+	private boolean configureStyles(String layerName,
+			String defaultStyle, List<String> stylesList,
+			String gsUrl, String gsUsername, String gsPassword)
+		throws MalformedURLException, FileNotFoundException	{
+
+		boolean mainok = true;
+		URL restUrl = new URL(gsUrl + "/rest/sldservice/updateLayer/" + layerName);
+
+		for (String styleName : stylesList) {
+
+			boolean ok = GeoServerRESTHelper.putContent(restUrl,
+													"<LayerConfig><Style>" +
+														styleName +
+													"</Style></LayerConfig>",
+													gsUsername,
+													gsPassword);
+
+			if(ok)
+				LOGGER.info(getClass().getSimpleName()+": added style " + styleName + " for layer " + layerName);
+			else
+				LOGGER.warning(getClass().getSimpleName()+": error in adding style " + styleName + " for layer " + layerName);
+			mainok &= ok;
+		}
+
+		mainok &= GeoServerRESTHelper.putContent(restUrl,
+												"<LayerConfig><DefaultStyle>" +
+													defaultStyle +
+												"</DefaultStyle></LayerConfig>",
+												gsUsername,
+												gsPassword);
+
+		return mainok;
+	}
+
+
+    public GeoServerActionConfiguration getConfiguration() {
         return configuration;
     }
 
