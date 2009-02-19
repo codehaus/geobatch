@@ -55,8 +55,6 @@ import org.geotools.data.shapefile.ShapefileDataStoreFactory;
  * 
  * @version $ ShapeFileGeoServerConfigurator.java $ Revision: x.x $ 19/feb/07 16:28:31
  */
-//public class ShapeFileGeoServerConfigurator extends
-//        GeoServerConfiguratorAction<FileSystemMonitorEvent> {
 public class ShapeFileGeoServerConfigurator extends
         GeoServerConfiguratorAction<FileSystemMonitorEvent> {
 
@@ -65,8 +63,7 @@ public class ShapeFileGeoServerConfigurator extends
         super(configuration);
     }
 
-	@Override
-    public Queue<FileSystemMonitorEvent> execute(Queue<FileSystemMonitorEvent> events)
+	public Queue<FileSystemMonitorEvent> execute(Queue<FileSystemMonitorEvent> events)
             throws Exception {
 		System.out.println("EXECUTE: vvvvvvvvvvvvvvvvvvvv");
 		for (FileSystemMonitorEvent fileSystemMonitorEvent : events) {

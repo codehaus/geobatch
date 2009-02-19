@@ -30,7 +30,6 @@ import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorListener;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.filesystemmonitor.monitor.impl.BaseFileSystemMonitor;
 import it.geosolutions.iengine.catalog.file.FileBaseCatalog;
-import it.geosolutions.iengine.configuration.event.generator.file.FileBasedEventGeneratorConfiguration;
 import it.geosolutions.iengine.configuration.event.generator.ftp.FtpBasedEventGeneratorConfiguration;
 import it.geosolutions.iengine.configuration.event.generator.ftp.user.FtpBasedEventGeneratorUserConfiguration;
 import it.geosolutions.iengine.flow.event.generator.BaseEventGenerator;
