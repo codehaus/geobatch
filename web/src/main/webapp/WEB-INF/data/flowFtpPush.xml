@@ -20,7 +20,7 @@
 			<ftpserverPWD>xxxxx</ftpserverPWD>
 			<ftpserverUSR>ftpuser</ftpserverUSR>
 			<ftpserverHost>ftp.server.com</ftpserverHost>
-            <!-- TODO ftpserverPort -->
+            <ftpserverPort/>
 			<serviceID>shapefileFtpServerEventAction</serviceID>
 			<id>a1</id>
 			<description>description</description>

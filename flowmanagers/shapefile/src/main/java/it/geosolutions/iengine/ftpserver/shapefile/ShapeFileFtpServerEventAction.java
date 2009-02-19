@@ -46,7 +46,6 @@ import java.util.logging.Level;
  * 
  * @author Ivano Picco
  * 
- * @version $ ShapeFileFtpServerEventAction.java $ Revision: x.x $ 19/feb/07 16:28:31
  */
 public class ShapeFileFtpServerEventAction extends
         FtpServerEventAction<FileSystemMonitorEvent> {
@@ -73,7 +72,7 @@ public class ShapeFileFtpServerEventAction extends
         }
 
         sent = FtpServerHelper.putBinaryFileTo(ftpserverHost, data.getAbsolutePath(),
-                ftpserverUSR, ftpserverPWD);
+                ftpserverUSR, ftpserverPWD, ftpserverPort);
 
         if (sent) {
             LOGGER

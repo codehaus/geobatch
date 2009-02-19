@@ -55,6 +55,8 @@ public abstract class FtpServerEventAction<T extends EventObject> extends BaseAc
 
     protected final String ftpserverUSR;
 
+    protected final int ftpserverPort;
+
     protected final String dataTransferMethod;
 
     /**
@@ -83,8 +85,18 @@ public abstract class FtpServerEventAction<T extends EventObject> extends BaseAc
         // ftpserver password
         ftpserverPWD = configuration.getFtpserverPWD();
 
+        ftpserverPort = setFtpserverPort(configuration.getFtpserverPort());
+
         dataTransferMethod = configuration.getDataTransferMethod();
 
+    }
+
+    public int setFtpserverPort(String Port) {
+        try {
+        return Integer.valueOf(Port);
+        } catch (NumberFormatException ex) {
+            return (21); //set to default
+        }
     }
 
     /**
