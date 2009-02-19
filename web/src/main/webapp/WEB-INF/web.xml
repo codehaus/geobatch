@@ -21,10 +21,10 @@
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
-	<!-- context-param>
+	<context-param>
 	     <param-name>INGESTIONENGINE_DATA_DIR</param-name>
-	     <param-value>/home/geos/ie</param-value>
-	</context-param-->    
+	     <param-value>/home/simone/temp/ie</param-value>
+	</context-param>    
     <servlet-mapping>
         <servlet-name>iengine</servlet-name>
         <url-pattern>*.do</url-pattern>

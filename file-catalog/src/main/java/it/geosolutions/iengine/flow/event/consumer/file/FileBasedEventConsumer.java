@@ -161,25 +161,31 @@ public class FileBasedEventConsumer extends
         for (FileEventRule rule : this.mandatoryRules) {
 
             // check event type
-            final List<FileSystemMonitorNotifications> eventTypes = rule
-                    .getAcceptableNotifications();
-            if (!checkEvent(eventType, eventTypes))
-                return false;
+            final List<FileSystemMonitorNotifications> eventTypes = rule.getAcceptableNotifications();
+		    if (!checkEvent(eventType, eventTypes))
+		        return false;
+		    
+		    //check occurencies for this file in case we have multiple occurrencies
+		    occurrencies = rule.getActualOccurrencies();
+		    final int originalOccurrencies = rule.getOriginalOccurrencies();
+		    //we cannot exceed the number of needed occurrencies!
+		    if(occurrencies>=originalOccurrencies)
+		    	return false;
+		    final Pattern p = Pattern.compile(rule.getRegex());
+		    if (p.matcher(fileName).matches()) {
+		        if (this.commonPrefixRegex == null) {
+		            this.commonPrefixRegex = prefix;
+		            rule.setActualOccurrencies(occurrencies+ 1);
+		
+		            return true;
+		        } else if (prefix.startsWith(this.commonPrefixRegex)) {
+		            rule.setActualOccurrencies(occurrencies + 1);
+		
+		            return true;
+		        }
+		    }
+    
 
-            occurrencies = rule.getActualOccurrencies();
-            final Pattern p = Pattern.compile(rule.getRegex());
-            if (p.matcher(fileName).matches() && (occurrencies > 0)) {
-                if (this.commonPrefixRegex == null) {
-                    this.commonPrefixRegex = prefix;
-                    rule.setActualOccurrencies(occurrencies - 1);
-
-                    return true;
-                } else if (prefix.startsWith(this.commonPrefixRegex)) {
-                    rule.setActualOccurrencies(occurrencies - 1);
-
-                    return true;
-                }
-            }
         }
 
         return false;
@@ -209,27 +215,33 @@ public class FileBasedEventConsumer extends
         int occurrencies;
 
         for (FileEventRule rule : this.optionalRules) {
-            // check event type
+            // check event type, incase we have a filter on that
             final List<FileSystemMonitorNotifications> eventTypes = rule
                     .getAcceptableNotifications();
             if (!checkEvent(eventType, eventTypes))
                 return false;
+            
+            //check occurencies for this file in case we have multiple occurrencies
             occurrencies = rule.getActualOccurrencies();
-
+            final int originalOccurrencies = rule.getOriginalOccurrencies();
+            //we cannot exceed the number of needed occurrencies!
+            if(occurrencies>=originalOccurrencies)
+            	return false;
             final Pattern p = Pattern.compile(rule.getRegex());
-
-            if (p.matcher(fileName).matches() && (occurrencies > 0)) {
+            if (p.matcher(fileName).matches()) {
                 if (this.commonPrefixRegex == null) {
                     this.commonPrefixRegex = prefix;
-                    rule.setActualOccurrencies(occurrencies - 1);
+                    rule.setActualOccurrencies(occurrencies+ 1);
 
                     return true;
                 } else if (prefix.startsWith(this.commonPrefixRegex)) {
-                    rule.setActualOccurrencies(occurrencies - 1);
+                    rule.setActualOccurrencies(occurrencies + 1);
 
                     return true;
                 }
             }
+            
+            
         }
 
         return false;
@@ -250,39 +262,17 @@ public class FileBasedEventConsumer extends
         this.optionalRules.clear();
         this.canceled = false;
 
-        // //
-        // preparing output directory
-        // //
-        final String dataStoreId = this.configuration.getName();
-
-        File file = new File(this.workingDir, File.separator + dataStoreId);
-        if (!file.exists())
-            file.mkdir();
-
-        if ((file == null) || !file.exists() || !file.isDirectory()) {
-            LOGGER.log(Level.SEVERE, "Could not create GEOSERVER data directories");
-            throw new IllegalStateException("Could not create GEOSERVER data directories!");
-        }
-
         // ////////////////////////////////////////////////////////////////////
         // RULES
         // ////////////////////////////////////////////////////////////////////
 
         numInputFiles = 0;
         for (FileEventRule rule : configuration.getRules()) {
-            FileEventRule cleanRule;
-            try {
-                cleanRule = (FileEventRule) rule.clone();
-            } catch (CloneNotSupportedException e) {
-                // XXX
-                e.printStackTrace();
-                continue;
-            }
             if (!rule.isOptional()) {
-                this.mandatoryRules.add(cleanRule);
+                this.mandatoryRules.add(rule);
                 numInputFiles += rule.getOriginalOccurrencies();
             } else {
-                this.optionalRules.add(cleanRule);
+                this.optionalRules.add(rule);
             }
         }
 

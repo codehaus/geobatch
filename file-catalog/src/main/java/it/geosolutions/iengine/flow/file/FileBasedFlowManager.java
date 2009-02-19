@@ -131,6 +131,8 @@ public class FileBasedFlowManager
                             // //
                             if (em.getStatus().equals(EventConsumerStatus.EXECUTING))
                                 it.remove();
+                            
+                            //event served
                             eventServed = true;
                             break;
                         }
@@ -146,9 +148,15 @@ public class FileBasedFlowManager
                                         .getConfiguration().getEventConsumerConfiguration());
 
                         if (fileBasedEventConsumer.consume(event)) {
+                            // //
+                            // we have found an Event BaseEventConsumer waiting for this event, if
+                            // it has changed state we do not add it to the list of waiting consumers
+                            // //
+                            if (!fileBasedEventConsumer.getStatus().equals(EventConsumerStatus.EXECUTING))
+                               FileBasedFlowManager.this.collectingEventConsumers.add(fileBasedEventConsumer);
+                            eventServed = true;
                             if (LOGGER.isLoggable(Level.FINE))
-                                eventServed = true;
-                            LOGGER.fine(new StringBuffer("Event not consumed ----> ").append(
+                            	LOGGER.fine(new StringBuffer("Event not consumed ----> ").append(
                                     event.toString()).toString());
                         }
 
