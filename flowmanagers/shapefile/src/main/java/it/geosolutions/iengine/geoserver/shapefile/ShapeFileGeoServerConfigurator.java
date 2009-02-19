@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.logging.Level;
 
+import org.apache.commons.io.FilenameUtils;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 
@@ -299,9 +300,8 @@ public class ShapeFileGeoServerConfigurator extends
 		}
 
 		public boolean accept(File dir, String name) {
-			int idx = name.lastIndexOf(".");
-			final String filePrefix = name.substring(0, idx);
-			final String fileSuffix = name.substring(idx + 1);
+			final String filePrefix = FilenameUtils.getName(name);
+			final String fileSuffix = FilenameUtils.getExtension(name);
 
 			if("shp".equalsIgnoreCase(fileSuffix)) {
 				if (prefixFilter == null)
