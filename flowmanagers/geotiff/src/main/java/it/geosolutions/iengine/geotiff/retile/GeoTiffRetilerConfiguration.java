@@ -1,13 +1,11 @@
-package it.geosolutions.iengine.geotiff.overview;
-
-import javax.media.jai.Interpolation;
+package it.geosolutions.iengine.geotiff.retile;
 
 import it.geosolutions.iengine.catalog.Configuration;
 import it.geosolutions.iengine.configuration.event.action.ActionConfiguration;
 
 import org.geotools.utils.CoverageToolsConstants;
 
-public class GeoTiffOverviewsEmbedderConfiguration extends ActionConfiguration implements
+public class GeoTiffRetilerConfiguration extends ActionConfiguration implements
         Configuration {
 
 	private long JAICapacity;
@@ -22,38 +20,19 @@ public class GeoTiffOverviewsEmbedderConfiguration extends ActionConfiguration i
 
 	private String workingDirectory;
 
-    private double compressionRatio = CoverageToolsConstants.DEFAULT_COMPRESSION_RATIO;
-
+    private double compressionRatio = Double.NaN;
+    
     private String compressionScheme = CoverageToolsConstants.DEFAULT_COMPRESSION_SCHEME;
 
-    /** Downsampling step. */
-    private int downsampleStep;
-
-    private int numSteps;
-
-    /** Scale algorithm. */
-    private String scaleAlgorithm;
-
     /** Tile height. */
-    private int tileH = -1;
+    private int tileH = 256;
 
     /** Tile width. */
-    private int tileW = -1;
-
-    private String wildcardString = "*.*";
-
-    /**
-     * 
-     * Interpolation method used througout all the program.
-     * 
-     * @TODO make the interpolation method customizable from the user perpsective.
-     * 
-     */
-    private int interp = Interpolation.INTERP_NEAREST;
+    private int tileW = 256;
 
     private String serviceID;
 
-    public GeoTiffOverviewsEmbedderConfiguration() {
+    public GeoTiffRetilerConfiguration() {
         super();
     }
 
@@ -80,14 +59,6 @@ public class GeoTiffOverviewsEmbedderConfiguration extends ActionConfiguration i
         return compressionScheme;
     }
 
-    public int getDownsampleStep() {
-        return downsampleStep;
-    }
-
-    public String getScaleAlgorithm() {
-        return scaleAlgorithm;
-    }
-
     public int getTileH() {
         return tileH;
     }
@@ -104,44 +75,12 @@ public class GeoTiffOverviewsEmbedderConfiguration extends ActionConfiguration i
         this.compressionScheme = compressionScheme;
     }
 
-    public void setDownsampleStep(int downsampleWH) {
-        this.downsampleStep = downsampleWH;
-    }
-
-    public void setScaleAlgorithm(String scaleAlgorithm) {
-        this.scaleAlgorithm = scaleAlgorithm;
-    }
-
     public void setTileH(int tileH) {
         this.tileH = tileH;
     }
 
     public void setTileW(int tileW) {
         this.tileW = tileW;
-    }
-
-    public int getNumSteps() {
-        return numSteps;
-    }
-
-    public void setNumSteps(int numSteps) {
-        this.numSteps = numSteps;
-    }
-
-    public String getWildcardString() {
-        return wildcardString;
-    }
-
-    public void setWildcardString(String wildcardString) {
-        this.wildcardString = wildcardString;
-    }
-
-    public int getInterp() {
-        return interp;
-    }
-
-    public void setInterp(int interp) {
-        this.interp = interp;
     }
 
     /**
@@ -165,7 +104,6 @@ public class GeoTiffOverviewsEmbedderConfiguration extends ActionConfiguration i
 				+ "id:" + getId()
 				+ ", name:" + getName()
 				+ ", wxh:" + getTileW() + "x" + getTileH()
-				+ ", stp:" + getNumSteps()
 				+ "]";
 	}
 }

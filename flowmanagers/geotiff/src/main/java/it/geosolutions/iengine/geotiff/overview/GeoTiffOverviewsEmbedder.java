@@ -74,6 +74,7 @@ public class GeoTiffOverviewsEmbedder extends BaseAction<FileSystemMonitorEvent>
             if (events.size() != 1)
                 throw new IllegalArgumentException("Wrong number of elements for this action: "
                         + events.size());
+            
             // get the first event
             final FileSystemMonitorEvent event = events.peek();
 
@@ -105,9 +106,10 @@ public class GeoTiffOverviewsEmbedder extends BaseAction<FileSystemMonitorEvent>
             oe.setNumSteps(configuration.getNumSteps());
             oe.setInterp(Interpolation.getInstance(configuration.getInterp()));
             oe.setScaleAlgorithm(configuration.getScaleAlgorithm());
-            oe.setTileH(configuration.getTileH());
-            oe.setTileW(configuration.getTileW());
+            oe.setTileHeight(configuration.getTileH());
+            oe.setTileWidth(configuration.getTileW());
             oe.setSourcePath(inputFileName);
+            oe.setTileCacheSize(configuration.getJAICapacity());
 
             // add logger/listener
             oe.addProcessingEventListener(new ProcessingEventListener() {
