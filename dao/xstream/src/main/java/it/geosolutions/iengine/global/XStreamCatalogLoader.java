@@ -119,10 +119,16 @@ public class XStreamCatalogLoader extends CatalogHolder implements ApplicationCo
                 LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
         }
 
-        if ((dataDir == null) || !dataDir.exists() || !dataDir.isDirectory() || !dataDir.canRead()) {
-            throw new IllegalStateException(
-                    "Could not initialize Data Directory: The provided path does not exists or is not a directory!");
-        }
+        if (dataDir == null) 
+            throw new NullPointerException("Could not initialize Data Directory: The provided path is null.");
+        
+        if (!dataDir.exists()) 
+            throw new IllegalStateException("Could not initialize Data Directory: The provided path does not exists ("+dataDir+").");
+        
+        if ( !dataDir.isDirectory() || !dataDir.canRead())
+            throw new IllegalStateException("Could not initialize Data Directory: The provided path is not a readable directory ("+dataDir+")");
+
+
         ((FileBaseCatalog) CatalogHolder.getCatalog()).setBaseDirectory(dataDir.getAbsolutePath());
         System.out.println("----------------------------------");
         System.out.println("- INGESTIONENGINE_DATA_DIR: " + dataDir.getAbsolutePath());
