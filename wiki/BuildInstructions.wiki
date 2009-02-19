@@ -22,3 +22,7 @@ To import the projects into Eclipse, run the command:
 {{{
 mvn eclipse:clean eclipse:eclipse -P dao.{xstream or jibx}
 }}}
+
+----
+
+Notice that as of now the jibx bindings are not fully functional hence we recommend our developers to use the xstream profile for the file based DAO mechanism.
