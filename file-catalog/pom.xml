@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- =======================================================================    
-        Maven Project Configuration File                                        
-                                                                                
-        GeoSolutions Ingestion Engine Project                                                    
+<!-- =======================================================================
+        Maven Project Configuration File
+
+        GeoSolutions Ingestion Engine Project
             http://www.geo-solutions.it/trac/IngestionEngine
-                                                                                            
-        Version: $Id: pom.xml 63 2008-04-04 11:22:11Z alessio $              
+
+        Version: $Id: pom.xml 63 2008-04-04 11:22:11Z alessio $
      ======================================================================= --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                                 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,7 +14,7 @@
         <artifactId>ie</artifactId>
         <version>0.9-SNAPSHOT</version>
     </parent>
-  
+
 
   <!-- =========================================================== -->
   <!--     Module Description                                      -->
@@ -24,12 +24,12 @@
     <version>0.9-SNAPSHOT</version>
     <name>GeoSolutions Ingestion Engine catalog file system persistence</name>
     <url>http://www.geo-solutions.it/maven_reports/ie/data/</url>
-  
+
     <scm>
         <connection>scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/data/</connection>
         <url>http://svn.geotools.org/geotools/trunk/gt/modules/data/</url>
     </scm>
-  
+
     <description>GeoSolutions Ingestion Engine catalog.</description>
 
     <licenses>
@@ -60,7 +60,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-      <!-- The version number is specified in the parent POM. -->    	
+      <!-- The version number is specified in the parent POM. -->
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -233,13 +233,108 @@
         </dependency>
 
 
-  
-  
+ 	<!-- ============================== -->
+  	<!--     Apache MINA FTP            -->
+  	<!-- ============================== -->
+
+        <dependency>
+        <groupId>org.apache.mina</groupId>
+        <artifactId>mina-core</artifactId>
+        <version>2.0.0-M4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.5.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ftpserver</groupId>
+            <artifactId>ftplet-api</artifactId>
+            <version>1.0.0-RC1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ftpserver</groupId>
+            <artifactId>ftpserver-core</artifactId>
+            <version>1.0.0-RC1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+<!--            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.4.3</version> -->
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.5.6</version>
+        </dependency>
+
+
+
+ 	<!-- ============================== -->
+  	<!--     ColdCore Colorado FTP      -->
+  	<!-- ============================== -->
+
+    <!--
+        <dependency>
+            <groupId>com.coldcore.coloradoftp</groupId>
+            <artifactId>coloradoftp</artifactId>
+            <version>1.25</version>
+            <scope>compile</scope>
+        </dependency>
+  	<dependency>
+            <groupId>com.coldcore.coloradoftp</groupId>
+            <artifactId>ccc_misc5</artifactId>
+            <version>1.02</version>
+            <scope>compile</scope>
+        </dependency>
+  	<dependency>
+            <groupId>com.coldcore.coloradoftp</groupId>
+            <artifactId>gateway</artifactId>
+            <version>1.02</version>
+            <scope>compile</scope>
+        </dependency>
+  	<dependency>
+            <groupId>com.coldcore.coloradoftp</groupId>
+            <artifactId>hardfilesystem</artifactId>
+            <version>1.04</version>
+            <scope>compile</scope>
+        </dependency>
+  	<dependency>
+            <groupId>com.coldcore.coloradoftp</groupId>
+            <artifactId>impl3659</artifactId>
+            <version>1.00</version>
+            <scope>compile</scope>
+        </dependency>
+  	<dependency>
+            <groupId>com.coldcore.coloradoftp</groupId>
+            <artifactId>coloradoftp</artifactId>
+            <version>1.25</version>
+            <scope>compile</scope>
+        </dependency>
+  	<dependency>
+            <groupId>com.coldcore.coloradoftp</groupId>
+            <artifactId>intellipack</artifactId>
+            <version>1.13</version>
+            <scope>compile</scope>
+        </dependency>
+   	<dependency>
+            <groupId>com.coldcore.coloradoftp</groupId>
+            <artifactId>xmlfs</artifactId>
+            <version>1.00</version>
+            <scope>compile</scope>
+        </dependency>
+-->
+
+  	<dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.9</version>
+            <scope>compile</scope>
+        </dependency>
+
+
  	<!-- ============================== -->
   	<!--     GeoSolutions               -->
-  	<!-- ============================== --> 
-   
-    
+  	<!-- ============================== -->
+
+
  	<!-- ============================== -->
   	<!--     Geotools                   -->
   	<!-- ============================== -->
@@ -248,22 +343,22 @@
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
     </dependency -->
-    
+
  	<!-- ============================== -->
   	<!--     Commons	                -->
   	<!-- ============================== -->
-        
-    
+
+
  	<!-- ============================== -->
   	<!--     Jetty		                -->
-  	<!-- ============================== -->    
-    
-    
-    
+  	<!-- ============================== -->
+
+
+
  	<!-- ============================== -->
   	<!--     Junit		                -->
-  	<!-- ============================== -->    
-      
+  	<!-- ============================== -->
+
     </dependencies>
 
 
