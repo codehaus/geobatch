@@ -1,4 +1,4 @@
-#summary Build Instructions
+#summary Build Instructions for building GeoBatch
 #labels Phase-Implementation,BuildInstructions
 = Build Instructions =
 
@@ -9,12 +9,16 @@ This page contains basic information about how to build the geobatch (former Ing
 
 To build the code you need Maven2 configured and installed on your machine. If you want to compile IE for using the XStream DAO run the command:
 
+{{{
 mvn clean install -Dallow.test.failure.ignore -P dao.xstream
+}}}
 
 If you want to compile IE for using the JiBX DAO run the command:
-
+{{{
 mvn clean install -Dallow.test.failure.ignore -P dao.jibx
+}}}
 
 To import the projects into Eclipse, run the command:
-
+{{{
 mvn eclipse:clean eclipse:eclipse -P dao.{xstream or jibx}
+}}}
