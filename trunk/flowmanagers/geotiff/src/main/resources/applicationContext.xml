@@ -30,5 +30,19 @@
     		<value>geotiffOverviewsEmbedderService</value>
     	</property>
     </bean>	    
+    
+    
+	<!-- Environment Initialization -->
+	<bean id="geoTiffRetilerService" class="it.geosolutions.iengine.geotiff.retile.GeoTiffRetilerService">
+		<property  name="id">
+    		<value>geoTiffRetilerService</value>
+    	</property>
+    	<property name="description">
+    		<value>geoTiffRetilerService</value>
+    	</property>
+    	<property name="name">
+    		<value>geoTiffRetilerService</value>
+    	</property>
+    </bean>	      
 
 </beans>
