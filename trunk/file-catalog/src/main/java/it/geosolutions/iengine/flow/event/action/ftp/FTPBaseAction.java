@@ -85,18 +85,10 @@ public abstract class FTPBaseAction<T extends EventObject> extends BaseAction<T>
         // ftpserver password
         ftpserverPWD = configuration.getFtpserverPWD();
 
-        ftpserverPort = setFtpserverPort(configuration.getFtpserverPort());
+        ftpserverPort = configuration.getFtpserverPort();
 
         dataTransferMethod = configuration.getDataTransferMethod();
 
-    }
-
-    public int setFtpserverPort(String Port) {
-        try {
-        return Integer.valueOf(Port);
-        } catch (NumberFormatException ex) {
-            return (Integer.valueOf(FTPUploadActionConfiguration.DEFAULT_PORT)); //set to default
-        }
     }
 
     /**

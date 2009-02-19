@@ -28,11 +28,11 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.enterprisedt.net.ftp.AdvancedFTPSettings;
+import com.enterprisedt.net.ftp.FTPClient;
 import com.enterprisedt.net.ftp.FTPConnectMode;
 import com.enterprisedt.net.ftp.FTPException;
+import com.enterprisedt.net.ftp.FTPMessageCollector;
 import com.enterprisedt.net.ftp.FTPTransferType;
-import com.enterprisedt.net.ftp.FileTransferClient;
 import com.enterprisedt.net.ftp.WriteMode;
 
 /**
@@ -94,22 +94,35 @@ class FTPHelper {
 
         String remoteFileName = null;
 
-        FileTransferClient ftp = null;
+        FTPClient ftp = null;
 
         try {
             // create client
-            ftp = new FileTransferClient();
-
+            ftp = new FTPClient();
             // set remote host
             ftp.setRemoteHost(host);
-            ftp.setUserName(login);
-            ftp.setPassword(password);
             ftp.setRemotePort(port);
 			ftp.setTimeout(timeout); //millis
+            final FTPMessageCollector listener = new FTPMessageCollector();
+            ftp.setMessageListener(listener);
+
+			// connect
+            if(LOGGER.isLoggable(Level.INFO))
+        		LOGGER.info("Connecting");
+			ftp.connect();
+
+			// LOGGERin
+			if(LOGGER.isLoggable(Level.INFO))
+        		LOGGER.info("Logging in");
+			ftp.login(login, password);
             
             //transfer mode (ACTIVE vs PASSIVE)
-            final AdvancedFTPSettings ftpSettings = ftp.getAdvancedFTPSettings();
-            ftpSettings.setConnectMode(connectMode);			
+			ftp.setConnectMode(connectMode);	
+			
+            //transfer type (BINARY vs ASCII)
+            ftp.setType(transferType);
+            
+//            ftp.set
 
             remoteFileName = binaryFile.replaceAll("\\\\", "/");
             remoteFileName = remoteFileName.substring(remoteFileName.lastIndexOf("/") + 1, remoteFileName.length());
@@ -117,15 +130,14 @@ class FTPHelper {
             // connect to the server
             if(LOGGER.isLoggable(Level.INFO))
             		LOGGER.info("[FTP::PutFileTo]: " + "Connecting to :" + host+":"+port);
-            ftp.connect();
+            
 
             if(LOGGER.isLoggable(Level.INFO))
             		LOGGER.info("[FTP::FileTo]: " + "sending: " + binaryFile+ " to: " + remoteFileName);
-            //transfer type (BINARY vs ASCII)
-            ftp.setContentType(transferType);
+
 
             
-            final String remoteFileNameReturned=ftp.uploadFile(binaryFile, remoteFileName,writeMode);
+            final String remoteFileNameReturned=ftp.put(binaryFile, remoteFileName);
             if(LOGGER.isLoggable(Level.INFO))
         		LOGGER.info("[FTP::FileTo]: " + "sent: " + binaryFile+ " to: " + remoteFileNameReturned);
             res = true;
@@ -143,9 +155,9 @@ class FTPHelper {
         }
         finally{
         	//disconnect
-        	if(ftp!=null)
+        	if(ftp!=null&&ftp.connected())
         		try{
-        			ftp.disconnect();
+        			ftp.quitImmediately();
         		}catch (Throwable t) {
                     if(LOGGER.isLoggable(Level.FINE))
                 		LOGGER.log(Level.FINE,t.getLocalizedMessage(),t);

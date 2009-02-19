@@ -27,14 +27,14 @@ package it.geosolutions.iengine.configuration.event.action.ftp;
 import it.geosolutions.iengine.catalog.Configuration;
 import it.geosolutions.iengine.configuration.event.action.ActionConfiguration;
 
-import com.enterprisedt.net.ftp.FTPConnectMode;
-import com.enterprisedt.net.ftp.WriteMode;
-
 /**
  *
  * @author Ivano Picco
  */
 public class FTPUploadActionConfiguration extends ActionConfiguration implements Configuration {
+	public enum FTPConnectMode{
+		ACTIVE,PASSIVE;
+	}
 
     public static final String DEFAULT_PORT = "21";
     
@@ -46,7 +46,7 @@ public class FTPUploadActionConfiguration extends ActionConfiguration implements
 
     private String ftpserverUSR;
 
-    private String ftpserverPort;
+    private int ftpserverPort;
 
     private String workingDirectory;
 
@@ -58,7 +58,7 @@ public class FTPUploadActionConfiguration extends ActionConfiguration implements
     
     private String zipFileName;
     
-    private WriteMode writeMode;
+//    private WriteMode writeMode;
     
 	private FTPConnectMode connectMode;
     
@@ -70,14 +70,14 @@ public class FTPUploadActionConfiguration extends ActionConfiguration implements
 		this.connectMode = connectMode;
 	}
 
-    
-    public WriteMode getWriteMode() {
-		return writeMode;
-	}
-
-	public void setWriteMode(WriteMode writeMode) {
-		this.writeMode = writeMode;
-	}
+//    
+//    public WriteMode getWriteMode() {
+//		return writeMode;
+//	}
+//
+//	public void setWriteMode(WriteMode writeMode) {
+//		this.writeMode = writeMode;
+//	}
 
 	public String getZipFileName() {
 		return zipFileName;
@@ -131,18 +131,13 @@ public class FTPUploadActionConfiguration extends ActionConfiguration implements
         this.ftpserverPWD = ftpserverPWD;
     }
 
-    public String getFtpserverPort() {
+    public int getFtpserverPort() {
         return ftpserverPort;
     }
 
-    public void setFtpserverPort(String ftpserverPort) {
-        try {
-        @SuppressWarnings("unused")
-		final int portNumber = Integer.valueOf(ftpserverPort);
+    public void setFtpserverPort(int ftpserverPort) {
         this.ftpserverPort = ftpserverPort;
-        } catch (NumberFormatException ex) {
-            this.ftpserverPort = DEFAULT_PORT; //set to default
-        }
+
     }
 
     /**

@@ -124,19 +124,23 @@ public class FTPUploadAction extends
             // ////////////////////////////////////////////////////////////////////
             LOGGER.info("Sending file to FtpServer ... " + ftpserverHost);
             boolean sent=false;
-            final WriteMode writeMode=configuration.getWriteMode();
-            final FTPConnectMode connectMode=configuration.getConnectMode();
+//            final WriteMode writeMode=configuration.getWriteMode();
+            final FTPConnectMode connectMode=configuration.getConnectMode().toString().equalsIgnoreCase(FTPConnectMode.ACTIVE.toString())?FTPConnectMode.ACTIVE:FTPConnectMode.PASV;
             final int timeout=configuration.getTimeout();
 			if(zipMe){
-	            sent = FTPHelper.putBinaryFileTo(ftpserverHost, IOUtils.deflate(workingDir,zipFileName,filesToSend.toArray(new File[filesToSend.size()])).getAbsolutePath(),
-	                    ftpserverUSR, ftpserverPWD, ftpserverPort,WriteMode.OVERWRITE,FTPConnectMode.PASV,timeout);
+				final File tempDir= new File(System.getProperty("java.io.tmpdir"));
+				if(!tempDir.exists()||!tempDir.canWrite())
+					throw new IllegalStateException("Unable to create temporary file");
+				final File zippedFile=IOUtils.deflate(tempDir,zipFileName,filesToSend.toArray(new File[filesToSend.size()]));
+	            sent = FTPHelper.putBinaryFileTo(ftpserverHost, zippedFile.getAbsolutePath(),
+	                    ftpserverUSR, ftpserverPWD, ftpserverPort,WriteMode.OVERWRITE,connectMode,timeout);
             }
             else
             {
             	for(File file: filesToSend)
             	{
             		sent = FTPHelper.putBinaryFileTo(ftpserverHost, file.getAbsolutePath(),
-    	                    ftpserverUSR, ftpserverPWD, ftpserverPort,WriteMode.OVERWRITE,FTPConnectMode.PASV,timeout);
+    	                    ftpserverUSR, ftpserverPWD, ftpserverPort,WriteMode.OVERWRITE,connectMode,timeout);
             		if(!sent)
             			break;
             	}
