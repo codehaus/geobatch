@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlowConfiguration>
+	<workingDirectory>flow2workingdir</workingDirectory>
+    <!--ftpserverPort -->
+	<EventConsumerConfiguration>
+		<workingDirectory>flow2workingdir</workingDirectory>
+		<performBackup>false</performBackup>
+
+       <FileEventRule>
+			<optional>false</optional>
+			<originalOccurrencies>1</originalOccurrencies>
+			<regex>.*\.shp</regex>
+			<id>r1</id>
+			<description>description</description>
+			<name>test</name>
+		</FileEventRule>
+
+        <FtpServerActionConfiguration>
+			<workingDirectory>flow2workingdir</workingDirectory>
+			<dataTransferMethod/>
+			<ftpserverPWD>xxxxx</ftpserverPWD>
+			<ftpserverUSR>ftpuser</ftpserverUSR>
+			<ftpserverHost>ftp.server.com</ftpserverHost>
+            <!-- TODO ftpserverPort -->
+			<serviceID>shapefileFtpServerEventAction</serviceID>
+			<id>a1</id>
+			<description>description</description>
+			<name>test</name>
+		</FtpServerActionConfiguration>
+
+		<id>id</id>
+		<description>description</description>
+		<name>test</name>
+	</EventConsumerConfiguration>
+
+	<EventGeneratorConfiguration>
+		<wildCard>*.*</wildCard>
+		<watchDirectory>flow2workingdir/in</watchDirectory>
+		<osType>OS_UNDEFINED</osType>
+		<eventType>FILE_ADDED</eventType>
+		<id>id</id>
+		<description>description</description>
+		<name>test</name>
+	</EventGeneratorConfiguration>
+
+    <id>flowFtpPush</id>
+	<description>test ftp push</description>
+	<name>flowFtpPush</name>
+</FlowConfiguration>
