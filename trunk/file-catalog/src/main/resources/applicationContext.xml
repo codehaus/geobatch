@@ -60,6 +60,18 @@
     	</property>    	
     </bean>
     
+    <!-- Ftp based event generator service based on the ftpserver -->
+    <bean id="ftpEventGeneratorService" class="it.geosolutions.iengine.flow.event.generator.ftp.FtpBasedEventGeneratorService" >
+    	<property  name="id">
+    		<value>ftpEventGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>Ftp based event generator service</value>
+    	</property>
+    	<property name="name">
+    		<value>ftpEventGeneratorService</value>
+    	</property>
+    </bean>
     
     <!-- File based flow manager service-->
     <bean id="fsFlowManagerService" class="it.geosolutions.iengine.flow.file.FileBasedFlowManagerService" >
