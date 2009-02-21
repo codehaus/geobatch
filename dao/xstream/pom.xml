@@ -18,7 +18,7 @@
     <groupId>it.geosolutions</groupId>
     <artifactId>ie-dao-xstream</artifactId>
     <version>0.9-SNAPSHOT</version>
-    <name>GeoSolutions Ingestion Engine pluggable DAOs - XStream</name>
+    <name>GeoSolutions GeoBatch pluggable DAOs - XStream</name>
     <url>http://www.geo-solutions.it/maven_reports/ie/data/</url>
 
     <dependencies>

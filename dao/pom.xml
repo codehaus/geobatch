@@ -2,8 +2,8 @@
 <!-- =======================================================================    
         Maven Project Configuration File                                        
                                                                                 
-        GeoSolutions Ingestion Engine Project                                                    
-            http://www.geo-solutions.it/trac/IngestionEngine
+        GeoSolutions GeoBatch Project                                                    
+            http://geobatch.codehaus.org
                                                                                             
         Version: $Id$
      ======================================================================= -->
@@ -26,7 +26,7 @@
     <groupId>it.geosolutions</groupId>
     <artifactId>ie-dao</artifactId>
     <packaging>pom</packaging>
-    <name>GeoSolutions Ingestion Engine pluggable DAOs</name>
+    <name>GeoSolutions GeoBatch pluggable DAOs</name>
     <url>http://www.geo-solutions.it/maven_reports/ie/dao/</url>
   
     <scm>
@@ -37,7 +37,7 @@
     </scm>
   
     <description>
-    GeoSolutions Ingestion Engine DAOs.
+    GeoSolutions GeoBatch DAOs.
     </description>
 
     <licenses>
