@@ -2,8 +2,8 @@
 <!-- =======================================================================    
         Maven Project Configuration File                                        
                                                                                 
-        GeoSolutions Ingestion Engine Project                                                    
-            http://www.geo-solutions.it/trac/IngestionEngine
+        GeoSolutions GeoBatch Project                                                    
+            http://geobatch.codehaus.org
                                                                                             
         Version: $Id: pom.xml 63 2008-04-04 11:22:11Z alessio $              
      ======================================================================= -->
@@ -219,18 +219,18 @@
     <artifactId>ie</artifactId>
     <packaging>pom</packaging>
     <version>0.9-SNAPSHOT</version>
-    <name>GeoSolutions Ingestion Engine</name>
+    <name>GeoSolutions GeoBatch</name>
     <url>http://www.geo-solutions.it/maven_reports/ie/</url>
   
     <scm>
         <connection>
-      scm:svn:https://www.geo-solutions.it/svn/ingestion_engine/trunk/
+      scm:svn:https://svn.codehaus.org/geobatch/trunk/
         </connection>
-        <url>https://www.geo-solutions.it/svn/ingestion_engine/trunk/</url>
+        <url>https://svn.codehaus.org/geobatch/trunk/</url>
     </scm>
 
     <description>
-    Welcome to the homepage of the GeoSolutions Ingestion Engine build process
+    Welcome to the homepage of the GeoSolutions GeoBatch build process
     In the left side bar you should see a list of active modules,
     visit each for more details on the status of each module.
     </description>

@@ -1,6 +1,7 @@
+<%
 /*
  *  GeoBatch - Open Source geospatial batch processing system
- *  http://code.google.com/p/geobatch/
+ *  http://geobatch.codehaus.org/
  *  Copyright (C) 2007-2008-2009 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
@@ -19,6 +20,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+%>
 <%@ page contentType="text/html" import="java.sql.*, java.io.*, java.util.*, it.geosolutions.iengine.catalog.*" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -28,7 +30,7 @@
 <HEAD>
 </HEAD>
 <BODY>
-	<H1>Ingestion Engine Control Panel</H1>
+	<H1>GeoBatch Control Panel</H1>
 	<P>
 		<H2>
 		  Flow Managers

@@ -1,6 +1,7 @@
+<%
 /*
  *  GeoBatch - Open Source geospatial batch processing system
- *  http://code.google.com/p/geobatch/
+ *  http://geobatch.codehaus.org/
  *  Copyright (C) 2007-2008-2009 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
@@ -19,13 +20,14 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+%>
  <HEADER>
 	<META 
 		HTTP-EQUIV="Refresh"
      	CONTENT="3; URL=index.do">
 </HEADER>
 <BODY>
-	<H3>GeoSolutions (c) 2006-2008 - Ingestion Engine UI v.1.0</H3>
+	<H3>GeoSolutions (c) 2006-2008 - GeoBatch UI v.1.0</H3>
 	<p>
 		The Flow Manager has been correctly created. Now redirecting to the Control Panel...
 	</p>
