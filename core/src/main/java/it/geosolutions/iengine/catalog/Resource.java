@@ -1,6 +1,6 @@
 /*
  *  GeoBatch - Open Source geospatial batch processing system
- *  http://code.google.com/p/geobatch/
+ *  http://geobatch.codehaus.org/
  *  Copyright (C) 2007-2008-2009 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *

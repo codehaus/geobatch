@@ -2,8 +2,8 @@
 <!-- =======================================================================
         Maven Project Configuration File
 
-        GeoSolutions Ingestion Engine Project
-            http://www.geo-solutions.it/trac/IngestionEngine
+        GeoSolutions GeoBatch Project
+            http://geobatch.codehaus.org
 
         Version: $Id: pom.xml 63 2008-04-04 11:22:11Z alessio $
      ======================================================================= --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                                 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -22,7 +22,7 @@
     <groupId>it.geosolutions</groupId>
     <artifactId>ie-fs-catalog</artifactId>
     <version>0.9-SNAPSHOT</version>
-    <name>GeoSolutions Ingestion Engine catalog file system persistence</name>
+    <name>GeoSolutions GeoBatch catalog file system persistence</name>
     <url>http://www.geo-solutions.it/maven_reports/ie/data/</url>
 
     <scm>
@@ -30,7 +30,7 @@
         <url>http://svn.geotools.org/geotools/trunk/gt/modules/data/</url>
     </scm>
 
-    <description>GeoSolutions Ingestion Engine catalog.</description>
+    <description>GeoSolutions GeoBatch catalog.</description>
 
     <licenses>
         <license>

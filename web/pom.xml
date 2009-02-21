@@ -2,8 +2,8 @@
 <!-- =======================================================================    
         Maven Project Configuration File                                        
                                                                                 
-        GeoSolutions Ingestion Engine Project                                                    
-            http://www.geo-solutions.it/trac/IngestionEngine
+        GeoSolutions GeoBatch Project                                                    
+            http://geobatch.codehaus.org
                                                                                             
         Version: $Id: pom.xml 63 2008-04-04 11:22:11Z alessio $              
      ======================================================================= -->
@@ -23,7 +23,7 @@
     <groupId>it.geosolutions</groupId>
     <artifactId>ie-web</artifactId>
     <packaging>war</packaging>
-    <name>GeoSolutions Ingestion Engine web module</name>
+    <name>GeoSolutions GeoBatch web module</name>
     <url>http://www.geo-solutions.it/maven_reports/ie/library/</url>
   
     <scm>
@@ -32,7 +32,7 @@
     </scm>
   
   
-    <description>GeoSolutions Ingestion Engine web module.</description>
+    <description>GeoSolutions GeoBatch web module.</description>
 
     <licenses>
         <license>
