@@ -2,8 +2,8 @@
 <!-- =======================================================================    
         Maven Project Configuration File                                        
                                                                                 
-        GeoSolutions Ingestion Engine Project                                                    
-            http://www.geo-solutions.it/trac/IngestionEngine
+        GeoSolutions GeoBatch Project                                                    
+            http://geobatch.codehaus.org
                                                                                             
         Version: $Id: pom.xml 63 2008-04-04 11:22:11Z alessio $              
      ======================================================================= -->
@@ -26,7 +26,7 @@
   <groupId>it.geosolutions</groupId>
   <artifactId>ie-flowmanagers</artifactId>
   <packaging>pom</packaging>
-  <name>GeoSolutions Ingestion Engine flow managers</name>
+  <name>GeoSolutions GeoBatch flow managers</name>
   <url>http://www.geo-solutions.it/maven_reports/ie/flow-managers/</url>
   
   <scm>
@@ -37,7 +37,7 @@
   </scm>
   
   <description>
-    GeoSolutions Ingestion Engine flow managers.
+    GeoSolutions GeoBatch flow managers.
   </description>
 
   <licenses>

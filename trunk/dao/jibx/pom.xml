@@ -18,7 +18,7 @@
     <groupId>it.geosolutions</groupId>
     <artifactId>ie-dao-jibx</artifactId>
     <version>0.9-SNAPSHOT</version>
-    <name>GeoSolutions Ingestion Engine pluggable DAOs - JiBX</name>
+    <name>GeoSolutions GeoBatch pluggable DAOs - JiBX</name>
     <url>http://www.geo-solutions.it/maven_reports/ie/data/</url>
 
     <dependencies>

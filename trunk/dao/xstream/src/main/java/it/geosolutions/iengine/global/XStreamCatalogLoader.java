@@ -1,6 +1,6 @@
 /*
  *  GeoBatch - Open Source geospatial batch processing system
- *  http://code.google.com/p/geobatch/
+ *  http://geobatch.codehaus.org/
  *  Copyright (C) 2007-2008-2009 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
@@ -64,7 +64,7 @@ public class XStreamCatalogLoader extends CatalogHolder implements ApplicationCo
     ApplicationContext context;
 
     /**
-     * IngestionEngine data dir. This directory is used by the Ingestion Engine to store Flows
+     * IngestionEngine data dir. This directory is used by the GeoBatch to store Flows
      * configuration files.
      */
     private File dataDir;
