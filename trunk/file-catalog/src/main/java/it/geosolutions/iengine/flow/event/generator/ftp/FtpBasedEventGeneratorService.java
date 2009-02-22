@@ -81,15 +81,21 @@ public class FtpBasedEventGeneratorService
      */
     public FtpBasedEventGenerator createEventGenerator(
             FtpBasedEventGeneratorConfiguration configuration) {
+        String errorMsg="";
 
         try {
             final OsType osType = configuration.getOsType();
             final FileSystemMonitorNotifications eventType = configuration.getEventType();
-       final File sensedDir;
+            final File sensedDir;
             sensedDir = IOUtils.findLocation(configuration.getWorkingDirectory(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
             if (sensedDir != null) {
-                if (!sensedDir.exists() || !sensedDir.isDirectory() || !sensedDir.canRead()) // TODO message
-                    return null;
+                if (!sensedDir.exists() || !sensedDir.isDirectory() || !sensedDir.canRead()) {
+                    errorMsg = "Error on working directory: ".concat(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory())+ "/".concat(configuration.getWorkingDirectory()) ;
+                    throw new Exception(errorMsg);
+                }
+            } else {
+                    errorMsg = "Error on working directory: ".concat(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory())+ "/".concat(configuration.getWorkingDirectory()) ;
+                    throw new Exception(errorMsg);
             }
             if (configuration.getWildCard() == null)
                 return new FtpBasedEventGenerator(osType, eventType, sensedDir);

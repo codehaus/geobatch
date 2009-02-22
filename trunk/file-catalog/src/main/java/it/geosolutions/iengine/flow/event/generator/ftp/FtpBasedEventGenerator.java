@@ -189,22 +189,23 @@ public class FtpBasedEventGenerator<T extends EventObject> extends BaseEventGene
             final String ftpserverPWD,final String ftpserverPort) throws NotSupportedException {
         LOGGER.info("start");
         FactoryFinder.scanForPlugins();
+        LOGGER.info("FsMonitor Init");
         this.fsMonitor = (BaseFileSystemMonitor) FactoryFinder.getMonitor(osType);
         // add myself as listener
         fsListener = new EventListener();
         this.fsMonitor.addListener(fsListener);
-
+        LOGGER.info("FsMonitor Listener added");
         this.watchDirectory = dir;
         this.wildCard = wildcard;
         this.eventType = eventType;
-
+        LOGGER.info("FsMonitor Configured");
         if ((this.fsMonitor != null) && (this.watchDirectory != null) && this.watchDirectory.isDirectory() && this.watchDirectory.exists()) {
             if (this.wildCard != null) {
                 this.fsMonitor.setFile(this.watchDirectory, this.wildCard);
             } else {
                 this.fsMonitor.setFile(this.watchDirectory);
             }
-
+            LOGGER.info("Trying to set FTPServer");
             try {
                 LOGGER.info("FtpServer initialization");
                 serverFactory = new FtpServerFactory();
@@ -240,7 +241,11 @@ public class FtpBasedEventGenerator<T extends EventObject> extends BaseEventGene
                 LOGGER.info("Error: " + ex);
             }
         }
-        LOGGER.info("start");
+        else { LOGGER.warning("W:".concat(this.fsMonitor.toString()) +
+                "-".concat(this.watchDirectory.getAbsolutePath()) +
+                "-".concat((this.watchDirectory.isDirectory()?"true":"false"))+
+                "-".concat((this.watchDirectory.exists()?"true":"false")));}
+        LOGGER.info("end");
     }
 
     // ----------------------------------------------- PUBLIC ACCESS METHODS
