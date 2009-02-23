@@ -129,7 +129,7 @@
                 <site>
                     <id>site-geosolutions</id>
                     <name>Web site for Maven reports</name>
-                    <url>scp://www.geo-solutions.it/var/www/geo-solutions.it/maven/reports/ie</url>
+                    <url>scp://www.geo-solutions.it/var/www/geo-solutions.it/maven/reports/gb</url>
                 </site>
             </distributionManagement>
         </profile>
@@ -216,11 +216,11 @@
   <!--     Project Description                                     -->
   <!-- =========================================================== -->
     <groupId>it.geosolutions</groupId>
-    <artifactId>ie</artifactId>
+    <artifactId>gb</artifactId>
     <packaging>pom</packaging>
     <version>0.9-SNAPSHOT</version>
     <name>GeoSolutions GeoBatch</name>
-    <url>http://www.geo-solutions.it/maven_reports/ie/</url>
+    <url>http://www.geo-solutions.it/maven_reports/gb/</url>
   
     <scm>
         <connection>
