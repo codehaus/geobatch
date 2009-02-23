@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>ie-dao</artifactId>
+        <artifactId>gb-dao</artifactId>
         <groupId>it.geosolutions</groupId>
         <version>0.9-SNAPSHOT</version>
     </parent>
@@ -16,10 +16,10 @@
   <!-- =========================================================== -->
 
     <groupId>it.geosolutions</groupId>
-    <artifactId>ie-dao-xstream</artifactId>
+    <artifactId>gb-dao-xstream</artifactId>
     <version>0.9-SNAPSHOT</version>
     <name>GeoSolutions GeoBatch pluggable DAOs - XStream</name>
-    <url>http://www.geo-solutions.it/maven_reports/ie/data/</url>
+    <url>http://www.geo-solutions.it/maven_reports/gb/data/</url>
 
     <dependencies>
 
@@ -32,19 +32,19 @@
 
         <dependency>
             <groupId>it.geosolutions</groupId>
-            <artifactId>ie-core</artifactId>
+            <artifactId>gb-core</artifactId>
             <version>0.9-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>it.geosolutions</groupId>
-            <artifactId>ie-fs-catalog</artifactId>
+            <artifactId>gb-fs-catalog</artifactId>
             <version>0.9-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>it.geosolutions</groupId>
-            <artifactId>ie-flowmanagers-geotiff</artifactId>
+            <artifactId>gb-flowmanagers-geotiff</artifactId>
             <version>0.9-SNAPSHOT</version>
         </dependency>
 

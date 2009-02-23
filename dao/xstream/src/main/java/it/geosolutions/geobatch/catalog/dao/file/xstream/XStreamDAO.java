@@ -22,14 +22,14 @@
 
 
 
-package it.geosolutions.iengine.catalog.dao.file.xstream;
+package it.geosolutions.geobatch.catalog.dao.file.xstream;
 
 import com.thoughtworks.xstream.XStream;
-import it.geosolutions.iengine.catalog.Configuration;
-import it.geosolutions.iengine.catalog.dao.DAO;
-import it.geosolutions.iengine.catalog.dao.file.BaseFileBaseDAO;
+import it.geosolutions.geobatch.catalog.Configuration;
+import it.geosolutions.geobatch.catalog.dao.DAO;
+import it.geosolutions.geobatch.catalog.dao.file.BaseFileBaseDAO;
 
-import it.geosolutions.iengine.xstream.Alias;
+import it.geosolutions.geobatch.xstream.Alias;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;

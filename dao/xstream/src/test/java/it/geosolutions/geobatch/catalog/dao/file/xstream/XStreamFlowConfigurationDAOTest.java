@@ -22,18 +22,18 @@
 
 
 
-package it.geosolutions.iengine.catalog.dao.file.xstream;
+package it.geosolutions.geobatch.catalog.dao.file.xstream;
 
 import com.thoughtworks.xstream.XStream;
 import it.geosolutions.filesystemmonitor.OsType;
-import it.geosolutions.iengine.configuration.event.action.ActionConfiguration;
-import it.geosolutions.iengine.configuration.event.action.geoserver.GeoServerActionConfiguration;
-import it.geosolutions.iengine.configuration.event.consumer.file.FileBasedEventConsumerConfiguration;
-import it.geosolutions.iengine.configuration.event.generator.file.FileBasedEventGeneratorConfiguration;
-import it.geosolutions.iengine.configuration.flow.file.FileBasedFlowConfiguration;
-import it.geosolutions.iengine.flow.event.consumer.file.FileEventRule;
-import it.geosolutions.iengine.geotiff.overview.GeoTiffOverviewsEmbedderConfiguration;
-import it.geosolutions.iengine.xstream.Alias;
+import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
+import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
+import it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration;
+import it.geosolutions.geobatch.configuration.event.generator.file.FileBasedEventGeneratorConfiguration;
+import it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration;
+import it.geosolutions.geobatch.flow.event.consumer.file.FileEventRule;
+import it.geosolutions.geobatch.geotiff.overview.GeoTiffOverviewsEmbedderConfiguration;
+import it.geosolutions.geobatch.xstream.Alias;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;

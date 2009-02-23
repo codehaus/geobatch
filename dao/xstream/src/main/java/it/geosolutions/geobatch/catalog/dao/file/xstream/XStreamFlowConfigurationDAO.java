@@ -22,54 +22,49 @@
 
 
 
-package it.geosolutions.iengine.catalog.dao.file.xstream;
+package it.geosolutions.geobatch.catalog.dao.file.xstream;
 
-import com.thoughtworks.xstream.XStream;
-import it.geosolutions.iengine.catalog.dao.CatalogConfigurationDAO;
-import it.geosolutions.iengine.configuration.CatalogConfiguration;
-import it.geosolutions.iengine.configuration.flow.file.FileBasedCatalogConfiguration;
+import it.geosolutions.geobatch.catalog.dao.FlowManagerConfigurationDAO;
+import it.geosolutions.geobatch.configuration.flow.FlowConfiguration;
+import it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration;
+import it.geosolutions.geobatch.xstream.Alias;
 
-import it.geosolutions.iengine.xstream.Alias;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-/**
- * 
- * @author Simone Giannecchini, GeoSolutions SAS
- *
- */
-public class XStreamCatalogDAO extends XStreamDAO<CatalogConfiguration> implements
-        CatalogConfigurationDAO {
-	
-	public final static Logger LOGGER= Logger.getLogger(XStreamCatalogDAO.class.toString());
 
-    public XStreamCatalogDAO(String directory) {
+import com.thoughtworks.xstream.XStream;
+
+public class XStreamFlowConfigurationDAO extends XStreamDAO<FlowConfiguration> implements
+        FlowManagerConfigurationDAO {
+
+	private final static Logger LOGGER=Logger.getLogger(XStreamFlowConfigurationDAO.class.toString());
+	
+    public XStreamFlowConfigurationDAO(String directory) {
         super(directory);
     }
 
-    public CatalogConfiguration find(CatalogConfiguration exampleInstance, boolean lock) {
+    public FileBasedFlowConfiguration find(FlowConfiguration exampleInstance, boolean lock) {
         return find(exampleInstance.getId(), lock);
     }
 
-    public CatalogConfiguration find(String id, boolean lock) {
+    public FileBasedFlowConfiguration find(String id, boolean lock) {
         try {
             final File entityfile = new File(getBaseDirectory(), id + ".xml");
             if (entityfile.canRead() && !entityfile.isDirectory()) {
                 XStream xstream = new XStream();
                 Alias.setAliases(xstream);
-                FileBasedCatalogConfiguration obj = (FileBasedCatalogConfiguration) xstream.fromXML(new FileInputStream(entityfile));
-                if (obj.getWorkingDirectory() == null)
-                    obj.setWorkingDirectory(getBaseDirectory());
-                if(LOGGER.isLoggable(Level.INFO))
-             	   LOGGER.info("XStreamCatalogDAO:: FOUND " + id + ">" + obj + "<");
-                return obj;
 
+                FileBasedFlowConfiguration obj = (FileBasedFlowConfiguration) xstream
+                        .fromXML(new BufferedInputStream(new FileInputStream(entityfile)));
+                return obj;
             }
         } catch (Throwable e) {
-           if(LOGGER.isLoggable(Level.SEVERE))
-        	   LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
-           }
+            if(LOGGER.isLoggable(Level.SEVERE))
+            	LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
+        }
         return null;
     }
 
