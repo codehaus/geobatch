@@ -22,11 +22,11 @@
 
 
 
-package it.geosolutions.iengine.catalog.dao.file.jibx;
+package it.geosolutions.geobatch.catalog.dao.file.jibx;
 
-import it.geosolutions.iengine.catalog.Configuration;
-import it.geosolutions.iengine.catalog.dao.DAO;
-import it.geosolutions.iengine.catalog.dao.file.BaseFileBaseDAO;
+import it.geosolutions.geobatch.catalog.Configuration;
+import it.geosolutions.geobatch.catalog.dao.DAO;
+import it.geosolutions.geobatch.catalog.dao.file.BaseFileBaseDAO;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

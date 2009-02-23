@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<EventManagerConfig xmlns="configuration.iengine.geosolutions.it" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="configuration.iengine.geosolutions.it 
+<EventManagerConfig xmlns="configuration.geobatch.geosolutions.it" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="configuration.geobatch.geosolutions.it 
 	..\..\..\..\..\..\..\schema\manager_config.xsd">
 	<Name>SHP_AIS</Name>
 	<NameSpace uri="http://www.nurc.nato.int">nurc</NameSpace>
