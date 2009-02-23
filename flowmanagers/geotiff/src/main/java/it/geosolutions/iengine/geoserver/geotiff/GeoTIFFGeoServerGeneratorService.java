@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 /**
  * Comments here ...
  * 
- * @author AlFa
+ * @author
  * 
  * @version $ ShapeFileDTOProducerSPI.java $ Revision: x.x $ 19/feb/07 16:16:13
  */
