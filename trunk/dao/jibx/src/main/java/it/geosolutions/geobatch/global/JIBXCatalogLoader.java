@@ -22,15 +22,15 @@
 
 
 
-package it.geosolutions.iengine.global;
+package it.geosolutions.geobatch.global;
 
-import it.geosolutions.iengine.catalog.Catalog;
-import it.geosolutions.iengine.catalog.Service;
-import it.geosolutions.iengine.catalog.dao.file.jibx.JIBXCatalogDAO;
-import it.geosolutions.iengine.catalog.dao.file.jibx.JIBXFlowConfigurationDAO;
-import it.geosolutions.iengine.catalog.file.FileBaseCatalog;
-import it.geosolutions.iengine.configuration.flow.file.FileBasedCatalogConfiguration;
-import it.geosolutions.iengine.flow.file.FileBasedFlowManager;
+import it.geosolutions.geobatch.catalog.Catalog;
+import it.geosolutions.geobatch.catalog.Service;
+import it.geosolutions.geobatch.catalog.dao.file.jibx.JIBXCatalogDAO;
+import it.geosolutions.geobatch.catalog.dao.file.jibx.JIBXFlowConfigurationDAO;
+import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
+import it.geosolutions.geobatch.configuration.flow.file.FileBasedCatalogConfiguration;
+import it.geosolutions.geobatch.flow.file.FileBasedFlowManager;
 
 import java.io.File;
 import java.util.Iterator;
@@ -64,7 +64,7 @@ public class JIBXCatalogLoader extends CatalogHolder implements ApplicationConte
     private ApplicationContext context;
 
     /**
-     * IngestionEngine data dir. This directory is used by the GeoBatch to store Flows
+     * GeoBatch data dir. This directory is used by the GeoBatch to store Flows
      * configuration files.
      */
     private File dataDir;
@@ -87,11 +87,11 @@ public class JIBXCatalogLoader extends CatalogHolder implements ApplicationConte
 
             if (dataDir == null) {
                 // its defined!!
-                String prop = System.getProperty("INGESTIONENGINE_DATA_DIR");
+                String prop = System.getProperty("GEOBATCH_DATA_DIR");
                 if (prop != null)
                     dataDir = new File(prop);
                 else {
-                    prop = System.getenv("INGESTIONENGINE_DATA_DIR");
+                    prop = System.getenv("GEOBATCH_DATA_DIR");
                     if (prop != null)
                         dataDir = new File(prop);
                     else {
@@ -119,7 +119,7 @@ public class JIBXCatalogLoader extends CatalogHolder implements ApplicationConte
         }
         ((FileBaseCatalog) CatalogHolder.getCatalog()).setBaseDirectory(dataDir.getAbsolutePath());
         System.out.println("----------------------------------");
-        System.out.println("- INGESTIONENGINE_DATA_DIR: " + dataDir.getAbsolutePath());
+        System.out.println("- GEOBATCH_DATA_DIR: " + dataDir.getAbsolutePath());
         System.out.println("----------------------------------");
 
         // //

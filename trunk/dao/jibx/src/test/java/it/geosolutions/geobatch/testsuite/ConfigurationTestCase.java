@@ -22,15 +22,15 @@
 
 
 
-package it.geosolutions.iengine.testsuite;
+package it.geosolutions.geobatch.testsuite;
 
 import it.geosolutions.filesystemmonitor.OsType;
-import it.geosolutions.iengine.configuration.event.action.geoserver.GeoServerActionConfiguration;
-import it.geosolutions.iengine.configuration.event.consumer.file.FileBasedEventConsumerConfiguration;
-import it.geosolutions.iengine.configuration.event.generator.file.FileBasedEventGeneratorConfiguration;
-import it.geosolutions.iengine.configuration.flow.file.FileBasedCatalogConfiguration;
-import it.geosolutions.iengine.configuration.flow.file.FileBasedFlowConfiguration;
-import it.geosolutions.iengine.flow.event.consumer.file.FileEventRule;
+import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
+import it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration;
+import it.geosolutions.geobatch.configuration.event.generator.file.FileBasedEventGeneratorConfiguration;
+import it.geosolutions.geobatch.configuration.flow.file.FileBasedCatalogConfiguration;
+import it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration;
+import it.geosolutions.geobatch.flow.event.consumer.file.FileEventRule;
 import it.geosolutions.resources.TestData;
 
 import java.io.File;

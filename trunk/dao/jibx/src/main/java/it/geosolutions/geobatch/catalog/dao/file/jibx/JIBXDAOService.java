@@ -22,14 +22,14 @@
 
 
 
-package it.geosolutions.iengine.catalog.dao.file.jibx;
+package it.geosolutions.geobatch.catalog.dao.file.jibx;
 
-import it.geosolutions.iengine.catalog.Configuration;
-import it.geosolutions.iengine.catalog.dao.DAO;
-import it.geosolutions.iengine.catalog.dao.DAOService;
-import it.geosolutions.iengine.catalog.impl.BaseService;
-import it.geosolutions.iengine.configuration.CatalogConfiguration;
-import it.geosolutions.iengine.configuration.flow.FlowConfiguration;
+import it.geosolutions.geobatch.catalog.Configuration;
+import it.geosolutions.geobatch.catalog.dao.DAO;
+import it.geosolutions.geobatch.catalog.dao.DAOService;
+import it.geosolutions.geobatch.catalog.impl.BaseService;
+import it.geosolutions.geobatch.configuration.CatalogConfiguration;
+import it.geosolutions.geobatch.configuration.flow.FlowConfiguration;
 
 public class JIBXDAOService<T extends Configuration> extends BaseService implements
         DAOService<T, String> {

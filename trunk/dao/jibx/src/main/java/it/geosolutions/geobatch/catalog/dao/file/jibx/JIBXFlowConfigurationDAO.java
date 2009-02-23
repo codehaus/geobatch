@@ -22,12 +22,14 @@
 
 
 
-package it.geosolutions.iengine.catalog.dao.file.jibx;
+package it.geosolutions.geobatch.catalog.dao.file.jibx;
 
-import it.geosolutions.iengine.catalog.dao.CatalogConfigurationDAO;
-import it.geosolutions.iengine.configuration.CatalogConfiguration;
-import it.geosolutions.iengine.configuration.flow.file.FileBasedCatalogConfiguration;
+import it.geosolutions.geobatch.catalog.dao.FlowManagerConfigurationDAO;
+import it.geosolutions.geobatch.configuration.flow.FlowConfiguration;
+import it.geosolutions.geobatch.configuration.flow.file.FileBasedCatalogConfiguration;
+import it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 
@@ -35,24 +37,25 @@ import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
 import org.jibx.runtime.IUnmarshallingContext;
 
-public class JIBXCatalogDAO extends JIBXDAO<CatalogConfiguration> implements
-        CatalogConfigurationDAO {
+public class JIBXFlowConfigurationDAO
+		extends JIBXDAO<FlowConfiguration>
+		implements FlowManagerConfigurationDAO {
 
-    public JIBXCatalogDAO(String directory) {
+    public JIBXFlowConfigurationDAO(String directory) {
         super(directory);
     }
 
-    public CatalogConfiguration find(CatalogConfiguration exampleInstance, boolean lock) {
+    public FileBasedFlowConfiguration find(FlowConfiguration exampleInstance, boolean lock) {
         return find(exampleInstance.getId(), lock);
     }
 
-    public CatalogConfiguration find(String id, boolean lock) {
+    public FileBasedFlowConfiguration find(String id, boolean lock) {
         try {
             final File entityfile = new File(getBaseDirectory(), id + ".xml");
             if (entityfile.exists() && entityfile.canRead()) {
                 IBindingFactory bfact = BindingDirectory.getFactory(FileBasedCatalogConfiguration.class);
                 IUnmarshallingContext uctx = bfact.createUnmarshallingContext();
-                FileBasedCatalogConfiguration obj = (FileBasedCatalogConfiguration) uctx.unmarshalDocument(new FileInputStream(entityfile), null);
+                FileBasedFlowConfiguration obj = (FileBasedFlowConfiguration) uctx.unmarshalDocument(new BufferedInputStream(new FileInputStream(entityfile)), null);
                 return obj;
 
             }
