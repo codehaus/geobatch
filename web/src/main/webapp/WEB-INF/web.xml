@@ -1,7 +1,7 @@
-<web-app id="iengine" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+<web-app id="geobatch" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
-	<display-name>IngestionEngine</display-name>
+	<display-name>GeoBatch</display-name>
 	<description>GeoSolutions GeoBatch</description>
 
 	<!-- pick up all spring application contexts -->
@@ -17,21 +17,21 @@
   
   	<!-- spring dispatcher servlet, dispatches incoming requests to controllers -->
   	<servlet>
-        <servlet-name>iengine</servlet-name>
+        <servlet-name>geobatch</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
 	<context-param>
-	     <param-name>INGESTIONENGINE_DATA_DIR</param-name>
-	     <param-value> /media/disk/Sviluppo/Progetti/it.geo-solutions/geobatch/web/target/iengine/WEB-INF/data/
+	     <param-name>GEOBATCH_DATA_DIR</param-name>
+	     <param-value> /media/disk/Sviluppo/Progetti/it.geo-solutions/geobatch/web/target/geobatch/WEB-INF/data/
 </param-value>
 	</context-param>    
     <servlet-mapping>
-        <servlet-name>iengine</servlet-name>
+        <servlet-name>geobatch</servlet-name>
         <url-pattern>*.do</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>iengine</servlet-name>
+        <servlet-name>geobatch</servlet-name>
         <url-pattern>*.form</url-pattern>
     </servlet-mapping>
     

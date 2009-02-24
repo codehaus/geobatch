@@ -20,7 +20,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.geosolutions.iengine.ui.mvc.data;
+package it.geosolutions.geobatch.ui.mvc.data;
 
 /**
  * @author Alessio Fabiani
