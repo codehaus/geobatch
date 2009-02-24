@@ -4,7 +4,7 @@
 <beans>
 
 	<!-- Environment Initialization -->
-	<bean id="shapefileGeoServerGenerator" class="it.geosolutions.iengine.geoserver.shapefile.ShapeFileGeoServerGeneratorService">
+	<bean id="shapefileGeoServerGenerator" class="it.geosolutions.geobatch.geoserver.shapefile.ShapeFileGeoServerGeneratorService">
 		<property  name="id">
     		<value>shapefileGeoServerGenerator</value>
     	</property>
