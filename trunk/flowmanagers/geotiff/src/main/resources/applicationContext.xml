@@ -4,7 +4,7 @@
 <beans>
 
 	<!-- Environment Initialization -->
-	<bean id="geotiffGeoServerGeneratorService" class="it.geosolutions.iengine.geoserver.geotiff.GeoTIFFGeoServerGeneratorService">
+	<bean id="geotiffGeoServerGeneratorService" class="it.geosolutions.geobatch.geoserver.geotiff.GeoTIFFGeoServerGeneratorService">
 		<property  name="id">
     		<value>geotiffGeoServerGeneratorService</value>
     	</property>
@@ -19,7 +19,7 @@
     
 
 	<!-- Environment Initialization -->
-	<bean id="geotiffOverviewsEmbedderService" class="it.geosolutions.iengine.geotiff.overview.GeoTiffOverviewsEmbedderService">
+	<bean id="geotiffOverviewsEmbedderService" class="it.geosolutions.geobatch.geotiff.overview.GeoTiffOverviewsEmbedderService">
 		<property  name="id">
     		<value>geotiffOverviewsEmbedderService</value>
     	</property>
@@ -33,7 +33,7 @@
     
     
 	<!-- Environment Initialization -->
-	<bean id="geoTiffRetilerService" class="it.geosolutions.iengine.geotiff.retile.GeoTiffRetilerService">
+	<bean id="geoTiffRetilerService" class="it.geosolutions.geobatch.geotiff.retile.GeoTiffRetilerService">
 		<property  name="id">
     		<value>geoTiffRetilerService</value>
     	</property>

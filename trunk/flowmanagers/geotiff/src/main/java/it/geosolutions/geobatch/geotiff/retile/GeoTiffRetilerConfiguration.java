@@ -22,10 +22,10 @@
 
 
 
-package it.geosolutions.iengine.geotiff.retile;
+package it.geosolutions.geobatch.geotiff.retile;
 
-import it.geosolutions.iengine.catalog.Configuration;
-import it.geosolutions.iengine.configuration.event.action.ActionConfiguration;
+import it.geosolutions.geobatch.catalog.Configuration;
+import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 
 import org.geotools.utils.CoverageToolsConstants;
 
