@@ -4,7 +4,7 @@
 <beans>
 
 	<!-- Environment Initialization -->
-	<bean id="asciiGeoServerGenerator" class="it.geosolutions.iengine.geoserver.ascii.AsciiGeoServerGeneratorService">
+	<bean id="asciiGeoServerGenerator" class="it.geosolutions.geobatch.geoserver.ascii.AsciiGeoServerGeneratorService">
 		<property  name="id">
     		<value>asciiGeoServerGenerator</value>
     	</property>

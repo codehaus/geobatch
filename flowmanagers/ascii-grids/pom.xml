@@ -14,7 +14,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>it.geosolutions</groupId>
-    <artifactId>ie-flowmanagers</artifactId>
+    <artifactId>gb-flowmanagers</artifactId>
     <version>0.9-SNAPSHOT</version>
   </parent>
   
@@ -23,10 +23,10 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>it.geosolutions</groupId>
-  <artifactId>ie-flowmanagers-ascii</artifactId>
+  <artifactId>gb-flowmanagers-ascii</artifactId>
   <packaging>jar</packaging>
   <name>GeoSolutions GeoBatch flow managers - ASCII Grids flow</name>
-  <url>http://www.geo-solutions.it/maven_reports/ie/flow-managers/</url>
+  <url>http://www.geo-solutions.it/maven_reports/gb/flow-managers/</url>
   
   <scm>
     <connection>
@@ -53,7 +53,7 @@
   <dependencies>
 	    <dependency>
 			  <groupId>it.geosolutions</groupId>
-			  <artifactId>ie-core</artifactId>
+			  <artifactId>gb-core</artifactId>
 	      <version>${project.version}</version>
 	    </dependency>
 
@@ -75,7 +75,7 @@
 	    </dependency>
 	    <dependency>
 	    	<groupId>it.geosolutions</groupId>
-	    	<artifactId>ie-fs-catalog</artifactId>
+	    	<artifactId>gb-fs-catalog</artifactId>
 	    	<version>0.9-SNAPSHOT</version>
 	    </dependency>
   </dependencies>
