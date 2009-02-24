@@ -15,7 +15,7 @@
 
   <parent>
     <groupId>it.geosolutions</groupId>
-    <artifactId>ie</artifactId>
+    <artifactId>gb</artifactId>
     <version>0.9-SNAPSHOT</version>
   </parent>
   
@@ -24,10 +24,10 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>it.geosolutions</groupId>
-  <artifactId>ie-flowmanagers</artifactId>
+  <artifactId>gb-flowmanagers</artifactId>
   <packaging>pom</packaging>
   <name>GeoSolutions GeoBatch flow managers</name>
-  <url>http://www.geo-solutions.it/maven_reports/ie/flow-managers/</url>
+  <url>http://www.geo-solutions.it/maven_reports/gb/flow-managers/</url>
   
   <scm>
     <connection>
