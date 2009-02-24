@@ -22,12 +22,12 @@
 
 
 
-package it.geosolutions.iengine.geotiff.overview;
+package it.geosolutions.geobatch.geotiff.overview;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.iengine.configuration.event.action.ActionConfiguration;
-import it.geosolutions.iengine.flow.event.action.Action;
-import it.geosolutions.iengine.flow.event.action.BaseAction;
+import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
+import it.geosolutions.geobatch.flow.event.action.Action;
+import it.geosolutions.geobatch.flow.event.action.BaseAction;
 
 import java.io.IOException;
 import java.util.Queue;

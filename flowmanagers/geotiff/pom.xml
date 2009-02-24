@@ -15,7 +15,7 @@
 
   <parent>
     <groupId>it.geosolutions</groupId>
-    <artifactId>ie-flowmanagers</artifactId>
+    <artifactId>gb-flowmanagers</artifactId>
     <version>0.9-SNAPSHOT</version>
   </parent>
   
@@ -24,10 +24,10 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>it.geosolutions</groupId>
-  <artifactId>ie-flowmanagers-geotiff</artifactId>
+  <artifactId>gb-flowmanagers-geotiff</artifactId>
   <packaging>jar</packaging>
   <name>GeoSolutions GeoBatch flow managers - GeoTIFF flow</name>
-  <url>http://www.geo-solutions.it/maven_reports/ie/flowmanagers/</url>
+  <url>http://www.geo-solutions.it/maven_reports/gb/flowmanagers/</url>
   
   <scm>
     <connection>
@@ -54,7 +54,7 @@
   <dependencies>
 	    <dependency>
 			  <groupId>it.geosolutions</groupId>
-			  <artifactId>ie-core</artifactId>
+			  <artifactId>gb-core</artifactId>
 	      <version>${project.version}</version>
 	    </dependency>
 
@@ -65,7 +65,7 @@
 	    </dependency>
 	    <dependency>
 	    	<groupId>it.geosolutions</groupId>
-	    	<artifactId>ie-fs-catalog</artifactId>
+	    	<artifactId>gb-fs-catalog</artifactId>
 	    	<version>0.9-SNAPSHOT</version>
 	    </dependency>
 	    <dependency>

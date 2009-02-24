@@ -22,11 +22,11 @@
 
 
 
-package it.geosolutions.iengine.geoserver.geotiff;
+package it.geosolutions.geobatch.geoserver.geotiff;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.iengine.configuration.event.action.geoserver.GeoServerActionConfiguration;
-import it.geosolutions.iengine.flow.event.action.geoserver.GeoServerConfiguratorService;
+import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
+import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorService;
 
 import java.io.IOException;
 import java.util.logging.Level;
