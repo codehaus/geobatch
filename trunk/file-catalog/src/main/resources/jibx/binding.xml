@@ -1,7 +1,7 @@
 <binding>
 
 
-	<mapping class="it.geosolutions.iengine.catalog.impl.BaseIdentifiable"
+	<mapping class="it.geosolutions.geobatch.catalog.impl.BaseIdentifiable"
 		abstract="true">
 		<value name="id" field="id" />
 		<value name="description" field="description" usage="optional" />
@@ -9,65 +9,65 @@
 	</mapping>
 
 	<mapping
-		class="it.geosolutions.iengine.catalog.impl.BaseConfiguration" 
-		extends="it.geosolutions.iengine.catalog.impl.BaseIdentifiable"
+		class="it.geosolutions.geobatch.catalog.impl.BaseConfiguration" 
+		extends="it.geosolutions.geobatch.catalog.impl.BaseIdentifiable"
 		abstract="true">
 		<value name="serviceID" field="serviceID" />
-		<structure map-as="it.geosolutions.iengine.catalog.impl.BaseIdentifiable" />
+		<structure map-as="it.geosolutions.geobatch.catalog.impl.BaseIdentifiable" />
 	</mapping>
 		
 	<mapping
-		class="it.geosolutions.iengine.configuration.event.action.ActionConfiguration"
-		extends="it.geosolutions.iengine.catalog.impl.BaseConfiguration" 
+		class="it.geosolutions.geobatch.configuration.event.action.ActionConfiguration"
+		extends="it.geosolutions.geobatch.catalog.impl.BaseConfiguration" 
 		abstract="true">
-		<structure map-as="it.geosolutions.iengine.catalog.impl.BaseIdentifiable" />
+		<structure map-as="it.geosolutions.geobatch.catalog.impl.BaseIdentifiable" />
 	</mapping>
 
 	<mapping
-		class="it.geosolutions.iengine.configuration.flow.BaseFlowConfiguration"
-		extends="it.geosolutions.iengine.catalog.impl.BaseIdentifiable"
+		class="it.geosolutions.geobatch.configuration.flow.BaseFlowConfiguration"
+		extends="it.geosolutions.geobatch.catalog.impl.BaseIdentifiable"
 		abstract="true">
 		<structure field="eventConsumerConfiguration" />
 		<structure field="eventGeneratorConfiguration" />
-		<structure map-as="it.geosolutions.iengine.catalog.impl.BaseIdentifiable" />
+		<structure map-as="it.geosolutions.geobatch.catalog.impl.BaseIdentifiable" />
 	</mapping>
 
     <!-- next classes are defined in this maven project -->
 
 	<mapping name="EventGeneratorConfiguration"
-		class="it.geosolutions.iengine.configuration.event.generator.file.FileBasedEventGeneratorConfiguration"
-		extends="it.geosolutions.iengine.catalog.impl.BaseIdentifiable">
+		class="it.geosolutions.geobatch.configuration.event.generator.file.FileBasedEventGeneratorConfiguration"
+		extends="it.geosolutions.geobatch.catalog.impl.BaseIdentifiable">
 		<value name="wildCard" field="wildCard" />
 		<value name="watchDirectory" field="watchDirectory" />
 		<value name="osType" field="osType" usage="optional" />
 		<value name="eventType" field="eventType" usage="optional" />
-		<structure map-as="it.geosolutions.iengine.catalog.impl.BaseIdentifiable" />
+		<structure map-as="it.geosolutions.geobatch.catalog.impl.BaseIdentifiable" />
 	</mapping>
 
 	<mapping name="FileEventRule"
-		class="it.geosolutions.iengine.flow.event.consumer.file.FileEventRule"
-		extends="it.geosolutions.iengine.catalog.impl.BaseIdentifiable">
+		class="it.geosolutions.geobatch.flow.event.consumer.file.FileEventRule"
+		extends="it.geosolutions.geobatch.catalog.impl.BaseIdentifiable">
 		<value name="optional" field="optional" />
 		<value name="originalOccurrencies" field="originalOccurrencies" />
 		<value name="regex" field="regex" />
-		<structure map-as="it.geosolutions.iengine.catalog.impl.BaseIdentifiable" />
+		<structure map-as="it.geosolutions.geobatch.catalog.impl.BaseIdentifiable" />
 	</mapping>
 
     <mapping name="EventConsumerConfiguration"
-		class="it.geosolutions.iengine.configuration.event.consumer.file.FileBasedEventConsumerConfiguration"
-		extends="it.geosolutions.iengine.catalog.impl.BaseIdentifiable">
+		class="it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration"
+		extends="it.geosolutions.geobatch.catalog.impl.BaseIdentifiable">
 		<value name="workingDirectory" field="workingDirectory" />
 		<value name="performBackup" field="performBackup" usage="optional" />
 		<collection field="rules"
-			item-type="it.geosolutions.iengine.flow.event.consumer.file.FileEventRule" />
+			item-type="it.geosolutions.geobatch.flow.event.consumer.file.FileEventRule" />
 		<collection field="actions"
-			item-type="it.geosolutions.iengine.configuration.event.action.ActionConfiguration" />
-		<structure map-as="it.geosolutions.iengine.catalog.impl.BaseIdentifiable" />
+			item-type="it.geosolutions.geobatch.configuration.event.action.ActionConfiguration" />
+		<structure map-as="it.geosolutions.geobatch.catalog.impl.BaseIdentifiable" />
 	</mapping>
 
 	<mapping name="GeoServerActionConfiguration"
-		class="it.geosolutions.iengine.configuration.event.action.geoserver.GeoServerActionConfiguration"
-		extends="it.geosolutions.iengine.configuration.event.action.ActionConfiguration">
+		class="it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration"
+		extends="it.geosolutions.geobatch.configuration.event.action.ActionConfiguration">
 		<value name="workingDirectory" field="workingDirectory" usage="optional" />
 		<value name="crs" field="crs" />
 		<value name="envelope" field="envelope" />
@@ -85,22 +85,22 @@
 		<collection name="styles" field="styles" type="java.util.ArrayList">
 			<value name="style" type="java.lang.String" />
 		</collection>
-		<structure map-as="it.geosolutions.iengine.catalog.impl.BaseConfiguration" />
+		<structure map-as="it.geosolutions.geobatch.catalog.impl.BaseConfiguration" />
 	</mapping>
 
     <mapping name="FlowConfiguration"
-		class="it.geosolutions.iengine.configuration.flow.file.FileBasedFlowConfiguration"
-		extends="it.geosolutions.iengine.configuration.flow.BaseFlowConfiguration">
+		class="it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration"
+		extends="it.geosolutions.geobatch.configuration.flow.BaseFlowConfiguration">
 		<value name="workingDirectory" field="workingDirectory" />
 		<structure
-			map-as="it.geosolutions.iengine.configuration.flow.BaseFlowConfiguration" />
+			map-as="it.geosolutions.geobatch.configuration.flow.BaseFlowConfiguration" />
 	</mapping>
 
 	<mapping name="CatalogConfiguration"
-		class="it.geosolutions.iengine.configuration.flow.file.FileBasedCatalogConfiguration"
-		extends="it.geosolutions.iengine.catalog.impl.BaseIdentifiable">
+		class="it.geosolutions.geobatch.configuration.flow.file.FileBasedCatalogConfiguration"
+		extends="it.geosolutions.geobatch.catalog.impl.BaseIdentifiable">
 		<value name="workingDirectory" field="workingDirectory" usage="optional" />
-		<structure map-as="it.geosolutions.iengine.catalog.impl.BaseIdentifiable" />
+		<structure map-as="it.geosolutions.geobatch.catalog.impl.BaseIdentifiable" />
 	</mapping>
 
 </binding>

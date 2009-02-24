@@ -6,7 +6,7 @@
     
     
     <!-- File based event generator service based on the filesystem monitor -->
-    <bean id="fsEventGeneratorService" class="it.geosolutions.iengine.flow.event.generator.file.FileBasedEventGeneratorService" >
+    <bean id="fsEventGeneratorService" class="it.geosolutions.geobatch.flow.event.generator.file.FileBasedEventGeneratorService" >
     	<property  name="id">
     		<value>fsEventGeneratorService</value>
     	</property>
@@ -20,7 +20,7 @@
     
     
     <!-- File based flow manager service-->
-    <bean id="fsFlowManagerService" class="it.geosolutions.iengine.flow.file.FileBasedFlowManagerService" >
+    <bean id="fsFlowManagerService" class="it.geosolutions.geobatch.flow.file.FileBasedFlowManagerService" >
     	<property  name="id">
     		<value>fsFlowManagerService</value>
     	</property>
@@ -35,7 +35,7 @@
     
     <!-- JIBX flow manager DAO-->
 <!--
-    <bean id="JIBXFlowConfigurationDAOService" class="it.geosolutions.iengine.catalog.dao.file.jibx.JIBXDAOService" >
+    <bean id="JIBXFlowConfigurationDAOService" class="it.geosolutions.geobatch.catalog.dao.file.jibx.JIBXDAOService" >
     	<property  name="id">
     		<value>JIBXFlowConfigurationDAOService</value>
     	</property>

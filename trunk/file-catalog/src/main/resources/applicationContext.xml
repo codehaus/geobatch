@@ -5,7 +5,7 @@
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  
          <!-- property name="locations">  
              <list>  
-                 <value>classpath:ie.properties</value>   
+                 <value>classpath:gb.properties</value>   
              </list>  
          </property-->  
      </bean>  
@@ -13,12 +13,12 @@
 
 	<!-- Environment Initialization -->
 <!--
-	<bean id="globalConfig" class="it.geosolutions.iengine.global.JIBXCatalogLoader" depends-on="catalog" >
+	<bean id="globalConfig" class="it.geosolutions.geobatch.global.JIBXCatalogLoader" depends-on="catalog" >
         <constructor-arg ref="catalog"/>
 -->
 	
 	    <!--  property  name="dataDir">
-    		<value>${INGESTIONENGINE_DATA_DIR}</value>
+    		<value>${GEOBATCH_DATA_DIR}</value>
     	</property-->	
 <!--
 	</bean>
@@ -31,7 +31,7 @@
 	
 	
     <!-- Catalog Initialization -->
-    <bean id="catalog" class="it.geosolutions.iengine.catalog.file.FileBasedCatalogImpl" depends-on="taskExecutor">
+    <bean id="catalog" class="it.geosolutions.geobatch.catalog.file.FileBasedCatalogImpl" depends-on="taskExecutor">
 	    <property  name="id">
     		<value>catalog</value>
     	</property>
@@ -48,7 +48,7 @@
 
     
     <!-- File based event generator service based on the filesystem monitor -->
-    <bean id="fsEventGeneratorService" class="it.geosolutions.iengine.flow.event.generator.file.FileBasedEventGeneratorService" >
+    <bean id="fsEventGeneratorService" class="it.geosolutions.geobatch.flow.event.generator.file.FileBasedEventGeneratorService" >
     	<property  name="id">
     		<value>fsEventGeneratorService</value>
     	</property>
@@ -61,7 +61,7 @@
     </bean>
     
     <!-- Ftp based event generator service based on the ftpserver -->
-    <bean id="ftpEventGeneratorService" class="it.geosolutions.iengine.flow.event.generator.ftp.FtpBasedEventGeneratorService" >
+    <bean id="ftpEventGeneratorService" class="it.geosolutions.geobatch.flow.event.generator.ftp.FtpBasedEventGeneratorService" >
     	<property  name="id">
     		<value>ftpEventGeneratorService</value>
     	</property>
@@ -74,7 +74,7 @@
     </bean>
     
     <!-- File based flow manager service-->
-    <bean id="fsFlowManagerService" class="it.geosolutions.iengine.flow.file.FileBasedFlowManagerService" >
+    <bean id="fsFlowManagerService" class="it.geosolutions.geobatch.flow.file.FileBasedFlowManagerService" >
     	<property  name="available">
     		<value>true</value>
     	</property>
@@ -91,7 +91,7 @@
     
     
     <!-- File based flow manager service-->
-    <bean id="ftpUploadActionService" class="it.geosolutions.iengine.flow.event.action.ftp.FTPUploadActionService" >
+    <bean id="ftpUploadActionService" class="it.geosolutions.geobatch.flow.event.action.ftp.FTPUploadActionService" >
     	<property  name="available">
     		<value>true</value>
     	</property>
@@ -109,7 +109,7 @@
     
     <!-- JIBX flow manager DAO-->
 <!--
-    <bean id="JIBXFlowConfigurationDAOService" class="it.geosolutions.iengine.catalog.dao.file.jibx.JIBXDAOService" >
+    <bean id="JIBXFlowConfigurationDAOService" class="it.geosolutions.geobatch.catalog.dao.file.jibx.JIBXDAOService" >
     	<property  name="id">
     		<value>JIBXFlowConfigurationDAOService</value>
     	</property>
