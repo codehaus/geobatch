@@ -11,7 +11,7 @@
 
     <parent>
         <groupId>it.geosolutions</groupId>
-        <artifactId>ie</artifactId>
+        <artifactId>gb</artifactId>
         <version>0.9-SNAPSHOT</version>
     </parent>
 
@@ -20,10 +20,10 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
     <groupId>it.geosolutions</groupId>
-    <artifactId>ie-fs-catalog</artifactId>
+    <artifactId>gb-fs-catalog</artifactId>
     <version>0.9-SNAPSHOT</version>
     <name>GeoSolutions GeoBatch catalog file system persistence</name>
-    <url>http://www.geo-solutions.it/maven_reports/ie/data/</url>
+    <url>http://www.geo-solutions.it/maven_reports/gb/data/</url>
 
     <scm>
         <connection>scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/data/</connection>
@@ -228,7 +228,7 @@
 -->
         <dependency>
             <groupId>it.geosolutions</groupId>
-            <artifactId>ie-core</artifactId>
+            <artifactId>gb-core</artifactId>
             <version>0.9-SNAPSHOT</version>
         </dependency>
 
