@@ -20,10 +20,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.geosolutions.iengine.ui.mvc;
+package it.geosolutions.geobatch.ui.mvc;
 
-import it.geosolutions.iengine.catalog.Catalog;
-import it.geosolutions.iengine.flow.file.FileBasedFlowManager;
+import it.geosolutions.geobatch.catalog.Catalog;
+import it.geosolutions.geobatch.flow.file.FileBasedFlowManager;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

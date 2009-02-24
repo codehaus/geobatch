@@ -22,10 +22,10 @@
 /**
  *
  */
-package it.geosolutions.iengine.ui.mvc;
+package it.geosolutions.geobatch.ui.mvc;
 
-import it.geosolutions.iengine.catalog.Catalog;
-import it.geosolutions.iengine.ui.mvc.data.FlowManagerDataBean;
+import it.geosolutions.geobatch.catalog.Catalog;
+import it.geosolutions.geobatch.ui.mvc.data.FlowManagerDataBean;
 
 import javax.servlet.http.HttpServletRequest;
 
