@@ -15,7 +15,7 @@
 
     <parent>
         <groupId>it.geosolutions</groupId>
-        <artifactId>ie</artifactId>
+        <artifactId>gb</artifactId>
         <version>0.9-SNAPSHOT</version>
     </parent>
   
@@ -24,10 +24,10 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
     <groupId>it.geosolutions</groupId>
-    <artifactId>ie-dao</artifactId>
+    <artifactId>gb-dao</artifactId>
     <packaging>pom</packaging>
     <name>GeoSolutions GeoBatch pluggable DAOs</name>
-    <url>http://www.geo-solutions.it/maven_reports/ie/dao/</url>
+    <url>http://www.geo-solutions.it/maven_reports/gb/dao/</url>
   
     <scm>
         <connection>
