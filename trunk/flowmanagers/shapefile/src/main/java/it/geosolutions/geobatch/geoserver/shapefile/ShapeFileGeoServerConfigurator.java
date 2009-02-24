@@ -22,15 +22,15 @@
 
 
 
-package it.geosolutions.iengine.geoserver.shapefile;
+package it.geosolutions.geobatch.geoserver.shapefile;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.iengine.catalog.file.FileBaseCatalog;
-import it.geosolutions.iengine.configuration.event.action.geoserver.GeoServerActionConfiguration;
-import it.geosolutions.iengine.flow.event.action.geoserver.GeoServerConfiguratorAction;
-import it.geosolutions.iengine.flow.event.action.geoserver.GeoServerRESTHelper;
-import it.geosolutions.iengine.global.CatalogHolder;
-import it.geosolutions.iengine.io.utils.IOUtils;
+import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
+import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
+import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorAction;
+import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerRESTHelper;
+import it.geosolutions.geobatch.global.CatalogHolder;
+import it.geosolutions.geobatch.io.utils.IOUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -275,14 +275,14 @@ public class ShapeFileGeoServerConfigurator extends
             LOGGER.info("ShapeFile GeoServerConfiguratorAction: cannot send shp to GeoServer, input data null!");
             return sent;
         }
-        // if ("DIRECT".equals(IngestionEngineEnvironment.getDataTransferMethod())) {
+        // if ("DIRECT".equals(GeoBatchEnvironment.getDataTransferMethod())) {
         gsURL = new URL(geoserverBaseURL + "/rest/folders/" + storeId + "/layers/"
                 + layerName + "/file.shp?" + getQueryString(queryParams));
         sent = GeoServerRESTHelper.putBinaryFileTo(gsURL, new FileInputStream(data),
 													getConfiguration().getGeoserverUID(),
 													getConfiguration().getGeoserverPWD());
         /*
-         * } else if ("URL".equals(IngestionEngineEnvironment.getDataTransferMethod())) {
+         * } else if ("URL".equals(GeoBatchEnvironment.getDataTransferMethod())) {
          * geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + storeId + "/layers/" +
          * storeFilePrefix + "/url.shp"); sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
          * data.toURL().toExternalForm()); }
