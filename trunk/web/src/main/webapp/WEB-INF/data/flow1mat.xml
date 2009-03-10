@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlowConfiguration>
+	<workingDirectory>flow1matworkingdir</workingDirectory>
+	<EventConsumerConfiguration>
+		<workingDirectory>flow1matworkingdir</workingDirectory>
+		<performBackup>true</performBackup>
+		<FileEventRule>
+			<optional>false</optional>
+			<originalOccurrencies>1</originalOccurrencies>
+			<regex>.*\.xml</regex>
+			<id>r1</id>
+			<description>description</description>
+			<name>test</name>
+		</FileEventRule>
+                <ComposerConfiguration>
+			<workingDirectory>flow1matworkingdir</workingDirectory>
+			<serviceID>composerService</serviceID>
+			<outputFormat>GeoTIFF</outputFormat>
+			<inputFormats>mat</inputFormats>
+			<numSteps>8</numSteps>
+			<downsampleStep>2</downsampleStep>
+			<scaleAlgorithm>nn</scaleAlgorithm>
+			<tileH>512</tileH>
+			<tileW>512</tileW>
+			<compressionRatio>0.75</compressionRatio>
+			<compressionScheme>LZW</compressionScheme>
+			<id>a1</id>
+			<description>description</description>
+			<name>test</name>
+		</ComposerConfiguration>		
+		<id>id</id>
+		<description>description</description>
+		<name>test</name>
+	</EventConsumerConfiguration>
+	<eventGeneratorConfiguration class="FsEventGeneratorConfiguration">
+		<wildCard>*.*</wildCard>
+		<watchDirectory>flow1matworkingdir/in</watchDirectory>
+		<osType>OS_UNDEFINED</osType>
+		<eventType>FILE_ADDED</eventType>
+		<id>id</id>
+        <serviceID>fsEventGeneratorService</serviceID>
+		<description>description</description>
+		<name>test</name>
+	</eventGeneratorConfiguration>
+	<id>flow1mat</id>
+	<description>flow1mat</description>
+	<name>flow1mat</name>
+</FlowConfiguration>
