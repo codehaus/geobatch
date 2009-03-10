@@ -47,6 +47,12 @@
             <artifactId>gb-flowmanagers-geotiff</artifactId>
             <version>0.9-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-flowmanagers-composer</artifactId>
+            <version>0.9-SNAPSHOT</version>
+        </dependency>
+        
 
         <dependency>
             <groupId>junit</groupId>

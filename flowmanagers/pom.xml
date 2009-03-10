@@ -55,9 +55,11 @@
 	<!-- =========================================================== -->
   <!--     Modules for the build in approximate dependency order   -->
   <!-- =========================================================== -->
-  <modules>
-    <module>ascii-grids</module>
-    <module>geotiff</module>
-    <module>shapefile</module>
-  </modules>   
-</project>
+   
+    <modules>
+      <module>ascii-grids</module>
+      <module>geotiff</module>
+      <module>shapefile</module>
+      <module>mat5-sas</module>
+    </modules> 
+  </project>

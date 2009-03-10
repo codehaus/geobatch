@@ -123,6 +123,11 @@
         </dependency>
         <dependency>
             <groupId>it.geosolutions</groupId>
+            <artifactId>gb-flowmanagers-composer</artifactId>
+            <version>0.9-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
             <artifactId>gb-flowmanagers-shapefile</artifactId>
             <version>0.9-SNAPSHOT</version>
         </dependency>
