@@ -47,6 +47,12 @@ public class MosaicerConfiguration extends ActionConfiguration implements
     private double compressionRatio = Double.NaN;
     
     private String compressionScheme = CoverageToolsConstants.DEFAULT_COMPRESSION_SCHEME;
+    
+    private int chunkWidth = 5120;
+    
+    private int chunkHeight = 5120;
+    
+    private int chunkSize;
 
     /** Downsampling step. */
     private int downsampleStep;
@@ -101,19 +107,19 @@ public class MosaicerConfiguration extends ActionConfiguration implements
         return tileW;
     }
 
-    public void setCompressionRatio(double compressionRatio) {
+    public void setCompressionRatio(final double compressionRatio) {
         this.compressionRatio = compressionRatio;
     }
 
-    public void setCompressionScheme(String compressionScheme) {
+    public void setCompressionScheme(final String compressionScheme) {
         this.compressionScheme = compressionScheme;
     }
 
-    public void setTileH(int tileH) {
+    public void setTileH(final int tileH) {
         this.tileH = tileH;
     }
 
-    public void setTileW(int tileW) {
+    public void setTileW(final int tileW) {
         this.tileW = tileW;
     }
 
@@ -128,7 +134,7 @@ public class MosaicerConfiguration extends ActionConfiguration implements
      * @param serviceID
      *            the serviceID to set
      */
-    public void setServiceID(String serviceID) {
+    public void setServiceID(final String serviceID) {
         this.serviceID = serviceID;
     }
 
@@ -145,7 +151,7 @@ public class MosaicerConfiguration extends ActionConfiguration implements
         return tileSizeLimit;
     }
 
-    public void setTileSizeLimit(int tileSizeLimit) {
+    public void setTileSizeLimit(final int tileSizeLimit) {
         this.tileSizeLimit = tileSizeLimit;
     }
 
@@ -153,7 +159,7 @@ public class MosaicerConfiguration extends ActionConfiguration implements
         return downsampleStep;
     }
 
-    public void setDownsampleStep(int downsampleStep) {
+    public void setDownsampleStep(final int downsampleStep) {
         this.downsampleStep = downsampleStep;
     }
 
@@ -161,7 +167,7 @@ public class MosaicerConfiguration extends ActionConfiguration implements
         return numSteps;
     }
 
-    public void setNumSteps(int numSteps) {
+    public void setNumSteps(final int numSteps) {
         this.numSteps = numSteps;
     }
 
@@ -169,7 +175,31 @@ public class MosaicerConfiguration extends ActionConfiguration implements
         return scaleAlgorithm;
     }
 
-    public void setScaleAlgorithm(String scaleAlgorithm) {
+    public void setScaleAlgorithm(final String scaleAlgorithm) {
         this.scaleAlgorithm = scaleAlgorithm;
     }
+
+	public int getChunkWidth() {
+		return chunkWidth;
+	}
+
+	public void setChunkWidth(final int chunkWidth) {
+		this.chunkWidth = chunkWidth;
+	}
+
+	public int getChunkHeight() {
+		return chunkHeight;
+	}
+
+	public void setChunkHeight(final int chunkHeight) {
+		this.chunkHeight = chunkHeight;
+	}
+
+	public int getChunkSize() {
+		return chunkSize;
+	}
+
+	public void setChunkSize(final int chunkSize) {
+		this.chunkSize = chunkSize;
+	}
 }

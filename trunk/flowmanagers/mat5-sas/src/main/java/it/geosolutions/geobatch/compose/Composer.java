@@ -107,6 +107,11 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             final File inputFile = event.getSource();
             
             final String directory = getDataDirectory(inputFile);
+            if (directory==null || directory.trim().length()==0){
+            	LOGGER.warning("Unable to find LegData location from the specified file: "+inputFile.getAbsolutePath());
+            	return events;
+            }
+            	
             final double compressionRatio = configuration.getCompressionRatio();
             final String compressionScheme = configuration.getCompressionScheme();
             final String inputFormats = configuration.getInputFormats();
@@ -143,6 +148,8 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 
             Mosaicer mosaicer = new Mosaicer(mosaicerConfig);
             mosaicer.execute(null);
+            
+            
             
             
 

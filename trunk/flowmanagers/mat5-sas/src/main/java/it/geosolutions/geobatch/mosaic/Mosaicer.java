@@ -27,6 +27,7 @@ import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
 
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
@@ -36,12 +37,14 @@ import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.imageio.ImageWriteParam;
 import javax.media.jai.JAI;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.MosaicDescriptor;
 
 import org.geotools.coverage.CoverageFactoryFinder;
+import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -109,13 +112,15 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent>
             final String compressionType = configuration.getCompressionScheme();
             final int tileW = configuration.getTileW();
             final int tileH = configuration.getTileH();
+            final int chunkW = configuration.getChunkWidth();
+            final int chunkH = configuration.getChunkHeight();
             
             
             File fileDir = new File(directory);
             if (fileDir != null && fileDir.isDirectory()) {
             File[] files = fileDir.listFiles();
-            final String fileOutputName = new StringBuilder(directory).append("/mosaic.tif").toString();
-            final File outputFile = new File(fileOutputName);
+            final String outputFileName = new StringBuilder(directory).append("/").toString();
+//            final File outputFile = new File(outputFileName);
             
             if (files != null) {
                 final int numFiles = files.length;
@@ -176,54 +181,22 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent>
                     reader.dispose();
                 }
 
-                final int nCov = coverages.size();
-
-                final ParameterBlockJAI pbMosaic = new ParameterBlockJAI(
-                        "Mosaic");
-                pbMosaic.setParameter("mosaicType",
-                        MosaicDescriptor.MOSAIC_TYPE_BLEND);
-
-                for (int i = 0; i < nCov; i++) {
-                    final GridCoverage2D coverage = coverages.get(i);
-
-                    final ParameterBlockJAI pbAffine = new ParameterBlockJAI(
-                            "Affine");
-                    pbAffine.addSource(coverage.getRenderedImage());
-                    AffineTransform at = (AffineTransform) coverage
-                            .getGridGeometry().getGridToCRS2D();
-                    AffineTransform chained = (AffineTransform) at.clone();
-                    chained
-                            .preConcatenate((AffineTransform) world2GridTransform);
-                    pbAffine.setParameter("transform", chained);
-                    final RenderedOp affine = JAI.create("Affine", pbAffine);
-                    pbMosaic.addSource(affine);
-                }
-
-                RenderedOp mosaicImage = JAI.create("Mosaic", pbMosaic);
-                GridCoverage2D gc = coverageFactory.create("my", mosaicImage,
-                        globEnvelope);
-                GeoTiffWriter writerTiff = new GeoTiffWriter(outputFile);
+                GridCoverage2D gc = createGridCoverageMosaic(coverages, globEnvelope, 
+                		world2GridTransform, coverageFactory);
+                
                 
                 // //
-                // Setting write parameters
+                //
+                // Retiling Mosaic to smaller Coverages
+                //
                 // //
-                final GeoTiffWriteParams wp = new GeoTiffWriteParams();
-    			if (!Double.isNaN(compressionRatio)&&compressionType!=null) {
-    				wp.setCompressionMode(GeoTiffWriteParams.MODE_EXPLICIT);
-    				wp.setCompressionType(compressionType);
-    				wp.setCompressionQuality((float) compressionRatio);
-    			}
-    			wp.setTilingMode(GeoToolsWriteParams.MODE_EXPLICIT);
-    			wp.setTiling(tileW,tileH);
-    			final ParameterValueGroup wparams = new GeoTiffFormat().getWriteParameters();
-    			wparams.parameter(
-    					AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName()
-    							.toString()).setValue(wp);
+                retileMosaic(gc, chunkW, chunkH, tileW, tileH, compressionRatio, compressionType, outputFileName);
                 
-                writerTiff.write(gc, (GeneralParameterValue[]) wparams.values().toArray(new GeneralParameterValue[1]));
-                writerTiff.dispose();
-
             }
+                
+               
+                
+                
         }
 
             return events;
@@ -234,7 +207,120 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent>
         }
     }
 
-    public ActionConfiguration getConfiguration() {
+    private GridCoverage2D createGridCoverageMosaic(final List<GridCoverage2D> coverages, 
+    		final GeneralEnvelope globEnvelope, final MathTransform world2GridTransform,
+    		final GridCoverageFactory coverageFactory) {
+    	final int nCov = coverages.size();
+
+        final ParameterBlockJAI pbMosaic = new ParameterBlockJAI(
+                "Mosaic");
+        pbMosaic.setParameter("mosaicType",
+                MosaicDescriptor.MOSAIC_TYPE_BLEND);
+
+        for (int i = 0; i < nCov; i++) {
+            final GridCoverage2D coverage = coverages.get(i);
+
+            final ParameterBlockJAI pbAffine = new ParameterBlockJAI(
+                    "Affine");
+            pbAffine.addSource(coverage.getRenderedImage());
+            AffineTransform at = (AffineTransform) coverage
+                    .getGridGeometry().getGridToCRS2D();
+            AffineTransform chained = (AffineTransform) at.clone();
+            chained
+                    .preConcatenate((AffineTransform) world2GridTransform);
+            pbAffine.setParameter("transform", chained);
+            final RenderedOp affine = JAI.create("Affine", pbAffine);
+            pbMosaic.addSource(affine);
+        }
+
+        RenderedOp mosaicImage = JAI.create("Mosaic", pbMosaic);
+        return coverageFactory.create("my", mosaicImage,
+                globEnvelope);
+		
+	}
+
+	private void retileMosaic(GridCoverage2D gc, int chunkWidth, int chunkHeight,
+			int internalTileWidth, int internalTileHeight, final double compressionRatio, 
+			final String compressionScheme, final String outputLocation) {
+	
+
+    	// //
+		//
+		// getting source gridrange and checking tile dimensions to be not
+		// bigger than the original coverage size
+		//
+		// //
+		final GeneralGridRange range = new GeneralGridRange(gc.getRenderedImage());
+		final int w = range.getLength(0);
+		final int h = range.getLength(1);
+		chunkWidth = chunkWidth > w ? w : chunkWidth;
+		chunkHeight = chunkHeight > h ? h : chunkHeight;
+		
+
+		// ///////////////////////////////////////////////////////////////////
+		//
+		// MAIN LOOP
+		//
+		//
+		// ///////////////////////////////////////////////////////////////////
+		final int numTileX = (int) (w / (chunkWidth * 1.0) + 1);
+		final int numTileY = (int) (h / (chunkHeight * 1.0) + 1);
+		for (int i = 0; i < numTileX; i++)
+			for (int j = 0; j < numTileY; j++) {
+
+				// //
+				//
+				// computing the bbox for this tile
+				//
+				// //
+				final Rectangle sourceRegion = new Rectangle(i * chunkWidth, j* chunkHeight, chunkWidth, chunkHeight);
+
+				// //
+				//
+				// building gridgeometry for the read operation with the actual
+				// envelope
+				//
+				// //
+				final File fileOut = new File(outputLocation, new StringBuilder(
+						"mosaic").append("_").append(
+						Integer.toString(i * chunkWidth + j)).append(".")
+						.append("tiff").toString());
+				// remove an old output file if it exists
+				if (fileOut.exists())
+					fileOut.delete();
+
+				// //
+				//
+				// Write this coverage out as a geotiff
+				//
+				// //
+				final AbstractGridFormat outFormat = new GeoTiffFormat();
+				try {
+
+					final GeoTiffWriteParams wp = new GeoTiffWriteParams();
+					wp.setTilingMode(GeoToolsWriteParams.MODE_EXPLICIT);
+					wp.setTiling(internalTileWidth, internalTileHeight);
+					wp.setSourceRegion(sourceRegion);
+					if (compressionScheme != null&& !Double.isNaN(compressionRatio)) {
+						wp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+						wp.setCompressionType(compressionScheme);
+						wp.setCompressionQuality((float) compressionRatio);
+					}
+					final ParameterValueGroup params = outFormat.getWriteParameters();
+					params.parameter(AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName().toString()).setValue(wp);
+
+					final GeoTiffWriter writerWI = new GeoTiffWriter(fileOut);
+					writerWI.write(gc, (GeneralParameterValue[]) params.values().toArray(new GeneralParameterValue[1]));
+					writerWI.dispose();
+				} catch (IOException e) {
+					return;
+				}
+
+			}
+
+	}
+
+	public ActionConfiguration getConfiguration() {
         return configuration;
     }
 }
