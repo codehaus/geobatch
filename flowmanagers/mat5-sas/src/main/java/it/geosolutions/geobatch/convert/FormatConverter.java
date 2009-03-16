@@ -76,11 +76,11 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 
 			// TODO: TEMP solution
 			JAI.getDefaultInstance().getTileCache().setMemoryCapacity(
-					512 * 1024 * 1024);
+					52 * 1024 * 1024);
 			JAI.getDefaultInstance().getTileCache().setMemoryThreshold(1.0f);
-			JAI.getDefaultInstance().getTileScheduler().setParallelism(8);
+			JAI.getDefaultInstance().getTileScheduler().setParallelism(2);
 			JAI.getDefaultInstance().getTileScheduler().setPrefetchParallelism(
-					8);
+					2);
 			JAI.getDefaultInstance().getTileScheduler().setPrefetchPriority(5);
 			JAI.getDefaultInstance().getTileScheduler().setPriority(5);
 
@@ -163,14 +163,16 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 							final GridCoverageReader reader = gridFormat
 									.getReader(file);
 
-							// //
-							// Acquire required writer
-							// //
+							
 							GridCoverage2D gc = (GridCoverage2D) reader
 									.read(null);
 
 							final String outputFormatType = configuration
 									.getOutputFormat();
+							
+							// //
+							// Acquire required writer
+							// //
 							final AbstractGridFormat writerFormat = (AbstractGridFormat) acquireFormatByType(outputFormatType);
 
 							if (writerFormat != null) {

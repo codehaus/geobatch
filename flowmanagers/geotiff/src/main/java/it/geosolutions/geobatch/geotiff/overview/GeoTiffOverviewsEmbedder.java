@@ -104,7 +104,7 @@ public class GeoTiffOverviewsEmbedder extends BaseAction<FileSystemMonitorEvent>
             oe.setTileHeight(configuration.getTileH());
             oe.setTileWidth(configuration.getTileW());
             oe.setSourcePath(inputFileName);
-            oe.setTileCacheSize(configuration.getJAICapacity());
+//            oe.setTileCacheSize(configuration.getJAICapacity());
 
             // add logger/listener
             oe.addProcessingEventListener(new ProcessingEventListener() {
