@@ -55,7 +55,7 @@ public class MosaicerConfiguration extends ActionConfiguration implements
     private int chunkSize;
 
     /** Downsampling step. */
-    private int downsampleStep;
+    private int downsampleStep = 2;
 
     private int numSteps;
 

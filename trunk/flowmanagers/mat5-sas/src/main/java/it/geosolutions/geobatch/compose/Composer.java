@@ -31,7 +31,6 @@ import it.geosolutions.geobatch.flow.event.action.BaseAction;
 import it.geosolutions.geobatch.mosaic.Mosaicer;
 import it.geosolutions.geobatch.mosaic.MosaicerConfiguration;
 
-import java.awt.RenderingHints;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -40,17 +39,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.stream.FileImageInputStream;
-import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
-
-import org.apache.commons.io.FilenameUtils;
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.io.AbstractGridFormat;
-import org.geotools.coverage.grid.io.GridFormatFinder;
-import org.geotools.coverage.grid.io.UnknownFormat;
-import org.geotools.factory.Hints;
-import org.opengis.coverage.grid.GridCoverageReader;
-import org.opengis.coverage.grid.GridCoverageWriter;
 
 /**
  * Comments here ...
@@ -134,7 +123,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             converterConfig.setOutputFormat(outputFormat);
             converterConfig.setTileH(tileH);
             converterConfig.setTileW(tileW);
-           
+            LOGGER.log(Level.INFO, "Ingesting MatFiles in the mosaic composer");
             
             FormatConverter converter = new FormatConverter(converterConfig);
             converter.execute(null);
@@ -150,10 +139,12 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             mosaicerConfig.setChunkHeight(chunkH);
             mosaicerConfig.setChunkWidth(chunkW);
 
+            LOGGER.log(Level.INFO, "Composing the mosaic with raw tiles");
             Mosaicer mosaicer = new Mosaicer(mosaicerConfig);
             mosaicer.execute(null);
             
-
+            
+            
             return events;
         } catch (Throwable t) {
             if (LOGGER.isLoggable(Level.SEVERE))
@@ -176,7 +167,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                 String location=null;
                 while ((location = fis.readLine())!=null){
                     if (location.startsWith(LEG_DATA_LOCATION)){
-                        dataDir=location.substring(location.indexOf(LEG_DATA_LOCATION)+LEG_DATA_LOCATION.length()+1, location.length()-(LEG_DATA_LOCATION.length()+1));
+                        dataDir=location.substring(location.indexOf(LEG_DATA_LOCATION)+LEG_DATA_LOCATION.length(), location.length()-(LEG_DATA_LOCATION.length()+1));
                         break;
                     }
                 }
