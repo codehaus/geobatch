@@ -62,6 +62,27 @@ public class ComposerConfiguration extends ActionConfiguration implements
     /** Tile width. */
     private int tileW = -1;
     
+    private int chunkW = 5120;
+    
+    public int getChunkW() {
+		return chunkW;
+	}
+
+	public void setChunkW(final int chunkW) {
+		this.chunkW = chunkW;
+	}
+
+	public int getChunkH() {
+		return chunkH;
+	}
+
+	public void setChunkH(final int chunkH) {
+		this.chunkH = chunkH;
+	}
+
+	private int chunkH = 5120;
+
+    
     public final double getCompressionRatio() {
         return compressionRatio;
     }
