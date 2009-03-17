@@ -61,7 +61,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         Action<FileSystemMonitorEvent> {
 
     //TODO: TEMP SOLUTION. LEVERAGES ON REAL XML PARSING
-    private String LEG_DATA_LOCATION = "legdatalocation";
+    private String LEG_DATA_LOCATION = "<dataLocation>";
     
     private ComposerConfiguration configuration;
 
@@ -173,9 +173,12 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         if (xmlFile!=null){
             try {
                 FileImageInputStream fis = new FileImageInputStream(xmlFile);
-                String location = fis.readLine();
-                if (location.startsWith(LEG_DATA_LOCATION)){
-                    dataDir=location.substring(location.indexOf(LEG_DATA_LOCATION)+LEG_DATA_LOCATION.length()+1, location.length()); 
+                String location=null;
+                while ((location = fis.readLine())!=null){
+                    if (location.startsWith(LEG_DATA_LOCATION)){
+                        dataDir=location.substring(location.indexOf(LEG_DATA_LOCATION)+LEG_DATA_LOCATION.length()+1, location.length()-(LEG_DATA_LOCATION.length()+1));
+                        break;
+                    }
                 }
                 
             } catch (FileNotFoundException e) {
