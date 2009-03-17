@@ -12,12 +12,12 @@
 			<description>description</description>
 			<name>test</name>
 		</FileEventRule>
-                <ComposerConfiguration>
+            <ComposerConfiguration>
 			<workingDirectory>flow1matworkingdir</workingDirectory>
 			<serviceID>composerService</serviceID>
 			<outputFormat>GeoTIFF</outputFormat>
 			<inputFormats>mat</inputFormats>
-			<numSteps>8</numSteps>
+			<numSteps>6</numSteps>
 			<downsampleStep>2</downsampleStep>
 			<scaleAlgorithm>nn</scaleAlgorithm>
 			<tileH>512</tileH>
