@@ -120,6 +120,8 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             final int numSteps = configuration.getNumSteps();
             final int tileH = configuration.getTileH();
             final int tileW = configuration.getTileW();
+            final int chunkW = configuration.getChunkW();
+            final int chunkH = configuration.getChunkH();
             
             
             final FormatConverterConfiguration converterConfig = new FormatConverterConfiguration();
@@ -145,12 +147,11 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             mosaicerConfig.setWorkingDirectory(directory);
             mosaicerConfig.setTileH(tileH);
             mosaicerConfig.setTileW(tileW);
+            mosaicerConfig.setChunkHeight(chunkH);
+            mosaicerConfig.setChunkWidth(chunkW);
 
             Mosaicer mosaicer = new Mosaicer(mosaicerConfig);
             mosaicer.execute(null);
-            
-            
-            
             
 
             return events;
