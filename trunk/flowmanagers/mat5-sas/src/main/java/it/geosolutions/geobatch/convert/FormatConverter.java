@@ -76,11 +76,11 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 
 			// TODO: TEMP solution
 			JAI.getDefaultInstance().getTileCache().setMemoryCapacity(
-					52 * 1024 * 1024);
+					512 * 1024 * 1024);
 			JAI.getDefaultInstance().getTileCache().setMemoryThreshold(1.0f);
-			JAI.getDefaultInstance().getTileScheduler().setParallelism(2);
+			JAI.getDefaultInstance().getTileScheduler().setParallelism(8);
 			JAI.getDefaultInstance().getTileScheduler().setPrefetchParallelism(
-					2);
+					8);
 			JAI.getDefaultInstance().getTileScheduler().setPrefetchPriority(5);
 			JAI.getDefaultInstance().getTileScheduler().setPriority(5);
 

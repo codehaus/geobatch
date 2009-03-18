@@ -85,6 +85,15 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
             Queue<FileSystemMonitorEvent> events) throws Exception {
         try {
 
+        	//TODO: TEMP solution
+       	    JAI.getDefaultInstance().getTileCache().setMemoryCapacity(
+                    512 * 1024 * 1024);
+            JAI.getDefaultInstance().getTileCache().setMemoryThreshold(1.0f);
+            JAI.getDefaultInstance().getTileScheduler().setParallelism(8);
+            JAI.getDefaultInstance().getTileScheduler().setPrefetchParallelism(8);
+            JAI.getDefaultInstance().getTileScheduler().setPrefetchPriority(5);
+            JAI.getDefaultInstance().getTileScheduler().setPriority(5);
+        	
             // looking for file
             // if (events.size() != 1)
             // throw new IllegalArgumentException(
@@ -118,6 +127,7 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
                 final String outputFileName = new StringBuilder(directory)
                         .append("/raw/").toString();
                 File dir = new File(outputFileName);
+                configuration.setMosaicDirectory(outputFileName);
                 if (!dir.exists())
                     dir.mkdir();
 
@@ -279,7 +289,7 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
                 //
                 // //
                 final File fileOut = new File(outputLocation,
-                        new StringBuilder("mosaic").append("_").append(
+                        new StringBuilder("raw_mosaic").append("_").append(
                                 Integer.toString(i * chunkWidth + j)).append(
                                 ".").append("tiff").toString());
                 // remove an old output file if it exists
@@ -326,6 +336,8 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
     }
 
     private void addOverviews(final String inputFileName) {
+    	
+    	LOGGER.log(Level.INFO, "Adding overviews");
         int downsampleStep = configuration.getDownsampleStep();
         if (downsampleStep <= 0)
             throw new IllegalArgumentException("Illegal downsampleStep: "

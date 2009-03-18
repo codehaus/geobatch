@@ -24,10 +24,13 @@ package it.geosolutions.geobatch.compose;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
+import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.convert.FormatConverter;
 import it.geosolutions.geobatch.convert.FormatConverterConfiguration;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
+import it.geosolutions.geobatch.geoserver.matfile5.sas.SasMosaicGeoServerGenerator;
+import it.geosolutions.geobatch.geoserver.matfile5.sas.SasMosaicGeoServerGeneratorService;
 import it.geosolutions.geobatch.mosaic.Mosaicer;
 import it.geosolutions.geobatch.mosaic.MosaicerConfiguration;
 
@@ -143,8 +146,16 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             Mosaicer mosaicer = new Mosaicer(mosaicerConfig);
             mosaicer.execute(null);
             
-            
-            
+//            final GeoServerActionConfiguration geoserverConfig = new GeoServerActionConfiguration();
+//            geoserverConfig.setGeoserverURL("http://localhost:8080/geoserver");
+//            geoserverConfig.setGeoserverUID("admin");
+//            geoserverConfig.setGeoserverPWD("geoserver");
+//            geoserverConfig.setWorkingDirectory(mosaicerConfig.getMosaicDirectory());
+//            
+//            
+//            final SasMosaicGeoServerGenerator geoserverIngestion  = new SasMosaicGeoServerGenerator(geoserverConfig);
+//            geoserverIngestion.execute(null);
+                        
             return events;
         } catch (Throwable t) {
             if (LOGGER.isLoggable(Level.SEVERE))

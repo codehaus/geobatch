@@ -43,8 +43,8 @@ import java.util.Queue;
 import java.util.logging.Level;
 
 import org.apache.commons.io.FilenameUtils;
-import org.geotools.gce.geotiff.GeoTiffFormat;
-import org.geotools.gce.geotiff.GeoTiffReader;
+import org.geotools.gce.imagemosaic.ImageMosaicFormat;
+import org.geotools.gce.imagemosaic.ImageMosaicReader;
 
 /**
  * Comments here ...
@@ -56,7 +56,7 @@ import org.geotools.gce.geotiff.GeoTiffReader;
 public class SasMosaicGeoServerGenerator
 		extends GeoServerConfiguratorAction<FileSystemMonitorEvent> {
 
-    protected SasMosaicGeoServerGenerator(GeoServerActionConfiguration configuration)
+    public SasMosaicGeoServerGenerator(GeoServerActionConfiguration configuration)
             throws IOException {
         super(configuration);
     }
@@ -66,10 +66,10 @@ public class SasMosaicGeoServerGenerator
         try {
 
             // looking for file
-            if (events.size() != 1)
-                throw new IllegalArgumentException("Wrong number of elements for this action: "
-                        + events.size());
-            FileSystemMonitorEvent event = events.remove();
+//            if (events.size() != 1)
+//                throw new IllegalArgumentException("Wrong number of elements for this action: "
+//                        + events.size());
+//            FileSystemMonitorEvent event = events.remove();
             final String configId = configuration.getName();
 
             // //
@@ -103,7 +103,10 @@ public class SasMosaicGeoServerGenerator
 //                throw new IllegalStateException("GeoServerCatalogServiceURL is null.");
 //            }
 
-            String inputFileName = event.getSource().getAbsolutePath();
+            
+            
+            String inputFileName = workingDir.getAbsolutePath()+"/" + workingDir.getName() + ".shp";
+            final File shapeFileName = new File(inputFileName);
             final String filePrefix = FilenameUtils.getBaseName(inputFileName);
             final String fileSuffix = FilenameUtils.getExtension(inputFileName);
 			final String fileNameFilter = getConfiguration().getStoreFilePrefix();
@@ -117,7 +120,7 @@ public class SasMosaicGeoServerGenerator
 					// etj: are we missing something here?
 					baseFileName = filePrefix;
                 }
-            } else if ("tif".equalsIgnoreCase(fileSuffix) || "tiff".equalsIgnoreCase(fileSuffix)) {
+            } else if ("shp".equalsIgnoreCase(fileSuffix)) {
                 baseFileName = filePrefix;
             }
 
@@ -132,8 +135,8 @@ public class SasMosaicGeoServerGenerator
             // //
             // creating coverageStore
             // //
-            final GeoTiffFormat format = new GeoTiffFormat();
-            GeoTiffReader coverageReader = null;
+            final ImageMosaicFormat format = new ImageMosaicFormat();
+            ImageMosaicReader coverageReader = null;
 
             // //
             // Trying to read the GeoTIFF
@@ -142,12 +145,12 @@ public class SasMosaicGeoServerGenerator
              * GeoServer url: "file:data/" + coverageStoreId + "/" + geoTIFFFileName
              */
             try {
-                coverageReader = (GeoTiffReader) format.getReader(event.getSource());
+                coverageReader = (ImageMosaicReader) format.getReader(workingDir);
 
                 if (coverageReader == null) {
-                    LOGGER.log(Level.SEVERE, "No valid GeoTIFF File found for this Data Flow!");
+                    LOGGER.log(Level.SEVERE, "No valid Mosaic found for this Data Flow!");
                     throw new IllegalStateException(
-                            "No valid GeoTIFF File found for this Data Flow!");
+                            "No valid Mosaic found for this Data Flow!");
                 }
             } finally {
                 if (coverageReader != null) {
@@ -169,9 +172,9 @@ public class SasMosaicGeoServerGenerator
             queryParams.put("namespace",	getConfiguration().getDefaultNamespace());
             queryParams.put("wmspath",		getConfiguration().getWmsPath());
             send(workingDir,
-					event.getSource(),
+					shapeFileName,
 					getConfiguration().getGeoserverURL(),
-					new Long(event.getTimestamp()).toString(),
+					new Long(System.currentTimeMillis()).toString(),
 					coverageStoreId,
 					baseFileName,
 					getConfiguration().getStyles(),
@@ -203,7 +206,7 @@ public class SasMosaicGeoServerGenerator
         if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
             geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
                     + "/layers/" + layerName
-                    + "/file.geotiff?" + getQueryString(queryParams));
+                    + "/file.shp?" + getQueryString(queryParams));
             sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
                     new FileInputStream(data), 
 					getConfiguration().getGeoserverUID(),
@@ -211,7 +214,7 @@ public class SasMosaicGeoServerGenerator
         } else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
             geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
                     + "/layers/" + layerName
-                    + "/url.geotiff");
+                    + "/url.shp");
             sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
 					data.toURL().toExternalForm(),
 					getConfiguration().getGeoserverUID(),
@@ -219,10 +222,10 @@ public class SasMosaicGeoServerGenerator
         }
 
         if (sent) {
-            LOGGER.info("GeoTIFF GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
+            LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
 			boolean sldSent = configureStyles(layerName);
         } else {
-            LOGGER.info("GeoTIFF GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
+            LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
         }
     }
 
