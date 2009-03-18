@@ -41,6 +41,16 @@ public class MosaicerConfiguration extends ActionConfiguration implements
 	public void setJAICapacity(long JAICapacity) {
 			this.JAICapacity = JAICapacity;
 	}
+	
+	private String mosaicDirectory;
+
+	public String getMosaicDirectory() {
+		return mosaicDirectory;
+	}
+
+	public void setMosaicDirectory(String mosaicDirectory) {
+		this.mosaicDirectory = mosaicDirectory;
+	}
 
 	private String workingDirectory;
 
@@ -60,7 +70,7 @@ public class MosaicerConfiguration extends ActionConfiguration implements
     private int numSteps;
 
     /** Scale algorithm. */
-    private String scaleAlgorithm;
+    private String scaleAlgorithm = "nn";
     
     /** Tile height. */
     private int tileH = 512;
