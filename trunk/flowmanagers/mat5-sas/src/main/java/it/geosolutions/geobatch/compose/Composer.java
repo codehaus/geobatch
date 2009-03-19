@@ -24,13 +24,11 @@ package it.geosolutions.geobatch.compose;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
-import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.convert.FormatConverter;
 import it.geosolutions.geobatch.convert.FormatConverterConfiguration;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
 import it.geosolutions.geobatch.geoserver.matfile5.sas.SasMosaicGeoServerGenerator;
-import it.geosolutions.geobatch.geoserver.matfile5.sas.SasMosaicGeoServerGeneratorService;
 import it.geosolutions.geobatch.mosaic.Mosaicer;
 import it.geosolutions.geobatch.mosaic.MosaicerConfiguration;
 
@@ -43,6 +41,8 @@ import java.util.logging.Logger;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.media.jai.JAI;
+import javax.media.jai.TileCache;
+import javax.media.jai.TileScheduler;
 
 /**
  * Comments here ...
@@ -69,16 +69,6 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             throws Exception {
         try {
             
-        	
-        	//TODO: TEMP solution
-        	 JAI.getDefaultInstance().getTileCache().setMemoryCapacity(
-                     512 * 1024 * 1024);
-             JAI.getDefaultInstance().getTileCache().setMemoryThreshold(1.0f);
-             JAI.getDefaultInstance().getTileScheduler().setParallelism(8);
-             JAI.getDefaultInstance().getTileScheduler().setPrefetchParallelism(8);
-             JAI.getDefaultInstance().getTileScheduler().setPrefetchPriority(5);
-             JAI.getDefaultInstance().getTileScheduler().setPriority(5);
-           
             // looking for file
             if (events.size() != 1)
                 throw new IllegalArgumentException("Wrong number of elements for this action: "
@@ -94,8 +84,11 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                 LOGGER.log(Level.SEVERE, "DataFlowConfig is null.");
                 throw new IllegalStateException("DataFlowConfig is null.");
             }
+            
+            setJAIHints(configuration);
+            
             // get the first event
-            final FileSystemMonitorEvent event = events.peek();
+            final FileSystemMonitorEvent event = events.remove();
             final File inputFile = event.getSource();
             
             final String directory = getDataDirectory(inputFile);
@@ -150,7 +143,9 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 //            geoserverConfig.setGeoserverURL("http://localhost:8080/geoserver");
 //            geoserverConfig.setGeoserverUID("admin");
 //            geoserverConfig.setGeoserverPWD("geoserver");
-//            geoserverConfig.setWorkingDirectory(mosaicerConfig.getMosaicDirectory());
+//            geoserverConfig.setDataTransferMethod("DIRECT");
+////            geoserverConfig.setWorkingDirectory(mosaicerConfig.getMosaicDirectory());
+//            geoserverConfig.setWorkingDirectory(directory + "/raw");
 //            
 //            
 //            final SasMosaicGeoServerGenerator geoserverIngestion  = new SasMosaicGeoServerGenerator(geoserverConfig);
@@ -190,5 +185,19 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             }
         }
         return dataDir;
+    }
+    
+    private void setJAIHints(ComposerConfiguration configuration) {
+        if (configuration!=null){
+            final JAI jaiDef = JAI.getDefaultInstance();
+
+            final TileCache cache = jaiDef.getTileCache();
+            cache.setMemoryCapacity(configuration.getJAICacheCapacity());
+            cache.setMemoryThreshold(configuration.getJAICacheThreshold());
+
+            final TileScheduler scheduler = jaiDef.getTileScheduler();
+            scheduler.setParallelism(configuration.getJAIParallelism());
+            scheduler.setPrefetchParallelism(configuration.getJAIParallelism());
+        }
     }
 }

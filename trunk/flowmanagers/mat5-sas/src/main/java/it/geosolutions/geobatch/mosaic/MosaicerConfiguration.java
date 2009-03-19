@@ -32,15 +32,15 @@ import org.geotools.utils.CoverageToolsConstants;
 public class MosaicerConfiguration extends ActionConfiguration implements
         Configuration {
 
-	private long JAICapacity;
-	
-    public long getJAICapacity() {
-		return JAICapacity;
-	}
-
-	public void setJAICapacity(long JAICapacity) {
-			this.JAICapacity = JAICapacity;
-	}
+//	private long JAICapacity;
+//	
+//        public long getJAICapacity() {
+//		return JAICapacity;
+//	}
+//
+//	public void setJAICapacity(long JAICapacity) {
+//			this.JAICapacity = JAICapacity;
+//	}
 	
 	private String mosaicDirectory;
 

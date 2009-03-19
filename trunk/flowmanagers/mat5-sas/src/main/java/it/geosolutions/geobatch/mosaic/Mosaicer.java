@@ -85,14 +85,6 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
             Queue<FileSystemMonitorEvent> events) throws Exception {
         try {
 
-        	//TODO: TEMP solution
-       	    JAI.getDefaultInstance().getTileCache().setMemoryCapacity(
-                    512 * 1024 * 1024);
-            JAI.getDefaultInstance().getTileCache().setMemoryThreshold(1.0f);
-            JAI.getDefaultInstance().getTileScheduler().setParallelism(8);
-            JAI.getDefaultInstance().getTileScheduler().setPrefetchParallelism(8);
-            JAI.getDefaultInstance().getTileScheduler().setPrefetchPriority(5);
-            JAI.getDefaultInstance().getTileScheduler().setPriority(5);
         	
             // looking for file
             // if (events.size() != 1)
