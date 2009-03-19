@@ -17,13 +17,17 @@
 			<serviceID>composerService</serviceID>
 			<outputFormat>GeoTIFF</outputFormat>
 			<inputFormats>mat</inputFormats>
+			<JAICacheCapacity>5368709</JAICacheCapacity>
+			<!--<JAICacheCapacity>536870912</JAICacheCapacity>-->
+			<JAIParallelism>8</JAIParallelism>
+			<JAICacheThreshold>1</JAICacheThreshold>
 			<numSteps>6</numSteps>
 			<downsampleStep>2</downsampleStep>
 			<scaleAlgorithm>nn</scaleAlgorithm>
 			<tileH>512</tileH>
 			<tileW>512</tileW>
-			<chunkW>10000</chunkW>
-			<chunkH>10000</chunkH>
+			<chunkW>20480</chunkW>
+			<chunkH>20480</chunkH>
 			<compressionRatio>0.75</compressionRatio>
 			<compressionScheme>LZW</compressionScheme>
 			<id>a1</id>

@@ -20,8 +20,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 package it.geosolutions.geobatch.compose;
 
 import org.geotools.utils.CoverageToolsConstants;
@@ -32,10 +30,22 @@ import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 public class ComposerConfiguration extends ActionConfiguration implements
         Configuration {
 
+    private final static long DEFAULT_JAI_CACHE_CAPACITY = 128 * 1024 * 1024;
+
+    private final static int DEFAULT_JAI_PARALLELISM = 2;
+
+    private final static float DEFAULT_JAI_CACHE_THRESHOLD = 0.75f;
+
+    private long JAICacheCapacity = DEFAULT_JAI_CACHE_CAPACITY;
+
+    private int JAIParallelism = DEFAULT_JAI_PARALLELISM;
+
+    private float JAICacheThreshold = DEFAULT_JAI_CACHE_THRESHOLD;
+
     private String outputFormat;
-    
+
     private String workingDirectory;
-    
+
     private String inputFormats;
 
     private String serviceID;
@@ -61,28 +71,27 @@ public class ComposerConfiguration extends ActionConfiguration implements
 
     /** Tile width. */
     private int tileW = -1;
-    
+
     private int chunkW = 5120;
-    
+
     public int getChunkW() {
-		return chunkW;
-	}
+        return chunkW;
+    }
 
-	public void setChunkW(final int chunkW) {
-		this.chunkW = chunkW;
-	}
+    public void setChunkW(final int chunkW) {
+        this.chunkW = chunkW;
+    }
 
-	public int getChunkH() {
-		return chunkH;
-	}
+    public int getChunkH() {
+        return chunkH;
+    }
 
-	public void setChunkH(final int chunkH) {
-		this.chunkH = chunkH;
-	}
+    public void setChunkH(final int chunkH) {
+        this.chunkH = chunkH;
+    }
 
-	private int chunkH = 5120;
+    private int chunkH = 5120;
 
-    
     public final double getCompressionRatio() {
         return compressionRatio;
     }
@@ -138,7 +147,7 @@ public class ComposerConfiguration extends ActionConfiguration implements
     public void setNumSteps(int numSteps) {
         this.numSteps = numSteps;
     }
-    
+
     /**
      * @return the workingDirectory
      */
@@ -148,7 +157,7 @@ public class ComposerConfiguration extends ActionConfiguration implements
 
     /**
      * @param workingDirectory
-     *            the workingDirectory to set
+     *                the workingDirectory to set
      */
     public void setWorkingDirectory(String workingDirectory) {
         this.workingDirectory = workingDirectory;
@@ -163,7 +172,7 @@ public class ComposerConfiguration extends ActionConfiguration implements
 
     /**
      * @param serviceID
-     *            the serviceID to set
+     *                the serviceID to set
      */
     public void setServiceID(String serviceID) {
         this.serviceID = serviceID;
@@ -183,5 +192,29 @@ public class ComposerConfiguration extends ActionConfiguration implements
 
     public void setInputFormats(String inputFormats) {
         this.inputFormats = inputFormats;
+    }
+
+    public float getJAICacheThreshold() {
+        return JAICacheThreshold;
+    }
+
+    public void setJAICacheThreshold(float cacheThreshold) {
+        JAICacheThreshold = cacheThreshold;
+    }
+
+    public int getJAIParallelism() {
+        return JAIParallelism;
+    }
+
+    public void setJAIParallelism(int parallelism) {
+        JAIParallelism = parallelism;
+    }
+
+    public long getJAICacheCapacity() {
+        return JAICacheCapacity;
+    }
+
+    public void setJAICacheCapacity(final long JAICacheCapacity) {
+        this.JAICacheCapacity = JAICacheCapacity;
     }
 }

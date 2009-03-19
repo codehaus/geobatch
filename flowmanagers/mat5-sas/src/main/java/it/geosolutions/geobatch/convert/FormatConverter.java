@@ -44,7 +44,6 @@ import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.coverage.grid.io.UnknownFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
 import org.geotools.factory.Hints;
-import org.geotools.gce.geotiff.GeoTiffFormat;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
@@ -57,180 +56,190 @@ import org.opengis.parameter.ParameterValueGroup;
  * @author Simone Giannechini, GeoSolutions
  */
 public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
-		implements Action<FileSystemMonitorEvent> {
+        implements Action<FileSystemMonitorEvent> {
 
-	private FormatConverterConfiguration configuration;
+    private FormatConverterConfiguration configuration;
 
-	private final static Logger LOGGER = Logger.getLogger(FormatConverter.class
-			.toString());
+    private final static Logger LOGGER = Logger.getLogger(FormatConverter.class
+            .toString());
 
-	// TODO: Temporarly set to public
-	public FormatConverter(FormatConverterConfiguration configuration)
-			throws IOException {
-		this.configuration = configuration;
-	}
+    public FormatConverter(FormatConverterConfiguration configuration)
+            throws IOException {
+        this.configuration = configuration;
+    }
 
-	public Queue<FileSystemMonitorEvent> execute(
-			Queue<FileSystemMonitorEvent> events) throws Exception {
-		try {
+    public Queue<FileSystemMonitorEvent> execute(
+            Queue<FileSystemMonitorEvent> events) throws Exception {
+        try {
 
-			// TODO: TEMP solution
-			JAI.getDefaultInstance().getTileCache().setMemoryCapacity(
-					512 * 1024 * 1024);
-			JAI.getDefaultInstance().getTileCache().setMemoryThreshold(1.0f);
-			JAI.getDefaultInstance().getTileScheduler().setParallelism(8);
-			JAI.getDefaultInstance().getTileScheduler().setPrefetchParallelism(
-					8);
-			JAI.getDefaultInstance().getTileScheduler().setPrefetchPriority(5);
-			JAI.getDefaultInstance().getTileScheduler().setPriority(5);
+            // TODO: Refactor this allowing empty queues
+            // looking for file
+            // if (events.size() != 1)
+            // throw new IllegalArgumentException(
+            // "Wrong number of elements for this action: "
+            // + events.size());
 
-			// TODO: Refactor this allowing empty queues
-			// looking for file
-			// if (events.size() != 1)
-			// throw new IllegalArgumentException(
-			// "Wrong number of elements for this action: "
-			// + events.size());
+            // //
+            //
+            // data flow configuration and dataStore name must not be null.
+            //
+            // //
+            if (configuration == null) {
+                LOGGER.log(Level.SEVERE, "DataFlowConfig is null.");
+                throw new IllegalStateException("DataFlowConfig is null.");
+            }
 
-			// //
-			//
-			// data flow configuration and dataStore name must not be null.
-			//
-			// //
-			if (configuration == null) {
-				LOGGER.log(Level.SEVERE, "DataFlowConfig is null.");
-				throw new IllegalStateException("DataFlowConfig is null.");
-			}
+            // get the first event
+            // final FileSystemMonitorEvent event = events.peek();
+            // final File inputFile = event.getSource();
+            final String inputFormats = configuration.getInputFormats();
+            final String[] inputExtensions;
+            if (inputFormats != null) {
+                inputExtensions = inputFormats.split(":");
+            } else {
+                inputExtensions = null;
+            }
 
-			// get the first event
-			// final FileSystemMonitorEvent event = events.peek();
-			// final File inputFile = event.getSource();
-			final String inputFormats = configuration.getInputFormats();
-			final String[] inputExtensions;
-			if (inputFormats != null) {
-				inputExtensions = inputFormats.split(":");
-			} else {
-				inputExtensions = null;
-			}
+            final String directory = configuration.getWorkingDirectory();
 
-			final String directory = configuration.getWorkingDirectory();
-			final int tileW = configuration.getTileW();
-			final int tileH = configuration.getTileH();
+            File fileDir = new File(directory);
+            if (fileDir != null && fileDir.isDirectory()) {
+                final File files[] = fileDir.listFiles();
+                if (files != null) {
+                    GridFormatFinder.scanForPlugins();
+                    final int numFiles = files.length;
+                    for (int i = 0; i < numFiles; i++) {
+                        final File file = files[i];
+                        final String path = file.getAbsolutePath()
+                                .toLowerCase();
+                        if (inputExtensions != null) {
+                            boolean accepted = false;
+                            for (String ext : inputExtensions) {
+                                if (path.endsWith(ext)) {
+                                    accepted = true;
+                                    break;
+                                }
+                            }
+                            if (!accepted)
+                                continue;
+                        }
 
-			File fileDir = new File(directory);
-			if (fileDir != null && fileDir.isDirectory()) {
-				final File files[] = fileDir.listFiles();
-				if (files != null) {
-					final int numFiles = files.length;
-					for (int i = 0; i < numFiles; i++) {
-						final File file = files[i];
-						final String path = file.getAbsolutePath()
-								.toLowerCase();
-						if (inputExtensions != null) {
-							boolean accepted = false;
-							for (String ext : inputExtensions) {
-								if (path.endsWith(ext)) {
-									accepted = true;
-									break;
-								}
-							}
-							if (!accepted)
-								continue;
-						}
+                        // get a reader
+                        final String parent = file.getParent();
+                        final String name = FilenameUtils.getBaseName(path);
+                        final String fileOutputName = new StringBuilder(parent)
+                                .append("/").append(name).append(".tif")
+                                .toString();
+                        // Preparing an useful layout in case the image is
+                        // striped.
+                        
+                        // //
+                        // Acquire proper format and reader
+                        // //
+                        convert(file, fileOutputName);
 
-						// get a reader
-						final String parent = file.getParent();
-						final String name = FilenameUtils.getBaseName(path);
-						final String fileOutputName = new StringBuilder(parent)
-								.append("/").append(name).append(".tif")
-								.toString();
-						// Preparing an useful layout in case the image is
-						// striped.
-						final ImageLayout l = new ImageLayout();
-						l.setTileGridXOffset(0).setTileGridYOffset(0)
-								.setTileHeight(512).setTileWidth(512);
+                    }
+                }
+            }
+            return events;
+        } catch (Throwable t) {
+            if (LOGGER.isLoggable(Level.SEVERE))
+                LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
+            return null;
+        }
 
-						Hints hints = new Hints();
-						hints.add(new RenderingHints(JAI.KEY_IMAGE_LAYOUT, l));
+    }
 
-						// //
-						// Acquire proper format and reader
-						// //
-						GridFormatFinder.scanForPlugins();
-						final AbstractGridFormat gridFormat = (AbstractGridFormat) GridFormatFinder
-								.findFormat(file);
-						if (gridFormat != null
-								&& !(gridFormat instanceof UnknownFormat)) {
-							final GridCoverageReader reader = gridFormat
-									.getReader(file);
+    private void convert(File file, String fileOutputName)
+            throws IllegalArgumentException, IOException {
+        
+        // //
+        //
+        // Getting a GridFormat
+        // 
+        // //
+        final AbstractGridFormat gridFormat = (AbstractGridFormat) GridFormatFinder
+                .findFormat(file);
+        if (gridFormat != null && !(gridFormat instanceof UnknownFormat)) {
 
-							
-							GridCoverage2D gc = (GridCoverage2D) reader
-									.read(null);
+            final int tileW = configuration.getTileW();
+            final int tileH = configuration.getTileH();
+            final ImageLayout l = new ImageLayout();
+            l.setTileGridXOffset(0).setTileGridYOffset(0)
+                    .setTileHeight(512).setTileWidth(512);
 
-							final String outputFormatType = configuration
-									.getOutputFormat();
-							
-							// //
-							// Acquire required writer
-							// //
-							final AbstractGridFormat writerFormat = (AbstractGridFormat) acquireFormatByType(outputFormatType);
+            Hints hints = new Hints();
+            hints.add(new RenderingHints(JAI.KEY_IMAGE_LAYOUT, l));
+            // //
+            //
+            // Reading the coverage
+            // 
+            // //
+            final GridCoverageReader reader = gridFormat.getReader(file,hints);
 
-							if (writerFormat != null) {
-								GridCoverageWriter writer = writerFormat
-										.getWriter(new File(fileOutputName));
-								
-								GeoToolsWriteParams params = null;
-								ParameterValueGroup wparams = null;
-								try{
-									wparams = writerFormat.getWriteParameters();
-									params = writerFormat.getDefaultImageIOWriteParameters();
-								}catch (UnsupportedOperationException uoe){
-									params = null;
-									wparams = null;
-								}
-								if (params!=null){
-									params.setTilingMode(GeoToolsWriteParams.MODE_EXPLICIT);
-									params.setTiling(tileW,tileH);
-					    			wparams.parameter(
-					    					AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName()
-					    							.toString()).setValue(params);
-								}
+            GridCoverage2D gc = (GridCoverage2D) reader.read(null);
 
-								writer.write(gc, wparams!=null?(GeneralParameterValue[]) wparams.values().toArray(new GeneralParameterValue[1]):null);
-								writer.dispose();
-								gc.dispose(true);
-								reader.dispose();
-							}
-						}
-					}
-				}
-			}
-			return events;
-		} catch (Throwable t) {
-			if (LOGGER.isLoggable(Level.SEVERE))
-				LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
-			return null;
-		}
+            final String outputFormatType = configuration.getOutputFormat();
 
-	}
+            // //
+            // Acquire required writer
+            // //
+            final AbstractGridFormat writerFormat = (AbstractGridFormat) acquireFormatByType(outputFormatType);
 
-	public ActionConfiguration getConfiguration() {
-		return configuration;
-	}
+            if (! (writerFormat instanceof UnknownFormat)) {
+                GridCoverageWriter writer = writerFormat.getWriter(new File(
+                        fileOutputName));
 
-	public static Format acquireFormatByType(String type) {
-		final Format[] formats = GridFormatFinder.getFormatArray();
-		Format format = null;
-		final int length = formats.length;
+                GeoToolsWriteParams params = null;
+                ParameterValueGroup wparams = null;
+                try {
+                    wparams = writerFormat.getWriteParameters();
+                    params = writerFormat.getDefaultImageIOWriteParameters();
+                } catch (UnsupportedOperationException uoe) {
+                    params = null;
+                    wparams = null;
+                }
+                if (params != null) {
+                    params.setTilingMode(GeoToolsWriteParams.MODE_EXPLICIT);
+                    params.setTiling(tileW, tileH);
+                    wparams.parameter(
+                            AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName()
+                                    .toString()).setValue(params);
+                }
 
-		for (int i = 0; i < length; i++) {
-			format = formats[i];
+                // //
+                //
+                // Write the converted coverage
+                //
+                // //
+                writer.write(gc,
+                        wparams != null ? (GeneralParameterValue[]) wparams
+                                .values().toArray(new GeneralParameterValue[1])
+                                : null);
+                writer.dispose();
+                gc.dispose(true);
+                reader.dispose();
+            }
+        }
+    }
 
-			if (format.getName().equals(type)) {
-				return format;
-			}
-		}
+    public ActionConfiguration getConfiguration() {
+        return configuration;
+    }
 
-		return null;
-	}
+    public static Format acquireFormatByType(String type) {
+        final Format[] formats = GridFormatFinder.getFormatArray();
+        Format format = null;
+        final int length = formats.length;
+
+        for (int i = 0; i < length; i++) {
+            format = formats[i];
+
+            if (format.getName().equals(type)) {
+                return format;
+            }
+        }
+
+        return new UnknownFormat();
+    }
 }
