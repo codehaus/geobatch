@@ -38,6 +38,8 @@ public class FormatConverterConfiguration extends ActionConfiguration implements
     
     private String workingDirectory;
 
+    private String outputDirectory;
+    
     private String serviceID;
     
     public FormatConverterConfiguration() {
@@ -162,5 +164,13 @@ public class FormatConverterConfiguration extends ActionConfiguration implements
 
     public void setInputFormats(String inputFormats) {
         this.inputFormats = inputFormats;
+    }
+
+    public String getOutputDirectory() {
+        return outputDirectory;
+    }
+
+    public void setOutputDirectory(String outputDirectory) {
+        this.outputDirectory = outputDirectory;
     }
 }

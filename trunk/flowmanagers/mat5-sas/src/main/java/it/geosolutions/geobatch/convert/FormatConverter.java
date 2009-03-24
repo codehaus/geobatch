@@ -58,6 +58,7 @@ import org.opengis.parameter.ParameterValueGroup;
 public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
         implements Action<FileSystemMonitorEvent> {
 
+    
     private FormatConverterConfiguration configuration;
 
     private final static Logger LOGGER = Logger.getLogger(FormatConverter.class
@@ -101,6 +102,12 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
             }
 
             final String directory = configuration.getWorkingDirectory();
+            final String outputDirectory = configuration.getOutputDirectory();
+            
+            final File outputDir = new File(outputDirectory);
+            if (!outputDir.exists()){
+                outputDir.mkdir();
+            }
 
             File fileDir = new File(directory);
             if (fileDir != null && fileDir.isDirectory()) {
@@ -127,9 +134,13 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
                         // get a reader
                         final String parent = file.getParent();
                         final String name = FilenameUtils.getBaseName(path);
-                        final String fileOutputName = new StringBuilder(parent)
-                                .append("/").append(name).append(".tif")
-                                .toString();
+                        
+                        final String fileOutputName = new StringBuilder(outputDirectory).append(File.separatorChar).
+                        append(name).append(".tif").toString();
+                        
+//                        final String fileOutputName = new StringBuilder(parent)
+//                                .append("/").append(name).append(".tif")
+//                                .toString();
                         // Preparing an useful layout in case the image is
                         // striped.
                         
