@@ -20,8 +20,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 package it.geosolutions.geobatch.convert;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
@@ -35,32 +33,32 @@ import java.util.logging.Logger;
 /**
  * Comments here ...
  * 
- * @author AlFa
- * 
+ * @author Daniele Romagnoli, GeoSolutions
  */
 public class FormatConverterService extends BaseService implements
-        ActionService<FileSystemMonitorEvent, FormatConverterConfiguration> {
+		ActionService<FileSystemMonitorEvent, FormatConverterConfiguration> {
 
-    private FormatConverterService() {
-        super(true);
-    }
+	private FormatConverterService() {
+		super(true);
+	}
 
-    private final static Logger LOGGER = Logger
-            .getLogger(FormatConverter.class.toString());
+	private final static Logger LOGGER = Logger.getLogger(FormatConverter.class
+			.toString());
 
-    public boolean canCreateAction(FormatConverterConfiguration configuration) {
-        // XXX
-        return true;
-    }
+	public boolean canCreateAction(FormatConverterConfiguration configuration) {
+		// XXX
+		return true;
+	}
 
-    public FormatConverter createAction(FormatConverterConfiguration configuration) {
-        try {
-            return new FormatConverter(configuration);
-        } catch (IOException e) {
-            if (LOGGER.isLoggable(Level.INFO))
-                LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
-            return null;
-        }
-    }
+	public FormatConverter createAction(
+			FormatConverterConfiguration configuration) {
+		try {
+			return new FormatConverter(configuration);
+		} catch (IOException e) {
+			if (LOGGER.isLoggable(Level.INFO))
+				LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
+			return null;
+		}
+	}
 
 }

@@ -65,9 +65,7 @@ import org.opengis.referencing.operation.MathTransform;
 /**
  * Comments here ...
  * 
- * @author Simone Giannechini, GeoSolutions
- * 
- * @version $GeoTIFFOverviewsEmbedder.java $ Revision: x.x $ 23/mar/07 11:42:25
+ * @author Daniele Romagnoli, GeoSolutions
  */
 public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
         Action<FileSystemMonitorEvent> {

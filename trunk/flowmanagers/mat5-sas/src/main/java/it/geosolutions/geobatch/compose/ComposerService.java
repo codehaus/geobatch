@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 /**
  * Comments here ...
  * 
- * @author AlFa
+ * @author Daniele Romagnoli, GeoSolutions
  * 
  */
 public class ComposerService extends BaseService implements

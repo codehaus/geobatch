@@ -29,18 +29,13 @@ import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 
 import org.geotools.utils.CoverageToolsConstants;
 
+/**
+ * Comments here ...
+ * 
+ * @author Daniele Romagnoli, GeoSolutions
+ */
 public class MosaicerConfiguration extends ActionConfiguration implements
         Configuration {
-
-//	private long JAICapacity;
-//	
-//        public long getJAICapacity() {
-//		return JAICapacity;
-//	}
-//
-//	public void setJAICapacity(long JAICapacity) {
-//			this.JAICapacity = JAICapacity;
-//	}
 	
 	private String mosaicDirectory;
 
