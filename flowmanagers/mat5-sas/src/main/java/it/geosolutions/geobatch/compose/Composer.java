@@ -35,6 +35,7 @@ import it.geosolutions.geobatch.mosaic.MosaicerConfiguration;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -107,37 +108,49 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             final int tileW = configuration.getTileW();
             final int chunkW = configuration.getChunkW();
             final int chunkH = configuration.getChunkH();
+            final String baseDir = configuration.getOutputBaseFolder();
             
             
-            final FormatConverterConfiguration converterConfig = new FormatConverterConfiguration();
-            converterConfig.setWorkingDirectory(directory);
-            converterConfig.setId("conv1");
-            converterConfig.setDescription("Mat5 to tiff converter");
-            converterConfig.setCompressionRatio(compressionRatio);
-            converterConfig.setCompressionScheme(compressionScheme);
-            converterConfig.setInputFormats(inputFormats);
-            converterConfig.setOutputFormat(outputFormat);
-            converterConfig.setTileH(tileH);
-            converterConfig.setTileW(tileW);
-            LOGGER.log(Level.INFO, "Ingesting MatFiles in the mosaic composer");
             
-            FormatConverter converter = new FormatConverter(converterConfig);
-            converter.execute(null);
             
-            final MosaicerConfiguration mosaicerConfig = new MosaicerConfiguration();
-            mosaicerConfig.setCompressionRatio(compressionRatio);
-            mosaicerConfig.setCompressionScheme(compressionScheme);
-            mosaicerConfig.setNumSteps(numSteps);
-            mosaicerConfig.setDownsampleStep(downsampleStep);
-            mosaicerConfig.setWorkingDirectory(directory);
-            mosaicerConfig.setTileH(tileH);
-            mosaicerConfig.setTileW(tileW);
-            mosaicerConfig.setChunkHeight(chunkH);
-            mosaicerConfig.setChunkWidth(chunkW);
-
-            LOGGER.log(Level.INFO, "Composing the mosaic with raw tiles");
-            Mosaicer mosaicer = new Mosaicer(mosaicerConfig);
-            mosaicer.execute(null);
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            final File fileDir = new File(directory);
+            if (fileDir != null && fileDir.isDirectory()) {
+                final File[] foundFiles = fileDir.listFiles();
+                if (foundFiles!=null){
+                    final ArrayList<File> directories = new ArrayList<File>();
+                    for (File file : foundFiles){
+                        if (file.exists() && file.isDirectory()){
+                            directories.add(file);
+                        }
+                    }
+                    
+                    
+                }
+            }
+            
+            /**
+             * 
+             * SIMPLE FOLDER CONVERTER
+             * 
+             */
+            
+            final String lastFolder = fileDir.getName();
+            final StringBuffer outputFolder = new StringBuffer(baseDir).append(File.separatorChar).append(lastFolder);
+            
+            composeMosaic(directory,outputFolder.toString(), compressionRatio, compressionScheme,
+                    inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, chunkW, chunkH);
+            
             
 //            final GeoServerActionConfiguration geoserverConfig = new GeoServerActionConfiguration();
 //            geoserverConfig.setGeoserverURL("http://localhost:8080/geoserver");
@@ -158,6 +171,45 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             return null;
         }
 
+    }
+
+    private void composeMosaic(final String directory, final String outputFolder,
+            final double compressionRatio, final String compressionScheme, 
+            final String inputFormats, String outputFormat, final int tileW, final int tileH, 
+            final int numSteps, int downsampleStep, final int chunkW, final int chunkH) throws Exception {
+        
+        final FormatConverterConfiguration converterConfig = new FormatConverterConfiguration();
+        converterConfig.setWorkingDirectory(directory);
+        converterConfig.setOutputDirectory(outputFolder);
+        converterConfig.setId("conv1");
+        converterConfig.setDescription("Mat5 to tiff converter");
+        converterConfig.setCompressionRatio(compressionRatio);
+        converterConfig.setCompressionScheme(compressionScheme);
+        converterConfig.setInputFormats(inputFormats);
+        converterConfig.setOutputFormat(outputFormat);
+        converterConfig.setTileH(tileH);
+        converterConfig.setTileW(tileW);
+        LOGGER.log(Level.INFO, "Ingesting MatFiles in the mosaic composer");
+        
+        FormatConverter converter = new FormatConverter(converterConfig);
+        converter.execute(null);
+        
+        
+        final MosaicerConfiguration mosaicerConfig = new MosaicerConfiguration();
+        mosaicerConfig.setCompressionRatio(compressionRatio);
+        mosaicerConfig.setCompressionScheme(compressionScheme);
+        mosaicerConfig.setNumSteps(numSteps);
+        mosaicerConfig.setDownsampleStep(downsampleStep);
+        mosaicerConfig.setWorkingDirectory(outputFolder);
+        mosaicerConfig.setTileH(tileH);
+        mosaicerConfig.setTileW(tileW);
+        mosaicerConfig.setChunkHeight(chunkH);
+        mosaicerConfig.setChunkWidth(chunkW);
+
+        LOGGER.log(Level.INFO, "Composing the mosaic with raw tiles");
+        Mosaicer mosaicer = new Mosaicer(mosaicerConfig);
+        mosaicer.execute(null);
+        
     }
 
     public ActionConfiguration getConfiguration() {

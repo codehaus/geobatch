@@ -45,6 +45,10 @@ public class ComposerConfiguration extends ActionConfiguration implements
     private String outputFormat;
 
     private String workingDirectory;
+    
+    private String outputBaseFolder;
+    
+    private String leavesFolders;
 
     private String inputFormats;
 
@@ -216,5 +220,21 @@ public class ComposerConfiguration extends ActionConfiguration implements
 
     public void setJAICacheCapacity(final long JAICacheCapacity) {
         this.JAICacheCapacity = JAICacheCapacity;
+    }
+
+    public String getOutputBaseFolder() {
+        return outputBaseFolder;
+    }
+
+    public void setOutputBaseFolder(String outputBaseFolder) {
+        this.outputBaseFolder = outputBaseFolder;
+    }
+
+    public String getLeavesFolders() {
+        return leavesFolders;
+    }
+
+    public void setLeavesFolders(String leavesFolders) {
+        this.leavesFolders = leavesFolders;
     }
 }

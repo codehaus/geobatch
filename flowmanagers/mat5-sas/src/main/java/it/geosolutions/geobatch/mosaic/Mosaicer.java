@@ -116,8 +116,8 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
             if (fileDir != null && fileDir.isDirectory()) {
                 File[] files = fileDir.listFiles();
 
-                final String outputFileName = new StringBuilder(directory)
-                        .append("/raw/").toString();
+                final String outputFileName = new StringBuilder(directory).append(File.separatorChar).append("raw")
+                        .append(File.separatorChar).toString();
                 File dir = new File(outputFileName);
                 configuration.setMosaicDirectory(outputFileName);
                 if (!dir.exists())
