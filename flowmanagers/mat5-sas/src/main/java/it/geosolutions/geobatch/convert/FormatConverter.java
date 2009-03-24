@@ -53,7 +53,7 @@ import org.opengis.parameter.ParameterValueGroup;
 /**
  * Comments here ...
  * 
- * @author Simone Giannechini, GeoSolutions
+ * @author Daniele Romagnoli, GeoSolutions
  */
 public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
         implements Action<FileSystemMonitorEvent> {

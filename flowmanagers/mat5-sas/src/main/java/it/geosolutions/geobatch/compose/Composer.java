@@ -48,7 +48,7 @@ import javax.media.jai.TileScheduler;
 /**
  * Comments here ...
  * 
- * @author Simone Giannechini, GeoSolutions
+ * @author Daniele Romagnoli, GeoSolutions
  */
 public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         Action<FileSystemMonitorEvent> {
@@ -109,19 +109,6 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             final int chunkW = configuration.getChunkW();
             final int chunkH = configuration.getChunkH();
             final String baseDir = configuration.getOutputBaseFolder();
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
             
             
             final File fileDir = new File(directory);

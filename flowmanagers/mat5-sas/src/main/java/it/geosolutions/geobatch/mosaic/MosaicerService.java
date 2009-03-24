@@ -35,9 +35,7 @@ import java.util.logging.Logger;
 /**
  * Comments here ...
  * 
- * @author AlFa
- * 
- * @version $ ShapeFileDTOProducerSPI.java $ Revision: x.x $ 19/feb/07 16:16:13
+ * @author Daniele Romagnoli, GeoSolutions
  */
 public class MosaicerService extends BaseService implements
         ActionService<FileSystemMonitorEvent, MosaicerConfiguration> {

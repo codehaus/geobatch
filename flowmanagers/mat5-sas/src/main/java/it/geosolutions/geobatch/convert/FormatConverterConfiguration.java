@@ -28,7 +28,11 @@ import org.geotools.utils.CoverageToolsConstants;
 
 import it.geosolutions.geobatch.catalog.Configuration;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
-
+/**
+ * Comments here ...
+ * 
+ * @author Daniele Romagnoli, GeoSolutions
+ */
 public class FormatConverterConfiguration extends ActionConfiguration implements
         Configuration {
 
