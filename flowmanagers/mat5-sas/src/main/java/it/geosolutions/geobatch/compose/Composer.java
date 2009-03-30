@@ -115,6 +115,11 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             final int chunkH = configuration.getChunkH();
             final String baseDir = configuration.getOutputBaseFolder();
             
+            // //
+            //
+            // Checking LEGS
+            //
+            // //
             ArrayList<File> directories = null;
             final File fileDir = new File(directory);
             if (fileDir != null && fileDir.isDirectory()) {
@@ -127,13 +132,12 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                         }
                     }
                     
-                    
                 }
             }
             
             // //
             //
-            // Mission scan
+            // Mission Scan: Looking for LEGS
             //
             // //
             if (directories != null && !directories.isEmpty()){
@@ -142,11 +146,24 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                 if (leaves != null){
                     final List<String> leavesArray = Arrays.asList(leaves);
                     final Set<String> leavesSet = new HashSet<String>(leavesArray);
+                    
+                    // //
+                    //
+                    // Leg Scan
+                    //
+                    // //
                     for (File legDir : directories){
                         final File checkDir = legDir;
                         if (checkDir.isDirectory()){
                             final File subFolders[] = checkDir.listFiles();
                             if (subFolders != null){
+                            	
+                            	// //
+                            	//
+                            	// Channel scan
+                            	//
+                            	// //
+                            	
                                 for (int i=0; i<subFolders.length; i++){
                                     final File leaf = subFolders[i];
                                     final String leafName = leaf.getName();
