@@ -106,7 +106,8 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
             
             final File outputDir = new File(outputDirectory);
             if (!outputDir.exists()){
-                outputDir.mkdir();
+                makeDirectories(outputDirectory);
+                
             }
 
             File fileDir = new File(directory);
@@ -161,6 +162,15 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 
     }
 
+    private  synchronized void makeDirectories(final String outputDirectory) {
+        final File makeDir = new File(outputDirectory);
+        if (!makeDir.exists()||!makeDir.isDirectory()){
+            makeDirectories(makeDir.getParent());
+            makeDir.mkdir();
+        }
+        
+    }
+
     private void convert(File file, String fileOutputName)
             throws IllegalArgumentException, IOException {
         
@@ -188,7 +198,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
             // //
             final GridCoverageReader reader = gridFormat.getReader(file,hints);
 
-            GridCoverage2D gc = (GridCoverage2D) reader.read(null);
+            final GridCoverage2D gc = (GridCoverage2D) reader.read(null);
 
             final String outputFormatType = configuration.getOutputFormat();
 

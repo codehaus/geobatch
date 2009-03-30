@@ -35,8 +35,13 @@ import it.geosolutions.geobatch.mosaic.MosaicerConfiguration;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -110,12 +115,12 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             final int chunkH = configuration.getChunkH();
             final String baseDir = configuration.getOutputBaseFolder();
             
-            
+            ArrayList<File> directories = null;
             final File fileDir = new File(directory);
             if (fileDir != null && fileDir.isDirectory()) {
                 final File[] foundFiles = fileDir.listFiles();
                 if (foundFiles!=null){
-                    final ArrayList<File> directories = new ArrayList<File>();
+                    directories = new ArrayList<File>();
                     for (File file : foundFiles){
                         if (file.exists() && file.isDirectory()){
                             directories.add(file);
@@ -126,18 +131,59 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                 }
             }
             
+            // //
+            //
+            // Mission scan
+            //
+            // //
+            if (directories != null && !directories.isEmpty()){
+                final String leavesFolders = configuration.getLeavesFolders();
+                final String leaves[] = leavesFolders.split(";");
+                if (leaves != null){
+                    final List<String> leavesArray = Arrays.asList(leaves);
+                    final Set<String> leavesSet = new HashSet<String>(leavesArray);
+                    for (File legDir : directories){
+                        final File checkDir = legDir;
+                        if (checkDir.isDirectory()){
+                            final File subFolders[] = checkDir.listFiles();
+                            if (subFolders != null){
+                                for (int i=0; i<subFolders.length; i++){
+                                    final File leaf = subFolders[i];
+                                    final String leafName = leaf.getName();
+                                    if (leavesSet.contains(leafName)){
+                                      final StringBuffer outputFolder = new StringBuffer(baseDir).append(File.separatorChar)
+                                      .append(fileDir.getName()).append(File.separatorChar)
+                                      .append(checkDir.getName()).append(File.separatorChar)
+                                      .append(leafName);
+                                      
+                                      composeMosaic(leaf.getAbsolutePath(),outputFolder.toString(), compressionRatio, compressionScheme,
+                                              inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, chunkW, chunkH);
+                                
+                                        
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                
+            }
+            
+            
+            
             /**
              * 
              * SIMPLE FOLDER CONVERTER
              * 
              */
             
-            final String lastFolder = fileDir.getName();
-            final StringBuffer outputFolder = new StringBuffer(baseDir).append(File.separatorChar).append(lastFolder);
-            
-            composeMosaic(directory,outputFolder.toString(), compressionRatio, compressionScheme,
-                    inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, chunkW, chunkH);
-            
+//            final String lastFolder = fileDir.getName();
+//            final StringBuffer outputFolder = new StringBuffer(baseDir).append(File.separatorChar).append(lastFolder);
+//            
+//            composeMosaic(directory,outputFolder.toString(), compressionRatio, compressionScheme,
+//                    inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, chunkW, chunkH);
+//            
             
 //            final GeoServerActionConfiguration geoserverConfig = new GeoServerActionConfiguration();
 //            geoserverConfig.setGeoserverURL("http://localhost:8080/geoserver");
@@ -178,7 +224,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         converterConfig.setTileW(tileW);
         LOGGER.log(Level.INFO, "Ingesting MatFiles in the mosaic composer");
         
-        FormatConverter converter = new FormatConverter(converterConfig);
+        final FormatConverter converter = new FormatConverter(converterConfig);
         converter.execute(null);
         
         
@@ -194,7 +240,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         mosaicerConfig.setChunkWidth(chunkW);
 
         LOGGER.log(Level.INFO, "Composing the mosaic with raw tiles");
-        Mosaicer mosaicer = new Mosaicer(mosaicerConfig);
+        final Mosaicer mosaicer = new Mosaicer(mosaicerConfig);
         mosaicer.execute(null);
         
     }
