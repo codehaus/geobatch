@@ -17,9 +17,10 @@
 			<serviceID>composerService</serviceID>
 			<outputFormat>GeoTIFF</outputFormat>
 			<inputFormats>mat</inputFormats>
-			<leavesFolders>starboard;port</leavesFolders>
-			<outputBaseFolder>h:/temp</outputBaseFolder>
-			<JAICacheCapacity>5368709</JAICacheCapacity>
+			<leavesFolders>stbd;port</leavesFolders>
+			<!--outputBaseFolder>h:/temp</outputBaseFolder-->
+			<outputBaseFolder>/mnt/datastorage/sas/postp</outputBaseFolder>
+			<JAICacheCapacity>536870912</JAICacheCapacity>
 			<!--<JAICacheCapacity>536870912</JAICacheCapacity>-->
 			<JAIParallelism>8</JAIParallelism>
 			<JAICacheThreshold>1</JAICacheThreshold>
