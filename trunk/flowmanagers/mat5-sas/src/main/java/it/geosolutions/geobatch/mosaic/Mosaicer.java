@@ -114,10 +114,10 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
             if (fileDir != null && fileDir.isDirectory()) {
                 File[] files = fileDir.listFiles();
 
-                final String outputFileName = new StringBuilder(directory).append(File.separatorChar).append("raw")
+                final String outputDirectory = new StringBuilder(directory).append(File.separatorChar).append("raw")
                         .append(File.separatorChar).toString();
-                final File dir = new File(outputFileName);
-                configuration.setMosaicDirectory(outputFileName);
+                final File dir = new File(outputDirectory);
+                configuration.setMosaicDirectory(outputDirectory);
                 if (!dir.exists())
                     dir.mkdir();
 
@@ -194,7 +194,7 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
                     //
                     // //
                     retileMosaic(gc, chunkW, chunkH, tileW, tileH,
-                            compressionRatio, compressionType, outputFileName);
+                            compressionRatio, compressionType, outputDirectory);
 
                 }
             }
@@ -259,8 +259,8 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
         //
         //
         // ///////////////////////////////////////////////////////////////////
-        final int numTileX = (int) (w / (chunkWidth * 1.0) + 1);
-        final int numTileY = (int) (h / (chunkHeight * 1.0) + 1);
+        final int numTileX = w!=chunkWidth? (int) (w / (chunkWidth * 1.0) + 1):1;
+        final int numTileY = h!=chunkHeight? (int) (h / (chunkHeight * 1.0) + 1):1;
         for (int i = 0; i < numTileX; i++)
             for (int j = 0; j < numTileY; j++) {
 
@@ -314,7 +314,7 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
                     writerWI.dispose();
 
                     // TODO: Leverage on GeoTiffOverviewsEmbedder when involving
-                    // no more only FileSystemEvent
+                    // no more FileSystemEvent only
                     addOverviews(fileOut.getAbsolutePath());
 
                 } catch (IOException e) {
@@ -328,8 +328,17 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
         final File outputDir = new File(outputLocation);
         
   
-//        final String channel = outputDir.getParent()
-        final String name = new StringBuilder("raw_mosaic").append("_").append(
+        final String channel = outputDir.getParent();
+        final File channelF = new File(channel);
+        final String leg = new File(channel).getParent();
+        final File legF = new File(leg);
+        final String mission = new File(leg).getParent();
+        final File missionF = new File(mission);
+        final String name = new StringBuilder(outputLocation).append("rawmosaic_")
+        .append(missionF.getName()).append("_")
+        .append(legF.getName()).append("_")
+        .append(channelF.getName()).append("_")
+        .append(
                         Integer.toString(i * chunkWidth + j)).append(
                         ".").append("tif").toString();
         
