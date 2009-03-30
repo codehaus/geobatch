@@ -110,13 +110,13 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
             final int chunkW = configuration.getChunkWidth();
             final int chunkH = configuration.getChunkHeight();
 
-            File fileDir = new File(directory);
+            final File fileDir = new File(directory);
             if (fileDir != null && fileDir.isDirectory()) {
                 File[] files = fileDir.listFiles();
 
                 final String outputFileName = new StringBuilder(directory).append(File.separatorChar).append("raw")
                         .append(File.separatorChar).toString();
-                File dir = new File(outputFileName);
+                final File dir = new File(outputFileName);
                 configuration.setMosaicDirectory(outputFileName);
                 if (!dir.exists())
                     dir.mkdir();
@@ -278,10 +278,8 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
                 // envelope
                 //
                 // //
-                final File fileOut = new File(outputLocation,
-                        new StringBuilder("raw_mosaic").append("_").append(
-                                Integer.toString(i * chunkWidth + j)).append(
-                                ".").append("tiff").toString());
+                final String fileName = buildFileName(outputLocation,i,j,chunkWidth);
+                final File fileOut = new File(fileName);
                 // remove an old output file if it exists
                 if (fileOut.exists())
                     fileOut.delete();
@@ -323,6 +321,19 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
                     return;
                 }
             }
+    }
+
+    private String buildFileName(final String outputLocation, final int i, final int j,
+            final int chunkWidth) {
+        final File outputDir = new File(outputLocation);
+        
+  
+//        final String channel = outputDir.getParent()
+        final String name = new StringBuilder("raw_mosaic").append("_").append(
+                        Integer.toString(i * chunkWidth + j)).append(
+                        ".").append("tif").toString();
+        
+        return name;
     }
 
     private void addOverviews(final String inputFileName) {
