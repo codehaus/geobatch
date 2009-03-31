@@ -116,6 +116,9 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
                 if (files != null) {
                     GridFormatFinder.scanForPlugins();
                     final int numFiles = files.length;
+                    
+                    if(LOGGER.isLoggable(Level.INFO))
+                    	LOGGER.log(Level.INFO,new StringBuilder("Found ").append(numFiles).append(" files").toString());
                     for (int i = 0; i < numFiles; i++) {
                         final File file = files[i];
                         final String path = file.getAbsolutePath()
@@ -133,21 +136,20 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
                         }
 
                         // get a reader
-                        final String parent = file.getParent();
                         final String name = FilenameUtils.getBaseName(path);
                         
-                        final String fileOutputName = new StringBuilder(outputDirectory).append(File.separatorChar).
+                        final String fileOutputName = new StringBuilder(outputDirectory)
+                        .append(File.separatorChar).
                         append(name).append(".tif").toString();
                         
-//                        final String fileOutputName = new StringBuilder(parent)
-//                                .append("/").append(name).append(".tif")
-//                                .toString();
                         // Preparing an useful layout in case the image is
                         // striped.
                         
                         // //
                         // Acquire proper format and reader
                         // //
+                        if(LOGGER.isLoggable(Level.INFO))
+                        	LOGGER.log(Level.INFO,new StringBuilder("Converting file N° ").append(i+1).toString());
                         convert(file, fileOutputName);
 
                     }

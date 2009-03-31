@@ -257,8 +257,9 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
         //
         // MAIN LOOP
         //
-        //
         // ///////////////////////////////////////////////////////////////////
+        if (LOGGER.isLoggable(Level.INFO))
+        	LOGGER.log(Level.INFO, "Retiling mosaic to separated files");
         final int numTileX = w!=chunkWidth? (int) (w / (chunkWidth * 1.0) + 1):1;
         final int numTileY = h!=chunkHeight? (int) (h / (chunkHeight * 1.0) + 1):1;
         for (int i = 0; i < numTileX; i++)
@@ -308,6 +309,12 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
                             AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName()
                                     .toString()).setValue(wp);
 
+                    if (LOGGER.isLoggable(Level.INFO))
+                    	LOGGER.log(Level.INFO, new StringBuilder("Writing tile: ").append(i+1)
+                    			.append(" of ").append(numTileX).append(" [X] ----")
+                    			.append(j+1)
+                    			.append(" of ").append(numTileY).append(" [Y]").toString());
+                    
                     final GeoTiffWriter writerWI = new GeoTiffWriter(fileOut);
                     writerWI.write(gc, (GeneralParameterValue[]) params
                             .values().toArray(new GeneralParameterValue[1]));
@@ -315,6 +322,7 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
 
                     // TODO: Leverage on GeoTiffOverviewsEmbedder when involving
                     // no more FileSystemEvent only
+                    // Or merge retiling and overviews adding to a single step 
                     addOverviews(fileOut.getAbsolutePath());
 
                 } catch (IOException e) {
@@ -326,7 +334,6 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
     private String buildFileName(final String outputLocation, final int i, final int j,
             final int chunkWidth) {
         final File outputDir = new File(outputLocation);
-        
   
         final String channel = outputDir.getParent();
         final File channelF = new File(channel);
@@ -334,7 +341,7 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
         final File legF = new File(leg);
         final String mission = new File(leg).getParent();
         final File missionF = new File(mission);
-        final String name = new StringBuilder(outputLocation).append("rawmosaic_")
+        final String name = new StringBuilder(outputLocation).append("rawm_")
         .append(missionF.getName()).append("_")
         .append(legF.getName()).append("_")
         .append(channelF.getName()).append("_")
