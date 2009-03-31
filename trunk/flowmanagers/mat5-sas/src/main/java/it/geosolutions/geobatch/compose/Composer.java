@@ -28,14 +28,12 @@ import it.geosolutions.geobatch.convert.FormatConverter;
 import it.geosolutions.geobatch.convert.FormatConverterConfiguration;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
-import it.geosolutions.geobatch.geoserver.matfile5.sas.SasMosaicGeoServerGenerator;
 import it.geosolutions.geobatch.mosaic.Mosaicer;
 import it.geosolutions.geobatch.mosaic.MosaicerConfiguration;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -183,24 +181,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                         }
                     }
                 }
-                
-                
             }
-            
-            
-            
-            /**
-             * 
-             * SIMPLE FOLDER CONVERTER
-             * 
-             */
-            
-//            final String lastFolder = fileDir.getName();
-//            final StringBuffer outputFolder = new StringBuffer(baseDir).append(File.separatorChar).append(lastFolder);
-//            
-//            composeMosaic(directory,outputFolder.toString(), compressionRatio, compressionScheme,
-//                    inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, chunkW, chunkH);
-//            
             
 //            final GeoServerActionConfiguration geoserverConfig = new GeoServerActionConfiguration();
 //            geoserverConfig.setGeoserverURL("http://localhost:8080/geoserver");
@@ -244,7 +225,6 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         final FormatConverter converter = new FormatConverter(converterConfig);
         converter.execute(null);
         
-        
         final MosaicerConfiguration mosaicerConfig = new MosaicerConfiguration();
         mosaicerConfig.setCompressionRatio(compressionRatio);
         mosaicerConfig.setCompressionScheme(compressionScheme);
@@ -259,7 +239,6 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         LOGGER.log(Level.INFO, "Composing the mosaic with raw tiles");
         final Mosaicer mosaicer = new Mosaicer(mosaicerConfig);
         mosaicer.execute(null);
-        
     }
 
     public ActionConfiguration getConfiguration() {
