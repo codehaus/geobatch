@@ -217,9 +217,11 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
         final ParameterBlockJAI pbMosaic = new ParameterBlockJAI("Mosaic");
         pbMosaic.setParameter("mosaicType", MosaicDescriptor.MOSAIC_TYPE_BLEND);
 
+        if (LOGGER.isLoggable(Level.INFO))
+        	LOGGER.log(Level.INFO, new StringBuffer("Found ").append(nCov).append(" tiles").toString());
+        
         for (int i = 0; i < nCov; i++) {
             final GridCoverage2D coverage = coverages.get(i);
-
             final ParameterBlockJAI pbAffine = new ParameterBlockJAI("Affine");
             pbAffine.addSource(coverage.getRenderedImage());
             AffineTransform at = (AffineTransform) coverage.getGridGeometry()
