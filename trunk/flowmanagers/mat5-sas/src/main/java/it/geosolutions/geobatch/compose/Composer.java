@@ -173,6 +173,8 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                                       
                                       composeMosaic(leaf.getAbsolutePath(),outputFolder.toString(), compressionRatio, compressionScheme,
                                               inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, chunkW, chunkH);
+                                      
+                                      
                                 
                                         
                                     }
@@ -212,7 +214,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         final FormatConverterConfiguration converterConfig = new FormatConverterConfiguration();
         converterConfig.setWorkingDirectory(directory);
         converterConfig.setOutputDirectory(outputFolder);
-        converterConfig.setId("conv1");
+        converterConfig.setId("conv");
         converterConfig.setDescription("Mat5 to tiff converter");
         converterConfig.setCompressionRatio(compressionRatio);
         converterConfig.setCompressionScheme(compressionScheme);
@@ -228,6 +230,8 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         final MosaicerConfiguration mosaicerConfig = new MosaicerConfiguration();
         mosaicerConfig.setCompressionRatio(compressionRatio);
         mosaicerConfig.setCompressionScheme(compressionScheme);
+        mosaicerConfig.setId("mosaic");
+        mosaicerConfig.setDescription("Mosaic composer");
         mosaicerConfig.setNumSteps(numSteps);
         mosaicerConfig.setDownsampleStep(downsampleStep);
         mosaicerConfig.setWorkingDirectory(outputFolder);
