@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.imageio.ImageIO;
 import javax.imageio.stream.FileImageInputStream;
 import javax.media.jai.JAI;
 import javax.media.jai.TileCache;
@@ -277,12 +278,15 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             final JAI jaiDef = JAI.getDefaultInstance();
 
             final TileCache cache = jaiDef.getTileCache();
-            cache.setMemoryCapacity(configuration.getJAICacheCapacity());
-            cache.setMemoryThreshold(configuration.getJAICacheThreshold());
+            final long cacheSize = configuration.getJAICacheCapacity();
+            cache.setMemoryCapacity(cacheSize*1024*1024);
+//            cache.setMemoryThreshold(configuration.getJAICacheThreshold());
 
             final TileScheduler scheduler = jaiDef.getTileScheduler();
             scheduler.setParallelism(configuration.getJAIParallelism());
             scheduler.setPrefetchParallelism(configuration.getJAIParallelism());
+            
+            ImageIO.setUseCache(false);
         }
     }
 }
