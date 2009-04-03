@@ -262,6 +262,8 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
         	LOGGER.log(Level.INFO, "Retiling mosaic to separated files");
         final int numTileX = w!=chunkWidth? (int) (w / (chunkWidth * 1.0) + 1):1;
         final int numTileY = h!=chunkHeight? (int) (h / (chunkHeight * 1.0) + 1):1;
+        final List<String> filesToAddOverviews = new ArrayList<String>(numTileX*numTileY);
+        
         for (int i = 0; i < numTileX; i++)
             for (int j = 0; j < numTileY; j++) {
 
@@ -319,16 +321,21 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
                     writerWI.write(gc, (GeneralParameterValue[]) params
                             .values().toArray(new GeneralParameterValue[1]));
                     writerWI.dispose();
-
-                    // TODO: Leverage on GeoTiffOverviewsEmbedder when involving
-                    // no more FileSystemEvent only
-                    // Or merge retiling and overviews adding to a single step 
-                    addOverviews(fileOut.getAbsolutePath());
-
+                    filesToAddOverviews.add(fileName);
                 } catch (IOException e) {
                     return;
                 }
             }
+        
+        //Overviews are added as a last step to minimize TileCache updates
+        for (String fileOverviews: filesToAddOverviews){
+            // TODO: Leverage on GeoTiffOverviewsEmbedder when involving
+            // no more FileSystemEvent only
+            // Or merge retiling and overviews adding to a single step 
+            addOverviews(fileOverviews);
+        }
+        
+        
     }
 
     private String buildFileName(final String outputLocation, final int i, final int j,
