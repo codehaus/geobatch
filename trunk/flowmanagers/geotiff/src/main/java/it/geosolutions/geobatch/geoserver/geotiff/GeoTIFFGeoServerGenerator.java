@@ -216,13 +216,23 @@ public class GeoTIFFGeoServerGenerator
 					data.toURL().toExternalForm(),
 					getConfiguration().getGeoserverUID(),
 					getConfiguration().getGeoserverPWD());
+        } else if ("EXTERNAL".equals(getConfiguration().getDataTransferMethod())) {
+            geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
+                    + "/layers/" + layerName
+                    + "/external.geotiff");
+            sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
+                                        data.toURL().toExternalForm(),
+                                        getConfiguration().getGeoserverUID(),
+                                        getConfiguration().getGeoserverPWD());
         }
 
         if (sent) {
-            LOGGER.info("GeoTIFF GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
-			boolean sldSent = configureStyles(layerName);
+            if(LOGGER.isLoggable(Level.INFO))
+                LOGGER.info("GeoTIFF GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
+            boolean sldSent = configureStyles(layerName);
         } else {
-            LOGGER.info("GeoTIFF GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
+            if(LOGGER.isLoggable(Level.INFO))
+                LOGGER.info("GeoTIFF GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
         }
     }
 

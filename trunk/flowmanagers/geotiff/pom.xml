@@ -71,7 +71,7 @@
 	    <dependency>
 	    	<groupId>org.geotools</groupId>
 	    	<artifactId>gt-coveragetools</artifactId>
-	    	<version>2.5-SNAPSHOT</version>
+	    	<version>${gt.version}</version>
 	    </dependency>
   </dependencies>
 	    
