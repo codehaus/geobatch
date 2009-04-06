@@ -104,7 +104,7 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
      * The max time the node will wait for, prior to stop to attempt for acquiring a lock on a
      * <code>File</code>.
      */
-    private static final long MAX_WAITING_TIME_FOR_LOCK = 300 * 1000;
+    private static final long MAX_WAITING_TIME_FOR_LOCK = 2*60*60 * 1000;
     static {
         FILE_CLEANER.setMaxAttempts(100);
         FILE_CLEANER.setPeriod(30);
