@@ -76,34 +76,47 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
          * (it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent)
          */
         public void fileMonitorEventDelivered(final FileSystemMonitorEvent fe) {
-            LOGGER.info(new StringBuffer("\nFile changed: ").append(fe.getSource()).toString());
-
-            String s = "";
-
-            final FileSystemMonitorNotifications acceptedNotification = FileBasedEventGenerator.this
-                    .getEventType();
-            final FileSystemMonitorNotifications notification = fe.getNotification();
-            if (notification.equals(FileSystemMonitorNotifications.FILE_ADDED)
-                    || notification.equals(FileSystemMonitorNotifications.FILE_REMOVED)) {
-                s = "file added or removed";
-            } else if (notification.equals(FileSystemMonitorNotifications.DIR_CREATED)
-                    || notification.equals(FileSystemMonitorNotifications.DIR_REMOVED)) {
-                s = "dir created or removed";
-            } else if (notification.equals(FileSystemMonitorNotifications.FILE_ADDED)) {
-                s = "file added";
-            } else if (notification.equals(FileSystemMonitorNotifications.FILE_REMOVED)) {
-                s = "file removed";
-            } else if (notification.equals(FileSystemMonitorNotifications.FILE_MODIFIED)) {
-                s = "file modified";
+            if (fe != null && fe.getSource()!=null){
+            
+                LOGGER.info(new StringBuffer("\nFile changed: ").append(fe.getSource()).toString());
+    
+                String s = "";
+    
+                final FileSystemMonitorNotifications acceptedNotification = FileBasedEventGenerator.this
+                        .getEventType();
+                final FileSystemMonitorNotifications notification = fe.getNotification();
+                if (notification.equals(FileSystemMonitorNotifications.FILE_ADDED)
+                        || notification.equals(FileSystemMonitorNotifications.FILE_REMOVED)) {
+                    s = "file added or removed";
+                } else if (notification.equals(FileSystemMonitorNotifications.DIR_CREATED)
+                        || notification.equals(FileSystemMonitorNotifications.DIR_REMOVED)) {
+                    s = "dir created or removed";
+                } else if (notification.equals(FileSystemMonitorNotifications.FILE_ADDED)) {
+                    s = "file added";
+                } else if (notification.equals(FileSystemMonitorNotifications.FILE_REMOVED)) {
+                    s = "file removed";
+                } else if (notification.equals(FileSystemMonitorNotifications.FILE_MODIFIED)) {
+                    s = "file modified";
+                }
+    
+                if (LOGGER.isLoggable(Level.INFO))
+                    LOGGER.info(new StringBuffer("Event: ").append(s).toString());
+    
+                if (acceptedNotification != null && notification.equals(acceptedNotification))
+                    FileBasedEventGenerator.this.sendEvent(fe);
+                else if (acceptedNotification == null)
+                    FileBasedEventGenerator.this.sendEvent(fe);
             }
-
-            if (LOGGER.isLoggable(Level.INFO))
-                LOGGER.info(new StringBuffer("Event: ").append(s).toString());
-
-            if (acceptedNotification != null && notification.equals(acceptedNotification))
-                FileBasedEventGenerator.this.sendEvent(fe);
-            else if (acceptedNotification == null)
-                FileBasedEventGenerator.this.sendEvent(fe);
+            else{
+                if (fe == null){
+                    if (LOGGER.isLoggable(Level.INFO))
+                        LOGGER.info("Null Event delivered ");
+                }
+                else{
+                    if (LOGGER.isLoggable(Level.INFO))
+                        LOGGER.info("Null Event's source ");
+                }
+            }
         }
 
     }
