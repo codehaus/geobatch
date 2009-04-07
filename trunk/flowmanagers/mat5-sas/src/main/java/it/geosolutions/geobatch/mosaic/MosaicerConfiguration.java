@@ -37,6 +37,8 @@ import org.geotools.utils.CoverageToolsConstants;
 public class MosaicerConfiguration extends ActionConfiguration implements
         Configuration {
 	
+
+
 	private String mosaicDirectory;
 
 	public String getMosaicDirectory() {
@@ -80,7 +82,11 @@ public class MosaicerConfiguration extends ActionConfiguration implements
     public MosaicerConfiguration() {
         super();
     }
-
+	protected MosaicerConfiguration(String id, String name, String description,
+			boolean dirty) {
+		super(id, name, description, dirty);
+		// TODO Auto-generated constructor stub
+	}
     /**
      * @return the workingDirectory
      */
@@ -206,5 +212,26 @@ public class MosaicerConfiguration extends ActionConfiguration implements
 
 	public void setChunkSize(final int chunkSize) {
 		this.chunkSize = chunkSize;
+	}
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		final MosaicerConfiguration configuration = 
+			new MosaicerConfiguration(getId(),getName(),getDescription(),isDirty());
+		configuration.setChunkHeight(chunkHeight);
+		configuration.setChunkWidth(chunkWidth);
+		configuration.setChunkSize(chunkSize);
+		configuration.setCompressionRatio(compressionRatio);
+		configuration.setCompressionScheme(compressionScheme);
+		configuration.setDownsampleStep(downsampleStep);
+		configuration.setMosaicDirectory(mosaicDirectory);
+		configuration.setNumSteps(numSteps);
+		configuration.setScaleAlgorithm(scaleAlgorithm);
+		configuration.setServiceID(serviceID);
+		configuration.setTileH(tileH);
+		configuration.setTileW(tileW);
+		configuration.setTileSizeLimit(tileSizeLimit);
+		configuration.setWorkingDirectory(workingDirectory);
+		return configuration;
 	}
 }
