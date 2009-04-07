@@ -105,31 +105,32 @@ public class SasMosaicGeoServerGenerator
 
             
             
-            String inputFileName = workingDir.getAbsolutePath()+"/" + workingDir.getName() + ".shp";
-            final File shapeFileName = new File(inputFileName);
+            String inputFileName = workingDir.getAbsolutePath();
+//            String inputFileName = workingDir.getAbsolutePath()+"/" + workingDir.getName() + ".shp";
+//            final File shapeFileName = new File(inputFileName);
             final String filePrefix = FilenameUtils.getBaseName(inputFileName);
             final String fileSuffix = FilenameUtils.getExtension(inputFileName);
 			final String fileNameFilter = getConfiguration().getStoreFilePrefix();
 
 			String baseFileName = null;
 
-            if (fileNameFilter != null) {
-                if ((filePrefix.equals(fileNameFilter) || filePrefix.matches(fileNameFilter))
-                        && ("tif".equalsIgnoreCase(fileSuffix) || "tiff"
-                                .equalsIgnoreCase(fileSuffix))) {
-					// etj: are we missing something here?
-					baseFileName = filePrefix;
-                }
-            } else if ("shp".equalsIgnoreCase(fileSuffix)) {
-                baseFileName = filePrefix;
-            }
+//            if (fileNameFilter != null) {
+//                if ((filePrefix.equals(fileNameFilter) || filePrefix.matches(fileNameFilter))
+//                        && ("tif".equalsIgnoreCase(fileSuffix) || "tiff"
+//                                .equalsIgnoreCase(fileSuffix))) {
+//					// etj: are we missing something here?
+//					baseFileName = filePrefix;
+//                }
+//            } else if ("shp".equalsIgnoreCase(fileSuffix)) {
+//                baseFileName = filePrefix;
+//            }
+//
+//			if(baseFileName == null) {
+//                LOGGER.log(Level.SEVERE, "Unexpected file '" + inputFileName + "'");
+//                throw new IllegalStateException("Unexpected file '" + inputFileName + "'");
+//			}
 
-			if(baseFileName == null) {
-                LOGGER.log(Level.SEVERE, "Unexpected file '" + inputFileName + "'");
-                throw new IllegalStateException("Unexpected file '" + inputFileName + "'");
-			}
-
-            inputFileName = FilenameUtils.getName(inputFileName);
+//            inputFileName = FilenameUtils.getName(inputFileName);
             final String coverageStoreId = FilenameUtils.getBaseName(inputFileName);
 
             // //
@@ -172,7 +173,7 @@ public class SasMosaicGeoServerGenerator
             queryParams.put("namespace",	getConfiguration().getDefaultNamespace());
             queryParams.put("wmspath",		getConfiguration().getWmsPath());
             send(workingDir,
-					shapeFileName,
+					workingDir,
 					getConfiguration().getGeoserverURL(),
 					new Long(System.currentTimeMillis()).toString(),
 					coverageStoreId,
@@ -206,7 +207,7 @@ public class SasMosaicGeoServerGenerator
         if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
             geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
                     + "/layers/" + layerName
-                    + "/file.shp?" + getQueryString(queryParams));
+                    + "/file.imagemosaic?" + getQueryString(queryParams));
             sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
                     new FileInputStream(data), 
 					getConfiguration().getGeoserverUID(),
@@ -214,12 +215,21 @@ public class SasMosaicGeoServerGenerator
         } else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
             geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
                     + "/layers/" + layerName
-                    + "/url.shp");
+                    + "/url.imagemosaic");
             sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
 					data.toURL().toExternalForm(),
 					getConfiguration().getGeoserverUID(),
 					getConfiguration().getGeoserverPWD());
+        }else if ("EXTERNAL".equals(getConfiguration().getDataTransferMethod())) {
+            geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
+                    + "/layers/" + layerName
+                    + "/external.imagemosaic");
+            sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
+                                        data.toURL().toExternalForm(),
+                                        getConfiguration().getGeoserverUID(),
+                                        getConfiguration().getGeoserverPWD());
         }
+
 
         if (sent) {
             LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");

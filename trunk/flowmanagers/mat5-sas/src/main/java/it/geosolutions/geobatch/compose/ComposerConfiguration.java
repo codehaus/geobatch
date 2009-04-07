@@ -58,6 +58,46 @@ public class ComposerConfiguration extends ActionConfiguration implements
     private String inputFormats;
 
     private String serviceID;
+    
+    public String getGeoserverURL() {
+		return geoserverURL;
+	}
+
+	public void setGeoserverURL(String geoserverURL) {
+		this.geoserverURL = geoserverURL;
+	}
+
+	public String getGeoserverUID() {
+		return geoserverUID;
+	}
+
+	public void setGeoserverUID(String geoserverUID) {
+		this.geoserverUID = geoserverUID;
+	}
+
+	public String getGeoserverPWD() {
+		return geoserverPWD;
+	}
+
+	public void setGeoserverPWD(String geoserverPWD) {
+		this.geoserverPWD = geoserverPWD;
+	}
+
+	public String getGeoserverUploadMethod() {
+		return geoserverUploadMethod;
+	}
+
+	public void setGeoserverUploadMethod(String geoserverUploadMethod) {
+		this.geoserverUploadMethod = geoserverUploadMethod;
+	}
+
+	private String geoserverURL;
+    
+    private String geoserverUID;
+    
+	private String geoserverPWD;
+	
+	private String geoserverUploadMethod;
 
 
     
@@ -272,6 +312,10 @@ public class ComposerConfiguration extends ActionConfiguration implements
 		configuration.setTileH(tileH);
 		configuration.setTileW(tileW);
 		configuration.setWorkingDirectory(workingDirectory);
+		configuration.setGeoserverPWD(geoserverPWD);
+		configuration.setGeoserverUID(geoserverUID);
+		configuration.setGeoserverUploadMethod(geoserverUploadMethod);
+		configuration.setGeoserverURL(geoserverURL);
 		return configuration;
 	}
 }

@@ -32,7 +32,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Queue;
 import java.util.logging.Level;
@@ -114,8 +116,7 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
             if (fileDir != null && fileDir.isDirectory()) {
                 File[] files = fileDir.listFiles();
 
-                final String outputDirectory = new StringBuilder(directory).append(File.separatorChar).append("raw")
-                        .append(File.separatorChar).toString();
+                final String outputDirectory = buildOutputDirName(directory);
                 final File dir = new File(outputDirectory);
                 configuration.setMosaicDirectory(outputDirectory);
                 if (!dir.exists())
@@ -315,7 +316,7 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
 
                     if (LOGGER.isLoggable(Level.INFO))
                     	LOGGER.log(Level.INFO, new StringBuilder("Writing tile: ").append(i+1)
-                    			.append(" of ").append(numTileX).append(" [X] ----")
+                    			.append(" of ").append(numTileX).append(" [X] ---- ")
                     			.append(j+1)
                     			.append(" of ").append(numTileY).append(" [Y]").toString());
                     
@@ -340,24 +341,32 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
         
     }
 
+    private String buildOutputDirName(final String outputLocation){
+    	String dirName = "";
+    	final File outputDir = new File(outputLocation);
+    	 final String channel = outputDir.getName();
+         final File channelF = new File(channel);
+         final String channelName = channelF.getName();
+         final String leg = new File(channel).getParent();
+         final File legF = new File(leg);
+         final String legName = legF.getName();
+         final String mission = new File(leg).getParent();
+         final File missionF = new File(mission);
+         final String missionName = missionF.getName();
+         
+         dirName = new StringBuilder(outputLocation).append(File.separatorChar).append("rawm_")
+         .append(new SimpleDateFormat("yyyyMMdd_").format(new Date()))
+         .append(missionName).append("_L")
+         .append(legName.substring(3,legName.length())).append("_")
+         .append(channelName.substring(0,1)).append(File.separatorChar).toString();
+         return dirName;
+    }
+    
     private String buildFileName(final String outputLocation, final int i, final int j,
             final int chunkWidth) {
-        final File outputDir = new File(outputLocation);
-  
-        final String channel = outputDir.getParent();
-        final File channelF = new File(channel);
-        final String leg = new File(channel).getParent();
-        final File legF = new File(leg);
-        final String mission = new File(leg).getParent();
-        final File missionF = new File(mission);
-        final String name = new StringBuilder(outputLocation).append("rawm_")
-        .append(missionF.getName()).append("_")
-        .append(legF.getName()).append("_")
-        .append(channelF.getName()).append("_")
-        .append(
-                        Integer.toString(i * chunkWidth + j)).append(
+        final String name = new StringBuilder(outputLocation).append("m_")
+        .append(Integer.toString(i * chunkWidth + j)).append(
                         ".").append("tif").toString();
-        
         return name;
     }
 
