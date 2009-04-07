@@ -22,10 +22,10 @@
 
 package it.geosolutions.geobatch.compose;
 
-import org.geotools.utils.CoverageToolsConstants;
-
 import it.geosolutions.geobatch.catalog.Configuration;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
+
+import org.geotools.utils.CoverageToolsConstants;
 
 /**
  * Comments here ...
@@ -35,7 +35,7 @@ import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 public class ComposerConfiguration extends ActionConfiguration implements
         Configuration {
 
-    private final static long DEFAULT_JAI_CACHE_CAPACITY = 128 * 1024 * 1024;
+	private final static long DEFAULT_JAI_CACHE_CAPACITY = 128 * 1024 * 1024;
 
     private final static int DEFAULT_JAI_PARALLELISM = 2;
 
@@ -59,13 +59,20 @@ public class ComposerConfiguration extends ActionConfiguration implements
 
     private String serviceID;
 
+
+    
+    private double compressionRatio = CoverageToolsConstants.DEFAULT_COMPRESSION_RATIO;
+
+    private String compressionScheme = CoverageToolsConstants.DEFAULT_COMPRESSION_SCHEME;
+    
     public ComposerConfiguration() {
         super();
     }
 
-    private double compressionRatio = CoverageToolsConstants.DEFAULT_COMPRESSION_RATIO;
-
-    private String compressionScheme = CoverageToolsConstants.DEFAULT_COMPRESSION_SCHEME;
+    protected ComposerConfiguration(String id, String name, String description,
+			boolean dirty) {
+		super(id, name, description, dirty);
+	}
 
     /** Downsampling step. */
     private int downsampleStep;
@@ -242,4 +249,29 @@ public class ComposerConfiguration extends ActionConfiguration implements
     public void setLeavesFolders(String leavesFolders) {
         this.leavesFolders = leavesFolders;
     }
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		final ComposerConfiguration configuration=
+			new ComposerConfiguration(getId(),getName(),getDescription(),isDirty());
+		configuration.setServiceID(serviceID);
+		configuration.setChunkH(chunkH);
+		configuration.setChunkW(chunkW);
+		configuration.setCompressionRatio(compressionRatio);
+		configuration.setCompressionScheme(compressionScheme);
+		configuration.setDownsampleStep(downsampleStep);
+		configuration.setInputFormats(inputFormats);
+		configuration.setJAICacheCapacity(JAICacheCapacity);
+		configuration.setJAICacheThreshold(JAICacheThreshold);
+		configuration.setJAIParallelism(JAIParallelism);
+		configuration.setLeavesFolders(leavesFolders);
+		configuration.setNumSteps(numSteps);
+		configuration.setOutputBaseFolder(outputBaseFolder);
+		configuration.setOutputFormat(outputFormat);
+		configuration.setScaleAlgorithm(scaleAlgorithm);
+		configuration.setTileH(tileH);
+		configuration.setTileW(tileW);
+		configuration.setWorkingDirectory(workingDirectory);
+		return configuration;
+	}
 }

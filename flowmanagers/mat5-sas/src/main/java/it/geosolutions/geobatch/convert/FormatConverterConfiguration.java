@@ -24,10 +24,10 @@
 
 package it.geosolutions.geobatch.convert;
 
-import org.geotools.utils.CoverageToolsConstants;
-
 import it.geosolutions.geobatch.catalog.Configuration;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
+
+import org.geotools.utils.CoverageToolsConstants;
 /**
  * Comments here ...
  * 
@@ -36,7 +36,8 @@ import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 public class FormatConverterConfiguration extends ActionConfiguration implements
         Configuration {
 
-    private String outputFormat;
+
+	private String outputFormat;
     
     private String inputFormats;
     
@@ -45,10 +46,6 @@ public class FormatConverterConfiguration extends ActionConfiguration implements
     private String outputDirectory;
     
     private String serviceID;
-    
-    public FormatConverterConfiguration() {
-        super();
-    }
 
     private double compressionRatio = CoverageToolsConstants.DEFAULT_COMPRESSION_RATIO;
 
@@ -67,6 +64,17 @@ public class FormatConverterConfiguration extends ActionConfiguration implements
 
     /** Tile width. */
     private int tileW = -1;
+    
+    
+    public FormatConverterConfiguration() {
+        super();
+    }
+
+    protected FormatConverterConfiguration(String id, String name,
+			String description, boolean dirty) {
+		super(id, name, description, dirty);
+		// TODO Auto-generated constructor stub
+	}
     
     public final double getCompressionRatio() {
         return compressionRatio;
@@ -177,4 +185,22 @@ public class FormatConverterConfiguration extends ActionConfiguration implements
     public void setOutputDirectory(String outputDirectory) {
         this.outputDirectory = outputDirectory;
     }
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		final FormatConverterConfiguration configuration= 
+			new FormatConverterConfiguration(getId(),getName(),getDescription(),isDirty());
+		configuration.setCompressionRatio(compressionRatio);
+		configuration.setCompressionScheme(compressionScheme);
+		configuration.setDownsampleStep(downsampleStep);
+		configuration.setInputFormats(inputFormats);
+		configuration.setNumSteps(numSteps);
+		configuration.setOutputDirectory(outputDirectory);
+		configuration.setOutputFormat(outputFormat);
+		configuration.setServiceID(serviceID);
+		configuration.setTileH(tileH);
+		configuration.setTileW(tileW);
+		configuration.setWorkingDirectory(workingDirectory);
+		return configuration;
+	}
 }
