@@ -29,9 +29,17 @@ import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 
 import java.util.List;
 
+import com.sun.org.apache.bcel.internal.generic.CPInstruction;
+
 public class GeoServerActionConfiguration extends ActionConfiguration implements Configuration {
 
-    private String workingDirectory;
+    protected GeoServerActionConfiguration(String id, String name,
+			String description, boolean dirty) {
+		super(id, name, description, dirty);
+		// TODO Auto-generated constructor stub
+	}
+
+	private String workingDirectory;
 
     private String crs;
 
@@ -191,5 +199,29 @@ public class GeoServerActionConfiguration extends ActionConfiguration implements
     public void setDataTransferMethod(String dataTransferMethod) {
         this.dataTransferMethod = dataTransferMethod;
     }
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		final GeoServerActionConfiguration configuration = 
+			new GeoServerActionConfiguration(super.getId(),super.getName(),super.getDescription(),super.isDirty());
+		configuration.setCrs(crs);
+		configuration.setDataTransferMethod(dataTransferMethod);
+		configuration.setDatatype(datatype);
+		configuration.setDefaultNamespace(defaultNamespace);
+		configuration.setDefaultNamespaceUri(defaultNamespaceUri);
+		configuration.setDefaultStyle(defaultStyle);
+		configuration.setEnvelope(envelope);
+		configuration.setGeoserverPWD(geoserverPWD);
+		configuration.setGeoserverUID(geoserverUID);
+		configuration.setGeoserverURL(geoserverURL);
+		configuration.setServiceID(getServiceID());
+		configuration.setStoreFilePrefix(storeFilePrefix);
+		configuration.setStyles(styles);
+		configuration.setWmsPath(wmsPath);
+		configuration.setWorkingDirectory(workingDirectory);
+		
+		
+		return configuration;
+	}
 
 }

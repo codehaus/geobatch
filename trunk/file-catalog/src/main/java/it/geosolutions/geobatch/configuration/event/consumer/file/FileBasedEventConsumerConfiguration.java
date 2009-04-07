@@ -42,7 +42,20 @@ import java.util.List;
 public class FileBasedEventConsumerConfiguration extends BaseConfiguration implements
         EventConsumerConfiguration {
 
-    /**
+
+	protected FileBasedEventConsumerConfiguration(String id, String name,
+			String description, boolean dirty) {
+		super(id, name, description, dirty);
+		// TODO Auto-generated constructor stub
+	}
+
+	protected FileBasedEventConsumerConfiguration(String id, String name,
+			String description) {
+		super(id, name, description);
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
      * Default Constructor.
      */
     public FileBasedEventConsumerConfiguration() {
@@ -142,5 +155,28 @@ public class FileBasedEventConsumerConfiguration extends BaseConfiguration imple
     public void setPerformBackup(boolean performBackup) {
         this.performBackup = performBackup;
     }
+    
+    
+
+    @Override
+	public Object clone() throws CloneNotSupportedException {
+		
+    	// clone object
+		final FileBasedEventConsumerConfiguration object = new FileBasedEventConsumerConfiguration(super.getId(),super.getName(),super.getDescription(),super.isDirty());
+		object.setPerformBackup(performBackup);
+		object.setWorkingDirectory(workingDirectory);
+		
+		//clone its elements
+		final ArrayList<FileEventRule> clonedRules=new ArrayList<FileEventRule>(rules.size());
+		for(FileEventRule rule :rules)
+			clonedRules.add((FileEventRule) rule.clone());
+		object.setRules(clonedRules);
+		
+		final ArrayList<ActionConfiguration> clonedActions=new ArrayList<ActionConfiguration>(actions.size());
+		for(ActionConfiguration action :actions)
+			clonedActions.add( (ActionConfiguration)action.clone());
+		object.setActions(clonedActions);
+		return object;
+	}
 
 }

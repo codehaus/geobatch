@@ -146,8 +146,7 @@ public class FileBasedFlowManager
                         // //
                         final FileBasedEventConsumer fileBasedEventConsumer = new FileBasedEventConsumer(
                                 getCatalog(),
-                                (FileBasedEventConsumerConfiguration) FileBasedFlowManager.this
-                                        .getConfiguration().getEventConsumerConfiguration());
+                                (FileBasedEventConsumerConfiguration)((FileBasedEventConsumerConfiguration) FileBasedFlowManager.this.getConfiguration().getEventConsumerConfiguration()).clone());
 
                         if (fileBasedEventConsumer.consume(event)) {
                             // //
@@ -170,7 +169,10 @@ public class FileBasedFlowManager
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, new StringBuffer("Caught an IOException Exception: ")
                         .append(e.getLocalizedMessage()).toString(), e);
-            }
+            } catch (CloneNotSupportedException e) {
+                LOGGER.log(Level.SEVERE, new StringBuffer("Caught a CloneNotSupportedException Exception: ")
+                .append(e.getLocalizedMessage()).toString(), e);
+			}
 
         }
     }
@@ -443,21 +445,6 @@ public class FileBasedFlowManager
         this.workingDirectory = outputDir;
     }
 
-    public void flowEventCollected(EventObject fe) {
-        if (!(fe instanceof FileSystemMonitorEvent)) {
-            if (LOGGER.isLoggable(Level.WARNING))
-                LOGGER.warning(new StringBuilder("Rejecting event: ").append(fe.toString())
-                        .toString());
-            return;
-        }
-        try {
-            this.eventMailBox.put((FileSystemMonitorEvent) fe);
-        } catch (InterruptedException e) {
-            if (LOGGER.isLoggable(Level.SEVERE))
-                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-        }
-
-    }
 
     public EventGenerator<FileSystemMonitorEvent> getEventGenerator() {
         return this.eventGenerator;

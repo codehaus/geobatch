@@ -32,6 +32,12 @@ import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
  * @author Ivano Picco
  */
 public class FTPUploadActionConfiguration extends ActionConfiguration implements Configuration {
+	protected FTPUploadActionConfiguration(String id, String name,
+			String description, boolean dirty) {
+		super(id, name, description, dirty);
+		// TODO Auto-generated constructor stub
+	}
+
 	public enum FTPConnectMode{
 		ACTIVE,PASSIVE;
 	}
@@ -162,5 +168,23 @@ public class FTPUploadActionConfiguration extends ActionConfiguration implements
     public void setDataTransferMethod(String dataTransferMethod) {
         this.dataTransferMethod = dataTransferMethod;
     }
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		final FTPUploadActionConfiguration configuration= 
+			new FTPUploadActionConfiguration(getId(),getName(),getDescription(),isDirty());
+		configuration.setConnectMode(connectMode);
+		configuration.setDataTransferMethod(dataTransferMethod);
+		configuration.setFtpserverHost(ftpserverHost);
+		configuration.setFtpserverPort(ftpserverPort);
+		configuration.setFtpserverPWD(ftpserverPWD);
+		configuration.setFtpserverUSR(ftpserverUSR);
+		configuration.setServiceID(getServiceID());
+		configuration.setTimeout(timeout);
+		configuration.setWorkingDirectory(workingDirectory);
+		configuration.setZipFileName(zipFileName);
+		configuration.setZipInput(zipInput);		
+		return configuration;
+	}
 
 }

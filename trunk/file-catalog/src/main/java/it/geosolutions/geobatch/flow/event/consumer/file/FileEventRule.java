@@ -93,22 +93,22 @@ public class FileEventRule extends BaseConfiguration implements Configuration, C
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
+    public Object clone() throws CloneNotSupportedException {
         final FileEventRule rule = new FileEventRule();
         rule.setId(getId());
         rule.setName(getName());
         rule.setDescription(getDescription());
         if (acceptableNotifications != null)
-            rule.setAcceptableNotifications(new ArrayList<FileSystemMonitorNotifications>(
-                    acceptableNotifications));
+            rule.setAcceptableNotifications(new ArrayList<FileSystemMonitorNotifications>(acceptableNotifications));
         rule.setOptional(optional);
         rule.setRegex(regex);
         rule.setOriginalOccurrencies(originalOccurrencies);
-        rule.setActualOccurrencies(originalOccurrencies);
+        rule.setActualOccurrencies(actualOccurrencies);
         return rule;
     }
 
     public void setServiceID(String serviceID) {
+    	
     }
 
     public String getServiceID() {
@@ -117,10 +117,14 @@ public class FileEventRule extends BaseConfiguration implements Configuration, C
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + "["
-				+ "id:" + getId()
-				+ ", name:" + getName()
-				+ ", regex:" + getRegex()
-				+ "]";
+		final StringBuilder builder= new StringBuilder();
+		builder.append(getClass().getSimpleName());
+		builder.append("[");
+		builder.append("id:");
+		builder.append( getId());
+		builder.append(", name:" + getName());
+		builder.append(", regex:" + getRegex());
+		builder.append("]");
+		return builder.toString();
 	}
 }

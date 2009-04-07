@@ -56,9 +56,8 @@ import org.apache.commons.io.FilenameUtils;
 /**
  * Comments here ...
  * 
- * @author AlFa
+ * @author Simone Giannecchini, GeoSolutions S.A.S.
  * 
- * @version $ FileBasedEventConsumer.java $ Revision: 0.1 $ 30/gen/07 12:35:10
  */
 public class FileBasedEventConsumer extends
         BaseEventConsumer<FileSystemMonitorEvent, FileBasedEventConsumerConfiguration> implements
@@ -170,11 +169,11 @@ public class FileBasedEventConsumer extends
 		    
 		    //check occurencies for this file in case we have multiple occurrencies
 		    occurrencies = rule.getActualOccurrencies();
-		    final int originalOccurrencies = rule.getOriginalOccurrencies();
+		    final int originalOccurrences = rule.getOriginalOccurrencies();
 		    final Pattern p = Pattern.compile(rule.getRegex());
 		    if (p.matcher(fileName).matches()) {
-			    //we cannot exceed the number of needed occurrencies!
-			    if(occurrencies>originalOccurrencies)
+			    //we cannot exceed the number of needed occurrences!
+			    if(occurrencies>originalOccurrences)
 			    	return false;
 			    
 		        if (this.commonPrefixRegex == null) {
@@ -288,8 +287,7 @@ public class FileBasedEventConsumer extends
         final List<Action<FileSystemMonitorEvent>> actions = new ArrayList<Action<FileSystemMonitorEvent>>();
         for (ActionConfiguration actionConfig : configuration.getActions()) {
             final String serviceID = actionConfig.getServiceID();
-            final ActionService<FileSystemMonitorEvent, ActionConfiguration> actionService = getCatalog()
-                    .getResource(serviceID, ActionService.class);
+            final ActionService<FileSystemMonitorEvent, ActionConfiguration> actionService = getCatalog().getResource(serviceID, ActionService.class);
             if (actionService != null) {
                 Action<FileSystemMonitorEvent> action = actionService.createAction(actionConfig);
                 actions.add(action);
@@ -340,12 +338,16 @@ public class FileBasedEventConsumer extends
 
                 final File destDataFile = new File(currentRunDirectory, fileName);
                 destDataFile.createNewFile();
+                LOGGER.info(new StringBuffer("FileBasedEventConsumer [").append(
+                        Thread.currentThread().getName()).append(
+                        "]: trying to lock file "+sourceDataFile.getAbsolutePath()).toString());
+
                 if (IOUtils.acquireLock(this, sourceDataFile)) {
                     IOUtils.copyFile(sourceDataFile, destDataFile);
                     LOGGER.info("Accepted file >> " + Thread.currentThread().getName() + " - " + fileName);
                 }
 
-                // XXX make possible to add timestamp
+                // 
                 preprocessedEventsQueue.offer(new FileSystemMonitorEvent(destDataFile, FileSystemMonitorNotifications.FILE_ADDED));
 
                 // Backing up files and delete sources.
