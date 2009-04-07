@@ -104,7 +104,7 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
      * The max time the node will wait for, prior to stop to attempt for acquiring a lock on a
      * <code>File</code>.
      */
-    private static final long MAX_WAITING_TIME_FOR_LOCK = 2*60*60 * 1000;
+    private static final long MAX_WAITING_TIME_FOR_LOCK = 12*60*60 * 1000;//12h
     static {
         FILE_CLEANER.setMaxAttempts(100);
         FILE_CLEANER.setPeriod(30);
@@ -709,6 +709,8 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
             }
 
             sumWait += ATOMIC_WAIT;
+            if(LOGGER.isLoggable(Level.FINE))
+            	LOGGER.fine("Waiting time is "+sumWait);
             if (sumWait > MAX_WAITING_TIME_FOR_LOCK) {
                 LOGGER.info("Waiting time beyond maximum specified waiting time, exiting...");
                 // Quitting the loop
