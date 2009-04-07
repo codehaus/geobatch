@@ -13,7 +13,7 @@
     <parent>
         <groupId>it.geosolutions</groupId>
         <artifactId>gb</artifactId>
-        <version>0.9-SNAPSHOT</version>
+        <version>${version}</version>
     </parent>
   
 
@@ -104,38 +104,23 @@
         <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-core</artifactId>
-            <version>0.9-SNAPSHOT</version>
+            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-fs-catalog</artifactId>
-            <version>0.9-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>it.geosolutions</groupId>
-            <artifactId>gb-flowmanagers-ascii</artifactId>
-            <version>0.9-SNAPSHOT</version>
+            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-flowmanagers-geotiff</artifactId>
-            <version>0.9-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>it.geosolutions</groupId>
-            <artifactId>gb-flowmanagers-composer</artifactId>
-            <version>0.9-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>it.geosolutions</groupId>
-            <artifactId>gb-flowmanagers-shapefile</artifactId>
-            <version>0.9-SNAPSHOT</version>
+            <version>${version}</version>
         </dependency>
 <!-- Setting the dependnecy this way is somehow ugly. Config moved into the profiles section.
     <dependency>
 	    <groupId>it.geosolutions</groupId>
 	    <artifactId>gb-dao-${dao.type}</artifactId>
-	    <version>0.9-SNAPSHOT</version>
+	    <version>${version}</version>
     </dependency>
 -->
     </dependencies>
@@ -195,7 +180,7 @@
                 <dependency>
                     <groupId>it.geosolutions</groupId>
                     <artifactId>gb-dao-jibx</artifactId>
-                    <version>0.9-SNAPSHOT</version>
+                    <version>${version}</version>
                 </dependency>
             </dependencies>
         
@@ -206,7 +191,7 @@
                 <dependency>
                     <groupId>it.geosolutions</groupId>
                     <artifactId>gb-dao-xstream</artifactId>
-                    <version>0.9-SNAPSHOT</version>
+                    <version>${version}</version>
                 </dependency>
             </dependencies>
         </profile>

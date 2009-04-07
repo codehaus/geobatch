@@ -16,7 +16,7 @@
   <parent>
     <groupId>it.geosolutions</groupId>
     <artifactId>gb</artifactId>
-    <version>0.9-SNAPSHOT</version>
+    <version>${version}</version>
   </parent>
   
 
@@ -57,9 +57,7 @@
   <!-- =========================================================== -->
    
     <modules>
-      <module>ascii-grids</module>
       <module>geotiff</module>
-      <module>shapefile</module>
       <module>mat5-sas</module>
     </modules> 
   </project>

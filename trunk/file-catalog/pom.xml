@@ -12,7 +12,7 @@
     <parent>
         <groupId>it.geosolutions</groupId>
         <artifactId>gb</artifactId>
-        <version>0.9-SNAPSHOT</version>
+        <version>${version}</version>
     </parent>
 
 
@@ -21,7 +21,7 @@
   <!-- =========================================================== -->
     <groupId>it.geosolutions</groupId>
     <artifactId>gb-fs-catalog</artifactId>
-    <version>0.9-SNAPSHOT</version>
+    <version>${version}</version>
     <name>GeoSolutions GeoBatch catalog file system persistence</name>
     <url>http://www.geo-solutions.it/maven_reports/gb/data/</url>
 
@@ -229,7 +229,7 @@
         <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-core</artifactId>
-            <version>0.9-SNAPSHOT</version>
+            <version>${version}</version>
         </dependency>
 
 
@@ -330,34 +330,6 @@
         </dependency>
 
 
- 	<!-- ============================== -->
-  	<!--     GeoSolutions               -->
-  	<!-- ============================== -->
-
-
- 	<!-- ============================== -->
-  	<!--     Geotools                   -->
-  	<!-- ============================== -->
-
-    <!-- dependency>
-      <groupId>hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-    </dependency -->
-
- 	<!-- ============================== -->
-  	<!--     Commons	                -->
-  	<!-- ============================== -->
-
-
- 	<!-- ============================== -->
-  	<!--     Jetty		                -->
-  	<!-- ============================== -->
-
-
-
- 	<!-- ============================== -->
-  	<!--     Junit		                -->
-  	<!-- ============================== -->
 
     </dependencies>
 
