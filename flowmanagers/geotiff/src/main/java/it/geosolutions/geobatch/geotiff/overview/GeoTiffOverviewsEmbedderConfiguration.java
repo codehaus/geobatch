@@ -34,6 +34,12 @@ import org.geotools.utils.CoverageToolsConstants;
 public class GeoTiffOverviewsEmbedderConfiguration extends ActionConfiguration implements
         Configuration {
 
+	protected GeoTiffOverviewsEmbedderConfiguration(String id, String name,
+			String description, boolean dirty) {
+		super(id, name, description, dirty);
+		// TODO Auto-generated constructor stub
+	}
+
 	private long JAICapacity;
 	
     public long getJAICapacity() {
@@ -191,5 +197,25 @@ public class GeoTiffOverviewsEmbedderConfiguration extends ActionConfiguration i
 				+ ", wxh:" + getTileW() + "x" + getTileH()
 				+ ", stp:" + getNumSteps()
 				+ "]";
+	}
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		final GeoTiffOverviewsEmbedderConfiguration configuration= 
+			new GeoTiffOverviewsEmbedderConfiguration(getId(),getName(),getDescription(),isDirty());
+		configuration.setCompressionRatio(compressionRatio);
+		configuration.setCompressionScheme(compressionScheme);
+		configuration.setDownsampleStep(downsampleStep);
+		configuration.setInterp(interp);
+		configuration.setJAICapacity(JAICapacity);
+		configuration.setNumSteps(numSteps);
+		configuration.setScaleAlgorithm(scaleAlgorithm);
+		configuration.setTileH(tileH);
+		configuration.setTileW(tileW);
+		configuration.setWildcardString(wildcardString);
+		configuration.setWorkingDirectory(workingDirectory);
+		configuration.setServiceID(serviceID);
+		
+		return configuration;
 	}
 }

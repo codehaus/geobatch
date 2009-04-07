@@ -27,14 +27,19 @@ package it.geosolutions.geobatch.configuration.event.action;
 import it.geosolutions.geobatch.catalog.Configuration;
 import it.geosolutions.geobatch.catalog.impl.BaseConfiguration;
 
-public class ActionConfiguration extends BaseConfiguration implements Configuration {
+public abstract class ActionConfiguration extends BaseConfiguration implements Configuration {
     
-    public ActionConfiguration() {
+    @Override
+	public abstract Object clone() throws CloneNotSupportedException;
+
+	public ActionConfiguration() {
         super();
     }
 
     public ActionConfiguration(String id, String name, String description, boolean dirty) {
         super(id, name, description, dirty);
     }
+    
+    
 
 }

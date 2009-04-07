@@ -28,7 +28,7 @@ import it.geosolutions.geobatch.catalog.Configuration;
 
 public class BaseConfiguration extends BaseIdentifiable implements Configuration {
 
-    public String serviceID;
+    private String serviceID;
     
     private boolean dirty;
 

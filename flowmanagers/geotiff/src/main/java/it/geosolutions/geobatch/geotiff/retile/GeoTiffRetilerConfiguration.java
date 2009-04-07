@@ -32,6 +32,12 @@ import org.geotools.utils.CoverageToolsConstants;
 public class GeoTiffRetilerConfiguration extends ActionConfiguration implements
         Configuration {
 
+	protected GeoTiffRetilerConfiguration(String id, String name,
+			String description, boolean dirty) {
+		super(id, name, description, dirty);
+		// TODO Auto-generated constructor stub
+	}
+
 	private long JAICapacity;
 	
     public long getJAICapacity() {
@@ -129,5 +135,19 @@ public class GeoTiffRetilerConfiguration extends ActionConfiguration implements
 				+ ", name:" + getName()
 				+ ", wxh:" + getTileW() + "x" + getTileH()
 				+ "]";
+	}
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		final GeoTiffRetilerConfiguration configuration= 
+			new GeoTiffRetilerConfiguration(getId(),getName(),getDescription(),isDirty());
+		configuration.setCompressionRatio(compressionRatio);
+		configuration.setCompressionScheme(compressionScheme);
+		configuration.setJAICapacity(JAICapacity);
+		configuration.setServiceID(serviceID);
+		configuration.setTileH(tileH);
+		configuration.setTileW(tileW);
+		configuration.setWorkingDirectory(workingDirectory);
+		return null;
 	}
 }
