@@ -19,23 +19,30 @@
 			<inputFormats>mat</inputFormats>
 			<leavesFolders>stbd;port</leavesFolders>
 			<!--outputBaseFolder>h:/temp</outputBaseFolder-->
-			<outputBaseFolder>/mnt/datastorage/sas/postp</outputBaseFolder>
-			<JAICacheCapacity>536870912</JAICacheCapacity>
-			<!--<JAICacheCapacity>536870912</JAICacheCapacity>-->
-			<JAIParallelism>8</JAIParallelism>
+			<!-- LINUX NAS -->
+			<!--outputBaseFolder>/mnt/datastorage/sas/mosaic_output</outputBaseFolder-->
+			<!-- LINUX LOCAL -->
+			<outputBaseFolder>/home/geos/work/data/sas/output</outputBaseFolder>
+			<JAICacheCapacity>1024</JAICacheCapacity>
+	        	<JAIParallelism>8</JAIParallelism>
 			<JAICacheThreshold>1</JAICacheThreshold>
 			<numSteps>6</numSteps>
 			<downsampleStep>2</downsampleStep>
 			<scaleAlgorithm>nn</scaleAlgorithm>
 			<tileH>512</tileH>
 			<tileW>512</tileW>
-			<chunkW>20480</chunkW>
-			<chunkH>20480</chunkH>
+			<chunkW>10240</chunkW>
+			<chunkH>10240</chunkH>
 			<compressionRatio>0.75</compressionRatio>
 			<compressionScheme>LZW</compressionScheme>
-			<id>a1</id>
+			<geoserverURL></geoserverURL>
+			<geoserverUID></geoserverUID>
+			<geoserverPWD></geoserverPWD>
+			<geoserverUploadMethod></geoserverUploadMethod>
+			
+			<id>SASMSC</id>
 			<description>description</description>
-			<name>test</name>
+			<name>SAS Tiles Mosaic composer</name>
 		</ComposerConfiguration>		
 		<id>id</id>
 		<description>description</description>
