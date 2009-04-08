@@ -61,12 +61,12 @@
 	    <dependency>
 	      <groupId>org.geotools</groupId>
 	      <artifactId>gt-geotiff</artifactId>
-	      <version>${gt.version}</version>
+	      <version>2.5-SNAPSHOT</version>
 	    </dependency>
         <dependency>
 	      <groupId>org.geotools</groupId>
 	      <artifactId>gt-sas</artifactId>
-	      <version>${gt.version}</version>
+	      <version>2.5-SNAPSHOT</version>
 	    </dependency>
 	    <dependency>
 	    	<groupId>it.geosolutions</groupId>

@@ -25,6 +25,8 @@ package it.geosolutions.geobatch.compose;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
+import it.geosolutions.geobatch.convert.FormatConverter;
+import it.geosolutions.geobatch.convert.FormatConverterConfiguration;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
 import it.geosolutions.geobatch.geoserver.matfile5.sas.SasMosaicGeoServerGenerator;
@@ -48,7 +50,6 @@ import javax.imageio.stream.FileImageInputStream;
 import javax.media.jai.JAI;
 import javax.media.jai.TileCache;
 import javax.media.jai.TileScheduler;
-import javax.media.jai.operator.MosaicType;
 
 /**
  * Comments here ...
@@ -211,7 +212,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
     private String composeMosaic(final String directory, final String outputFolder,
             final double compressionRatio, final String compressionScheme, 
             final String inputFormats, String outputFormat, final int tileW, final int tileH, 
-            final int numSteps, int downsampleStep, final int chunkW, final int chunkH) throws Exception {
+            final int numSteps, final int downsampleStep, final int chunkW, final int chunkH) throws Exception {
         
 //        final FormatConverterConfiguration converterConfig = new FormatConverterConfiguration();
 //        converterConfig.setWorkingDirectory(directory);
@@ -276,7 +277,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         return dataDir;
     }
     
-    private void setJAIHints(ComposerConfiguration configuration) {
+    private void setJAIHints(final ComposerConfiguration configuration) {
         if (configuration!=null){
             final JAI jaiDef = JAI.getDefaultInstance();
 
