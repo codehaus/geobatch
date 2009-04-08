@@ -122,7 +122,7 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
                 if (!dir.exists())
                     dir.mkdir();
 
-                if (files != null) {
+                if (files != null && false) {
                     final int numFiles = files.length;
                     for (int i = 0; i < numFiles; i++) {
                         final String path = files[i].getAbsolutePath()
@@ -316,7 +316,7 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
 
                     if (LOGGER.isLoggable(Level.INFO))
                     	LOGGER.log(Level.INFO, new StringBuilder("Writing tile: ").append(i+1)
-                    			.append(" of ").append(numTileX).append(" [X] ---- ")
+                    			.append(" of ").append(numTileX).append(" [X] -- ")
                     			.append(j+1)
                     			.append(" of ").append(numTileY).append(" [Y]").toString());
                     
@@ -344,13 +344,11 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
     private String buildOutputDirName(final String outputLocation){
     	String dirName = "";
     	final File outputDir = new File(outputLocation);
-    	 final String channel = outputDir.getName();
-         final File channelF = new File(channel);
-         final String channelName = channelF.getName();
-         final String leg = new File(channel).getParent();
+         final String channelName = outputDir.getName();
+         final String leg = outputDir.getParent();
          final File legF = new File(leg);
          final String legName = legF.getName();
-         final String mission = new File(leg).getParent();
+         final String mission = legF.getParent();
          final File missionF = new File(mission);
          final String missionName = missionF.getName();
          
@@ -373,23 +371,31 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
     private void addOverviews(final String inputFileName) {
     	
     	LOGGER.log(Level.INFO, "Adding overviews");
-        int downsampleStep = configuration.getDownsampleStep();
+        final int downsampleStep = configuration.getDownsampleStep();
         if (downsampleStep <= 0)
             throw new IllegalArgumentException("Illegal downsampleStep: "
                     + downsampleStep);
-        int numberOfSteps = configuration.getNumSteps();
+        final int numberOfSteps = configuration.getNumSteps();
         if (numberOfSteps <= 0)
             throw new IllegalArgumentException("Illegal numberOfSteps: "
                     + numberOfSteps);
 
         final OverviewsEmbedder oe = new OverviewsEmbedder();
         oe.setDownsampleStep(downsampleStep);
-        oe.setNumSteps(configuration.getNumSteps());
+        oe.setNumSteps(numberOfSteps);
         oe.setInterp(Interpolation.getInstance(Interpolation.INTERP_NEAREST));
         oe.setScaleAlgorithm(configuration.getScaleAlgorithm());
         oe.setTileHeight(configuration.getTileH());
         oe.setTileWidth(configuration.getTileW());
         oe.setSourcePath(inputFileName);
+        final String compressionScheme = configuration.getCompressionScheme();
+        final double compressionRatio = configuration.getCompressionRatio();
+        if (compressionScheme != null
+                && !Double.isNaN(compressionRatio)) {
+            oe.setCompressionRatio(compressionRatio);
+            oe.setCompressionScheme(compressionScheme);
+        }
+       
         oe.run();
     }
 

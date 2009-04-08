@@ -45,6 +45,7 @@ import org.geotools.coverage.grid.io.UnknownFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
 import org.geotools.factory.Hints;
 import org.opengis.coverage.grid.Format;
+import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.parameter.GeneralParameterValue;
@@ -149,7 +150,8 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
                         // Acquire proper format and reader
                         // //
                         if(LOGGER.isLoggable(Level.INFO))
-                        	LOGGER.log(Level.INFO,new StringBuilder("Converting file N° ").append(i+1).toString());
+                        	LOGGER.log(Level.INFO,new StringBuilder("Converting file N. ").append(i+1)
+                        	        .append(":").append(name).toString());
                         convert(file, fileOutputName);
 
                     }

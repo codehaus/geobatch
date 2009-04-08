@@ -36,6 +36,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,8 @@ import org.geotools.gce.imagemosaic.ImageMosaicReader;
 public class SasMosaicGeoServerGenerator
 		extends GeoServerConfiguratorAction<FileSystemMonitorEvent> {
 
+    private final static String DEFAULT_STYLE = "sas";
+    
     public SasMosaicGeoServerGenerator(GeoServerActionConfiguration configuration)
             throws IOException {
         super(configuration);
@@ -71,6 +74,10 @@ public class SasMosaicGeoServerGenerator
 //                        + events.size());
 //            FileSystemMonitorEvent event = events.remove();
             final String configId = configuration.getName();
+            configuration.setDefaultStyle(DEFAULT_STYLE);
+            List<String> styles = new ArrayList<String>();
+            styles.add(DEFAULT_STYLE);
+            configuration.setStyles(styles);
 
             // //
             // data flow configuration and dataStore name must not be null.
