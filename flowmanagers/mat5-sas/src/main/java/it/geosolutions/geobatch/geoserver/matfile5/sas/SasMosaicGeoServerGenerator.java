@@ -113,31 +113,7 @@ public class SasMosaicGeoServerGenerator
             
             
             String inputFileName = workingDir.getAbsolutePath();
-//            String inputFileName = workingDir.getAbsolutePath()+"/" + workingDir.getName() + ".shp";
-//            final File shapeFileName = new File(inputFileName);
-            final String filePrefix = FilenameUtils.getBaseName(inputFileName);
-            final String fileSuffix = FilenameUtils.getExtension(inputFileName);
-			final String fileNameFilter = getConfiguration().getStoreFilePrefix();
-
 			String baseFileName = null;
-
-//            if (fileNameFilter != null) {
-//                if ((filePrefix.equals(fileNameFilter) || filePrefix.matches(fileNameFilter))
-//                        && ("tif".equalsIgnoreCase(fileSuffix) || "tiff"
-//                                .equalsIgnoreCase(fileSuffix))) {
-//					// etj: are we missing something here?
-//					baseFileName = filePrefix;
-//                }
-//            } else if ("shp".equalsIgnoreCase(fileSuffix)) {
-//                baseFileName = filePrefix;
-//            }
-//
-//			if(baseFileName == null) {
-//                LOGGER.log(Level.SEVERE, "Unexpected file '" + inputFileName + "'");
-//                throw new IllegalStateException("Unexpected file '" + inputFileName + "'");
-//			}
-
-//            inputFileName = FilenameUtils.getName(inputFileName);
             final String coverageStoreId = FilenameUtils.getBaseName(inputFileName);
 
             // //
