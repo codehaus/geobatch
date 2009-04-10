@@ -76,7 +76,7 @@ public class SasMosaicGeoServerGenerator
 //                        + events.size());
 //            FileSystemMonitorEvent event = events.remove();
             
-
+           
             // //
             // data flow configuration and dataStore name must not be null.
             // //
@@ -84,6 +84,8 @@ public class SasMosaicGeoServerGenerator
                 LOGGER.log(Level.SEVERE, "DataFlowConfig is null.");
                 throw new IllegalStateException("DataFlowConfig is null.");
             }
+            
+            final String configId = configuration.getName();
             // ////////////////////////////////////////////////////////////////////
             //
             // Initializing input variables
