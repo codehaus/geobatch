@@ -29,8 +29,6 @@ import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 
 import java.util.List;
 
-import com.sun.org.apache.bcel.internal.generic.CPInstruction;
-
 public class GeoServerActionConfiguration extends ActionConfiguration implements Configuration {
 
     protected GeoServerActionConfiguration(String id, String name,
@@ -201,7 +199,7 @@ public class GeoServerActionConfiguration extends ActionConfiguration implements
     }
 
 	@Override
-	public Object clone() throws CloneNotSupportedException {
+	public GeoServerActionConfiguration clone() throws CloneNotSupportedException {
 		final GeoServerActionConfiguration configuration = 
 			new GeoServerActionConfiguration(super.getId(),super.getName(),super.getDescription(),super.isDirty());
 		configuration.setCrs(crs);
@@ -222,6 +220,17 @@ public class GeoServerActionConfiguration extends ActionConfiguration implements
 		
 		
 		return configuration;
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() +"["
+				+ "id:" + getId()
+				+ " name:" + getName()
+				+ " srvId:" + getServiceID()
+				+ " wkdir:" + getWorkingDirectory()
+				+ " GSurl:" + getGeoserverURL()
+				+"]";
 	}
 
 }

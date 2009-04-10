@@ -215,7 +215,7 @@ public class MosaicerConfiguration extends ActionConfiguration implements
 	}
 
 	@Override
-	public Object clone() throws CloneNotSupportedException {
+	public MosaicerConfiguration clone() throws CloneNotSupportedException {
 		final MosaicerConfiguration configuration = 
 			new MosaicerConfiguration(getId(),getName(),getDescription(),isDirty());
 		configuration.setChunkHeight(chunkHeight);

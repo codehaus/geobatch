@@ -291,7 +291,7 @@ public class ComposerConfiguration extends ActionConfiguration implements
     }
 
 	@Override
-	public Object clone() throws CloneNotSupportedException {
+	public ComposerConfiguration clone() throws CloneNotSupportedException {
 		final ComposerConfiguration configuration=
 			new ComposerConfiguration(getId(),getName(),getDescription(),isDirty());
 		configuration.setServiceID(serviceID);

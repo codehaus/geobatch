@@ -30,7 +30,7 @@ import it.geosolutions.geobatch.catalog.impl.BaseConfiguration;
 public abstract class ActionConfiguration extends BaseConfiguration implements Configuration {
     
     @Override
-	public abstract Object clone() throws CloneNotSupportedException;
+	public abstract ActionConfiguration clone() throws CloneNotSupportedException;
 
 	public ActionConfiguration() {
         super();
