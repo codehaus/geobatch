@@ -138,7 +138,7 @@ public class GeoTiffRetilerConfiguration extends ActionConfiguration implements
 	}
 
 	@Override
-	public Object clone() throws CloneNotSupportedException {
+	public GeoTiffRetilerConfiguration clone() throws CloneNotSupportedException {
 		final GeoTiffRetilerConfiguration configuration= 
 			new GeoTiffRetilerConfiguration(getId(),getName(),getDescription(),isDirty());
 		configuration.setCompressionRatio(compressionRatio);

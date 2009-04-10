@@ -200,7 +200,7 @@ public class GeoTiffOverviewsEmbedderConfiguration extends ActionConfiguration i
 	}
 
 	@Override
-	public Object clone() throws CloneNotSupportedException {
+	public GeoTiffOverviewsEmbedderConfiguration clone() throws CloneNotSupportedException {
 		final GeoTiffOverviewsEmbedderConfiguration configuration= 
 			new GeoTiffOverviewsEmbedderConfiguration(getId(),getName(),getDescription(),isDirty());
 		configuration.setCompressionRatio(compressionRatio);

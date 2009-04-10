@@ -159,7 +159,7 @@ public class FileBasedEventConsumerConfiguration extends BaseConfiguration imple
     
 
     @Override
-	public Object clone() throws CloneNotSupportedException {
+	public FileBasedEventConsumerConfiguration clone() throws CloneNotSupportedException {
 		
     	// clone object
 		final FileBasedEventConsumerConfiguration object = new FileBasedEventConsumerConfiguration(super.getId(),super.getName(),super.getDescription(),super.isDirty());
@@ -169,12 +169,12 @@ public class FileBasedEventConsumerConfiguration extends BaseConfiguration imple
 		//clone its elements
 		final ArrayList<FileEventRule> clonedRules=new ArrayList<FileEventRule>(rules.size());
 		for(FileEventRule rule :rules)
-			clonedRules.add((FileEventRule) rule.clone());
+			clonedRules.add(rule.clone());
 		object.setRules(clonedRules);
 		
 		final ArrayList<ActionConfiguration> clonedActions=new ArrayList<ActionConfiguration>(actions.size());
 		for(ActionConfiguration action :actions)
-			clonedActions.add( (ActionConfiguration)action.clone());
+			clonedActions.add(action.clone());
 		object.setActions(clonedActions);
 		return object;
 	}

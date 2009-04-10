@@ -93,7 +93,7 @@ public class FileEventRule extends BaseConfiguration implements Configuration, C
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
+    public FileEventRule clone() throws CloneNotSupportedException {
         final FileEventRule rule = new FileEventRule();
         rule.setId(getId());
         rule.setName(getName());

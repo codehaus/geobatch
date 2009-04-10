@@ -170,7 +170,7 @@ public class FTPUploadActionConfiguration extends ActionConfiguration implements
     }
 
 	@Override
-	public Object clone() throws CloneNotSupportedException {
+	public FTPUploadActionConfiguration clone() throws CloneNotSupportedException {
 		final FTPUploadActionConfiguration configuration= 
 			new FTPUploadActionConfiguration(getId(),getName(),getDescription(),isDirty());
 		configuration.setConnectMode(connectMode);

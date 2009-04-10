@@ -187,7 +187,7 @@ public class FormatConverterConfiguration extends ActionConfiguration implements
     }
 
 	@Override
-	public Object clone() throws CloneNotSupportedException {
+	public FormatConverterConfiguration clone() throws CloneNotSupportedException {
 		final FormatConverterConfiguration configuration= 
 			new FormatConverterConfiguration(getId(),getName(),getDescription(),isDirty());
 		configuration.setCompressionRatio(compressionRatio);
