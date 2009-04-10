@@ -29,7 +29,9 @@ import it.geosolutions.geobatch.flow.event.action.BaseAction;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
+import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -44,6 +46,7 @@ import javax.imageio.ImageWriteParam;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
 import javax.media.jai.ParameterBlockJAI;
+import javax.media.jai.ROI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.MosaicDescriptor;
 
@@ -58,11 +61,15 @@ import org.geotools.gce.geotiff.GeoTiffWriteParams;
 import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.matrix.GeneralMatrix;
+import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.utils.imageoverviews.OverviewsEmbedder;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
+import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
+
+import com.sun.org.apache.bcel.internal.verifier.statics.DOUBLE_Upper;
 
 /**
  * Comments here ...
@@ -72,10 +79,22 @@ import org.opengis.referencing.operation.MathTransform;
 public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
         Action<FileSystemMonitorEvent> {
 
+    private final static boolean IMAGE_IS_LINEAR;
+
+    static{
+        final String cl = System.getenv("SAS_COMPUTE_LOG");
+        IMAGE_IS_LINEAR = !Boolean.parseBoolean(cl);
+    }
+    
     private MosaicerConfiguration configuration;
 
     private final static Logger LOGGER = Logger.getLogger(Mosaicer.class
             .toString());
+
+    public static final String MOSAIC_PREFIX = "rawm_";
+    public static final String BALANCED_PREFIX = "balm_";
+    
+    private double extrema[] = new double[]{Double.MAX_VALUE,Double.MIN_VALUE} ;
 
     public Mosaicer(MosaicerConfiguration configuration) throws IOException {
         this.configuration = configuration;
@@ -84,7 +103,6 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
     public Queue<FileSystemMonitorEvent> execute(
             Queue<FileSystemMonitorEvent> events) throws Exception {
         try {
-
         	
             // looking for file
             // if (events.size() != 1)
@@ -117,13 +135,18 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
                 File[] files = fileDir.listFiles();
 
                 final String outputDirectory = buildOutputDirName(directory);
+                final String outputBalanced = outputDirectory.replace(MOSAIC_PREFIX, BALANCED_PREFIX);
                 final File dir = new File(outputDirectory);
+                final File balDir = new File(outputBalanced);
                 configuration.setMosaicDirectory(outputDirectory);
                 if (!dir.exists())
                     dir.mkdir();
+                if(!balDir.exists())
+                    balDir.mkdir();
 
-                if (files != null && false) {
+                if (files != null) {
                     final int numFiles = files.length;
+//                    double rotation=0.0d;
                     for (int i = 0; i < numFiles; i++) {
                         final String path = files[i].getAbsolutePath()
                                 .toLowerCase();
@@ -141,6 +164,8 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
                             globEnvelope = new GeneralEnvelope(envelope);
                             globEnvelope.setCoordinateReferenceSystem(envelope
                                     .getCoordinateReferenceSystem());
+//                            AffineTransform at = (AffineTransform)reader.getOriginalGridToWorld(PixelInCell.CELL_CENTER);
+//                            rotation = XAffineTransform.getRotation(at);
                         } else
                             globEnvelope.add(envelope);
 
@@ -161,6 +186,8 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
                             .getOrdinate(1));
                     MathTransform mosaicTransform = ProjectiveTransform
                             .create(gm);
+//                    MathTransform tempTransform =PixelTranslation.translate(mosaicTransform, PixelInCell.CELL_CORNER, PixelInCell.CELL_CENTER);
+                    
                     MathTransform world2GridTransform = mosaicTransform
                             .inverse();
 
@@ -182,12 +209,23 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
                         final GeoTiffReader reader = new GeoTiffReader(file,
                                 null);
 
-                        coverages.add((GridCoverage2D) reader.read(null));
+                        final GridCoverage2D gc = (GridCoverage2D) reader.read(null);
+                        coverages.add(gc);
+                        updateExtrema(gc);
                         reader.dispose();
                     }
 
-                    GridCoverage2D gc = createGridCoverageMosaic(coverages,
-                            globEnvelope, world2GridTransform, coverageFactory);
+                    
+                    RenderedImage mosaicImage = createMosaic(coverages,world2GridTransform);
+                    RenderedImage balancedMosaic = balanceMosaic(mosaicImage);
+                    
+                    GridCoverage2D balancedGc = coverageFactory.create("balanced", balancedMosaic, globEnvelope);
+                    LOGGER.log(Level.INFO, "Balancing the mosaic");
+                    retileMosaic(balancedGc, chunkW, chunkH, tileW, tileH,
+                            compressionRatio, compressionType, outputBalanced);
+
+                    
+                    GridCoverage2D gc = coverageFactory.create("mosaiced", mosaicImage, globEnvelope);
 
                     // //
                     //
@@ -208,11 +246,81 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
         }
     }
 
-    private GridCoverage2D createGridCoverageMosaic(
+    private void updateExtrema(GridCoverage2D gc) {
+        RenderedImage sourceImage = gc.getRenderedImage();
+        if (IMAGE_IS_LINEAR){
+            sourceImage = computeLog(sourceImage);
+        }
+        
+        final ROI roi = new ROI(sourceImage, 0);
+        ParameterBlock pb = new ParameterBlock();
+        pb.addSource(sourceImage); // The source image
+        if (roi != null)
+            pb.add(roi); // The region of the image to scan
+
+        // Perform the extrema operation on the source image
+        RenderedOp ex = JAI.create("extrema", pb);
+
+        // Retrieve both the maximum and minimum pixel value
+        final double[][] ext = (double[][]) ex.getProperty("extrema");
+        
+        if(extrema[0]>ext[0][0])
+            extrema[0]=ext[0][0];
+        if (extrema[1]<ext[1][0])
+            extrema[1]=ext[1][0];
+    }
+
+    private RenderedImage computeLog(RenderedImage sourceImage) {
+        final ParameterBlockJAI pbLog = new ParameterBlockJAI("Log");
+        pbLog.addSource(sourceImage);
+        RenderedOp logarithm = JAI.create("Log", pbLog);
+
+        // //
+        //
+        // Applying a rescale to handle Decimal Logarithm.
+        //
+        // //
+        final ParameterBlock pbRescale = new ParameterBlock();
+        
+        // Using logarithmic properties 
+        final double scaleFactor = 20 / Math.log(10);
+
+        final double[] scaleF = new double[] { scaleFactor };
+        final double[] offsetF = new double[] { 0 };
+
+        pbRescale.add(scaleF);
+        pbRescale.add(offsetF);
+        pbRescale.addSource(logarithm);
+
+        return JAI.create("Rescale", pbRescale);
+    }
+
+    private RenderedImage balanceMosaic(RenderedImage mosaicImage) {
+        RenderedImage inputImage = mosaicImage;
+        if (IMAGE_IS_LINEAR){
+            inputImage = computeLog(inputImage);
+        }
+        final double[] scale = new double[] { (255) / (extrema[1] - extrema[0]) };
+        final double[] offset = new double[] { ((255) * extrema[0])
+                / (extrema[0] - extrema[1]) };
+
+        // Preparing to rescaling values
+        ParameterBlock pbRescale = new ParameterBlock();
+        pbRescale.add(scale);
+        pbRescale.add(offset);
+        pbRescale.addSource(inputImage);
+        RenderedOp rescaledImage = JAI.create("Rescale", pbRescale);
+
+        ParameterBlock pbConvert = new ParameterBlock();
+        pbConvert.addSource(rescaledImage);
+        pbConvert.add(DataBuffer.TYPE_BYTE);
+        RenderedOp destImage = JAI.create("format", pbConvert);
+        return destImage;
+    }
+
+    private RenderedImage createMosaic(
             final List<GridCoverage2D> coverages,
-            final GeneralEnvelope globEnvelope,
-            final MathTransform world2GridTransform,
-            final GridCoverageFactory coverageFactory) {
+            final MathTransform world2GridTransform) {
         final int nCov = coverages.size();
 
         final ParameterBlockJAI pbMosaic = new ParameterBlockJAI("Mosaic");
@@ -235,8 +343,7 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
         }
 
         RenderedOp mosaicImage = JAI.create("Mosaic", pbMosaic);
-        return coverageFactory.create("my", mosaicImage, globEnvelope);
-
+        return mosaicImage;
     }
 
     private void retileMosaic(GridCoverage2D gc, int chunkWidth,
@@ -351,9 +458,9 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
          final String mission = legF.getParent();
          final File missionF = new File(mission);
          final String missionName = missionF.getName();
-         
-         dirName = new StringBuilder(outputLocation).append(File.separatorChar).append("rawm_")
-         .append(new SimpleDateFormat("yyyyMMdd_").format(new Date()))
+         final String time = configuration.getTime();
+         dirName = new StringBuilder(outputLocation).append(File.separatorChar).append(MOSAIC_PREFIX)
+         .append(time)
          .append(missionName).append("_L")
          .append(legName.substring(3,legName.length())).append("_")
          .append(channelName.substring(0,1)).append(File.separatorChar).toString();

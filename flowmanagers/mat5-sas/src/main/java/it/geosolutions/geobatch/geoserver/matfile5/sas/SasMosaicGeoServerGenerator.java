@@ -216,7 +216,7 @@ public class SasMosaicGeoServerGenerator
 
         if (sent) {
             LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
-			boolean sldSent = configureStyles(layerName);
+            boolean sldSent = configureStyles(layerName);
         } else {
             LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
         }

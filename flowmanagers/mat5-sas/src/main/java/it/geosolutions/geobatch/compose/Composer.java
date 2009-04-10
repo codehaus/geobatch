@@ -36,8 +36,11 @@ import it.geosolutions.geobatch.mosaic.MosaicerConfiguration;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Queue;
@@ -66,6 +69,8 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 
     private final static Logger LOGGER = Logger
             .getLogger(Composer.class.toString());
+    
+    private String initTime = null;
 
     protected Composer(ComposerConfiguration configuration)
             throws IOException {
@@ -142,6 +147,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             //
             // //
             if (directories != null && !directories.isEmpty()){
+                Collections.sort(directories);
                 final String leavesFolders = configuration.getLeavesFolders();
                 final String leaves[] = leavesFolders.split(";");
                 if (leaves != null){
@@ -173,13 +179,15 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                                       .append(fileDir.getName()).append(File.separatorChar)
                                       .append(checkDir.getName()).append(File.separatorChar)
                                       .append(leafName);
+                                      final String leafPath = leaf.getAbsolutePath();
+                                      if (initTime == null){
+                                          setInitTime(leafPath);
+                                      }
                                       
-                                      final String mosaicTobeIngested = composeMosaic(leaf.getAbsolutePath(),outputFolder.toString(), compressionRatio, compressionScheme,
-                                              inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, chunkW, chunkH);
-                                      
-                                      ingestMosaic(mosaicTobeIngested);
-                                
-                                        
+                                      final String mosaicTobeIngested = composeMosaic(leafPath,outputFolder.toString(), compressionRatio, compressionScheme,
+                                              inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, chunkW, chunkH,initTime);
+                                      ingestMosaic(mosaicTobeIngested, Mosaicer.MOSAIC_PREFIX);
+                                      ingestMosaic(mosaicTobeIngested.replace(Mosaicer.MOSAIC_PREFIX, Mosaicer.BALANCED_PREFIX), Mosaicer.BALANCED_PREFIX);
                                     }
                                 }
                             }
@@ -197,13 +205,26 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 
     }
     
-    private void ingestMosaic(final String mosaicToBeIngested) throws Exception{
+    private void setInitTime(String leafPath) {
+        //TODO: implement ME:
+        //get init time from Matlab file.
+        initTime = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        
+    }
+
+    private void ingestMosaic(final String mosaicToBeIngested, final String prefix) throws Exception{
+      final String location = mosaicToBeIngested;
+      final int index = location.lastIndexOf(prefix);
+      String wmsPath = location.substring(index + prefix.length(), location.length());
+      wmsPath = wmsPath.replace("_","/");
+      
       final GeoServerActionConfiguration geoserverConfig = new GeoServerActionConfiguration();
       geoserverConfig.setGeoserverURL(configuration.getGeoserverURL());
       geoserverConfig.setGeoserverUID(configuration.getGeoserverUID());
       geoserverConfig.setGeoserverPWD(configuration.getGeoserverPWD());
       geoserverConfig.setDataTransferMethod(configuration.getGeoserverUploadMethod());
       geoserverConfig.setWorkingDirectory(mosaicToBeIngested);
+      geoserverConfig.setWmsPath(wmsPath);
       
       final SasMosaicGeoServerGenerator geoserverIngestion  = new SasMosaicGeoServerGenerator(geoserverConfig);
       geoserverIngestion.execute(null);
@@ -212,23 +233,24 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
     private String composeMosaic(final String directory, final String outputFolder,
             final double compressionRatio, final String compressionScheme, 
             final String inputFormats, String outputFormat, final int tileW, final int tileH, 
-            final int numSteps, final int downsampleStep, final int chunkW, final int chunkH) throws Exception {
+            final int numSteps, final int downsampleStep, final int chunkW, final int chunkH,
+            final String time) throws Exception {
         
-//        final FormatConverterConfiguration converterConfig = new FormatConverterConfiguration();
-//        converterConfig.setWorkingDirectory(directory);
-//        converterConfig.setOutputDirectory(outputFolder);
-//        converterConfig.setId("conv");
-//        converterConfig.setDescription("Mat5 to tiff converter");
-//        converterConfig.setCompressionRatio(compressionRatio);
-//        converterConfig.setCompressionScheme(compressionScheme);
-//        converterConfig.setInputFormats(inputFormats);
-//        converterConfig.setOutputFormat(outputFormat);
-//        converterConfig.setTileH(tileH);
-//        converterConfig.setTileW(tileW);
-//        LOGGER.log(Level.INFO, "Ingesting MatFiles in the mosaic composer");
-//        
-//        final FormatConverter converter = new FormatConverter(converterConfig);
-//        converter.execute(null);
+        final FormatConverterConfiguration converterConfig = new FormatConverterConfiguration();
+        converterConfig.setWorkingDirectory(directory);
+        converterConfig.setOutputDirectory(outputFolder);
+        converterConfig.setId("conv");
+        converterConfig.setDescription("Mat5 to tiff converter");
+        converterConfig.setCompressionRatio(compressionRatio);
+        converterConfig.setCompressionScheme(compressionScheme);
+        converterConfig.setInputFormats(inputFormats);
+        converterConfig.setOutputFormat(outputFormat);
+        converterConfig.setTileH(tileH);
+        converterConfig.setTileW(tileW);
+        LOGGER.log(Level.INFO, "Ingesting MatFiles in the mosaic composer");
+        
+        final FormatConverter converter = new FormatConverter(converterConfig);
+        converter.execute(null);
         
         final MosaicerConfiguration mosaicerConfig = new MosaicerConfiguration();
         mosaicerConfig.setCompressionRatio(compressionRatio);
@@ -242,12 +264,12 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         mosaicerConfig.setTileW(tileW);
         mosaicerConfig.setChunkHeight(chunkH);
         mosaicerConfig.setChunkWidth(chunkW);
+        mosaicerConfig.setTime(time);
 
         LOGGER.log(Level.INFO, "Composing the mosaic with raw tiles");
         final Mosaicer mosaicer = new Mosaicer(mosaicerConfig);
         mosaicer.execute(null);
         return mosaicerConfig.getMosaicDirectory();
-        
     }
 
     public ActionConfiguration getConfiguration() {
