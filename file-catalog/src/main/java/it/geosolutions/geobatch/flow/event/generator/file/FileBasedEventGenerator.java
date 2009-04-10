@@ -78,29 +78,17 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
         public void fileMonitorEventDelivered(final FileSystemMonitorEvent fe) {
             if (fe != null && fe.getSource()!=null){
             
-                LOGGER.info(new StringBuffer("\nFile changed: ").append(fe.getSource()).toString());
     
-                String s = "";
-    
-                final FileSystemMonitorNotifications acceptedNotification = FileBasedEventGenerator.this
-                        .getEventType();
+                final FileSystemMonitorNotifications acceptedNotification =
+						FileBasedEventGenerator.this.getEventType();
                 final FileSystemMonitorNotifications notification = fe.getNotification();
-                if (notification.equals(FileSystemMonitorNotifications.FILE_ADDED)
-                        || notification.equals(FileSystemMonitorNotifications.FILE_REMOVED)) {
-                    s = "file added or removed";
-                } else if (notification.equals(FileSystemMonitorNotifications.DIR_CREATED)
-                        || notification.equals(FileSystemMonitorNotifications.DIR_REMOVED)) {
-                    s = "dir created or removed";
-                } else if (notification.equals(FileSystemMonitorNotifications.FILE_ADDED)) {
-                    s = "file added";
-                } else if (notification.equals(FileSystemMonitorNotifications.FILE_REMOVED)) {
-                    s = "file removed";
-                } else if (notification.equals(FileSystemMonitorNotifications.FILE_MODIFIED)) {
-                    s = "file modified";
-                }
-    
+
                 if (LOGGER.isLoggable(Level.INFO))
-                    LOGGER.info(new StringBuffer("Event: ").append(s).toString());
+                    LOGGER.info(new StringBuilder("Event: ")
+							.append(notification.toString())
+							.append(" ")
+							.append(fe.getSource())
+							.toString());
     
                 if (acceptedNotification != null && notification.equals(acceptedNotification))
                     FileBasedEventGenerator.this.sendEvent(fe);

@@ -32,82 +32,58 @@ import com.thoughtworks.xstream.XStream;
  */
 public class Alias {
     public static void setAliases(XStream xstream) {
-        xstream
-                .alias(
-                        "CatalogConfiguration",
-                        it.geosolutions.geobatch.configuration.flow.file.FileBasedCatalogConfiguration.class);
+        xstream.alias("CatalogConfiguration",
+						it.geosolutions.geobatch.configuration.flow.file.FileBasedCatalogConfiguration.class);
 
         xstream.alias("FlowConfiguration",
-                it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class);
+						it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class);
         xstream.alias("FileEventRule",
-                it.geosolutions.geobatch.flow.event.consumer.file.FileEventRule.class);
-        xstream
-                .alias(
-                        "GeoTiffOverviewConfiguration",
+						it.geosolutions.geobatch.flow.event.consumer.file.FileEventRule.class);
+        xstream.alias("GeoTiffOverviewConfiguration",
                         it.geosolutions.geobatch.geotiff.overview.GeoTiffOverviewsEmbedderConfiguration.class);
-        xstream
-        .alias(
-                "GeoTiffRetilerConfiguration",
-                it.geosolutions.geobatch.geotiff.retile.GeoTiffRetilerConfiguration.class);        
-        xstream
-                .alias(
-                        "GeoServerActionConfiguration",
+        xstream.alias("GeoTiffRetilerConfiguration",
+						it.geosolutions.geobatch.geotiff.retile.GeoTiffRetilerConfiguration.class);
+        xstream.alias("GeoServerActionConfiguration",
                         it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration.class);
 
-        xstream
-                .alias(
-                        "FtpServerActionConfiguration",
+        xstream.alias("FtpServerActionConfiguration",
                         it.geosolutions.geobatch.configuration.event.action.ftp.FTPUploadActionConfiguration.class);
-        xstream
-                .alias(
-                        "EventConsumerConfiguration",
+
+        xstream.alias("EventConsumerConfiguration",
                         it.geosolutions.geobatch.configuration.event.consumer.EventConsumerConfiguration.class,
                         it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration.class);
+
         xstream.aliasField("EventConsumerConfiguration",
-                it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class,
-                "eventConsumerConfiguration");
+							it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class,
+							"eventConsumerConfiguration");
         
-        xstream
-        .alias(
-                "ComposerConfiguration",
-                it.geosolutions.geobatch.compose.ComposerConfiguration.class);  
+        xstream.alias("ComposerConfiguration",
+							it.geosolutions.geobatch.compose.ComposerConfiguration.class);
+        xstream.alias("MosaicerConfiguration",
+						it.geosolutions.geobatch.mosaic.MosaicerConfiguration.class);
+        xstream.alias("FormatConverterConfiguration",
+						it.geosolutions.geobatch.convert.FormatConverterConfiguration.class);
         
-        xstream
-        .alias(
-                "MosaicerConfiguration",
-                it.geosolutions.geobatch.mosaic.MosaicerConfiguration.class);  
-        
-        xstream
-        .alias(
-                "FormatConverterConfiguration",
-                it.geosolutions.geobatch.convert.FormatConverterConfiguration.class);  
-        
-        xstream
-                .alias(
-                        "FsEventGeneratorConfiguration",
+        xstream.alias("FsEventGeneratorConfiguration",
 //                        it.geosolutions.geobatch.configuration.event.generator.EventGeneratorConfiguration.class,
                         it.geosolutions.geobatch.configuration.event.generator.file.FileBasedEventGeneratorConfiguration.class);
 //        xstream.aliasField("FsEventGeneratorConfiguration",
 //                it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class,
 //                "eventGeneratorConfiguration");
 
-        xstream
-                .alias(
-                        "FtpEventGeneratorConfiguration",
+        xstream.alias("FtpEventGeneratorConfiguration",
 //                        it.geosolutions.geobatch.configuration.event.generator.EventGeneratorConfiguration.class,
                         it.geosolutions.geobatch.configuration.event.generator.ftp.FtpBasedEventGeneratorConfiguration.class);
 //        xstream.aliasField("FtpEventGeneratorConfiguration",
 //                it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class,
 //                "eventGeneratorConfiguration");
 
-        xstream
-                .addImplicitCollection(
+        xstream.addImplicitCollection(
                         it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration.class,
                         "rules",
                         it.geosolutions.geobatch.flow.event.consumer.file.FileEventRule.class);
 
-        xstream
-                .addImplicitCollection(
+        xstream.addImplicitCollection(
                         it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration.class,
                         "actions",
                         it.geosolutions.geobatch.configuration.event.action.ActionConfiguration.class);

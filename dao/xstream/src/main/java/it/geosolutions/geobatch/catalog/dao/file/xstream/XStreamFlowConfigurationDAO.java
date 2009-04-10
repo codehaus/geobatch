@@ -59,11 +59,18 @@ public class XStreamFlowConfigurationDAO extends XStreamDAO<FlowConfiguration> i
 
                 FileBasedFlowConfiguration obj = (FileBasedFlowConfiguration) xstream
                         .fromXML(new BufferedInputStream(new FileInputStream(entityfile)));
+
+				if(obj.getEventConsumerConfiguration() == null)
+					LOGGER.severe("FileBasedFlowConfiguration " + obj + " does not have a ConsumerCfg");
+
+				if(obj.getEventGeneratorConfiguration() == null)
+					LOGGER.severe("FileBasedFlowConfiguration " + obj + " does not have a GeneratorCfg");
+
                 return obj;
             }
         } catch (Throwable e) {
             if(LOGGER.isLoggable(Level.SEVERE))
-            	LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
+           	   LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
         }
         return null;
     }

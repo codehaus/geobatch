@@ -43,8 +43,9 @@ import java.util.logging.Logger;
  * @author Alessio Fabiani, GeoSolutions
  * @author Simone Giannecchini, GeoSolutions
  */
-public abstract class BaseEventConsumer<T extends EventObject, C extends EventConsumerConfiguration>
-        extends BaseResource implements Runnable, EventConsumer<T, C> {
+public abstract class BaseEventConsumer<EO extends EventObject, ECC extends EventConsumerConfiguration>
+        extends BaseResource
+		implements Runnable, EventConsumer<EO, ECC> {
 
     /**
      */
@@ -53,9 +54,9 @@ public abstract class BaseEventConsumer<T extends EventObject, C extends EventCo
     /**
      * The MailBox
      */
-    protected final Queue<T> eventsQueue = new LinkedList<T>();
+    protected final Queue<EO> eventsQueue = new LinkedList<EO>();
 
-    protected final List<Action<T>> actions = new ArrayList<Action<T>>();
+    protected final List<Action<EO>> actions = new ArrayList<Action<EO>>();
 
     // ----------------------------------------------- PRIVATE ATTRIBUTES
     /**
@@ -119,7 +120,7 @@ public abstract class BaseEventConsumer<T extends EventObject, C extends EventCo
      * @see it.geosolutions.geobatch.flow.event.consumer.EventConsumer#put(it.geosolutions
      * .filesystemmonitor .monitor.FileSystemMonitorEvent)
      */
-    public boolean consume(T event) {
+    public boolean consume(EO event) {
         if (!eventsQueue.offer(event))
             return false;
 
@@ -137,9 +138,13 @@ public abstract class BaseEventConsumer<T extends EventObject, C extends EventCo
      * @throws InterruptedException
      * @throws InitializationException
      */
-    protected boolean applyActions(Queue<T> events) {
-        // apply all the actions
-        for (Action<T> action : this.actions) {
+    protected boolean applyActions(Queue<EO> events) {
+		if (LOGGER.isLoggable(Level.FINE))
+			LOGGER.log(Level.FINE, "Applying " + actions.size() + " actions on "
+					+ events.size() + " events.");
+
+		// apply all the actions
+        for (Action<EO> action : this.actions) {
             try {
                 events = action.execute(events);
             } catch (Exception e) {
@@ -153,7 +158,7 @@ public abstract class BaseEventConsumer<T extends EventObject, C extends EventCo
         return true;
     }
 
-    protected void addActions(final List<Action<T>> actions) {
+    protected void addActions(final List<Action<EO>> actions) {
         this.actions.addAll(actions);
     }
 

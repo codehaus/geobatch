@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EventObject;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
@@ -83,8 +82,8 @@ public class BaseCatalog extends BasePersistentResource<CatalogConfiguration> im
      * 
      * @see it.geosolutions.geobatch.catalog.Catalog#add(it.geosolutions.geobatch.catalog.FlowManager)
      */
-    public <E extends EventObject, C extends FlowConfiguration> void add(
-            final FlowManager<E, C> resource) {
+    public <EO extends EventObject, FC extends FlowConfiguration>
+			void add(final FlowManager<EO, FC> resource) {
         // sanity checks
         if (resource.getId() == null) {
             throw new IllegalArgumentException(
@@ -102,7 +101,7 @@ public class BaseCatalog extends BasePersistentResource<CatalogConfiguration> im
         // }
 
         synchronized (resources) {
-            resources.put(resource.getClass(), resource);
+            resources.put(resource.getClass(), resource);			
         }
 
         added(resource);
@@ -130,9 +129,7 @@ public class BaseCatalog extends BasePersistentResource<CatalogConfiguration> im
             final String id, final Class<T> clazz) {
         final List<T> l = lookup(clazz, flowManagers);
 
-        for (final Iterator<T> i = l.iterator(); i.hasNext();) {
-            final T fmt = i.next();
-
+        for (final T fmt : l) {
             if (id.equals(fmt.getId())) {
                 return fmt;
             }
@@ -151,8 +148,7 @@ public class BaseCatalog extends BasePersistentResource<CatalogConfiguration> im
             final String name, final Class<T> clazz) {
         final List<T> l = lookup(clazz, flowManagers);
 
-        for (final Iterator<T> i = l.iterator(); i.hasNext();) {
-            final T fmt = i.next();
+        for (final T fmt : l) {
 
             if (name.equals(fmt.getName())) {
                 return fmt;
@@ -180,13 +176,11 @@ public class BaseCatalog extends BasePersistentResource<CatalogConfiguration> im
     public <T extends Resource> T getResource(final String id, final Class<T> clazz) {
         final List<T> l = lookup(clazz, resources);
 
-        for (final Iterator<T> i = l.iterator(); i.hasNext();) {
-            final T resource = i.next();
-
+		for (T resource : l) {
             if (id.equals(resource.getId())) {
                 return resource;
             }
-        }
+		}
 
         return null;
     }
@@ -200,11 +194,9 @@ public class BaseCatalog extends BasePersistentResource<CatalogConfiguration> im
     public <T extends Resource> T getResourceByName(final String name, final Class<T> clazz) {
         final List<T> l = lookup(clazz, resources);
 
-        for (final Iterator<T> i = l.iterator(); i.hasNext();) {
-            final T resource = i.next();
-
+		for (T resource : l) {
             if (name.equals(resource.getName())) {
-                return (T) resource;
+                return resource;
             }
         }
 
@@ -254,10 +246,11 @@ public class BaseCatalog extends BasePersistentResource<CatalogConfiguration> im
      */
     @SuppressWarnings("unchecked")
     <T extends Resource> List<T> lookup(final Class<T> clazz, final MultiHashMap map) {
-        final ArrayList<T> result = new ArrayList<T>();
+        final List<T> result = new ArrayList<T>();
 
-        for (final Iterator<Class<T>> k = map.keySet().iterator(); k.hasNext();) {
-            final Class<T> key = k.next();
+        for (final Class<T> key : (Iterable<Class<T>>)map.keySet() ) {
+//        for (final Iterator<Class<T>> k = map.keySet().iterator(); k.hasNext();) {
+//            final Class<T> key = k.next();
             if (clazz.isAssignableFrom(key)) {
                 result.addAll(map.getCollection(key));
             }
@@ -310,9 +303,7 @@ public class BaseCatalog extends BasePersistentResource<CatalogConfiguration> im
     @SuppressWarnings("unchecked")
     protected <T> void event(final CatalogEvent<T> event) {
         synchronized (listeners) {
-            for (final Iterator<CatalogListener> l = listeners.iterator(); l.hasNext();) {
-                final CatalogListener listener = l.next();
-
+            for (final CatalogListener listener : listeners) {
                 if (event instanceof CatalogAddEvent) {
                     listener.handleAddEvent((CatalogAddEvent) event);
                 } else if (event instanceof CatalogRemoveEvent) {

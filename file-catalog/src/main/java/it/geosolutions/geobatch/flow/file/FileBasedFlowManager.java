@@ -58,7 +58,7 @@ import java.util.logging.Logger;
  */
 public class FileBasedFlowManager
 		extends BasePersistentResource<FileBasedFlowConfiguration>
-        implements FlowManager<FileSystemMonitorEvent, FileBasedFlowConfiguration>,
+        implements	FlowManager<FileSystemMonitorEvent, FileBasedFlowConfiguration>,
 					FlowEventListener<FileSystemMonitorEvent>,
 					Runnable {
 
@@ -90,8 +90,8 @@ public class FileBasedFlowManager
          */
         public void shutdown() {
             if (LOGGER.isLoggable(Level.INFO))
-                LOGGER.info("Shutting down the dispatcher ... NOW!");
-            interrupt();
+				LOGGER.info("Shutting down the dispatcher ... NOW!");
+			interrupt();
 
         }
 
@@ -117,22 +117,35 @@ public class FileBasedFlowManager
                 		this.interrupt();
                 		return;
 					}
+
+					if(LOGGER.isLoggable(Level.FINE))
+						LOGGER.fine("FileMonitorEventDispatcher: processing incoming event " + event);
+
                     // //
-                    // is there some Event BaseEventConsumer waiting for a particular event?
+                    // is there any BaseEventConsumer waiting for this particular event?
                     // //
                     boolean eventServed = false;
-                    final Iterator<BaseEventConsumer<FileSystemMonitorEvent, FileBasedEventConsumerConfiguration>> it = FileBasedFlowManager.this.collectingEventConsumers
-                            .iterator();
+                    final Iterator<BaseEventConsumer<FileSystemMonitorEvent, FileBasedEventConsumerConfiguration>> it =
+							FileBasedFlowManager.this.collectingEventConsumers.iterator();
                     while (it.hasNext()) {
-                        final BaseEventConsumer<FileSystemMonitorEvent, FileBasedEventConsumerConfiguration> em = it
-                                .next();
-                        if (em.consume(event)) {
+                        final BaseEventConsumer<FileSystemMonitorEvent, FileBasedEventConsumerConfiguration> 
+								consumer = it.next();
+
+						if(LOGGER.isLoggable(Level.FINE))
+							LOGGER.fine("Checking consumer " + consumer +" for " + event);
+
+                        if (consumer.consume(event)) {
                             // //
                             // we have found an Event BaseEventConsumer waiting for this event, if
                             // we have changed state we remove it from the list
                             // //
-                            if (em.getStatus().equals(EventConsumerStatus.EXECUTING))
+                            if (consumer.getStatus() == EventConsumerStatus.EXECUTING) {
+								if(LOGGER.isLoggable(Level.FINE))
+									LOGGER.fine(event + " was the last needed event for " + consumer);
                                 it.remove();
+							} else
+								if(LOGGER.isLoggable(Level.FINE))
+									LOGGER.fine(event + " was consumed by " + consumer);
                             
                             //event served
                             eventServed = true;
@@ -140,37 +153,44 @@ public class FileBasedFlowManager
                         }
                     }
 
+					if(LOGGER.isLoggable(Level.FINE))
+						LOGGER.fine("FileMonitorEventDispatcher: " + event + (eventServed?"":" not") + " served");
+
                     if (!eventServed) {
                         // //
                         // if no EventConsumer is found, we need to create a new one
                         // //
-                        final FileBasedEventConsumer fileBasedEventConsumer = new FileBasedEventConsumer(
-                                getCatalog(),
-                                (FileBasedEventConsumerConfiguration)((FileBasedEventConsumerConfiguration) FileBasedFlowManager.this.getConfiguration().getEventConsumerConfiguration()).clone());
+						final FileBasedEventConsumerConfiguration configuration =
+								((FileBasedEventConsumerConfiguration) FileBasedFlowManager.this.getConfiguration().getEventConsumerConfiguration()).clone();
+                        final FileBasedEventConsumer brandNewConsumer =
+								new FileBasedEventConsumer( getCatalog(), configuration);
 
-                        if (fileBasedEventConsumer.consume(event)) {
+                        if (brandNewConsumer.consume(event)) {
                             // //
-                            // we have found an Event BaseEventConsumer waiting for this event, if
-                            // it has changed state we do not add it to the list of waiting consumers
+                            // We just created a brand new BaseEventConsumer which can handle this event.
+                            // If it needs some other events to complete, we'll put it in the EventConsumers
+							// waiting list.
                             // //
-                            if (!fileBasedEventConsumer.getStatus().equals(EventConsumerStatus.EXECUTING))
-                               FileBasedFlowManager.this.collectingEventConsumers.add(fileBasedEventConsumer);
+                            if ( brandNewConsumer.getStatus() != EventConsumerStatus.EXECUTING) {
+								if(LOGGER.isLoggable(Level.FINE))
+									LOGGER.fine(brandNewConsumer + " created on event " + event);
+								FileBasedFlowManager.this.collectingEventConsumers.add(brandNewConsumer);
+							}
+							else
+								if(LOGGER.isLoggable(Level.FINE))
+									LOGGER.fine(event + " was the only needed event for " + brandNewConsumer);
+
                             eventServed = true;
-                            if (LOGGER.isLoggable(Level.FINE))
-                            	LOGGER.fine(new StringBuffer("Event not consumed ----> ").append(
-                                    event.toString()).toString());
-                        }
-
+                        } else
+							LOGGER.warning("!!! No consumer could serve " + event + " (neither "+brandNewConsumer+" could)");
                     }
                 }
-            } catch (InterruptedException e) {
-                LOGGER.log(Level.SEVERE, new StringBuffer("Caught an Interrupted Exception: ")
-                        .append(e.getLocalizedMessage()).toString(), e);
+            } catch (InterruptedException e) { // may be thrown by the "stop" button on web interface
+                LOGGER.log(Level.SEVERE, "Caught an Interrupted Exception: "+ e.getLocalizedMessage(), e);
             } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, new StringBuffer("Caught an IOException Exception: ")
-                        .append(e.getLocalizedMessage()).toString(), e);
+                LOGGER.log(Level.SEVERE, "Caught an IOException: "+ e.getLocalizedMessage(), e);
             } catch (CloneNotSupportedException e) {
-                LOGGER.log(Level.SEVERE, new StringBuffer("Caught a CloneNotSupportedException Exception: ")
+                LOGGER.log(Level.SEVERE, new StringBuilder("Caught a CloneNotSupportedException Exception: ")
                 .append(e.getLocalizedMessage()).toString(), e);
 			}
 
@@ -328,11 +348,11 @@ public class FileBasedFlowManager
                                 LOGGER.info("EventGeneratorCreationFound!");
                                 eventGenerator = generatorService.createEventGenerator(generatorConfig);
                                 if (eventGenerator!=null){
-                                    LOGGER.info("EventGeneratorCreationCreated!");
-                                    eventGenerator.addListener(this);
-                                    LOGGER.info("EventGeneratorCreationAdded!");
-                                    eventGenerator.start();
-                                    LOGGER.info("EventGeneratorCreationStarted!");
+                                LOGGER.info("EventGeneratorCreationCreated!");
+                                eventGenerator.addListener(this);
+                                LOGGER.info("EventGeneratorCreationAdded!");
+                                eventGenerator.start();
+                                LOGGER.info("EventGeneratorCreationStarted!");
                                 } else {
                                  throw new RuntimeException("Error on EventGenerator creations");
                                 }
