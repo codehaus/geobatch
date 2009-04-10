@@ -208,7 +208,33 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
     private void setInitTime(String leafPath) {
         //TODO: implement ME:
         //get init time from Matlab file.
-        initTime = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        final File fileDir = new File(leafPath);
+        if (fileDir != null && fileDir.isDirectory()) {
+            final File files[] = fileDir.listFiles();
+            List<File> filesArray = Arrays.asList(files);
+            Collections.sort(filesArray);
+            final File file = filesArray.get(0);
+            boolean found = false;
+            if (file!=null){
+                final String fileName = file.getName();
+                String date = fileName;
+                int index=0;
+                for (int i=0;i<7&&index!=-1;i++){
+                    index = date.lastIndexOf("_");
+                    date = date.substring(0,index);
+                }
+                if (index!=-1){
+                    final int indexOf = date.lastIndexOf("_");
+                    if (indexOf!=-1){
+                        initTime = date.substring(indexOf+1,index);
+                        found = true;
+                    }
+                }
+            }
+            if(!found)
+                initTime = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        }
+        
         
     }
 

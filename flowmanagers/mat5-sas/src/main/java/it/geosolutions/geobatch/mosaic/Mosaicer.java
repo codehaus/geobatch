@@ -460,7 +460,7 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
          final String missionName = missionF.getName();
          final String time = configuration.getTime();
          dirName = new StringBuilder(outputLocation).append(File.separatorChar).append(MOSAIC_PREFIX)
-         .append(time)
+         .append(time).append("_")
          .append(missionName).append("_L")
          .append(legName.substring(3,legName.length())).append("_")
          .append(channelName.substring(0,1)).append(File.separatorChar).toString();
