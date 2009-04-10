@@ -66,6 +66,8 @@ public class MosaicerConfiguration extends ActionConfiguration implements
 
     private int numSteps;
 
+    
+    
     /** Scale algorithm. */
     private String scaleAlgorithm = "nn";
     
@@ -78,6 +80,9 @@ public class MosaicerConfiguration extends ActionConfiguration implements
     private String serviceID;
     
     private int tileSizeLimit;
+    
+    /** the time String prefix of the directory containing that mosaic */
+    private String time = "";
 
     public MosaicerConfiguration() {
         super();
@@ -118,6 +123,10 @@ public class MosaicerConfiguration extends ActionConfiguration implements
         return tileW;
     }
 
+    public void setTime(final String time) {
+        this.time = time; 
+    }
+    
     public void setCompressionRatio(final double compressionRatio) {
         this.compressionRatio = compressionRatio;
     }
@@ -234,4 +243,9 @@ public class MosaicerConfiguration extends ActionConfiguration implements
 		configuration.setWorkingDirectory(workingDirectory);
 		return configuration;
 	}
+
+    public String getTime() {
+        return time;
+    }
+
 }

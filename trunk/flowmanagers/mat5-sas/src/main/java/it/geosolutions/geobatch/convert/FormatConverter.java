@@ -111,9 +111,10 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
                 
             }
 
-            File fileDir = new File(directory);
+            final File fileDir = new File(directory);
             if (fileDir != null && fileDir.isDirectory()) {
                 final File files[] = fileDir.listFiles();
+                
                 if (files != null) {
                     GridFormatFinder.scanForPlugins();
                     final int numFiles = files.length;
