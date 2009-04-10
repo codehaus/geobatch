@@ -251,6 +251,17 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
       geoserverConfig.setDataTransferMethod(configuration.getGeoserverUploadMethod());
       geoserverConfig.setWorkingDirectory(mosaicToBeIngested);
       geoserverConfig.setWmsPath(wmsPath);
+      final String style;
+      if (prefix.equalsIgnoreCase(Mosaicer.BALANCED_PREFIX)){
+          style = SasMosaicGeoServerGenerator.SAS_STYLE;
+      }
+      else{
+          style = SasMosaicGeoServerGenerator.DEFAULT_STYLE;
+      }
+      geoserverConfig.setDefaultStyle(style);
+      final List<String> styles = new ArrayList<String>();
+      styles.add(style);
+      geoserverConfig.setStyles(styles);
       
       final SasMosaicGeoServerGenerator geoserverIngestion  = new SasMosaicGeoServerGenerator(geoserverConfig);
       geoserverIngestion.execute(null);

@@ -57,7 +57,9 @@ import org.geotools.gce.imagemosaic.ImageMosaicReader;
 public class SasMosaicGeoServerGenerator
 		extends GeoServerConfiguratorAction<FileSystemMonitorEvent> {
 
-    private final static String DEFAULT_STYLE = "sas";
+    public final static String SAS_STYLE = "sas";
+    
+    public final static String DEFAULT_STYLE = "raster";
     
     public SasMosaicGeoServerGenerator(GeoServerActionConfiguration configuration)
             throws IOException {
@@ -73,11 +75,7 @@ public class SasMosaicGeoServerGenerator
 //                throw new IllegalArgumentException("Wrong number of elements for this action: "
 //                        + events.size());
 //            FileSystemMonitorEvent event = events.remove();
-            final String configId = configuration.getName();
-            configuration.setDefaultStyle(DEFAULT_STYLE);
-            List<String> styles = new ArrayList<String>();
-            styles.add(DEFAULT_STYLE);
-            configuration.setStyles(styles);
+            
 
             // //
             // data flow configuration and dataStore name must not be null.
