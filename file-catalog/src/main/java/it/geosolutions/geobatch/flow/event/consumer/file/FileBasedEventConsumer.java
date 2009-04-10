@@ -295,6 +295,12 @@ public class FileBasedEventConsumer extends
         }
         super.addActions(actions);
 
+		if(actions.isEmpty())
+			if(LOGGER.isLoggable(Level.INFO))
+				LOGGER.info(getClass().getSimpleName() + " initialized with "
+						+ mandatoryRules.size() + " mandatory rules, "
+						+ optionalRules.size() + " optional rules, "
+						+ actions.size() + " actions");
     }
 
     /**
@@ -313,8 +319,8 @@ public class FileBasedEventConsumer extends
 
             if ((currentRunDirectory == null) || !currentRunDirectory.exists()
                     || !currentRunDirectory.isDirectory()) {
-                LOGGER.log(Level.SEVERE, "Could not create GEOSERVER data directories");
-                throw new IllegalStateException("Could not create GEOSERVER data directories!");
+                LOGGER.log(Level.SEVERE, "Could not create consumer data directories");
+                throw new IllegalStateException("Could not create consumer data directories!");
             }
 
             File backup = null;
@@ -327,9 +333,10 @@ public class FileBasedEventConsumer extends
 
             final Queue<FileSystemMonitorEvent> preprocessedEventsQueue = new LinkedList<FileSystemMonitorEvent>();
             for (FileSystemMonitorEvent ev : this.eventsQueue) {
-                LOGGER.info(new StringBuffer("FileBasedEventConsumer [").append(
-                        Thread.currentThread().getName()).append(
-                        "]: new element retrieved from the MailBox.").toString());
+                LOGGER.info(new StringBuilder("FileBasedEventConsumer [")
+						.append(Thread.currentThread().getName())
+						.append("]: new element retrieved from the MailBox.")
+						.toString());
 
                 // get info for the input file event
                 final String filePath = ev.getSource().toString();
@@ -338,16 +345,27 @@ public class FileBasedEventConsumer extends
 
                 final File destDataFile = new File(currentRunDirectory, fileName);
                 destDataFile.createNewFile();
-                LOGGER.info(new StringBuffer("FileBasedEventConsumer [").append(
-                        Thread.currentThread().getName()).append(
-                        "]: trying to lock file "+sourceDataFile.getAbsolutePath()).toString());
+//                LOGGER.info(new StringBuilder("FileBasedEventConsumer [")
+//						.append(Thread.currentThread().getName())
+//						.append("]: trying to lock file ")
+//						.append(sourceDataFile.getAbsolutePath()).toString());
 
                 if (IOUtils.acquireLock(this, sourceDataFile)) {
                     IOUtils.copyFile(sourceDataFile, destDataFile);
-                    LOGGER.info("Accepted file >> " + Thread.currentThread().getName() + " - " + fileName);
-                }
+					LOGGER.info(new StringBuilder("FileBasedEventConsumer [")
+							.append(Thread.currentThread().getName())
+							.append("]: accepted file " )
+							.append(sourceDataFile).toString());
+                } else {
+					LOGGER.severe(new StringBuilder("FileBasedEventConsumer [")
+							.append(Thread.currentThread().getName())
+							.append("]: could not lock file " )
+							.append(sourceDataFile).toString());
 
-                // 
+					// TODO: lock not aquired: what else?
+				}
+
+                //
                 preprocessedEventsQueue.offer(new FileSystemMonitorEvent(destDataFile, FileSystemMonitorNotifications.FILE_ADDED));
 
                 // Backing up files and delete sources.
@@ -363,18 +381,23 @@ public class FileBasedEventConsumer extends
 
                             IOUtils.moveFileTo(sourceDataFile, backup, true);
 
-                        }
+                        } else{
+							if (LOGGER.isLoggable(Level.SEVERE))
+								LOGGER.severe( Thread.currentThread().getName() + " - Can't lock file " + sourceDataFile);
+						}
                     } catch (IOException e) {
                         if (LOGGER.isLoggable(Level.SEVERE))
-                            LOGGER.log(Level.SEVERE, "FileBasedEventConsumer "
-                                    + Thread.currentThread().getName() + " could not backup file "
-                                    + fileName + " due to the following IO error: "
+                            LOGGER.log(Level.SEVERE, "FileBasedEventConsumer ["
+                                    + Thread.currentThread().getName() + "]:" 
+									+ " could not backup file " + fileName
+									+ " due to the following IO error: "
                                     + e.getLocalizedMessage(), e);
                     } catch (InterruptedException e) {
                         if (LOGGER.isLoggable(Level.SEVERE))
-                            LOGGER.log(Level.SEVERE, "FileBasedEventConsumer "
-                                    + Thread.currentThread().getName() + " could not backup file "
-                                    + fileName + " due to the following IO error: "
+                            LOGGER.log(Level.SEVERE, "FileBasedEventConsumer ["
+                                    + Thread.currentThread().getName() + "]:" 
+									+ " could not backup file " + fileName
+									+ " due to the following IO error: "
                                     + e.getLocalizedMessage(), e);
                     }
                 } else
@@ -388,8 +411,8 @@ public class FileBasedEventConsumer extends
             // done due to some error, set eventConsumerStatus to Finished or
             // Failure.
             // //
-            LOGGER.info(new StringBuffer("FileBasedEventConsumer [").append(
-                    Thread.currentThread().getName()).append("]: new element processed.")
+            LOGGER.info(new StringBuilder("FileBasedEventConsumer [")
+					.append(Thread.currentThread().getName()).append("]: new element processed.")
                     .toString());
             // //
             // if the processing has been done successfully,
@@ -484,5 +507,18 @@ public class FileBasedEventConsumer extends
         if (eventConsumerStatus == EventConsumerStatus.EXECUTING)
             getCatalog().getExecutor().execute(this);
     }
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName()
+				+ "["
+				+ "name:" + getName()
+				+ " status:" + getStatus()
+				+ " actions:" + actions.size()
+				+ " events:" + eventsQueue.size()
+				+ " still missing:" + numInputFiles
+				+ (eventsQueue.isEmpty()? "" : ( " first event:" + eventsQueue.peek().getSource().getName() ))
+				+ "]";
+	}
 
 }

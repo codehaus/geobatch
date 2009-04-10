@@ -80,7 +80,7 @@ public abstract class GeoServerConfiguratorAction<T extends EventObject>
      * @return
      */
     protected static String getQueryString(Map<String, String> queryParams) {
-        StringBuffer queryString = new StringBuffer();
+        StringBuilder queryString = new StringBuilder();
 
         if (queryParams != null)
             for (Map.Entry<String, String> entry : queryParams.entrySet()) {
@@ -130,38 +130,44 @@ public abstract class GeoServerConfiguratorAction<T extends EventObject>
 			String gsUrl, String gsUsername, String gsPassword)
 		throws MalformedURLException, FileNotFoundException	{
 
-		boolean mainok = true;
+		boolean ret = true;
 		URL restUrl = new URL(gsUrl + "/rest/sldservice/updateLayer/" + layerName);
 
 		for (String styleName : stylesList) {
 
-			boolean ok = GeoServerRESTHelper.putContent(restUrl,
-													"<LayerConfig><Style>" +
-														styleName +
-													"</Style></LayerConfig>",
-													gsUsername,
-													gsPassword);
+			if(GeoServerRESTHelper.putContent(restUrl,
+												"<LayerConfig><Style>" +
+													styleName +
+												"</Style></LayerConfig>",
+												gsUsername, gsPassword)) {
 
-			if(ok)
 				LOGGER.info(getClass().getSimpleName()+": added style " + styleName + " for layer " + layerName);
-			else
-				LOGGER.warning(getClass().getSimpleName()+": error in adding style " + styleName + " for layer " + layerName);
-			mainok &= ok;
+			} else {
+				LOGGER.warning(getClass().getSimpleName()+": error adding style " + styleName + " for layer " + layerName);
+				ret = false;
+			}
 		}
 
-		mainok &= GeoServerRESTHelper.putContent(restUrl,
+		ret &= GeoServerRESTHelper.putContent(restUrl,
 												"<LayerConfig><DefaultStyle>" +
 													defaultStyle +
 												"</DefaultStyle></LayerConfig>",
 												gsUsername,
 												gsPassword);
-
-		return mainok;
+		return ret;
 	}
 
 
     public GeoServerActionConfiguration getConfiguration() {
         return configuration;
     }
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName()
+				+ "["
+				+ "cfg:"+getConfiguration()
+				+ "]";
+	}
 
 }

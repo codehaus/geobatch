@@ -68,4 +68,13 @@ public class BaseConfiguration extends BaseIdentifiable implements Configuration
         this.serviceID = serviceID;
     }
 
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "["
+				+ "id:" + getId()
+				+ " srvId:" + serviceID
+				+ " name:" + getName()
+				+ " drty:" + isDirty()
+				+ "]";
+	}
 }
