@@ -37,7 +37,7 @@
 			<name>test</name>
 		</FileEventRule>
 		<GeoServerActionConfiguration>
-			<workingDirectory>flow1workingdir</workingDirectory>
+			<workingDirectory>flow2workingdir</workingDirectory>
 			<crs>EPSG:4326</crs>
 			<envelope/>
 			<dataTransferMethod>URL</dataTransferMethod>
@@ -51,7 +51,7 @@
 			<!-- styles>
 				<style>raster.sld</style>
 			</styles -->
-			<serviceID>shapefileGeoServerGenerator</serviceID>
+			<serviceID>shapefileGeoServerGeneratorService</serviceID>
 			<id>a1</id>
 			<description>description</description>
 			<name>test</name>
@@ -71,6 +71,6 @@
 		<name>test</name>
 	</eventGeneratorConfiguration>
 	<id>flow2</id>
-	<description>flow2</description>
+	<description>flow2: testing injection of sparse shapefiles</description>
 	<name>flow2</name>
 </FlowConfiguration>
