@@ -45,18 +45,21 @@ import java.nio.channels.OverlappingFileLockException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import javax.xml.transform.stream.StreamSource;
@@ -919,17 +922,17 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
     }
 
 	/**
-	 * @param inputDir
-	 * @param zipFilePrefix
-	 * @param files
-	 * @return
+	 * @param outputDir The directory where the zipfile will be created
+	 * @param zipFileBaseName The basename of hte zip file (i.e.: a .zip will be appended)
+	 * @param files The files that will be put into the zipfile
+	 * @return The created zipfile, or null if an error occurred.
 	 */
-	public static File deflate(final File inputDir,
-			final String zipFilePrefix, final File[] files) {
+	public static File deflate(final File outputDir,
+			final String zipFileBaseName, final File[] files) {
 		// Create a buffer for reading the files
         byte[] buf = new byte[4096];
 
-        final File outZipFile = new File(inputDir, zipFilePrefix + ".zip");
+        final File outZipFile = new File(outputDir, zipFileBaseName + ".zip");
         try {
             // Create the ZIP file
             final ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(
@@ -961,6 +964,52 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
         }
 
         return outZipFile;
+	}
+
+	/**
+	 * Unzips the files from a zipfile into a directory.
+	 * All of the files will be put in a single direcotry. If the zipfile contains
+	 * a hierarchycal structure, it will be ignored.
+	 *
+	 * @param zipFile The zipfile to be examined
+	 * @param destDir The direcotry where the extracted files will be stored.
+	 * @return The list of the extracted files, or null if an error occurred.
+	 * @throws IllegalArgumentException if the destination dir is not writeable.
+	 */
+	public static List<File> unzipFlat(final File zipFile, final File destDir) {
+		if(!destDir.isDirectory())
+			throw new IllegalArgumentException("Not a directory '"+destDir.getAbsolutePath()+"'");
+
+		if(!destDir.canWrite())
+			throw new IllegalArgumentException("Unwritable directory '"+destDir.getAbsolutePath()+"'");
+
+		try
+        {
+			List<File> ret = new ArrayList<File>();
+            ZipInputStream zipinputstream = new ZipInputStream(new FileInputStream(zipFile));
+
+            for(ZipEntry zipentry = zipinputstream.getNextEntry(); zipentry != null; zipentry = zipinputstream.getNextEntry()) {
+                String entryName = zipentry.getName();
+				if(zipentry.isDirectory())
+					continue;
+
+				File outFile = new File(destDir, entryName);
+				ret.add(outFile);
+                FileOutputStream fileoutputstream = new FileOutputStream(outFile);
+
+				org.apache.commons.io.IOUtils.copy(zipinputstream, fileoutputstream);
+                fileoutputstream.close();
+                zipinputstream.closeEntry();
+            }
+
+            zipinputstream.close();
+			return ret;
+        }
+        catch (Exception e)
+        {
+            LOGGER.log(Level.WARNING, "Error unzipping file '"+zipFile.getAbsolutePath()+"'", e);
+			return null;
+        }
 	}
 
     /**

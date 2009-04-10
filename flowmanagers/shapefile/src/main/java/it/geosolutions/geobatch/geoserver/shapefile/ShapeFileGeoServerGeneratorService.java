@@ -25,7 +25,6 @@
 package it.geosolutions.geobatch.geoserver.shapefile;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.catalog.Configuration;
 import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorService;
 
@@ -49,8 +48,8 @@ public class ShapeFileGeoServerGeneratorService extends
         try {
             return new ShapeFileGeoServerConfigurator(configuration);
         } catch (IOException e) {
-            if (LOGGER.isLoggable(Level.INFO))
-                LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
+            if (LOGGER.isLoggable(Level.WARNING))
+                LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
             return null;
         }
     }
