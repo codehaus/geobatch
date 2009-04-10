@@ -35,29 +35,34 @@ import it.geosolutions.geobatch.io.utils.IOUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.logging.Level;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 
 /**
- * Comments here ...
+ * Geoserver ShapeFile Configuration action.
+ *
+ * <P>Process shapefiles and inject them into a Geoserver instance.
  * 
  * @author AlFa
- * 
- * @version $ ShapeFileGeoServerConfigurator.java $ Revision: x.x $ 19/feb/07 16:28:31
+ * @author ETj
  */
 public class ShapeFileGeoServerConfigurator extends
         GeoServerConfiguratorAction<FileSystemMonitorEvent> {
+
+	private File tempOutDir = null;
+	private File zipFileToSend = null;
 
     protected ShapeFileGeoServerConfigurator(GeoServerActionConfiguration configuration)
             throws IOException {
@@ -66,11 +71,6 @@ public class ShapeFileGeoServerConfigurator extends
 
 	public Queue<FileSystemMonitorEvent> execute(Queue<FileSystemMonitorEvent> events)
             throws Exception {
-		System.out.println("EXECUTE: vvvvvvvvvvvvvvvvvvvv");
-		for (FileSystemMonitorEvent fileSystemMonitorEvent : events) {
-			System.out.println(fileSystemMonitorEvent);
-		}
-		System.out.println("EXECUTE: ^^^^^^^^^^^^^^^^^^^");
 
         try {
             // ////////////////////////////////////////////////////////////////////
@@ -79,8 +79,8 @@ public class ShapeFileGeoServerConfigurator extends
             //
             // ////////////////////////////////////////////////////////////////////
             if (configuration == null) {
-                LOGGER.log(Level.SEVERE, "DataFlowConfig is null.");
-                throw new IllegalStateException("DataFlowConfig is null.");
+                LOGGER.log(Level.SEVERE, "ActionConfig is null.");
+                throw new IllegalStateException("ActionConfig is null.");
             }
 
             // ////////////////////////////////////////////////////////////////////
@@ -90,16 +90,21 @@ public class ShapeFileGeoServerConfigurator extends
             // ////////////////////////////////////////////////////////////////////
             final File workingDir = IOUtils.findLocation(configuration.getWorkingDirectory(),
                     new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
-            final String configId = configuration.getName();
+            //final String configId = configuration.getName();
 
             // ////////////////////////////////////////////////////////////////////
             //
             // Checking input files.
             //
             // ////////////////////////////////////////////////////////////////////
-            if ((workingDir == null) || !workingDir.exists() || !workingDir.isDirectory()) {
-                LOGGER.log(Level.SEVERE, "GeoServerDataDirectory is null or does not exist.");
-                throw new IllegalStateException("GeoServerDataDirectory is null or does not exist.");
+            if (workingDir == null) {
+                LOGGER.log(Level.SEVERE, "Working directory is null.");
+                throw new IllegalStateException("Working directory is null.");
+            }
+
+            if ( !workingDir.exists() || !workingDir.isDirectory()) {
+                LOGGER.log(Level.SEVERE, "Working directory does not exist ("+workingDir.getAbsolutePath()+").");
+                throw new IllegalStateException("Working directory does not exist ("+workingDir.getAbsolutePath()+").");
             }
 
 			// this check is performed in superclass
@@ -182,21 +187,40 @@ public class ShapeFileGeoServerConfigurator extends
             // looking for file
             // //
             // XXX FIX ME
+
+			// Fetch the first event in the queue.
+			// We may have one in these 2 cases:
+			// 1) a single event for a .zip file
+			// 2) a list of events for the .shp+.dbf+.shx+ some other optional files
+			
             FileSystemMonitorEvent event = events.peek();
-            File dataDir = new File(event.getSource().getParent());
 
-            File[] files = dataDir.listFiles(new ShapeFilter(getConfiguration().getStoreFilePrefix()));
+			File[] shpList;
 
-            if (files.length != 1) {
-                LOGGER.log(Level.SEVERE, "No valid ShapeFile Names found for this Data Flow!");
-                throw new IllegalStateException(
-                        "No valid ShapeFile Names found for this Data Flow!");
-            }
+			if(events.size() == 1 && FilenameUtils.getExtension(event.getSource().getAbsolutePath()).equalsIgnoreCase("zip")) {
+				shpList = handleZipFile(event.getSource(), workingDir);
+			} else {
+				shpList = handleShapefile(events);
+			}
 
-            String path = files[0].getAbsolutePath();
-            path = path.replaceAll("\\\\", "/");
-            String shpFullFileName	= path.substring(path.lastIndexOf("/") + 1, path.length());
-            String shpBareName		= shpFullFileName.substring(0, shpFullFileName.lastIndexOf("."));
+			if(shpList == null)
+				throw new Exception("Error while processing the shape file set");
+
+			// look for the main shp file in the set
+			File shapeFile = null;
+			for (File file : shpList) {
+				if(FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("shp")) {
+					shapeFile = file;
+					break;
+				}
+			}
+
+			if(shapeFile == null) {
+                LOGGER.log(Level.SEVERE, "Shp file not found in fileset.");
+                throw new IllegalStateException("Shp file not found in fileset.");
+			}
+
+			String shpBaseName = FilenameUtils.getBaseName(shapeFile.getName());
 
             // //
             // creating dataStore
@@ -212,7 +236,7 @@ public class ShapeFileGeoServerConfigurator extends
              * GeoServer url: "file:data/" + dataStoreId + "/" + shpFileName
              */
             try {
-                connectionParams.put("url", files[0].toURI().toURL());
+                connectionParams.put("url", shapeFile.toURI().toURL());
             } catch (MalformedURLException e) {
                 LOGGER.log(Level.SEVERE, "No valid ShapeFile URL found for this Data Flow: "
                         + e.getLocalizedMessage());
@@ -230,6 +254,8 @@ public class ShapeFileGeoServerConfigurator extends
                 throw new IllegalStateException("No valid ShapeFiles found for this Data Flow!");
             }
 
+			// TODO: check if a layer with the same name already exists in GS
+
             // ////////////////////////////////////////////////////////////////////
             //
             // SENDING data to GeoServer via REST protocol.
@@ -239,18 +265,30 @@ public class ShapeFileGeoServerConfigurator extends
             LOGGER.info("Sending ShapeFile to GeoServer ... " + getConfiguration().getGeoserverURL());
             Map<String, String> queryParams = new HashMap<String, String>();
             queryParams.put("namespace", getConfiguration().getDefaultNamespace());
-            queryParams.put("wmspath", getConfiguration().getWmsPath());
+            queryParams.put("wmspath",   getConfiguration().getWmsPath());
 
-            boolean sent = sendLayer(IOUtils.deflate(dataDir, shpBareName),
+
+			if(LOGGER.isLoggable(Level.INFO)) {
+				StringBuilder sb = new StringBuilder("Packing shapefiles: ");
+				for (File file : shpList) {
+					sb.append('[').append(file.getName()).append(']');
+				}
+				LOGGER.info(sb.toString());
+			}
+
+			zipFileToSend = IOUtils.deflate(workingDir, "sending_" + shpBaseName + System.currentTimeMillis(), shpList);
+			LOGGER.info("ZIP file: " + zipFileToSend.getAbsolutePath());
+
+            boolean sent = sendShpLayer(zipFileToSend,
 					getConfiguration().getGeoserverURL(),
-					shpBareName, shpBareName,
+					shpBaseName, shpBaseName,
                     queryParams);
 
 			if (sent) {
 				LOGGER.info("ShapeFile GeoServerConfiguratorAction: shp SUCCESSFULLY sent to GeoServer!");
-				boolean sldSent = configureStyles(shpBareName);
+				boolean sldSent = configureStyles(shpBaseName);
 			} else {
-				LOGGER.info("ShapeFile GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
+				LOGGER.info("ShapeFile GeoServerConfiguratorAction: shp was NOT sent to GeoServer due to connection errors!");
 			}
 
             return events;
@@ -258,13 +296,21 @@ public class ShapeFileGeoServerConfigurator extends
         } catch (Throwable t) {
 			LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
             return null;
-        }
+        } finally {
+			// Clear unzipped files, if any
+			if(tempOutDir != null)
+				FileUtils.deleteDirectory(tempOutDir);
+
+			// Clear sent zip file
+			if(zipFileToSend != null)
+				zipFileToSend.delete();
+		}
     }
 
 
-
-    public boolean sendLayer(File data, String geoserverBaseURL, String storeId,
-			String layerName, Map<String, String> queryParams)
+    protected boolean sendShpLayer(File data, String geoserverBaseURL,
+									String storeId, String layerName,
+									Map<String, String> queryParams)
 		throws MalformedURLException, FileNotFoundException {
 
 		// TODO: PARAMTERIZE THIS
@@ -275,14 +321,14 @@ public class ShapeFileGeoServerConfigurator extends
             LOGGER.info("ShapeFile GeoServerConfiguratorAction: cannot send shp to GeoServer, input data null!");
             return sent;
         }
-        // if ("DIRECT".equals(GeoBatchEnvironment.getDataTransferMethod())) {
+        // if ("DIRECT".equals(IngestionEngineEnvironment.getDataTransferMethod())) {
         gsURL = new URL(geoserverBaseURL + "/rest/folders/" + storeId + "/layers/"
                 + layerName + "/file.shp?" + getQueryString(queryParams));
         sent = GeoServerRESTHelper.putBinaryFileTo(gsURL, new FileInputStream(data),
 													getConfiguration().getGeoserverUID(),
 													getConfiguration().getGeoserverPWD());
         /*
-         * } else if ("URL".equals(GeoBatchEnvironment.getDataTransferMethod())) {
+         * } else if ("URL".equals(IngestionEngineEnvironment.getDataTransferMethod())) {
          * geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + storeId + "/layers/" +
          * storeFilePrefix + "/url.shp"); sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
          * data.toURL().toExternalForm()); }
@@ -291,27 +337,96 @@ public class ShapeFileGeoServerConfigurator extends
 		return sent;
 	}
 
-
-	class ShapeFilter implements FilenameFilter {
-		private String prefixFilter = null;
-
-		public ShapeFilter(String filter) {
-			this.prefixFilter = filter;
+	/**
+	 * Pack the files received in the events into an array.
+	 * 
+	 * <P><B>TODO</B>: should we check if all the needed files are in place
+	 *                 (such as in {@link handleZipFile(File,File)} ?
+	 *
+	 * @param events The received event queue
+	 * @return
+	 */
+	private File[] handleShapefile(Queue<FileSystemMonitorEvent> events) {
+		File ret[] = new File[events.size()];
+		int idx = 0;
+		for (FileSystemMonitorEvent event : events) {
+			ret[idx++] = event.getSource();
 		}
+		return ret;
+	}
 
-		public boolean accept(File dir, String name) {
-			final String filePrefix = FilenameUtils.getName(name);
-			final String fileSuffix = FilenameUtils.getExtension(name);
+	/**
+	 * Unzip and inspect the contained files, and check if they are a proper shapefileset.
+	 *
+	 * <P>We want the fileset in the zip file:<UL>
+	 * <LI>To have all the same basename</LI>
+	 * <LI>To include all of the mandatory files shp, shx, dbf</LI>
+	 * <LI>To optionally include the prj file</LI>
+	 * <LI>To have no other files than the ones described above.</LI></UL>
+	 *
+	 * @param source The source zip file.
+	 * @return the array of unzipped files, or null if an error was encountered
+	 */
+	private File[] handleZipFile(File source, File workingdir) {
 
-			if("shp".equalsIgnoreCase(fileSuffix)) {
-				if (prefixFilter == null)
-					return true;
-				else {
-					return filePrefix.equals(prefixFilter)
-						|| filePrefix.matches(prefixFilter);
+		tempOutDir = new File(workingdir, "unzip_"+System.currentTimeMillis());
+
+		try{
+			if(!tempOutDir.mkdir()) {
+				throw new IOException("Can't create temp dir '"+tempOutDir.getAbsolutePath()+"'");
+			}
+			List<File> fileList = IOUtils.unzipFlat(source, tempOutDir);
+			if(fileList == null) {
+				throw new Exception("Error unzipping file");
+			}
+
+			if(fileList.isEmpty()) {
+				throw new IllegalStateException("Unzip returned no files");
+			}
+
+			int shp=0, shx=0, dbf=0;
+			int prj=0;
+
+			// check that all the files have the same basename
+			File file0 = fileList.get(0);
+			String basename = FilenameUtils.getBaseName(file0.getName());
+			for (File file : fileList) {
+				if( ! basename.equals(FilenameUtils.getBaseName(file.getAbsolutePath()))) {
+					throw new Exception("Basename mismatch (expected:'"+basename+"', file found:'"+file.getAbsolutePath()+"')");
 				}
-			} else
-				return false;
-		}}
+				String ext = FilenameUtils.getExtension(file.getAbsolutePath());
+				// do we want such an hardcoded list?
+				if("shp".equalsIgnoreCase(ext))
+					shp++;
+				else if("shx".equalsIgnoreCase(ext))
+					shx++;
+				else if("dbf".equalsIgnoreCase(ext))
+					dbf++;
+				else if("prj".equalsIgnoreCase(ext))
+					prj++;
+				else {
+					// Do we want to be more lenient if unexpected/useless files are found?
+					throw new IllegalStateException("Unexpected file extension in zipfile '"+ext+"'");
+				}
+			}
+
+			if(shp*shx*dbf != 1) {
+				throw new Exception("Bad fileset in zip file.");
+			}
+
+			return fileList.toArray(new File[fileList.size()]);
+
+		} catch(Throwable t) {
+			LOGGER.log(Level.WARNING, "Error examining zipfile", t);
+			try {
+				//org.apache.commons.io.IOUtils.
+				FileUtils.forceDelete(tempOutDir);
+			} catch (IOException ex) {
+				LOGGER.log(Level.SEVERE, "Can't delete temp dir '"+tempOutDir+"'", ex);
+			}
+			return null;
+		}
+	}
+
 }
 
