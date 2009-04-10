@@ -7,7 +7,7 @@
                                                                                             
         Version: $Id: pom.xml 63 2008-04-04 11:22:11Z alessio $              
      ======================================================================= -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                                 http://maven.apache.org/maven-v4_0_0.xsd">
+    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                                 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -116,13 +116,16 @@
             <artifactId>gb-flowmanagers-geotiff</artifactId>
             <version>${version}</version>
         </dependency>
-<!-- Setting the dependnecy this way is somehow ugly. Config moved into the profiles section.
-    <dependency>
-	    <groupId>it.geosolutions</groupId>
-	    <artifactId>gb-dao-${dao.type}</artifactId>
-	    <version>${version}</version>
-    </dependency>
--->
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-flowmanagers-shapefile</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-flowmanagers-ascii</artifactId>
+            <version>${version}</version>
+        </dependency>
     </dependencies>
 
     <organization>

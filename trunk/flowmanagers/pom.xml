@@ -47,17 +47,17 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-  
-  
 
-     
 
-	<!-- =========================================================== -->
+  <!-- =========================================================== -->
   <!--     Modules for the build in approximate dependency order   -->
   <!-- =========================================================== -->
    
     <modules>
       <module>geotiff</module>
       <module>mat5-sas</module>
-    </modules> 
-  </project>
+      <module>shapefile</module>
+      <module>ascii-grids</module>
+    </modules>
+    
+</project>
