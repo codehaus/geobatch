@@ -52,14 +52,12 @@ import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
 
 /**
- * Comments here ...
  * 
  * @author Daniele Romagnoli, GeoSolutions
  */
 public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
         implements Action<FileSystemMonitorEvent> {
 
-    
     private FormatConverterConfiguration configuration;
 
     private final static Logger LOGGER = Logger.getLogger(FormatConverter.class
@@ -104,23 +102,33 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 
             final String directory = configuration.getWorkingDirectory();
             final String outputDirectory = configuration.getOutputDirectory();
-            
+
+            // //
+            //
+            // Setup the output directories structure
+            //
+            // //
             final File outputDir = new File(outputDirectory);
-            if (!outputDir.exists()){
+            if (!outputDir.exists()) {
                 makeDirectories(outputDirectory);
-                
+
             }
 
             final File fileDir = new File(directory);
             if (fileDir != null && fileDir.isDirectory()) {
                 final File files[] = fileDir.listFiles();
-                
+
                 if (files != null) {
                     GridFormatFinder.scanForPlugins();
                     final int numFiles = files.length;
+
+                    if (LOGGER.isLoggable(Level.INFO))
+                        LOGGER.log(Level.INFO, new StringBuilder("Found ")
+                                .append(numFiles).append(" files").toString());
                     
-                    if(LOGGER.isLoggable(Level.INFO))
-                    	LOGGER.log(Level.INFO,new StringBuilder("Found ").append(numFiles).append(" files").toString());
+                    // //
+                    // Check files for conversion
+                    // //
                     for (int i = 0; i < numFiles; i++) {
                         final File file = files[i];
                         final String path = file.getAbsolutePath()
@@ -137,22 +145,19 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
                                 continue;
                         }
 
-                        // get a reader
+                        //A valid found has been found. Start conversion
                         final String name = FilenameUtils.getBaseName(path);
-                        
-                        final String fileOutputName = new StringBuilder(outputDirectory)
-                        .append(File.separatorChar).
-                        append(name).append(".tif").toString();
-                        
-                        // Preparing an useful layout in case the image is
-                        // striped.
-                        
+                        final String fileOutputName = new StringBuilder(
+                                outputDirectory).append(File.separatorChar)
+                                .append(name).append(".tif").toString();
+
                         // //
                         // Acquire proper format and reader
                         // //
-                        if(LOGGER.isLoggable(Level.INFO))
-                        	LOGGER.log(Level.INFO,new StringBuilder("Converting file N. ").append(i+1)
-                        	        .append(":").append(name).toString());
+                        if (LOGGER.isLoggable(Level.INFO))
+                            LOGGER.log(Level.INFO, new StringBuilder(
+                                    "Converting file N. ").append(i + 1)
+                                    .append(":").append(name).toString());
                         convert(file, fileOutputName);
 
                     }
@@ -167,18 +172,33 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 
     }
 
-    private  synchronized void makeDirectories(final String outputDirectory) {
+    /**
+     * Build the proper directories hierarchy.
+     * 
+     * @param outputDirectory
+     *                the path of the output dir to be built
+     */
+    private synchronized void makeDirectories(final String outputDirectory) {
         final File makeDir = new File(outputDirectory);
-        if (!makeDir.exists()||!makeDir.isDirectory()){
+        
+        // Recursive check. back to the parents until a folder already exists.
+        if (!makeDir.exists() || !makeDir.isDirectory()) {
             makeDirectories(makeDir.getParent());
             makeDir.mkdir();
         }
-        
     }
 
-    private void convert(File file, String fileOutputName)
+    /**
+     * Convert the specified file and write it to the specified output file name.
+     * 
+     * @param file
+     * @param outputFileName
+     * @throws IllegalArgumentException
+     * @throws IOException
+     */
+    private void convert(final File file, final String outputFileName)
             throws IllegalArgumentException, IOException {
-        
+
         // //
         //
         // Getting a GridFormat
@@ -191,8 +211,8 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
             final int tileW = configuration.getTileW();
             final int tileH = configuration.getTileH();
             final ImageLayout l = new ImageLayout();
-            l.setTileGridXOffset(0).setTileGridYOffset(0)
-                    .setTileHeight(512).setTileWidth(512);
+            l.setTileGridXOffset(0).setTileGridYOffset(0).setTileHeight(512)
+                    .setTileWidth(512);
 
             Hints hints = new Hints();
             hints.add(new RenderingHints(JAI.KEY_IMAGE_LAYOUT, l));
@@ -201,7 +221,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
             // Reading the coverage
             // 
             // //
-            final GridCoverageReader reader = gridFormat.getReader(file,hints);
+            final GridCoverageReader reader = gridFormat.getReader(file, hints);
 
             final GridCoverage2D gc = (GridCoverage2D) reader.read(null);
 
@@ -210,11 +230,11 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
             // //
             // Acquire required writer
             // //
-            final AbstractGridFormat writerFormat = (AbstractGridFormat) acquireFormatByType(outputFormatType);
+            final AbstractGridFormat writerFormat = (AbstractGridFormat) acquireFormatByName(outputFormatType);
 
-            if (! (writerFormat instanceof UnknownFormat)) {
+            if (!(writerFormat instanceof UnknownFormat)) {
                 GridCoverageWriter writer = writerFormat.getWriter(new File(
-                        fileOutputName));
+                        outputFileName));
 
                 GeoToolsWriteParams params = null;
                 ParameterValueGroup wparams = null;
@@ -253,7 +273,14 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
         return configuration;
     }
 
-    public static Format acquireFormatByType(String type) {
+    /**
+     * Get a proper {@link Format} for the requested format name.
+     * 
+     * @param formatName
+     * @return the proper instance of {@link Format} or an {@link UnknownFormat} 
+     * instance in case no format is found.
+     */
+    public static Format acquireFormatByName(final String formatName) {
         final Format[] formats = GridFormatFinder.getFormatArray();
         Format format = null;
         final int length = formats.length;
@@ -261,7 +288,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
         for (int i = 0; i < length; i++) {
             format = formats[i];
 
-            if (format.getName().equals(type)) {
+            if (format.getName().equals(formatName)) {
                 return format;
             }
         }

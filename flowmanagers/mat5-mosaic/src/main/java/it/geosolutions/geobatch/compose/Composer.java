@@ -70,6 +70,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
     private final static Logger LOGGER = Logger
             .getLogger(Composer.class.toString());
     
+    /** The DATE/TIME associated to this run (Actually is YYMMDD) */
     private String initTime = null;
 
     protected Composer(ComposerConfiguration configuration)
@@ -103,12 +104,17 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             final FileSystemMonitorEvent event = events.remove();
             final File inputFile = event.getSource();
             
+            // //
+            // Get the directory containing the data from the specified
+            // XML file
+            // //
             final String directory = getDataDirectory(inputFile);
             if (directory==null || directory.trim().length()==0){
             	LOGGER.warning("Unable to find LegData location from the specified file: "+inputFile.getAbsolutePath());
             	return events;
             }
             	
+            // Preparing parameters
             final double compressionRatio = configuration.getCompressionRatio();
             final String compressionScheme = configuration.getCompressionScheme();
             final String inputFormats = configuration.getInputFormats();
@@ -121,13 +127,16 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             final int chunkH = configuration.getChunkH();
             final String baseDir = configuration.getOutputBaseFolder();
             
+            //TODO: Refactor this search to leverage on a PATH_DEPTH parameter.
+            //Actually is looking for specifiedDir/dirdepth1/dirdepth2/
+            
             // //
             //
-            // Checking LEGS
+            // Checking LEGS for the current MISSION
             //
             // //
             ArrayList<File> directories = null;
-            final File fileDir = new File(directory);
+            final File fileDir = new File(directory); //Mission dir
             if (fileDir != null && fileDir.isDirectory()) {
                 final File[] foundFiles = fileDir.listFiles();
                 if (foundFiles!=null){
@@ -160,36 +169,45 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                     //
                     // //
                     for (File legDir : directories){
-                        final File checkDir = legDir;
-                        if (checkDir.isDirectory()){
-                            final File subFolders[] = checkDir.listFiles();
+                        if (legDir.isDirectory()){
+                            final File subFolders[] = legDir.listFiles();
                             if (subFolders != null){
                             	
                             	// //
                             	//
-                            	// Channel scan
+                            	// Channel scan (leaves)
                             	//
                             	// //
-                            	
                                 for (int i=0; i<subFolders.length; i++){
                                     final File leaf = subFolders[i];
                                     final String leafName = leaf.getName();
                                     if (leavesSet.contains(leafName)){
                                       
                                       final String leafPath = leaf.getAbsolutePath();
+                                      
+                                      // Initialize time
                                       if (initTime == null){
                                           setInitTime(leafPath);
                                       }
-                                      final StringBuffer outputFolder = new StringBuffer(baseDir)
+                                      
+                                      //Build the output directory path
+                                      final StringBuffer outputDir = new StringBuffer(baseDir)
                                       .append(File.separatorChar).append(initTime).append(File.separatorChar)
                                       .append(fileDir.getName()).append(File.separatorChar)
-                                      .append(checkDir.getName()).append(File.separatorChar)
+                                      .append(legDir.getName()).append(File.separatorChar)
                                       .append(leafName);
                                       
-                                      final String mosaicTobeIngested = composeMosaic(leafPath,outputFolder.toString(), compressionRatio, compressionScheme,
+                                      //Compose the mosaic.
+                                      final String mosaicTobeIngested = composeMosaic(leafPath,outputDir.toString(), compressionRatio, compressionScheme,
                                               inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, chunkW, chunkH,initTime);
-                                      ingestMosaic(mosaicTobeIngested, Mosaicer.MOSAIC_PREFIX);
-                                      ingestMosaic(mosaicTobeIngested.replace(Mosaicer.MOSAIC_PREFIX, Mosaicer.BALANCED_PREFIX), Mosaicer.BALANCED_PREFIX);
+                                      
+                                      //Ingest the mosaics (balanced and raw) with the assumption that their path differ only in the prefix.
+                                      //AS an instance: 
+                                      // c:\data\010101\mission1\leg1\stbd\rawm_010101_mission1_leg1_stbd
+                                      // c:\data\010101\mission1\leg1\stbd\balm_010101_mission1_leg1_stbd
+                                      
+                                      ingestMosaic(mosaicTobeIngested, Mosaicer.RAW_PREFIX);
+                                      ingestMosaic(mosaicTobeIngested.replace(Mosaicer.RAW_PREFIX, Mosaicer.BALANCED_PREFIX), Mosaicer.BALANCED_PREFIX);
                                     }
                                 }
                             }
@@ -207,9 +225,16 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 
     }
     
+    /**
+     * Set the time of this Mission
+     * 
+     * @param leafPath
+     */
     private void setInitTime(String leafPath) {
         //TODO: implement ME:
-        //get init time from Matlab file.
+        //actually, get this time from the file name
+        //next step is acquiring it from the matlab file
+        
         final File fileDir = new File(leafPath);
         if (fileDir != null && fileDir.isDirectory()) {
             final File files[] = fileDir.listFiles();
@@ -221,6 +246,10 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                 final String fileName = file.getName();
                 String date = fileName;
                 int index=0;
+                
+                //Files are so named like this:
+                //muscle_col2_090316_1_2_p_5790_5962_40_150.tif
+                
                 for (int i=0;i<7&&index!=-1;i++){
                     index = date.lastIndexOf("_");
                     date = date.substring(0,index);
@@ -235,17 +264,32 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             }
             if(!found)
                 initTime = new SimpleDateFormat("yyyyMMdd").format(new Date());
+            //Current time in case it's unable to find it from the file
+            
         }
-        
-        
     }
 
+    /**
+     * Setup a Geoserver Ingestion action to send the mosaic to Geoserver via REST 
+     * @param mosaicToBeIngested the location of the mosaic to be ingested 
+     * @param prefix one of {@link Mosaicer#BALANCED_PREFIX} or {@link Mosaicer#RAW_PREFIX}
+     * @throws Exception
+     */
     private void ingestMosaic(final String mosaicToBeIngested, final String prefix) throws Exception{
       final String location = mosaicToBeIngested;
       final int index = location.lastIndexOf(prefix);
+      
+      //Setting up the wmspath.
+      //Actually it is set by simply changing mosaic's name underscores to slashes.
+      //TODO: can be improved
       String wmsPath = location.substring(index + prefix.length(), location.length());
       wmsPath = wmsPath.replace("_","/");
       
+      // //
+      //
+      // Setting up the GeoserverActionConfiguration properties
+      //
+      // //
       final GeoServerActionConfiguration geoserverConfig = new GeoServerActionConfiguration();
       geoserverConfig.setGeoserverURL(configuration.getGeoserverURL());
       geoserverConfig.setGeoserverUID(configuration.getGeoserverUID());
@@ -253,6 +297,8 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
       geoserverConfig.setDataTransferMethod(configuration.getGeoserverUploadMethod());
       geoserverConfig.setWorkingDirectory(mosaicToBeIngested);
       geoserverConfig.setWmsPath(wmsPath);
+      
+      //Setting styles
       final String style;
       if (prefix.equalsIgnoreCase(Mosaicer.BALANCED_PREFIX)){
           style = SasMosaicGeoServerGenerator.SAS_STYLE;
@@ -269,15 +315,40 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
       geoserverIngestion.execute(null);
     }
 
-    private String composeMosaic(final String directory, final String outputFolder,
+    /**
+     * Compose a mosaic using the set of specified parameters.
+     * @param directory the directory containing raw tiles
+     * 
+     * @param outputDir the directory where to store the produced results.
+     * @param compressionRatio the compression ratio to be used to compress output files.
+     * @param compressionScheme the compression type
+     * @param inputFormats the input formats to be converted and then mosaicked.
+     * @param outputFormat the requested output format of conversion (As an instance, GeoTIFF)
+     * @param tileW the inner image tiling width
+     * @param tileH the inner image tiling height
+     * @param numSteps the number of steps of overviews generation
+     * @param downsampleStep the downsampling step between overviews
+     * @param chunkW the width of each separated file composing the big final mosaic
+     * @param chunkH the height of each separated file composing the big final mosaic
+     * @param time the time of the tiles composing that mission. (Used to setup the output folder)
+     * @return the location where the mosaic have been created
+     * @throws Exception
+     */
+    private String composeMosaic(final String directory, final String outputDir,
             final double compressionRatio, final String compressionScheme, 
             final String inputFormats, String outputFormat, final int tileW, final int tileH, 
             final int numSteps, final int downsampleStep, final int chunkW, final int chunkH,
             final String time) throws Exception {
         
+        
+        // //
+        //
+        // First step: Data conversion
+        //
+        // //
         final FormatConverterConfiguration converterConfig = new FormatConverterConfiguration();
         converterConfig.setWorkingDirectory(directory);
-        converterConfig.setOutputDirectory(outputFolder);
+        converterConfig.setOutputDirectory(outputDir);
         converterConfig.setId("conv");
         converterConfig.setDescription("Mat5 to tiff converter");
         converterConfig.setCompressionRatio(compressionRatio);
@@ -291,6 +362,11 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         final FormatConverter converter = new FormatConverter(converterConfig);
         converter.execute(null);
         
+        // //
+        //
+        // Second step: Mosaic
+        //
+        // //
         final MosaicerConfiguration mosaicerConfig = new MosaicerConfiguration();
         mosaicerConfig.setCompressionRatio(compressionRatio);
         mosaicerConfig.setCompressionScheme(compressionScheme);
@@ -298,7 +374,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         mosaicerConfig.setDescription("Mosaic composer");
         mosaicerConfig.setNumSteps(numSteps);
         mosaicerConfig.setDownsampleStep(downsampleStep);
-        mosaicerConfig.setWorkingDirectory(outputFolder);
+        mosaicerConfig.setWorkingDirectory(outputDir);
         mosaicerConfig.setTileH(tileH);
         mosaicerConfig.setTileW(tileW);
         mosaicerConfig.setChunkHeight(chunkH);
@@ -320,7 +396,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         String dataDir = null;
         if (xmlFile!=null){
             try {
-                FileImageInputStream fis = new FileImageInputStream(xmlFile);
+                final FileImageInputStream fis = new FileImageInputStream(xmlFile);
                 String location=null;
                 while ((location = fis.readLine())!=null){
                     if (location.startsWith(LEG_DATA_LOCATION)){
@@ -330,14 +406,20 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                 }
                 
             } catch (FileNotFoundException e) {
-                //TODO: LOG warning
+                LOGGER.warning(new StringBuilder("Unable to find the specified file: ")
+                .append(xmlFile).toString());
             } catch (IOException e) {
-              //TODO: LOG warning
+                LOGGER.warning(new StringBuilder("Problems occurred while reading: ")
+                .append(xmlFile).append("due to ").append(e.getLocalizedMessage()).toString());
             }
         }
         return dataDir;
     }
     
+    /**
+     * Set JAI Hints from the current configuration
+     * @param configuration
+     */
     private void setJAIHints(final ComposerConfiguration configuration) {
         if (configuration!=null){
             final JAI jaiDef = JAI.getDefaultInstance();

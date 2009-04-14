@@ -65,7 +65,7 @@ public class Mosaicer extends AbstractMosaicer implements
         IMAGE_IS_LINEAR = !Boolean.parseBoolean(cl);
     }
     
-    public static final String MOSAIC_PREFIX = "rawm_";
+    public static final String RAW_PREFIX = "rawm_";
     public static final String BALANCED_PREFIX = "balm_";
     
     private double extrema[] = new double[]{Double.MAX_VALUE,Double.MIN_VALUE} ;
@@ -202,7 +202,7 @@ public class Mosaicer extends AbstractMosaicer implements
          final File missionF = new File(mission);
          final String missionName = missionF.getName();
          final String time = configuration.getTime();
-         dirName = new StringBuilder(outputLocation).append(File.separatorChar).append(MOSAIC_PREFIX)
+         dirName = new StringBuilder(outputLocation).append(File.separatorChar).append(RAW_PREFIX)
          .append(time).append("_")
          .append(missionName).append("_L")
          .append(legName.substring(3,legName.length())).append("_")
