@@ -20,8 +20,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 package it.geosolutions.geobatch.mosaic;
 
 import it.geosolutions.geobatch.catalog.Configuration;
@@ -36,29 +34,27 @@ import org.geotools.utils.CoverageToolsConstants;
  */
 public class MosaicerConfiguration extends ActionConfiguration implements
         Configuration {
-	
 
+    private String mosaicDirectory;
 
-	private String mosaicDirectory;
+    public String getMosaicDirectory() {
+        return mosaicDirectory;
+    }
 
-	public String getMosaicDirectory() {
-		return mosaicDirectory;
-	}
+    public void setMosaicDirectory(String mosaicDirectory) {
+        this.mosaicDirectory = mosaicDirectory;
+    }
 
-	public void setMosaicDirectory(String mosaicDirectory) {
-		this.mosaicDirectory = mosaicDirectory;
-	}
-
-	private String workingDirectory;
+    private String workingDirectory;
 
     private double compressionRatio = Double.NaN;
-    
+
     private String compressionScheme = CoverageToolsConstants.DEFAULT_COMPRESSION_SCHEME;
-    
+
     private int chunkWidth = 5120;
-    
+
     private int chunkHeight = 5120;
-    
+
     private int chunkSize;
 
     /** Downsampling step. */
@@ -66,11 +62,9 @@ public class MosaicerConfiguration extends ActionConfiguration implements
 
     private int numSteps;
 
-    
-    
     /** Scale algorithm. */
     private String scaleAlgorithm = "nn";
-    
+
     /** Tile height. */
     private int tileH = 512;
 
@@ -78,20 +72,22 @@ public class MosaicerConfiguration extends ActionConfiguration implements
     private int tileW = 512;
 
     private String serviceID;
-    
+
     private int tileSizeLimit;
-    
+
     /** the time String prefix of the directory containing that mosaic */
     private String time = "";
 
     public MosaicerConfiguration() {
         super();
     }
-	protected MosaicerConfiguration(String id, String name, String description,
-			boolean dirty) {
-		super(id, name, description, dirty);
-		// TODO Auto-generated constructor stub
-	}
+
+    protected MosaicerConfiguration(String id, String name, String description,
+            boolean dirty) {
+        super(id, name, description, dirty);
+        // TODO Auto-generated constructor stub
+    }
+
     /**
      * @return the workingDirectory
      */
@@ -101,7 +97,7 @@ public class MosaicerConfiguration extends ActionConfiguration implements
 
     /**
      * @param workingDirectory
-     *            the workingDirectory to set
+     *                the workingDirectory to set
      */
     public void setWorkingDirectory(String workingDirectory) {
         this.workingDirectory = workingDirectory;
@@ -124,9 +120,9 @@ public class MosaicerConfiguration extends ActionConfiguration implements
     }
 
     public void setTime(final String time) {
-        this.time = time; 
+        this.time = time;
     }
-    
+
     public void setCompressionRatio(final double compressionRatio) {
         this.compressionRatio = compressionRatio;
     }
@@ -152,20 +148,17 @@ public class MosaicerConfiguration extends ActionConfiguration implements
 
     /**
      * @param serviceID
-     *            the serviceID to set
+     *                the serviceID to set
      */
     public void setServiceID(final String serviceID) {
         this.serviceID = serviceID;
     }
 
-	@Override
-	public String toString() {
-		return getClass().getSimpleName() + "["
-				+ "id:" + getId()
-				+ ", name:" + getName()
-				+ ", wxh:" + getTileW() + "x" + getTileH()
-				+ "]";
-	}
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + "id:" + getId() + ", name:"
+                + getName() + ", wxh:" + getTileW() + "x" + getTileH() + "]";
+    }
 
     public int getTileSizeLimit() {
         return tileSizeLimit;
@@ -199,53 +192,52 @@ public class MosaicerConfiguration extends ActionConfiguration implements
         this.scaleAlgorithm = scaleAlgorithm;
     }
 
-	public int getChunkWidth() {
-		return chunkWidth;
-	}
+    public int getChunkWidth() {
+        return chunkWidth;
+    }
 
-	public void setChunkWidth(final int chunkWidth) {
-		this.chunkWidth = chunkWidth;
-	}
+    public void setChunkWidth(final int chunkWidth) {
+        this.chunkWidth = chunkWidth;
+    }
 
-	public int getChunkHeight() {
-		return chunkHeight;
-	}
+    public int getChunkHeight() {
+        return chunkHeight;
+    }
 
-	public void setChunkHeight(final int chunkHeight) {
-		this.chunkHeight = chunkHeight;
-	}
+    public void setChunkHeight(final int chunkHeight) {
+        this.chunkHeight = chunkHeight;
+    }
 
-	public int getChunkSize() {
-		return chunkSize;
-	}
+    public int getChunkSize() {
+        return chunkSize;
+    }
 
-	public void setChunkSize(final int chunkSize) {
-		this.chunkSize = chunkSize;
-	}
+    public void setChunkSize(final int chunkSize) {
+        this.chunkSize = chunkSize;
+    }
 
-	@Override
-	public MosaicerConfiguration clone() throws CloneNotSupportedException {
-		final MosaicerConfiguration configuration = 
-			new MosaicerConfiguration(getId(),getName(),getDescription(),isDirty());
-		configuration.setChunkHeight(chunkHeight);
-		configuration.setChunkWidth(chunkWidth);
-		configuration.setChunkSize(chunkSize);
-		configuration.setCompressionRatio(compressionRatio);
-		configuration.setCompressionScheme(compressionScheme);
-		configuration.setDownsampleStep(downsampleStep);
-		configuration.setMosaicDirectory(mosaicDirectory);
-		configuration.setNumSteps(numSteps);
-		configuration.setScaleAlgorithm(scaleAlgorithm);
-		configuration.setServiceID(serviceID);
-		configuration.setTileH(tileH);
-		configuration.setTileW(tileW);
-		configuration.setTileSizeLimit(tileSizeLimit);
-		configuration.setWorkingDirectory(workingDirectory);
-		return configuration;
-	}
+    @Override
+    public MosaicerConfiguration clone() throws CloneNotSupportedException {
+        final MosaicerConfiguration configuration = new MosaicerConfiguration(
+                getId(), getName(), getDescription(), isDirty());
+        configuration.setChunkHeight(chunkHeight);
+        configuration.setChunkWidth(chunkWidth);
+        configuration.setChunkSize(chunkSize);
+        configuration.setCompressionRatio(compressionRatio);
+        configuration.setCompressionScheme(compressionScheme);
+        configuration.setDownsampleStep(downsampleStep);
+        configuration.setMosaicDirectory(mosaicDirectory);
+        configuration.setNumSteps(numSteps);
+        configuration.setScaleAlgorithm(scaleAlgorithm);
+        configuration.setServiceID(serviceID);
+        configuration.setTileH(tileH);
+        configuration.setTileW(tileW);
+        configuration.setTileSizeLimit(tileSizeLimit);
+        configuration.setWorkingDirectory(workingDirectory);
+        return configuration;
+    }
 
     public String getTime() {
         return time;
     }
-
 }
