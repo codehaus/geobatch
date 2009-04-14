@@ -55,7 +55,7 @@
    
     <modules>
       <module>geotiff</module>
-      <module>mat5-sas</module>
+      <module>mat5-mosaic</module>
       <module>shapefile</module>
       <module>ascii-grids</module>
     </modules>
