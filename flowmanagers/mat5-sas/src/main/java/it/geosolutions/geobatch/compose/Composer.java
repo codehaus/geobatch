@@ -305,7 +305,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         mosaicerConfig.setChunkWidth(chunkW);
         mosaicerConfig.setTime(time);
 
-        LOGGER.log(Level.INFO, "Composing the mosaic with raw tiles");
+        LOGGER.log(Level.INFO, "Mosaic Composition");
         final Mosaicer mosaicer = new Mosaicer(mosaicerConfig);
         mosaicer.execute(null);
         return mosaicerConfig.getMosaicDirectory();

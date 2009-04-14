@@ -220,7 +220,7 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
                     RenderedImage balancedMosaic = balanceMosaic(mosaicImage);
                     
                     GridCoverage2D balancedGc = coverageFactory.create("balanced", balancedMosaic, globEnvelope);
-                    LOGGER.log(Level.INFO, "Balancing the mosaic");
+                    LOGGER.log(Level.INFO, "Retiling the balanced mosaic");
                     retileMosaic(balancedGc, chunkW, chunkH, tileW, tileH,
                             compressionRatio, compressionType, outputBalanced);
 
@@ -232,6 +232,7 @@ public class Mosaicer extends BaseAction<FileSystemMonitorEvent> implements
                     // Retiling Mosaic to smaller Coverages
                     //
                     // //
+                    LOGGER.log(Level.INFO, "Retiling the raw mosaic");
                     retileMosaic(gc, chunkW, chunkH, tileW, tileH,
                             compressionRatio, compressionType, outputDirectory);
 
