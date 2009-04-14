@@ -175,14 +175,16 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                                     final File leaf = subFolders[i];
                                     final String leafName = leaf.getName();
                                     if (leavesSet.contains(leafName)){
-                                      final StringBuffer outputFolder = new StringBuffer(baseDir).append(File.separatorChar)
-                                      .append(fileDir.getName()).append(File.separatorChar)
-                                      .append(checkDir.getName()).append(File.separatorChar)
-                                      .append(leafName);
+                                      
                                       final String leafPath = leaf.getAbsolutePath();
                                       if (initTime == null){
                                           setInitTime(leafPath);
                                       }
+                                      final StringBuffer outputFolder = new StringBuffer(baseDir)
+                                      .append(File.separatorChar).append(initTime).append(File.separatorChar)
+                                      .append(fileDir.getName()).append(File.separatorChar)
+                                      .append(checkDir.getName()).append(File.separatorChar)
+                                      .append(leafName);
                                       
                                       final String mosaicTobeIngested = composeMosaic(leafPath,outputFolder.toString(), compressionRatio, compressionScheme,
                                               inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, chunkW, chunkH,initTime);
