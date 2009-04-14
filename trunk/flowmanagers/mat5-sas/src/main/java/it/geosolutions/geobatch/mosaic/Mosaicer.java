@@ -32,13 +32,23 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.media.jai.JAI;
-import javax.media.jai.LookupTableJAI;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.ROI;
 import javax.media.jai.RenderedOp;
-import javax.media.jai.operator.LookupDescriptor;
 
+import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.renderer.lite.gridcoverage2d.RasterSymbolizerHelper;
+import org.geotools.renderer.lite.gridcoverage2d.SubchainStyleVisitorCoverageProcessingAdapter;
+import org.geotools.styling.ChannelSelection;
+import org.geotools.styling.ChannelSelectionImpl;
+import org.geotools.styling.ContrastEnhancement;
+import org.geotools.styling.ContrastEnhancementImpl;
+import org.geotools.styling.RasterSymbolizer;
+import org.geotools.styling.SelectedChannelType;
+import org.geotools.styling.SelectedChannelTypeImpl;
+import org.geotools.styling.StyleBuilder;
 
 /**
  * Comments here ...
@@ -119,6 +129,7 @@ public class Mosaicer extends AbstractMosaicer implements
         if (IMAGE_IS_LINEAR){
             inputImage = computeLog(inputImage);
         }
+        
         final double[] scale = new double[] { (255) / (extrema[1] - extrema[0]) };
         final double[] offset = new double[] { ((255) * extrema[0])
                 / (extrema[0] - extrema[1]) };
@@ -135,7 +146,43 @@ public class Mosaicer extends AbstractMosaicer implements
         pbConvert.add(DataBuffer.TYPE_BYTE);
         RenderedOp destImage = JAI.create("format", pbConvert);
         
-        return destImage;
+        return constrastEnhances(destImage);
+    }
+    
+    private RenderedImage constrastEnhances(RenderedImage image){
+        
+        GridCoverage2D gc = CoverageFactoryFinder.getGridCoverageFactory(null)
+        .create(
+                        "name",
+                        image, 
+                        new GeneralEnvelope(new double[] { -90, -180 },
+                                        new double[] { 90, 180 }));
+
+        // the RasterSymbolizer Helper
+        SubchainStyleVisitorCoverageProcessingAdapter rsh_StyleBuilder = new RasterSymbolizerHelper(gc, null);
+        // build the RasterSymbolizer
+        StyleBuilder sldBuilder = new StyleBuilder();
+        // the RasterSymbolizer Helper
+        rsh_StyleBuilder = new RasterSymbolizerHelper(gc, null);
+
+        final RasterSymbolizer rsb_1 = sldBuilder.createRasterSymbolizer();
+        final ChannelSelection chSel = new ChannelSelectionImpl();
+        final SelectedChannelType chTypeGray = new SelectedChannelTypeImpl();
+        final ContrastEnhancement cntEnh = new ContrastEnhancementImpl();
+
+        cntEnh.setLogarithmic();
+        
+        chTypeGray.setChannelName("1");
+        chTypeGray.setContrastEnhancement(cntEnh);
+        chSel.setGrayChannel(chTypeGray);
+        rsb_1.setChannelSelection(chSel);
+        rsb_1.setOpacity(sldBuilder.literalExpression(1.0));
+        rsb_1.setOverlap(sldBuilder.literalExpression("AVERAGE"));
+        
+        // visit the RasterSymbolizer
+        rsh_StyleBuilder.visit(rsb_1);
+        return ((GridCoverage2D)rsh_StyleBuilder.getOutput()).getRenderedImage();
+        
     }
 
 
