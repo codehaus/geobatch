@@ -204,7 +204,7 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
                     GridCoverage2D balancedGc = coverageFactory.create("balanced", balancedMosaic, globEnvelope);
                     LOGGER.log(Level.INFO, "Retiling the balanced mosaic");
                     retileMosaic(balancedGc, chunkW, chunkH, tileW, tileH,
-                            Double.NaN, null, outputBalanced);
+                            compressionRatio, compressionType, outputBalanced);
 
                     
                     GridCoverage2D gc = coverageFactory.create("mosaiced", mosaicImage, globEnvelope);
