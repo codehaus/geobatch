@@ -146,7 +146,8 @@ public class Mosaicer extends AbstractMosaicer implements
         pbConvert.add(DataBuffer.TYPE_BYTE);
         RenderedOp destImage = JAI.create("format", pbConvert);
         
-        return applyContrastEnhancement(destImage);
+        return destImage;
+//        return applyContrastEnhancement(destImage);
     }
     
     private RenderedImage applyContrastEnhancement(RenderedImage image){

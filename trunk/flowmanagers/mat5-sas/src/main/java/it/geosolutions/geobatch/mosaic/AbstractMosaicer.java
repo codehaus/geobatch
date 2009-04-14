@@ -356,22 +356,23 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
             }
         
         //Overviews are added as a last step to minimize TileCache updates
+        int nOverviewsDone = 1;
+        final int nFiles = filesToAddOverviews.size();
         for (String fileOverviews: filesToAddOverviews){
             // TODO: Leverage on GeoTiffOverviewsEmbedder when involving
             // no more FileSystemEvent only
-            // Or merge retiling and overviews adding to a single step 
+            // Or merge retiling and overviews adding to a single step
+            LOGGER.log(Level.INFO, new StringBuilder("Adding overviews: File ").append(nOverviewsDone).
+                    append(" of ").append(nFiles).toString());
+            nOverviewsDone++;
             addOverviews(fileOverviews);
         }
-        
-        
     }
 
     protected abstract String buildFileName(String outputLocation, int i, int j,
             int chunkWidth) ;
 
     private void addOverviews(final String inputFileName) {
-    	
-    	LOGGER.log(Level.INFO, "Adding overviews");
         final int downsampleStep = configuration.getDownsampleStep();
         if (downsampleStep <= 0)
             throw new IllegalArgumentException("Illegal downsampleStep: "
