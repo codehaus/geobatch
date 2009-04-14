@@ -146,10 +146,10 @@ public class Mosaicer extends AbstractMosaicer implements
         pbConvert.add(DataBuffer.TYPE_BYTE);
         RenderedOp destImage = JAI.create("format", pbConvert);
         
-        return constrastEnhances(destImage);
+        return applyContrastEnhancement(destImage);
     }
     
-    private RenderedImage constrastEnhances(RenderedImage image){
+    private RenderedImage applyContrastEnhancement(RenderedImage image){
         
         GridCoverage2D gc = CoverageFactoryFinder.getGridCoverageFactory(null)
         .create(
@@ -182,7 +182,6 @@ public class Mosaicer extends AbstractMosaicer implements
         // visit the RasterSymbolizer
         rsh_StyleBuilder.visit(rsb_1);
         return ((GridCoverage2D)rsh_StyleBuilder.getOutput()).getRenderedImage();
-        
     }
 
 

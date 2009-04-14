@@ -35,7 +35,7 @@ import org.geotools.utils.CoverageToolsConstants;
 public class ComposerConfiguration extends ActionConfiguration implements
         Configuration {
 
-	private final static long DEFAULT_JAI_CACHE_CAPACITY = 128 * 1024 * 1024;
+    private final static long DEFAULT_JAI_CACHE_CAPACITY = 128 * 1024 * 1024;
 
     private final static int DEFAULT_JAI_PARALLELISM = 2;
 
@@ -50,70 +50,27 @@ public class ComposerConfiguration extends ActionConfiguration implements
     private String outputFormat;
 
     private String workingDirectory;
-    
+
     private String outputBaseFolder;
-    
+
     private String leavesFolders;
 
     private String inputFormats;
 
     private String serviceID;
-    
-    public String getGeoserverURL() {
-		return geoserverURL;
-	}
 
-	public void setGeoserverURL(String geoserverURL) {
-		this.geoserverURL = geoserverURL;
-	}
+    private String geoserverURL;
 
-	public String getGeoserverUID() {
-		return geoserverUID;
-	}
-
-	public void setGeoserverUID(String geoserverUID) {
-		this.geoserverUID = geoserverUID;
-	}
-
-	public String getGeoserverPWD() {
-		return geoserverPWD;
-	}
-
-	public void setGeoserverPWD(String geoserverPWD) {
-		this.geoserverPWD = geoserverPWD;
-	}
-
-	public String getGeoserverUploadMethod() {
-		return geoserverUploadMethod;
-	}
-
-	public void setGeoserverUploadMethod(String geoserverUploadMethod) {
-		this.geoserverUploadMethod = geoserverUploadMethod;
-	}
-
-	private String geoserverURL;
-    
     private String geoserverUID;
-    
-	private String geoserverPWD;
-	
-	private String geoserverUploadMethod;
 
+    private String geoserverPWD;
 
-    
+    private String geoserverUploadMethod;
+
     private double compressionRatio = CoverageToolsConstants.DEFAULT_COMPRESSION_RATIO;
 
     private String compressionScheme = CoverageToolsConstants.DEFAULT_COMPRESSION_SCHEME;
     
-    public ComposerConfiguration() {
-        super();
-    }
-
-    protected ComposerConfiguration(String id, String name, String description,
-			boolean dirty) {
-		super(id, name, description, dirty);
-	}
-
     /** Downsampling step. */
     private int downsampleStep;
 
@@ -128,7 +85,53 @@ public class ComposerConfiguration extends ActionConfiguration implements
     /** Tile width. */
     private int tileW = -1;
 
-    private int chunkW = 5120;
+    private int chunkW = 10240;
+    
+    private int chunkH = 10240;
+
+    public String getGeoserverURL() {
+        return geoserverURL;
+    }
+
+    public void setGeoserverURL(String geoserverURL) {
+        this.geoserverURL = geoserverURL;
+    }
+
+    public String getGeoserverUID() {
+        return geoserverUID;
+    }
+
+    public void setGeoserverUID(String geoserverUID) {
+        this.geoserverUID = geoserverUID;
+    }
+
+    public String getGeoserverPWD() {
+        return geoserverPWD;
+    }
+
+    public void setGeoserverPWD(String geoserverPWD) {
+        this.geoserverPWD = geoserverPWD;
+    }
+
+    public String getGeoserverUploadMethod() {
+        return geoserverUploadMethod;
+    }
+
+    public void setGeoserverUploadMethod(String geoserverUploadMethod) {
+        this.geoserverUploadMethod = geoserverUploadMethod;
+    }
+
+
+    public ComposerConfiguration() {
+        super();
+    }
+
+    protected ComposerConfiguration(String id, String name, String description,
+            boolean dirty) {
+        super(id, name, description, dirty);
+    }
+
+  
 
     public int getChunkW() {
         return chunkW;
@@ -145,8 +148,6 @@ public class ComposerConfiguration extends ActionConfiguration implements
     public void setChunkH(final int chunkH) {
         this.chunkH = chunkH;
     }
-
-    private int chunkH = 5120;
 
     public final double getCompressionRatio() {
         return compressionRatio;
@@ -290,32 +291,32 @@ public class ComposerConfiguration extends ActionConfiguration implements
         this.leavesFolders = leavesFolders;
     }
 
-	@Override
-	public ComposerConfiguration clone() throws CloneNotSupportedException {
-		final ComposerConfiguration configuration=
-			new ComposerConfiguration(getId(),getName(),getDescription(),isDirty());
-		configuration.setServiceID(serviceID);
-		configuration.setChunkH(chunkH);
-		configuration.setChunkW(chunkW);
-		configuration.setCompressionRatio(compressionRatio);
-		configuration.setCompressionScheme(compressionScheme);
-		configuration.setDownsampleStep(downsampleStep);
-		configuration.setInputFormats(inputFormats);
-		configuration.setJAICacheCapacity(JAICacheCapacity);
-		configuration.setJAICacheThreshold(JAICacheThreshold);
-		configuration.setJAIParallelism(JAIParallelism);
-		configuration.setLeavesFolders(leavesFolders);
-		configuration.setNumSteps(numSteps);
-		configuration.setOutputBaseFolder(outputBaseFolder);
-		configuration.setOutputFormat(outputFormat);
-		configuration.setScaleAlgorithm(scaleAlgorithm);
-		configuration.setTileH(tileH);
-		configuration.setTileW(tileW);
-		configuration.setWorkingDirectory(workingDirectory);
-		configuration.setGeoserverPWD(geoserverPWD);
-		configuration.setGeoserverUID(geoserverUID);
-		configuration.setGeoserverUploadMethod(geoserverUploadMethod);
-		configuration.setGeoserverURL(geoserverURL);
-		return configuration;
-	}
+    @Override
+    public ComposerConfiguration clone() throws CloneNotSupportedException {
+        final ComposerConfiguration configuration = new ComposerConfiguration(
+                getId(), getName(), getDescription(), isDirty());
+        configuration.setServiceID(serviceID);
+        configuration.setChunkH(chunkH);
+        configuration.setChunkW(chunkW);
+        configuration.setCompressionRatio(compressionRatio);
+        configuration.setCompressionScheme(compressionScheme);
+        configuration.setDownsampleStep(downsampleStep);
+        configuration.setInputFormats(inputFormats);
+        configuration.setJAICacheCapacity(JAICacheCapacity);
+        configuration.setJAICacheThreshold(JAICacheThreshold);
+        configuration.setJAIParallelism(JAIParallelism);
+        configuration.setLeavesFolders(leavesFolders);
+        configuration.setNumSteps(numSteps);
+        configuration.setOutputBaseFolder(outputBaseFolder);
+        configuration.setOutputFormat(outputFormat);
+        configuration.setScaleAlgorithm(scaleAlgorithm);
+        configuration.setTileH(tileH);
+        configuration.setTileW(tileW);
+        configuration.setWorkingDirectory(workingDirectory);
+        configuration.setGeoserverPWD(geoserverPWD);
+        configuration.setGeoserverUID(geoserverUID);
+        configuration.setGeoserverUploadMethod(geoserverUploadMethod);
+        configuration.setGeoserverURL(geoserverURL);
+        return configuration;
+    }
 }
