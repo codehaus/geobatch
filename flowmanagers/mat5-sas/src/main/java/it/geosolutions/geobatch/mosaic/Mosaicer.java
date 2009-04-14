@@ -135,15 +135,7 @@ public class Mosaicer extends AbstractMosaicer implements
         pbConvert.add(DataBuffer.TYPE_BYTE);
         RenderedOp destImage = JAI.create("format", pbConvert);
         
-        final byte lut[] = new byte[256];
-        final double normalizationFactor=255.0;
-        final double correctionFactor=100.0;
-        for (int i = 1; i < lut.length; i++)
-                lut[i] = (byte) (0.5f + normalizationFactor * Math.log((i * correctionFactor / normalizationFactor+ 1.0)));
-        return LookupDescriptor.create(inputImage,
-                        new LookupTableJAI(lut),null);        
-        
-//        return destImage;
+        return destImage;
     }
 
 
