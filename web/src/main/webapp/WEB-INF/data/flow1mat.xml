@@ -18,13 +18,13 @@
 			<outputFormat>GeoTIFF</outputFormat>
 			<inputFormats>mat</inputFormats>
 			<leavesFolders>stbd;port</leavesFolders>
-			<!--outputBaseFolder>h:/temp</outputBaseFolder-->
+			<outputBaseFolder>H:\temp</outputBaseFolder>
 			<!-- LINUX NAS -->
 			<!--outputBaseFolder>/mnt/datastorage/sas/mosaic_output</outputBaseFolder-->
 			<!-- LINUX LOCAL -->
-			<outputBaseFolder>/home/geos/work/data/sas/output</outputBaseFolder>
-			<JAICacheCapacity>1024</JAICacheCapacity>
-	        	<JAIParallelism>8</JAIParallelism>
+			<!--outputBaseFolder>/home/geos/work/data/sas/output</outputBaseFolder-->
+			<JAICacheCapacity>512</JAICacheCapacity>
+	        	<JAIParallelism>2</JAIParallelism>
 			<JAICacheThreshold>1</JAICacheThreshold>
 			<numSteps>6</numSteps>
 			<downsampleStep>2</downsampleStep>
@@ -35,10 +35,10 @@
 			<chunkH>10240</chunkH>
 			<compressionRatio>0.75</compressionRatio>
 			<compressionScheme>LZW</compressionScheme>
-			<geoserverURL></geoserverURL>
-			<geoserverUID></geoserverUID>
-			<geoserverPWD></geoserverPWD>
-			<geoserverUploadMethod></geoserverUploadMethod>
+			<geoserverURL>http://localhost:8080/geoserver</geoserverURL>
+			<geoserverUID>admin</geoserverUID>
+			<geoserverPWD>geoserver</geoserverPWD>
+			<geoserverUploadMethod>EXTERNAL</geoserverUploadMethod>
 			
 			<id>SASMSC</id>
 			<description>description</description>
