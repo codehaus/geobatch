@@ -63,7 +63,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         Action<FileSystemMonitorEvent> {
 
     //TODO: TEMP SOLUTION. LEVERAGES ON REAL XML PARSING
-    private String LEG_DATA_LOCATION = "<dataLocation>";
+    private String LEG_DATA_LOCATION = "<missionLegsLocation>";
     
     private ComposerConfiguration configuration;
 
@@ -282,8 +282,8 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
       //Setting up the wmspath.
       //Actually it is set by simply changing mosaic's name underscores to slashes.
       //TODO: can be improved
-      String wmsPath = location.substring(index + prefix.length(), location.length());
-      wmsPath = wmsPath.replace("_","/");
+      final String path = location.substring(index + prefix.length(), location.length());
+      final String wmsPath = new StringBuilder("/").append(path.replace("_","/")).toString();
       
       // //
       //
