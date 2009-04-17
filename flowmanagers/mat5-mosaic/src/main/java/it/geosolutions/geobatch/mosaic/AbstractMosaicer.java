@@ -55,15 +55,17 @@ import org.geotools.gce.geotiff.GeoTiffReader;
 import org.geotools.gce.geotiff.GeoTiffWriteParams;
 import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.metadata.iso.spatial.PixelTranslation;
 import org.geotools.referencing.operation.matrix.GeneralMatrix;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.utils.imageoverviews.OverviewsEmbedder;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
+import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 
 /**
- * Comments here ...
+ * Main Mosaicer class.
  * 
  * @author Daniele Romagnoli, GeoSolutions
  */
@@ -114,8 +116,14 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
 
             final File fileDir = new File(directory);
             if (fileDir != null && fileDir.isDirectory()) {
-                File[] files = fileDir.listFiles();
+                final File[] files = fileDir.listFiles();
 
+                
+                // //
+                //
+                // Setting directories hierarchy
+                //
+                // //
                 final String outputDirectory = buildOutputDirName(directory);
                 final String outputBalanced = outputDirectory.replace(MOSAIC_PREFIX, BALANCED_PREFIX);
                 final File dir = new File(outputDirectory);
@@ -140,6 +148,11 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
                         final GeoTiffReader reader = new GeoTiffReader(file,
                                 null);
 
+                        // //
+                        //
+                        // Updating the global mosaic's envelope
+                        //
+                        // //
                         GeneralEnvelope envelope = (GeneralEnvelope) reader
                                 .getOriginalEnvelope();
                         if (globEnvelope == null) {
@@ -150,14 +163,15 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
 //                            rotation = XAffineTransform.getRotation(at);
                         } else
                             globEnvelope.add(envelope);
-
                         reader.dispose();
                     }
 
-                    // compute final g2w
+                    // //
+                    // computing the final g2w
+                    // //
                     final GeneralMatrix gm = new GeneralMatrix(3);
 
-                    // change this Leverage on XML metadata
+                    // TODO: change this Leverage on XML metadata to handle rotation
                     gm.setElement(0, 0, 0.025);
                     gm.setElement(1, 1, -0.015);
                     gm.setElement(0, 1, 0);
@@ -166,19 +180,15 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
                             .getOrdinate(0));
                     gm.setElement(1, 2, globEnvelope.getUpperCorner()
                             .getOrdinate(1));
-                    MathTransform mosaicTransform = ProjectiveTransform
+                    final MathTransform mosaicTransform = ProjectiveTransform
                             .create(gm);
-//                    MathTransform tempTransform =PixelTranslation.translate(mosaicTransform, PixelInCell.CELL_CORNER, PixelInCell.CELL_CENTER);
+                    final MathTransform tempTransform = PixelTranslation.translate(mosaicTransform, PixelInCell.CELL_CORNER, PixelInCell.CELL_CENTER);
                     
-                    MathTransform world2GridTransform = mosaicTransform
+                    final MathTransform world2GridTransform = tempTransform
                             .inverse();
 
-                    GridCoverageFactory coverageFactory = CoverageFactoryFinder
+                    final GridCoverageFactory coverageFactory = CoverageFactoryFinder
                             .getGridCoverageFactory(null);
-
-                    // final GridGeometry2D gg2d = new GridGeometry2D(
-                    // PixelInCell.CELL_CORNER, mosaicTransform, globEnvelope,
-                    // null);
 
                     // read them all
                     final List<GridCoverage2D> coverages = new ArrayList<GridCoverage2D>();
@@ -196,7 +206,6 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
                         updates(gc);
                         reader.dispose();
                     }
-
                     
                     RenderedImage mosaicImage = createMosaic(coverages,world2GridTransform);
                     RenderedImage balancedMosaic = balanceMosaic(mosaicImage);
