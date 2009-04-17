@@ -36,7 +36,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,11 +47,9 @@ import org.geotools.gce.imagemosaic.ImageMosaicFormat;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
 
 /**
- * Comments here ...
  * 
- * @author AlFa
+ * @author Daniele Romagnoli, GeoSolutions
  * 
- * @version $ GeoTIFFOverviewsEmbedder.java $ Revision: x.x $ 23/mar/07 11:42:25
  */
 public class SasMosaicGeoServerGenerator
 		extends GeoServerConfiguratorAction<FileSystemMonitorEvent> {
@@ -76,21 +73,12 @@ public class SasMosaicGeoServerGenerator
 //                        + events.size());
 //            FileSystemMonitorEvent event = events.remove();
             
-           
-            // //
-            // data flow configuration and dataStore name must not be null.
-            // //
             if (configuration == null) {
                 LOGGER.log(Level.SEVERE, "DataFlowConfig is null.");
                 throw new IllegalStateException("DataFlowConfig is null.");
             }
             
             final String configId = configuration.getName();
-            // ////////////////////////////////////////////////////////////////////
-            //
-            // Initializing input variables
-            //
-            // ////////////////////////////////////////////////////////////////////
             final File workingDir = IOUtils.findLocation(configuration.getWorkingDirectory(),
                     new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
 
@@ -104,16 +92,8 @@ public class SasMosaicGeoServerGenerator
                 throw new IllegalStateException("GeoServerDataDirectory is null or does not exist.");
             }
 
-			// checked by superclass
-//            if ((geoserverURL == null) || "".equals(geoserverURL)) {
-//                LOGGER.log(Level.SEVERE, "GeoServerCatalogServiceURL is null.");
-//                throw new IllegalStateException("GeoServerCatalogServiceURL is null.");
-//            }
-
-            
-            
-            String inputFileName = workingDir.getAbsolutePath();
-			String baseFileName = null;
+            final String inputFileName = workingDir.getAbsolutePath();
+	    String baseFileName = null;
             final String coverageStoreId = FilenameUtils.getBaseName(inputFileName);
 
             // //
@@ -123,11 +103,8 @@ public class SasMosaicGeoServerGenerator
             ImageMosaicReader coverageReader = null;
 
             // //
-            // Trying to read the GeoTIFF
+            // Trying to read the mosaic
             // //
-            /**
-             * GeoServer url: "file:data/" + coverageStoreId + "/" + geoTIFFFileName
-             */
             try {
                 coverageReader = (ImageMosaicReader) format.getReader(workingDir);
 
@@ -152,7 +129,7 @@ public class SasMosaicGeoServerGenerator
             // SENDING data to GeoServer via REST protocol.
             //
             // ////////////////////////////////////////////////////////////////////
-            Map<String, String> queryParams = new HashMap<String, String>();
+            final Map<String, String> queryParams = new HashMap<String, String>();
             queryParams.put("namespace",	getConfiguration().getDefaultNamespace());
             queryParams.put("wmspath",		getConfiguration().getWmsPath());
             send(workingDir,
@@ -176,6 +153,9 @@ public class SasMosaicGeoServerGenerator
 
 
     /**
+     * Sending data to geoserver via REST protocol
+     *
+     * 
      */
     public void send(final File inputDataDir, final File data, final String geoserverBaseURL,
             final String timeStamp, final String coverageStoreId, final String storeFilePrefix,
@@ -212,7 +192,6 @@ public class SasMosaicGeoServerGenerator
                                         getConfiguration().getGeoserverUID(),
                                         getConfiguration().getGeoserverPWD());
         }
-
 
         if (sent) {
             LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");

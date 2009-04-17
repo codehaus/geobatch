@@ -35,9 +35,7 @@ import java.util.logging.Logger;
 /**
  * Comments here ...
  * 
- * @author
- * 
- * @version $ ShapeFileDTOProducerSPI.java $ Revision: x.x $ 19/feb/07 16:16:13
+ * @author Daniele Romagnoli, GeoSolutions
  */
 public class SasMosaicGeoServerGeneratorService extends
         GeoServerConfiguratorService<FileSystemMonitorEvent, GeoServerActionConfiguration> {
@@ -59,5 +57,4 @@ public class SasMosaicGeoServerGeneratorService extends
         final boolean superRetVal = super.canCreateAction(configuration);
         return superRetVal;
     }
-
 }
