@@ -23,6 +23,7 @@
 package it.geosolutions.geobatch.mosaic;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
+import it.geosolutions.geobatch.base.BaseImageProcessingConfiguration;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
@@ -32,9 +33,16 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -77,9 +85,6 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
     private final static Logger LOGGER = Logger.getLogger(AbstractMosaicer.class
             .toString());
 
-    public static final String MOSAIC_PREFIX = "rawm_";
-    public static final String BALANCED_PREFIX = "balm_";
-    
     public AbstractMosaicer(MosaicerConfiguration configuration) throws IOException {
         this.configuration = configuration;
     }
@@ -125,14 +130,14 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
                 //
                 // //
                 final String outputDirectory = buildOutputDirName(directory);
-                final String outputBalanced = outputDirectory.replace(MOSAIC_PREFIX, BALANCED_PREFIX);
+//                final String outputBalanced = outputDirectory.replace(MOSAIC_PREFIX, BALANCED_PREFIX);
                 final File dir = new File(outputDirectory);
-                final File balDir = new File(outputBalanced);
+//                final File balDir = new File(outputBalanced);
                 configuration.setMosaicDirectory(outputDirectory);
                 if (!dir.exists())
                     dir.mkdir();
-                if(!balDir.exists())
-                    balDir.mkdir();
+//                if(!balDir.exists())
+//                    balDir.mkdir();
 
                 if (files != null) {
                     final int numFiles = files.length;
@@ -191,41 +196,40 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
                             .getGridCoverageFactory(null);
 
                     // read them all
-                    final List<GridCoverage2D> coverages = new ArrayList<GridCoverage2D>();
-                    for (File file : files) {
-                        final String path = file.getAbsolutePath()
-                                .toLowerCase();
-                        if (!path.endsWith("tif"))
-                            continue;
-
+                    final List<GridCoverage2D> coverages = new LinkedList<GridCoverage2D>();
+                    
+                    final Map<String,File> sortedFiles = sortFilesByPing(files);
+                    
+                    final Iterator<String> it = sortedFiles.keySet().iterator();
+                    while (it.hasNext()){
+                        final File file = sortedFiles.get(it.next());
                         final GeoTiffReader reader = new GeoTiffReader(file,
                                 null);
-
                         final GridCoverage2D gc = (GridCoverage2D) reader.read(null);
                         coverages.add(gc);
                         updates(gc);
                         reader.dispose();
                     }
                     
-                    RenderedImage mosaicImage = createMosaic(coverages,world2GridTransform);
-                    RenderedImage balancedMosaic = balanceMosaic(mosaicImage);
+                    final RenderedImage mosaicImage = createMosaic(coverages,world2GridTransform);
+                    final RenderedImage balancedMosaic = balanceMosaic(mosaicImage);
                     
-                    GridCoverage2D balancedGc = coverageFactory.create("balanced", balancedMosaic, globEnvelope);
+                    final GridCoverage2D balancedGc = coverageFactory.create("balanced", balancedMosaic, globEnvelope);
                     LOGGER.log(Level.INFO, "Retiling the balanced mosaic");
                     retileMosaic(balancedGc, chunkW, chunkH, tileW, tileH,
-                            compressionRatio, compressionType, outputBalanced);
+                            compressionRatio, compressionType, outputDirectory);
 
                     
-                    GridCoverage2D gc = coverageFactory.create("mosaiced", mosaicImage, globEnvelope);
-
-                    // //
-                    //
-                    // Retiling Mosaic to smaller Coverages
-                    //
-                    // //
-                    LOGGER.log(Level.INFO, "Retiling the raw mosaic");
-                    retileMosaic(gc, chunkW, chunkH, tileW, tileH,
-                            compressionRatio, compressionType, outputDirectory);
+//                    GridCoverage2D gc = coverageFactory.create("mosaiced", mosaicImage, globEnvelope);
+//
+//                    // //
+//                    //
+//                    // Retiling Mosaic to smaller Coverages
+//                    //
+//                    // //
+//                    LOGGER.log(Level.INFO, "Retiling the raw mosaic");
+//                    retileMosaic(gc, chunkW, chunkH, tileW, tileH,
+//                            compressionRatio, compressionType, outputDirectory);
 
                 }
             }
@@ -236,6 +240,29 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
                 LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
             return null;
         }
+    }
+
+    private Map<String,File> sortFilesByPing(final File[] files) {
+        final Map<String,File> treeMap = new TreeMap<String, File>(java.util.Collections.reverseOrder());
+        final DecimalFormat nf = new DecimalFormat("0000000000");
+        
+        for (File file : files) {
+            final String path = file.getAbsolutePath()
+                    .toLowerCase();
+            if (!path.endsWith("tif"))
+                continue;
+            
+            final String name = file.getName();
+            final String[] dashes = name.split("_");
+            
+            //TODO: Files are in the form: 
+            // MUSCLE_COL2_090316_1_1_p_2_143_40_150
+            // Improve this ordering logic, leveraging on metadata
+            
+            final String number = nf.format(Integer.parseInt(dashes[6]));
+            treeMap.put(number,file);
+        } 
+        return treeMap;
     }
 
     /** Update some internal machinery to optimize balancing computations */
@@ -251,7 +278,7 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
         final int nCov = coverages.size();
 
         final ParameterBlockJAI pbMosaic = new ParameterBlockJAI("Mosaic");
-        pbMosaic.setParameter("mosaicType", MosaicDescriptor.MOSAIC_TYPE_BLEND);
+        pbMosaic.setParameter("mosaicType", MosaicDescriptor.MOSAIC_TYPE_OVERLAY);
 
         if (LOGGER.isLoggable(Level.INFO))
         	LOGGER.log(Level.INFO, new StringBuffer("Found ").append(nCov).append(" tiles").toString());
@@ -269,7 +296,7 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
             pbMosaic.addSource(affine);
         }
 
-        RenderedOp mosaicImage = JAI.create("Mosaic", pbMosaic);
+        final RenderedOp mosaicImage = JAI.create("Mosaic", pbMosaic);
         return mosaicImage;
     }
 
@@ -374,41 +401,16 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
             LOGGER.log(Level.INFO, new StringBuilder("Adding overviews: File ").append(nOverviewsDone).
                     append(" of ").append(nFiles).toString());
             nOverviewsDone++;
-            addOverviews(fileOverviews);
+				BaseImageProcessingConfiguration.addOverviews(fileOverviews,
+						configuration.getDownsampleStep(),configuration.getNumSteps(),
+						configuration.getScaleAlgorithm(),configuration.getCompressionScheme(),
+						configuration.getCompressionRatio(),configuration.getTileW(),
+						configuration.getTileH());
         }
     }
 
     protected abstract String buildFileName(String outputLocation, int i, int j,
             int chunkWidth) ;
-
-    private void addOverviews(final String inputFileName) {
-        final int downsampleStep = configuration.getDownsampleStep();
-        if (downsampleStep <= 0)
-            throw new IllegalArgumentException("Illegal downsampleStep: "
-                    + downsampleStep);
-        final int numberOfSteps = configuration.getNumSteps();
-        if (numberOfSteps <= 0)
-            throw new IllegalArgumentException("Illegal numberOfSteps: "
-                    + numberOfSteps);
-
-        final OverviewsEmbedder oe = new OverviewsEmbedder();
-        oe.setDownsampleStep(downsampleStep);
-        oe.setNumSteps(numberOfSteps);
-        oe.setInterp(Interpolation.getInstance(Interpolation.INTERP_NEAREST));
-        oe.setScaleAlgorithm(configuration.getScaleAlgorithm());
-        oe.setTileHeight(configuration.getTileH());
-        oe.setTileWidth(configuration.getTileW());
-        oe.setSourcePath(inputFileName);
-        final String compressionScheme = configuration.getCompressionScheme();
-        final double compressionRatio = configuration.getCompressionRatio();
-        if (compressionScheme != null
-                && !Double.isNaN(compressionRatio)) {
-            oe.setCompressionRatio(compressionRatio);
-            oe.setCompressionScheme(compressionScheme);
-        }
-       
-        oe.run();
-    }
 
     public ActionConfiguration getConfiguration() {
         return configuration;

@@ -121,6 +121,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             final String outputFormat = configuration.getOutputFormat();
             final int downsampleStep = configuration.getDownsampleStep();
             final int numSteps = configuration.getNumSteps();
+            final String scaleAlgorithm = configuration.getScaleAlgorithm();
             final int tileH = configuration.getTileH();
             final int tileW = configuration.getTileW();
             final int chunkW = configuration.getChunkW();
@@ -199,15 +200,40 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                                       
                                       //Compose the mosaic.
                                       final String mosaicTobeIngested = composeMosaic(leafPath,outputDir.toString(), compressionRatio, compressionScheme,
-                                              inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, chunkW, chunkH,initTime);
+                                              inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, scaleAlgorithm, chunkW, chunkH, initTime,
+                                              configuration.getGeoserverURL(),configuration.getGeoserverUID(),configuration.getGeoserverPWD(),
+                                              configuration.getGeoserverUploadMethod());
+                                      if (mosaicTobeIngested != null && mosaicTobeIngested.trim().length()>0){
                                       
-                                      //Ingest the mosaics (balanced and raw) with the assumption that their path differ only in the prefix.
-                                      //AS an instance: 
-                                      // c:\data\010101\mission1\leg1\stbd\rawm_010101_mission1_leg1_stbd
-                                      // c:\data\010101\mission1\leg1\stbd\balm_010101_mission1_leg1_stbd
                                       
-                                      ingestMosaic(mosaicTobeIngested, Mosaicer.RAW_PREFIX);
-                                      ingestMosaic(mosaicTobeIngested.replace(Mosaicer.RAW_PREFIX, Mosaicer.BALANCED_PREFIX), Mosaicer.BALANCED_PREFIX);
+	                                      //Ingest the mosaics (balanced and raw) with the assumption that their path differ only in the prefix.
+	                                      //AS an instance: 
+	                                      // c:\data\010101\mission1\leg1\stbd\rawm_010101_mission1_leg1_stbd
+	                                      // c:\data\010101\mission1\leg1\stbd\balm_010101_mission1_leg1_stbd
+	                                      final String style = SasMosaicGeoServerGenerator.SAS_STYLE;
+	//                                      if (prefix.equalsIgnoreCase(Mosaicer.MOSAIC_PREFIX)){
+	//                                          style = SasMosaicGeoServerGenerator.SAS_STYLE;
+	//                                      }
+	//                                      else{
+	//                                          style = SasMosaicGeoServerGenerator.DEFAULT_STYLE;
+	//                                      }
+	                                      
+	                                      final int index = mosaicTobeIngested.lastIndexOf(Mosaicer.MOSAIC_PREFIX);
+	                                            
+	                                            //Setting up the wmspath.
+	                                            //Actually it is set by simply changing mosaic's name underscores to slashes.
+	                                            //TODO: can be improved
+	                                      final String path = mosaicTobeIngested.substring(index + Mosaicer.MOSAIC_PREFIX.length(), mosaicTobeIngested.length());
+	                                      final String wmsPath = new StringBuilder("/").append(path.replace("_","/")).toString();
+	                                      
+	                                      SasMosaicGeoServerGenerator.ingest(mosaicTobeIngested, wmsPath,configuration.getGeoserverURL(),configuration.getGeoserverUID()
+	                                    		  ,configuration.getGeoserverPWD(),configuration.getGeoserverURL(), style, "imagemosaic"
+	                                    		  );
+                                      	}
+                                      	else{
+                                      		if (LOGGER.isLoggable(Level.WARNING))
+                                      			LOGGER.log(Level.WARNING, "unable to build a mosaic for the following dataset:" + leafPath);
+                                      	}
                                     }
                                 }
                             }
@@ -269,51 +295,6 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         }
     }
 
-    /**
-     * Setup a Geoserver Ingestion action to send the mosaic to Geoserver via REST 
-     * @param mosaicToBeIngested the location of the mosaic to be ingested 
-     * @param prefix one of {@link Mosaicer#BALANCED_PREFIX} or {@link Mosaicer#RAW_PREFIX}
-     * @throws Exception
-     */
-    private void ingestMosaic(final String mosaicToBeIngested, final String prefix) throws Exception{
-      final String location = mosaicToBeIngested;
-      final int index = location.lastIndexOf(prefix);
-      
-      //Setting up the wmspath.
-      //Actually it is set by simply changing mosaic's name underscores to slashes.
-      //TODO: can be improved
-      final String path = location.substring(index + prefix.length(), location.length());
-      final String wmsPath = new StringBuilder("/").append(path.replace("_","/")).toString();
-      
-      // //
-      //
-      // Setting up the GeoserverActionConfiguration properties
-      //
-      // //
-      final GeoServerActionConfiguration geoserverConfig = new GeoServerActionConfiguration();
-      geoserverConfig.setGeoserverURL(configuration.getGeoserverURL());
-      geoserverConfig.setGeoserverUID(configuration.getGeoserverUID());
-      geoserverConfig.setGeoserverPWD(configuration.getGeoserverPWD());
-      geoserverConfig.setDataTransferMethod(configuration.getGeoserverUploadMethod());
-      geoserverConfig.setWorkingDirectory(mosaicToBeIngested);
-      geoserverConfig.setWmsPath(wmsPath);
-      
-      //Setting styles
-      final String style;
-      if (prefix.equalsIgnoreCase(Mosaicer.BALANCED_PREFIX)){
-          style = SasMosaicGeoServerGenerator.SAS_STYLE;
-      }
-      else{
-          style = SasMosaicGeoServerGenerator.DEFAULT_STYLE;
-      }
-      geoserverConfig.setDefaultStyle(style);
-      final List<String> styles = new ArrayList<String>();
-      styles.add(style);
-      geoserverConfig.setStyles(styles);
-      
-      final SasMosaicGeoServerGenerator geoserverIngestion  = new SasMosaicGeoServerGenerator(geoserverConfig);
-      geoserverIngestion.execute(null);
-    }
 
     /**
      * Compose a mosaic using the set of specified parameters.
@@ -331,14 +312,18 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
      * @param chunkW the width of each separated file composing the big final mosaic
      * @param chunkH the height of each separated file composing the big final mosaic
      * @param time the time of the tiles composing that mission. (Used to setup the output folder)
+     * @param geoserverURL 
+     * @param geoserverUID 
+     * @param geoserverPWD 
+     * @param geoserverUploadMethod 
      * @return the location where the mosaic have been created
      * @throws Exception
      */
     private String composeMosaic(final String directory, final String outputDir,
             final double compressionRatio, final String compressionScheme, 
             final String inputFormats, String outputFormat, final int tileW, final int tileH, 
-            final int numSteps, final int downsampleStep, final int chunkW, final int chunkH,
-            final String time) throws Exception {
+            final int numSteps, final int downsampleStep, final String scaleAlgorithm, final int chunkW, final int chunkH,
+            final String time, final String geoserverURL, final String geoserverUID, final String geoserverPWD, final String geoserverUploadMethod) throws Exception {
         
         
         // //
@@ -355,13 +340,26 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         converterConfig.setCompressionScheme(compressionScheme);
         converterConfig.setInputFormats(inputFormats);
         converterConfig.setOutputFormat(outputFormat);
+        converterConfig.setDownsampleStep(downsampleStep);
+        converterConfig.setScaleAlgorithm(scaleAlgorithm);
+        converterConfig.setNumSteps(numSteps);
         converterConfig.setTileH(tileH);
         converterConfig.setTileW(tileW);
+        converterConfig.setTime(time);
+        converterConfig.setGeoserverURL(geoserverURL);
+        converterConfig.setGeoserverUID(geoserverUID);
+        converterConfig.setGeoserverPWD(geoserverPWD);
+        converterConfig.setGeoserverUploadMethod(geoserverUploadMethod);
         LOGGER.log(Level.INFO, "Ingesting MatFiles in the mosaic composer");
         
         final FormatConverter converter = new FormatConverter(converterConfig);
-        converter.execute(null);
+        Queue<FileSystemMonitorEvent> proceed = converter.execute(null);
         
+        if (proceed == null){
+        	if (LOGGER.isLoggable(Level.SEVERE))
+        		LOGGER.log(Level.SEVERE, "Unable to proceed with the mosaic composition due to problems occurred during conversion");
+        	return "";
+        }
         // //
         //
         // Second step: Mosaic
@@ -374,6 +372,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         mosaicerConfig.setDescription("Mosaic composer");
         mosaicerConfig.setNumSteps(numSteps);
         mosaicerConfig.setDownsampleStep(downsampleStep);
+        mosaicerConfig.setScaleAlgorithm(scaleAlgorithm);
         mosaicerConfig.setWorkingDirectory(outputDir);
         mosaicerConfig.setTileH(tileH);
         mosaicerConfig.setTileW(tileW);
@@ -383,7 +382,12 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 
         LOGGER.log(Level.INFO, "Mosaic Composition");
         final Mosaicer mosaicer = new Mosaicer(mosaicerConfig);
-        mosaicer.execute(null);
+        proceed = mosaicer.execute(null);
+        if (proceed == null){
+        	if (LOGGER.isLoggable(Level.SEVERE))
+        		LOGGER.log(Level.SEVERE, "Unable to proceed with the mosaic ingestion due to problems occurred during mosaic composition");
+        	return "";
+        }
         return mosaicerConfig.getMosaicDirectory();
     }
 
