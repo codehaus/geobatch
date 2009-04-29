@@ -28,8 +28,6 @@ import java.io.File;
 
 import javax.media.jai.Interpolation;
 
-import org.geotools.utils.CoverageToolsConstants;
-
 public abstract class BaseImageProcessingConfiguration extends ActionConfiguration
 		implements Configuration {
 
@@ -39,8 +37,8 @@ public abstract class BaseImageProcessingConfiguration extends ActionConfigurati
 	private int numSteps;
 	/** Scale algorithm. */
 	private String scaleAlgorithm;
-	private double compressionRatio = CoverageToolsConstants.DEFAULT_COMPRESSION_RATIO;
-	private String compressionScheme = CoverageToolsConstants.DEFAULT_COMPRESSION_SCHEME;
+	private double compressionRatio = 0.75f;
+	private String compressionScheme = "LZW";
 	/** Tile height. */
 	private int tileH = -1;
 	/** Tile width. */
