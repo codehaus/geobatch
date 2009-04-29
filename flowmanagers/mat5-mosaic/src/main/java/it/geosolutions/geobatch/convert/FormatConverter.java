@@ -23,19 +23,17 @@
 package it.geosolutions.geobatch.convert;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
+import it.geosolutions.geobatch.base.BaseImageProcessingConfiguration;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
+import it.geosolutions.geobatch.geoserver.matfile5.sas.SasMosaicGeoServerGenerator;
 
-import java.awt.RenderingHints;
 import java.io.File;
 import java.io.IOException;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.media.jai.ImageLayout;
-import javax.media.jai.JAI;
 
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.coverage.grid.GridCoverage2D;
@@ -43,9 +41,7 @@ import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.coverage.grid.io.UnknownFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
-import org.geotools.factory.Hints;
 import org.opengis.coverage.grid.Format;
-import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.parameter.GeneralParameterValue;
@@ -59,6 +55,8 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
         implements Action<FileSystemMonitorEvent> {
 
     private FormatConverterConfiguration configuration;
+    
+    private final String RAW_STYLE = "sas";
 
     private final static Logger LOGGER = Logger.getLogger(FormatConverter.class
             .toString());
@@ -157,8 +155,32 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
                         if (LOGGER.isLoggable(Level.INFO))
                             LOGGER.log(Level.INFO, new StringBuilder(
                                     "Converting file N. ").append(i + 1)
-                                    .append(":").append(name).toString());
-                        convert(file, fileOutputName);
+                                    .append(":").append(path).toString());
+                        final File outFile = new File(fileOutputName);
+                        convert(file, outFile);
+                        BaseImageProcessingConfiguration.addOverviews(fileOutputName,
+        						configuration.getDownsampleStep(),configuration.getNumSteps(),
+        						configuration.getScaleAlgorithm(),configuration.getCompressionScheme(),
+        						configuration.getCompressionRatio(),configuration.getTileW(),
+        						configuration.getTileH());
+                        
+                        String runName = BaseImageProcessingConfiguration.buildRunName(outFile.getParent(), 
+                        		configuration.getTime(), "");
+                        
+                        int index = runName.lastIndexOf(File.separatorChar);
+                        if (index == runName.length()-1){
+                        	runName = runName.substring(0,runName.length()-1);
+                        	index = runName.lastIndexOf(File.separatorChar);
+                        }
+                        
+                        //Setting up the wmspath.
+                        //Actually it is set by simply changing mosaic's name underscores to slashes.
+                        //TODO: can be improved
+                        final String filePath = runName.substring(index+1, runName.length());
+                        final String wmsPath = new StringBuilder("/").append(filePath.replace("_","/")).toString();
+                        SasMosaicGeoServerGenerator.ingest(fileOutputName, wmsPath, configuration.getGeoserverURL(), 
+                        		configuration.getGeoserverUID(), configuration.getGeoserverPWD(), 
+                        		configuration.getGeoserverUploadMethod(), RAW_STYLE, "geotiff");
 
                     }
                 }
@@ -192,11 +214,11 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
      * Convert the specified file and write it to the specified output file name.
      * 
      * @param file
-     * @param outputFileName
+     * @param outputFile
      * @throws IllegalArgumentException
      * @throws IOException
      */
-    private void convert(final File file, final String outputFileName)
+    private void convert(final File file, final File outputFile)
             throws IllegalArgumentException, IOException {
 
         // //
@@ -210,18 +232,12 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 
             final int tileW = configuration.getTileW();
             final int tileH = configuration.getTileH();
-            final ImageLayout l = new ImageLayout();
-            l.setTileGridXOffset(0).setTileGridYOffset(0).setTileHeight(512)
-                    .setTileWidth(512);
-
-            Hints hints = new Hints();
-            hints.add(new RenderingHints(JAI.KEY_IMAGE_LAYOUT, l));
             // //
             //
             // Reading the coverage
             // 
             // //
-            final GridCoverageReader reader = gridFormat.getReader(file, hints);
+            final GridCoverageReader reader = gridFormat.getReader(file, null);
 
             final GridCoverage2D gc = (GridCoverage2D) reader.read(null);
 
@@ -233,8 +249,8 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
             final AbstractGridFormat writerFormat = (AbstractGridFormat) acquireFormatByName(outputFormatType);
 
             if (!(writerFormat instanceof UnknownFormat)) {
-                GridCoverageWriter writer = writerFormat.getWriter(new File(
-                        outputFileName));
+                GridCoverageWriter writer = writerFormat.getWriter(
+                        outputFile);
 
                 GeoToolsWriteParams params = null;
                 ParameterValueGroup wparams = null;

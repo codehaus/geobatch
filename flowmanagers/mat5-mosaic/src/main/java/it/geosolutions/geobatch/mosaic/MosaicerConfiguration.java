@@ -22,17 +22,17 @@
 
 package it.geosolutions.geobatch.mosaic;
 
+import it.geosolutions.geobatch.base.BaseImageProcessingConfiguration;
 import it.geosolutions.geobatch.catalog.Configuration;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 
-import org.geotools.utils.CoverageToolsConstants;
 
 /**
  * Comments here ...
  * 
  * @author Daniele Romagnoli, GeoSolutions
  */
-public class MosaicerConfiguration extends ActionConfiguration implements
+public class MosaicerConfiguration extends BaseImageProcessingConfiguration implements
         Configuration {
 
     private String mosaicDirectory;
@@ -45,38 +45,15 @@ public class MosaicerConfiguration extends ActionConfiguration implements
         this.mosaicDirectory = mosaicDirectory;
     }
 
-    private String workingDirectory;
-
-    private double compressionRatio = Double.NaN;
-
-    private String compressionScheme = CoverageToolsConstants.DEFAULT_COMPRESSION_SCHEME;
-
     private int chunkWidth = 5120;
 
     private int chunkHeight = 5120;
 
     private int chunkSize;
 
-    /** Downsampling step. */
-    private int downsampleStep = 2;
-
-    private int numSteps;
-
-    /** Scale algorithm. */
-    private String scaleAlgorithm = "nn";
-
-    /** Tile height. */
-    private int tileH = 512;
-
-    /** Tile width. */
-    private int tileW = 512;
-
-    private String serviceID;
-
     private int tileSizeLimit;
 
-    /** the time String prefix of the directory containing that mosaic */
-    private String time = "";
+    
 
     public MosaicerConfiguration() {
         super();
@@ -87,72 +64,7 @@ public class MosaicerConfiguration extends ActionConfiguration implements
         super(id, name, description, dirty);
         // TODO Auto-generated constructor stub
     }
-
-    /**
-     * @return the workingDirectory
-     */
-    public String getWorkingDirectory() {
-        return workingDirectory;
-    }
-
-    /**
-     * @param workingDirectory
-     *                the workingDirectory to set
-     */
-    public void setWorkingDirectory(String workingDirectory) {
-        this.workingDirectory = workingDirectory;
-    }
-
-    public final double getCompressionRatio() {
-        return compressionRatio;
-    }
-
-    public final String getCompressionScheme() {
-        return compressionScheme;
-    }
-
-    public int getTileH() {
-        return tileH;
-    }
-
-    public int getTileW() {
-        return tileW;
-    }
-
-    public void setTime(final String time) {
-        this.time = time;
-    }
-
-    public void setCompressionRatio(final double compressionRatio) {
-        this.compressionRatio = compressionRatio;
-    }
-
-    public void setCompressionScheme(final String compressionScheme) {
-        this.compressionScheme = compressionScheme;
-    }
-
-    public void setTileH(final int tileH) {
-        this.tileH = tileH;
-    }
-
-    public void setTileW(final int tileW) {
-        this.tileW = tileW;
-    }
-
-    /**
-     * @return the serviceID
-     */
-    public String getServiceID() {
-        return serviceID;
-    }
-
-    /**
-     * @param serviceID
-     *                the serviceID to set
-     */
-    public void setServiceID(final String serviceID) {
-        this.serviceID = serviceID;
-    }
+    /** the time String prefix of the directory containing that mosaic */
 
     @Override
     public String toString() {
@@ -166,30 +78,6 @@ public class MosaicerConfiguration extends ActionConfiguration implements
 
     public void setTileSizeLimit(final int tileSizeLimit) {
         this.tileSizeLimit = tileSizeLimit;
-    }
-
-    public int getDownsampleStep() {
-        return downsampleStep;
-    }
-
-    public void setDownsampleStep(final int downsampleStep) {
-        this.downsampleStep = downsampleStep;
-    }
-
-    public int getNumSteps() {
-        return numSteps;
-    }
-
-    public void setNumSteps(final int numSteps) {
-        this.numSteps = numSteps;
-    }
-
-    public String getScaleAlgorithm() {
-        return scaleAlgorithm;
-    }
-
-    public void setScaleAlgorithm(final String scaleAlgorithm) {
-        this.scaleAlgorithm = scaleAlgorithm;
     }
 
     public int getChunkWidth() {
@@ -223,21 +111,18 @@ public class MosaicerConfiguration extends ActionConfiguration implements
         configuration.setChunkHeight(chunkHeight);
         configuration.setChunkWidth(chunkWidth);
         configuration.setChunkSize(chunkSize);
-        configuration.setCompressionRatio(compressionRatio);
-        configuration.setCompressionScheme(compressionScheme);
-        configuration.setDownsampleStep(downsampleStep);
+        configuration.setCompressionRatio(getCompressionRatio());
+        configuration.setCompressionScheme(getCompressionScheme());
+        configuration.setDownsampleStep(getDownsampleStep());
         configuration.setMosaicDirectory(mosaicDirectory);
-        configuration.setNumSteps(numSteps);
-        configuration.setScaleAlgorithm(scaleAlgorithm);
-        configuration.setServiceID(serviceID);
-        configuration.setTileH(tileH);
-        configuration.setTileW(tileW);
+        configuration.setNumSteps(getNumSteps());
+        configuration.setScaleAlgorithm(getScaleAlgorithm());
+        configuration.setServiceID(getServiceID());
+        configuration.setTileH(getTileH());
+        configuration.setTileW(getTileW());
         configuration.setTileSizeLimit(tileSizeLimit);
-        configuration.setWorkingDirectory(workingDirectory);
+        configuration.setWorkingDirectory(getWorkingDirectory());
         return configuration;
     }
 
-    public String getTime() {
-        return time;
-    }
 }

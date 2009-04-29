@@ -23,12 +23,12 @@
 package it.geosolutions.geobatch.mosaic;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
+import it.geosolutions.geobatch.base.BaseImageProcessingConfiguration;
 import it.geosolutions.geobatch.flow.event.action.Action;
 
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
-import java.io.File;
 import java.io.IOException;
 
 import javax.media.jai.JAI;
@@ -50,11 +50,14 @@ public class Mosaicer extends AbstractMosaicer implements
 
     static{
         final String cl = System.getenv("SAS_COMPUTE_LOG");
-        IMAGE_IS_LINEAR = !Boolean.parseBoolean(cl);
+        if (cl!=null && cl.trim().length()>0)
+        	IMAGE_IS_LINEAR = !Boolean.parseBoolean(cl);
+        else 
+        	IMAGE_IS_LINEAR = false;
     }
     
-    public static final String RAW_PREFIX = "rawm_";
-    public static final String BALANCED_PREFIX = "balm_";
+    public static final String MOSAIC_PREFIX = "balm_";
+//    public static final String BALANCED_PREFIX = "balm_";
     
     private double extrema[] = new double[]{Double.MAX_VALUE,Double.MIN_VALUE} ;
 
@@ -138,64 +141,13 @@ public class Mosaicer extends AbstractMosaicer implements
 //        return applyContrastEnhancement(destImage);
     }
     
-//    private RenderedImage applyContrastEnhancement(RenderedImage image){
-//        
-//        GridCoverage2D gc = CoverageFactoryFinder.getGridCoverageFactory(null)
-//        .create(
-//                        "name",
-//                        image, 
-//                        new GeneralEnvelope(new double[] { -90, -180 },
-//                                        new double[] { 90, 180 }));
-//
-//        // the RasterSymbolizer Helper
-//        SubchainStyleVisitorCoverageProcessingAdapter rsh_StyleBuilder = new RasterSymbolizerHelper(gc, null);
-//        // build the RasterSymbolizer
-//        StyleBuilder sldBuilder = new StyleBuilder();
-//        // the RasterSymbolizer Helper
-//        rsh_StyleBuilder = new RasterSymbolizerHelper(gc, null);
-//
-//        final RasterSymbolizer rsb_1 = sldBuilder.createRasterSymbolizer();
-//        final ChannelSelection chSel = new ChannelSelectionImpl();
-//        final SelectedChannelType chTypeGray = new SelectedChannelTypeImpl();
-//        final ContrastEnhancement cntEnh = new ContrastEnhancementImpl();
-//
-//        cntEnh.setLogarithmic();
-//        
-//        chTypeGray.setChannelName("1");
-//        chTypeGray.setContrastEnhancement(cntEnh);
-//        chSel.setGrayChannel(chTypeGray);
-//        rsb_1.setChannelSelection(chSel);
-//        rsb_1.setOpacity(sldBuilder.literalExpression(1.0));
-//        rsb_1.setOverlap(sldBuilder.literalExpression("AVERAGE"));
-//        
-//        // visit the RasterSymbolizer
-//        rsh_StyleBuilder.visit(rsb_1);
-//        return ((GridCoverage2D)rsh_StyleBuilder.getOutput()).getRenderedImage();
-//    }
-
-
     /**
      * 
      * @param outputLocation
      * @return
      */
     protected String buildOutputDirName(final String outputLocation){
-    	String dirName = "";
-    	final File outputDir = new File(outputLocation);
-         final String channelName = outputDir.getName();
-         final String leg = outputDir.getParent();
-         final File legF = new File(leg);
-         final String legName = legF.getName();
-         final String mission = legF.getParent();
-         final File missionF = new File(mission);
-         final String missionName = missionF.getName();
-         final String time = configuration.getTime();
-         dirName = new StringBuilder(outputLocation).append(File.separatorChar).append(RAW_PREFIX)
-         .append(time).append("_")
-         .append(missionName).append("_L")
-         .append(legName.substring(3,legName.length())).append("_")
-         .append(channelName.substring(0,1)).append(File.separatorChar).toString();
-         return dirName;
+    	return BaseImageProcessingConfiguration.buildRunName(outputLocation, configuration.getTime(), MOSAIC_PREFIX);
     }
     
     protected String buildFileName(final String outputLocation, final int i, final int j,

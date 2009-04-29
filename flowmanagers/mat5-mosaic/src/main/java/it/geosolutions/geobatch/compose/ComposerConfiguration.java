@@ -22,17 +22,17 @@
 
 package it.geosolutions.geobatch.compose;
 
+import it.geosolutions.geobatch.base.BaseImageProcessingConfiguration;
 import it.geosolutions.geobatch.catalog.Configuration;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 
-import org.geotools.utils.CoverageToolsConstants;
 
 /**
  * Comments here ...
  * 
  * @author Daniele Romagnoli, GeoSolutions
  */
-public class ComposerConfiguration extends ActionConfiguration implements
+public class ComposerConfiguration extends BaseImageProcessingConfiguration implements
         Configuration {
 
     private final static long DEFAULT_JAI_CACHE_CAPACITY = 128 * 1024 * 1024;
@@ -49,15 +49,11 @@ public class ComposerConfiguration extends ActionConfiguration implements
 
     private String outputFormat;
 
-    private String workingDirectory;
-
     private String outputBaseFolder;
 
     private String leavesFolders;
 
     private String inputFormats;
-
-    private String serviceID;
 
     private String geoserverURL;
 
@@ -66,24 +62,6 @@ public class ComposerConfiguration extends ActionConfiguration implements
     private String geoserverPWD;
 
     private String geoserverUploadMethod;
-
-    private double compressionRatio = CoverageToolsConstants.DEFAULT_COMPRESSION_RATIO;
-
-    private String compressionScheme = CoverageToolsConstants.DEFAULT_COMPRESSION_SCHEME;
-    
-    /** Downsampling step. */
-    private int downsampleStep;
-
-    private int numSteps;
-
-    /** Scale algorithm. */
-    private String scaleAlgorithm;
-
-    /** Tile height. */
-    private int tileH = -1;
-
-    /** Tile width. */
-    private int tileW = -1;
 
     private int chunkW = 10240;
     
@@ -149,92 +127,6 @@ public class ComposerConfiguration extends ActionConfiguration implements
         this.chunkH = chunkH;
     }
 
-    public final double getCompressionRatio() {
-        return compressionRatio;
-    }
-
-    public final String getCompressionScheme() {
-        return compressionScheme;
-    }
-
-    public int getDownsampleStep() {
-        return downsampleStep;
-    }
-
-    public String getScaleAlgorithm() {
-        return scaleAlgorithm;
-    }
-
-    public int getTileH() {
-        return tileH;
-    }
-
-    public int getTileW() {
-        return tileW;
-    }
-
-    public void setCompressionRatio(double compressionRatio) {
-        this.compressionRatio = compressionRatio;
-    }
-
-    public void setCompressionScheme(String compressionScheme) {
-        this.compressionScheme = compressionScheme;
-    }
-
-    public void setDownsampleStep(int downsampleWH) {
-        this.downsampleStep = downsampleWH;
-    }
-
-    public void setScaleAlgorithm(String scaleAlgorithm) {
-        this.scaleAlgorithm = scaleAlgorithm;
-    }
-
-    public void setTileH(int tileH) {
-        this.tileH = tileH;
-    }
-
-    public void setTileW(int tileW) {
-        this.tileW = tileW;
-    }
-
-    public int getNumSteps() {
-        return numSteps;
-    }
-
-    public void setNumSteps(int numSteps) {
-        this.numSteps = numSteps;
-    }
-
-    /**
-     * @return the workingDirectory
-     */
-    public String getWorkingDirectory() {
-        return workingDirectory;
-    }
-
-    /**
-     * @param workingDirectory
-     *                the workingDirectory to set
-     */
-    public void setWorkingDirectory(String workingDirectory) {
-        this.workingDirectory = workingDirectory;
-    }
-
-    /**
-     * @return the serviceID
-     */
-    public String getServiceID() {
-        return serviceID;
-    }
-
-    /**
-     * @param serviceID
-     *                the serviceID to set
-     */
-    public void setServiceID(String serviceID) {
-        this.serviceID = serviceID;
-    }
-
     public String getOutputFormat() {
         return outputFormat;
     }
@@ -292,27 +184,27 @@ public class ComposerConfiguration extends ActionConfiguration implements
     }
 
     @Override
-    public ComposerConfiguration clone() throws CloneNotSupportedException {
+    public BaseImageProcessingConfiguration clone() throws CloneNotSupportedException {
         final ComposerConfiguration configuration = new ComposerConfiguration(
                 getId(), getName(), getDescription(), isDirty());
-        configuration.setServiceID(serviceID);
+        configuration.setServiceID(getServiceID());
         configuration.setChunkH(chunkH);
         configuration.setChunkW(chunkW);
-        configuration.setCompressionRatio(compressionRatio);
-        configuration.setCompressionScheme(compressionScheme);
-        configuration.setDownsampleStep(downsampleStep);
+        configuration.setCompressionRatio(getCompressionRatio());
+        configuration.setCompressionScheme(getCompressionScheme());
+        configuration.setDownsampleStep(getDownsampleStep());
         configuration.setInputFormats(inputFormats);
         configuration.setJAICacheCapacity(JAICacheCapacity);
         configuration.setJAICacheThreshold(JAICacheThreshold);
         configuration.setJAIParallelism(JAIParallelism);
         configuration.setLeavesFolders(leavesFolders);
-        configuration.setNumSteps(numSteps);
+        configuration.setNumSteps(getNumSteps());
         configuration.setOutputBaseFolder(outputBaseFolder);
         configuration.setOutputFormat(outputFormat);
-        configuration.setScaleAlgorithm(scaleAlgorithm);
-        configuration.setTileH(tileH);
-        configuration.setTileW(tileW);
-        configuration.setWorkingDirectory(workingDirectory);
+        configuration.setScaleAlgorithm(getScaleAlgorithm());
+        configuration.setTileH(getTileH());
+        configuration.setTileW(getTileW());
+        configuration.setWorkingDirectory(getWorkingDirectory());
         configuration.setGeoserverPWD(geoserverPWD);
         configuration.setGeoserverUID(geoserverUID);
         configuration.setGeoserverUploadMethod(geoserverUploadMethod);
