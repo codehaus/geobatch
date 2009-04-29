@@ -226,7 +226,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 	                                      final String wmsPath = new StringBuilder("/").append(path.replace("_","/")).toString();
 	                                      
 	                                      SasMosaicGeoServerGenerator.ingest(mosaicTobeIngested, wmsPath,configuration.getGeoserverURL(),configuration.getGeoserverUID()
-	                                    		  ,configuration.getGeoserverPWD(),configuration.getGeoserverURL(), style, "imagemosaic"
+	                                    		  ,configuration.getGeoserverPWD(),configuration.getGeoserverUploadMethod(), style, "imagemosaic"
 	                                    		  );
                                       	}
                                       	else{
@@ -324,7 +324,6 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             final String inputFormats, String outputFormat, final int tileW, final int tileH, 
             final int numSteps, final int downsampleStep, final String scaleAlgorithm, final int chunkW, final int chunkH,
             final String time, final String geoserverURL, final String geoserverUID, final String geoserverPWD, final String geoserverUploadMethod) throws Exception {
-        
         
         // //
         //
