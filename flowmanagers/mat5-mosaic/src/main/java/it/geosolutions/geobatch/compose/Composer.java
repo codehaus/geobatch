@@ -24,7 +24,6 @@ package it.geosolutions.geobatch.compose;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
-import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.convert.FormatConverter;
 import it.geosolutions.geobatch.convert.FormatConverterConfiguration;
 import it.geosolutions.geobatch.flow.event.action.Action;
@@ -63,7 +62,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         Action<FileSystemMonitorEvent> {
 
     //TODO: TEMP SOLUTION. LEVERAGES ON REAL XML PARSING
-    private String LEG_DATA_LOCATION = "<missionLegsLocation>";
+    private String MISSION_LEGS_LOCATION = "<missionLegsLocation>";
     
     private ComposerConfiguration configuration;
 
@@ -199,7 +198,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                                       .append(leafName);
                                       
                                       //Compose the mosaic.
-                                      final String mosaicTobeIngested = composeMosaic(leafPath,outputDir.toString(), compressionRatio, compressionScheme,
+                                      final String mosaicTobeIngested = composeMosaic(events,leafPath,outputDir.toString(), compressionRatio, compressionScheme,
                                               inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, scaleAlgorithm, chunkW, chunkH, initTime,
                                               configuration.getGeoserverURL(),configuration.getGeoserverUID(),configuration.getGeoserverPWD(),
                                               configuration.getGeoserverUploadMethod());
@@ -298,6 +297,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 
     /**
      * Compose a mosaic using the set of specified parameters.
+     * @param events 
      * @param directory the directory containing raw tiles
      * 
      * @param outputDir the directory where to store the produced results.
@@ -319,7 +319,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
      * @return the location where the mosaic have been created
      * @throws Exception
      */
-    private String composeMosaic(final String directory, final String outputDir,
+    private String composeMosaic(Queue<FileSystemMonitorEvent> events, final String directory, final String outputDir,
             final double compressionRatio, final String compressionScheme, 
             final String inputFormats, String outputFormat, final int tileW, final int tileH, 
             final int numSteps, final int downsampleStep, final String scaleAlgorithm, final int chunkW, final int chunkH,
@@ -353,7 +353,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         LOGGER.log(Level.INFO, "Ingesting MatFiles in the mosaic composer");
         
         final FormatConverter converter = new FormatConverter(converterConfig);
-        Queue<FileSystemMonitorEvent> proceed = converter.execute(null);
+        Queue<FileSystemMonitorEvent> proceed = converter.execute(events);
         
         if (proceed == null){
         	if (LOGGER.isLoggable(Level.SEVERE))
@@ -382,7 +382,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 
         LOGGER.log(Level.INFO, "Mosaic Composition");
         final Mosaicer mosaicer = new Mosaicer(mosaicerConfig);
-        proceed = mosaicer.execute(null);
+        proceed = mosaicer.execute(proceed);
         if (proceed == null){
         	if (LOGGER.isLoggable(Level.SEVERE))
         		LOGGER.log(Level.SEVERE, "Unable to proceed with the mosaic ingestion due to problems occurred during mosaic composition");
@@ -403,8 +403,8 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                 final FileImageInputStream fis = new FileImageInputStream(xmlFile);
                 String location=null;
                 while ((location = fis.readLine())!=null){
-                    if (location.startsWith(LEG_DATA_LOCATION)){
-                        dataDir=location.substring(location.indexOf(LEG_DATA_LOCATION)+LEG_DATA_LOCATION.length(), location.length()-(LEG_DATA_LOCATION.length()+1));
+                    if (location.startsWith(MISSION_LEGS_LOCATION)){
+                        dataDir=location.substring(location.indexOf(MISSION_LEGS_LOCATION)+MISSION_LEGS_LOCATION.length(), location.length()-(MISSION_LEGS_LOCATION.length()+1));
                         break;
                     }
                 }

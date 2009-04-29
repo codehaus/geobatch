@@ -208,7 +208,7 @@ public class SasMosaicGeoServerGenerator
         } else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
             geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
                     + "/layers/" + layerName
-                    + "/url." + type);
+                    + "/url." + type + "?" + getQueryString(queryParams)); 
             sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
 					data.toURL().toExternalForm(),
 					getConfiguration().getGeoserverUID(),
@@ -216,7 +216,7 @@ public class SasMosaicGeoServerGenerator
         }else if ("EXTERNAL".equals(getConfiguration().getDataTransferMethod())) {
             geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
                     + "/layers/" + layerName
-                    + "/external." + type);
+                    + "/external." + type + "?" + getQueryString(queryParams));
             sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
                                         data.toURL().toExternalForm(),
                                         getConfiguration().getGeoserverUID(),
@@ -251,6 +251,7 @@ public class SasMosaicGeoServerGenerator
       geoserverConfig.setGeoserverPWD(geoserverPWD);
       geoserverConfig.setDataTransferMethod(geoserverUploadMethod);
       geoserverConfig.setWorkingDirectory(dataToBeIngested);
+      geoserverConfig.setDefaultNamespace("it.geosolutions");
       geoserverConfig.setWmsPath(wmsPath);
       geoserverConfig.setDatatype(datatype);
       
