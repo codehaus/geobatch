@@ -134,6 +134,7 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
                 final File dir = new File(outputDirectory);
 //                final File balDir = new File(outputBalanced);
                 configuration.setMosaicDirectory(outputDirectory);
+
                 if (!dir.exists())
                     dir.mkdir();
 //                if(!balDir.exists())
