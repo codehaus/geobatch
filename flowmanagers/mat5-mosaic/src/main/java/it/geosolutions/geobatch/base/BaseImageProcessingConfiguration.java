@@ -29,7 +29,6 @@ import java.io.File;
 import javax.media.jai.Interpolation;
 
 import org.geotools.utils.CoverageToolsConstants;
-import org.geotools.utils.imageoverviews.OverviewsEmbedder;
 
 public abstract class BaseImageProcessingConfiguration extends ActionConfiguration
 		implements Configuration {
