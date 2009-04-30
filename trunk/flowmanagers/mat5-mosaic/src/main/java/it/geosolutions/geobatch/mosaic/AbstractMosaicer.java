@@ -184,9 +184,9 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
                             .getOrdinate(1));
                     final MathTransform mosaicTransform = ProjectiveTransform
                             .create(gm);
-                    final MathTransform tempTransform = PixelTranslation.translate(mosaicTransform, PixelInCell.CELL_CORNER, PixelInCell.CELL_CENTER);
+//                    final MathTransform tempTransform = PixelTranslation.translate(mosaicTransform, PixelInCell.CELL_CORNER, PixelInCell.CELL_CENTER);
                     
-                    final MathTransform world2GridTransform = tempTransform
+                    final MathTransform world2GridTransform = mosaicTransform
                             .inverse();
 
                     final GridCoverageFactory coverageFactory = CoverageFactoryFinder
