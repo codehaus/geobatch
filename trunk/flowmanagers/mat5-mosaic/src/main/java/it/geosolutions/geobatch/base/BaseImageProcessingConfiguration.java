@@ -31,6 +31,7 @@ import javax.media.jai.Interpolation;
 public abstract class BaseImageProcessingConfiguration extends ActionConfiguration
 		implements Configuration {
 
+	public static final String LEG_PREFIX = "_Leg";
 	private String workingDirectory;
 	/** Downsampling step. */
 	private int downsampleStep;
@@ -162,7 +163,7 @@ public abstract class BaseImageProcessingConfiguration extends ActionConfigurati
          final String missionName = missionF.getName();
          dirName = new StringBuilder(location).append(File.separatorChar).append(prefix)
          .append(time).append("_")
-         .append(missionName).append("_L")
+         .append(missionName).append(LEG_PREFIX)
          .append(legName.substring(3,legName.length())).append("_")
          .append(channelName).append(File.separatorChar).toString();
          return dirName;

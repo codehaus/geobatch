@@ -56,8 +56,6 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 
     private FormatConverterConfiguration configuration;
     
-    private final String RAW_STYLE = "sas";
-
     private final static Logger LOGGER = Logger.getLogger(FormatConverter.class
             .toString());
 
@@ -177,10 +175,10 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
                         //Actually it is set by simply changing mosaic's name underscores to slashes.
                         //TODO: can be improved
                         final String filePath = runName.substring(index+1, runName.length());
-                        final String wmsPath = new StringBuilder("/").append(filePath.replace("_","/")).toString();
+                        final String wmsPath = SasMosaicGeoServerGenerator.buildWmsPath(filePath);
                         SasMosaicGeoServerGenerator.ingest(fileOutputName, wmsPath, configuration.getGeoserverURL(), 
                         		configuration.getGeoserverUID(), configuration.getGeoserverPWD(), 
-                        		configuration.getGeoserverUploadMethod(), RAW_STYLE, "geotiff");
+                        		configuration.getGeoserverUploadMethod(), SasMosaicGeoServerGenerator.SAS_RAW_STYLE, "geotiff");
 
                     }
                 }
