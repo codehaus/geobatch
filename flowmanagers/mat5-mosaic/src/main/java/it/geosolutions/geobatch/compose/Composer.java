@@ -23,6 +23,7 @@
 package it.geosolutions.geobatch.compose;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
+import it.geosolutions.geobatch.base.BaseImageProcessingConfiguration;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 import it.geosolutions.geobatch.convert.FormatConverter;
 import it.geosolutions.geobatch.convert.FormatConverterConfiguration;
@@ -223,7 +224,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 	                                            //Actually it is set by simply changing mosaic's name underscores to slashes.
 	                                            //TODO: can be improved
 	                                      final String path = mosaicTobeIngested.substring(index + Mosaicer.MOSAIC_PREFIX.length(), mosaicTobeIngested.length());
-	                                      final String wmsPath = new StringBuilder("/").append(path.replace("_","/")).toString();
+	                                      final String wmsPath = SasMosaicGeoServerGenerator.buildWmsPath(path);
 	                                      
 	                                      SasMosaicGeoServerGenerator.ingest(mosaicTobeIngested, wmsPath,configuration.getGeoserverURL(),configuration.getGeoserverUID()
 	                                    		  ,configuration.getGeoserverPWD(),configuration.getGeoserverUploadMethod(), style, "imagemosaic"

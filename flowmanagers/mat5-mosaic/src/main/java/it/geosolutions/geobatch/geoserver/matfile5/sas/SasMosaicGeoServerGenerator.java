@@ -23,6 +23,7 @@
 package it.geosolutions.geobatch.geoserver.matfile5.sas;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
+import it.geosolutions.geobatch.base.BaseImageProcessingConfiguration;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorAction;
@@ -59,6 +60,8 @@ public class SasMosaicGeoServerGenerator
 		extends GeoServerConfiguratorAction<FileSystemMonitorEvent> {
 
     public final static String SAS_STYLE = "sas";
+    
+    public final static String SAS_RAW_STYLE = "sasraw";
     
     public final static String DEFAULT_STYLE = "raster";
     
@@ -265,5 +268,19 @@ public class SasMosaicGeoServerGenerator
       final SasMosaicGeoServerGenerator geoserverIngestion  = new SasMosaicGeoServerGenerator(geoserverConfig);
       geoserverIngestion.execute(null);
     }
+
+	public static String buildWmsPath(final String path) {
+		if (path==null || path.trim().length()==0)
+			return "";
+		final int missionIndex = path.indexOf("_");
+        final String timePrefix = path.substring(0,missionIndex);
+        final int legIndex = path.indexOf(BaseImageProcessingConfiguration.LEG_PREFIX);
+        String missionPrefix = path.substring(missionIndex+1,legIndex);
+        final int indexOfMissionNumber = missionPrefix.lastIndexOf("_");
+        missionPrefix = new StringBuffer("mission").append(missionPrefix.substring(indexOfMissionNumber+1)).toString();
+        final String legPath = path.substring(legIndex+1);
+        final String wmsPath = new StringBuilder("/").append(timePrefix).append("/").append(missionPrefix).append("/").append(legPath.replace("_","/")).toString();
+        return wmsPath;
+	}
     
 }
