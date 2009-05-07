@@ -202,6 +202,12 @@ public class GeoServerRESTHelper {
                 is.close();
                 LOGGER.info("HTTP OK: " + response);
                 res = true;
+            } else if (con.getResponseCode() == HttpURLConnection.HTTP_CREATED){
+                InputStreamReader is = new InputStreamReader(con.getInputStream());
+                String response = readIs(is);
+                is.close();
+                LOGGER.info("HTTP CREATED: " + response);
+                res = true;
             } else {
                 LOGGER.info("HTTP ERROR: " + con.getResponseMessage());
                 res = false;
