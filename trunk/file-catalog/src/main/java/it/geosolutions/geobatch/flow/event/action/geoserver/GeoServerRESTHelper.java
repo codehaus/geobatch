@@ -76,16 +76,16 @@ public class GeoServerRESTHelper {
             }
 
             OutputStream outputStream = con.getOutputStream();
-
             copyInputStream(inputStream, outputStream);
-
-            if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            
+            final int responseCode = con.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
                 InputStreamReader is = new InputStreamReader(con.getInputStream());
                 String response = readIs(is);
                 is.close();
                 LOGGER.info("HTTP OK: " + response);
                 res = true;
-            } else if (con.getResponseCode() == HttpURLConnection.HTTP_CREATED){
+            } else if (responseCode == HttpURLConnection.HTTP_CREATED){
                 InputStreamReader is = new InputStreamReader(con.getInputStream());
                 String response = readIs(is);
                 is.close();
@@ -147,14 +147,15 @@ public class GeoServerRESTHelper {
             outReq.flush();
             outReq.close();
             inReq.close();
-
-            if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            
+            final int responseCode = con.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
                 InputStreamReader is = new InputStreamReader(con.getInputStream());
                 String response = readIs(is);
                 is.close();
                 LOGGER.info("HTTP OK: " + response);
                 res = true;
-            } else if (con.getResponseCode() == HttpURLConnection.HTTP_CREATED){
+            } else if (responseCode == HttpURLConnection.HTTP_CREATED){
                 InputStreamReader is = new InputStreamReader(con.getInputStream());
                 String response = readIs(is);
                 is.close();
@@ -210,13 +211,14 @@ public class GeoServerRESTHelper {
             outReq.flush();
             outReq.close();
 
-            if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            final int responseCode = con.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
                 InputStreamReader is = new InputStreamReader(con.getInputStream());
                 String response = readIs(is);
                 is.close();
                 LOGGER.info("HTTP OK: " + response);
                 res = true;
-            } else if (con.getResponseCode() == HttpURLConnection.HTTP_CREATED){
+            } else if (responseCode == HttpURLConnection.HTTP_CREATED){
                 InputStreamReader is = new InputStreamReader(con.getInputStream());
                 String response = readIs(is);
                 is.close();
