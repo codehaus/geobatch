@@ -63,7 +63,7 @@ public class GeoServerRESTHelper {
             con.setDoOutput(true);
             con.setDoInput(true);
             con.setRequestMethod("PUT");
-
+            
             final String login = geoserverUser;
             final String password = geoserverPassword;
 
@@ -84,6 +84,12 @@ public class GeoServerRESTHelper {
                 String response = readIs(is);
                 is.close();
                 LOGGER.info("HTTP OK: " + response);
+                res = true;
+            } else if (con.getResponseCode() == HttpURLConnection.HTTP_CREATED){
+                InputStreamReader is = new InputStreamReader(con.getInputStream());
+                String response = readIs(is);
+                is.close();
+                LOGGER.info("HTTP CREATED: " + response);
                 res = true;
             } else {
                 LOGGER.info("HTTP ERROR: " + con.getResponseMessage());
@@ -117,6 +123,7 @@ public class GeoServerRESTHelper {
             con.setDoOutput(true);
             con.setDoInput(true);
             con.setRequestMethod("PUT");
+//            con.setRequestProperty("Content-Type", "text/xml") ;
 
             final String login = geoserverUser;
             final String password = geoserverPassword;
@@ -146,6 +153,12 @@ public class GeoServerRESTHelper {
                 String response = readIs(is);
                 is.close();
                 LOGGER.info("HTTP OK: " + response);
+                res = true;
+            } else if (con.getResponseCode() == HttpURLConnection.HTTP_CREATED){
+                InputStreamReader is = new InputStreamReader(con.getInputStream());
+                String response = readIs(is);
+                is.close();
+                LOGGER.info("HTTP CREATED: " + response);
                 res = true;
             } else {
                 LOGGER.info("HTTP ERROR: " + con.getResponseMessage());
@@ -179,6 +192,7 @@ public class GeoServerRESTHelper {
             con.setDoOutput(true);
             con.setDoInput(true);
             con.setRequestMethod("PUT");
+//            con.setRequestProperty("Content-Type", "text/xml") ;
 
             final String login = geoserverUser;
             final String password = geoserverPassword;
