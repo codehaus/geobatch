@@ -34,6 +34,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -89,7 +90,12 @@ public class GeoServerRESTHelper {
                 InputStreamReader is = new InputStreamReader(con.getInputStream());
                 String response = readIs(is);
                 is.close();
-                LOGGER.info("HTTP CREATED: " + response);
+                if (LOGGER.isLoggable(Level.FINE))
+                    LOGGER.log(Level.FINE,"HTTP CREATED: " + response);
+                else{
+                    final String name = extractName(response);
+                    LOGGER.info("HTTP CREATED: " + name);
+                }
                 res = true;
             } else {
                 LOGGER.info("HTTP ERROR: " + con.getResponseMessage());
@@ -159,7 +165,12 @@ public class GeoServerRESTHelper {
                 InputStreamReader is = new InputStreamReader(con.getInputStream());
                 String response = readIs(is);
                 is.close();
-                LOGGER.info("HTTP CREATED: " + response);
+                if (LOGGER.isLoggable(Level.FINE))
+                    LOGGER.log(Level.FINE,"HTTP CREATED: " + response);
+                else{
+                    final String name = extractName(response);
+                    LOGGER.info("HTTP CREATED: " + name);
+                }
                 res = true;
             } else {
                 LOGGER.info("HTTP ERROR: " + con.getResponseMessage());
@@ -222,7 +233,12 @@ public class GeoServerRESTHelper {
                 InputStreamReader is = new InputStreamReader(con.getInputStream());
                 String response = readIs(is);
                 is.close();
-                LOGGER.info("HTTP CREATED: " + response);
+                if (LOGGER.isLoggable(Level.FINE))
+                    LOGGER.log(Level.FINE,"HTTP CREATED: " + response);
+                else{
+                    final String name = extractName(response);
+                    LOGGER.info("HTTP CREATED: " + name);
+                }
                 res = true;
             } else {
                 LOGGER.info("HTTP ERROR: " + con.getResponseMessage());
@@ -244,6 +260,16 @@ public class GeoServerRESTHelper {
     // HELPER METHODS
     //
     // ////////////////////////////////////////////////////////////////////////
+
+    private static String extractName(final String response) {
+        String name ="";
+        if (response!=null && response.trim().length()>0){
+            final int indexOfNameStart = response.indexOf("<name>");
+            final int indexOfNameEnd = response.indexOf("</name>");
+            name = response.substring(indexOfNameStart+6, indexOfNameEnd);
+        }
+        return name;
+    }
 
     /**
      * 
