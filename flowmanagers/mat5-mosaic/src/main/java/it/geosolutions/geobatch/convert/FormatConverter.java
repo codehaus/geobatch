@@ -161,7 +161,6 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
         						configuration.getScaleAlgorithm(),configuration.getCompressionScheme(),
         						configuration.getCompressionRatio(),configuration.getTileW(),
         						configuration.getTileH());
-                        
                         String runName = BaseImageProcessingConfiguration.buildRunName(outFile.getParent(), 
                         		configuration.getTime(), "");
                         

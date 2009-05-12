@@ -60,8 +60,8 @@ import org.geotools.gce.geotiff.GeoTiffReader;
 import org.geotools.gce.geotiff.GeoTiffWriteParams;
 import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.metadata.iso.spatial.PixelTranslation;
 import org.geotools.referencing.operation.matrix.GeneralMatrix;
+import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
@@ -106,6 +106,8 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
             // ////////////////////////////////////////////////////////////////////
 
             GeneralEnvelope globEnvelope = null;
+            double xscale=0.025;
+            double yscale=0.015;
 
             final String directory = configuration.getWorkingDirectory();
             final double compressionRatio = configuration.getCompressionRatio();
@@ -138,7 +140,6 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
 
                 if (files != null) {
                     final int numFiles = files.length;
-//                    double rotation=0.0d;
                     for (int i = 0; i < numFiles; i++) {
                         final String path = files[i].getAbsolutePath()
                                 .toLowerCase();
@@ -157,14 +158,22 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
                         // //
                         GeneralEnvelope envelope = (GeneralEnvelope) reader
                                 .getOriginalEnvelope();
+                        AffineTransform at = (AffineTransform)reader.getOriginalGridToWorld(PixelInCell.CELL_CENTER);
                         if (globEnvelope == null) {
                             globEnvelope = new GeneralEnvelope(envelope);
                             globEnvelope.setCoordinateReferenceSystem(envelope
                                     .getCoordinateReferenceSystem());
-//                            AffineTransform at = (AffineTransform)reader.getOriginalGridToWorld(PixelInCell.CELL_CENTER);
-//                            rotation = XAffineTransform.getRotation(at);
+                            xscale = XAffineTransform.getScaleX0(at);
+                            yscale = XAffineTransform.getScaleY0(at);
                         } else
                             globEnvelope.add(envelope);
+                        double tempXscale = XAffineTransform.getScaleX0(at);
+                        double tempYscale = XAffineTransform.getScaleY0(at);
+                        if ((tempXscale < tempYscale && tempXscale < xscale) ||
+                        		(tempYscale < tempXscale && tempYscale < yscale)){
+                        	yscale = tempYscale;
+                    		xscale = tempXscale;
+                        }
                         reader.dispose();
                     }
 
@@ -172,10 +181,9 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
                     // computing the final g2w
                     // //
                     final GeneralMatrix gm = new GeneralMatrix(3);
-
-                    // TODO: change this Leverage on XML metadata to handle rotation
-                    gm.setElement(0, 0, 0.025);
-                    gm.setElement(1, 1, -0.015);
+                    
+                    gm.setElement(0, 0, xscale);
+                    gm.setElement(1, 1, -yscale);
                     gm.setElement(0, 1, 0);
                     gm.setElement(1, 0, 0);
                     gm.setElement(0, 2, globEnvelope.getLowerCorner()
