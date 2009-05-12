@@ -29,6 +29,7 @@ import it.geosolutions.geobatch.flow.event.action.Action;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
+import java.io.File;
 import java.io.IOException;
 
 import javax.media.jai.JAI;
@@ -138,7 +139,6 @@ public class Mosaicer extends AbstractMosaicer implements
         RenderedOp destImage = JAI.create("format", pbConvert);
         
         return destImage;
-//        return applyContrastEnhancement(destImage);
     }
     
     /**
@@ -152,7 +152,8 @@ public class Mosaicer extends AbstractMosaicer implements
     
     protected String buildFileName(final String outputLocation, final int i, final int j,
             final int chunkWidth) {
-        final String name = new StringBuilder(outputLocation).append("m_")
+        final String name = new StringBuilder(outputLocation)
+        .append(File.separatorChar).append("m_")
         .append(Integer.toString(i * chunkWidth + j)).append(
                         ".").append("tif").toString();
         return name;

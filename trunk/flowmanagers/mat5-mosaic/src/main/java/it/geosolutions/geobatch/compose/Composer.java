@@ -223,7 +223,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 	                                            //Setting up the wmspath.
 	                                            //Actually it is set by simply changing mosaic's name underscores to slashes.
 	                                            //TODO: can be improved
-	                                      final String path = mosaicTobeIngested.substring(index + Mosaicer.MOSAIC_PREFIX.length(), mosaicTobeIngested.length());
+	                                      final String path = mosaicTobeIngested.substring(index + Mosaicer.MOSAIC_PREFIX.length());
 	                                      final String wmsPath = SasMosaicGeoServerGenerator.buildWmsPath(path);
 	                                      
 	                                      SasMosaicGeoServerGenerator.ingest(mosaicTobeIngested, wmsPath,configuration.getGeoserverURL(),configuration.getGeoserverUID()

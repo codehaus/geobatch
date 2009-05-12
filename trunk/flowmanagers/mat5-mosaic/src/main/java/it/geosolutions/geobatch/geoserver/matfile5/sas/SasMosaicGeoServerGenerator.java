@@ -65,6 +65,8 @@ public class SasMosaicGeoServerGenerator
     
     public final static String DEFAULT_STYLE = "raster";
     
+    public final static String GEOSERVER_VERSION = "1.7.X";
+       
     public SasMosaicGeoServerGenerator(GeoServerActionConfiguration configuration)
             throws IOException {
         super(configuration);
@@ -164,15 +166,14 @@ public class SasMosaicGeoServerGenerator
             final Map<String, String> queryParams = new HashMap<String, String>();
             queryParams.put("namespace",	getConfiguration().getDefaultNamespace());
             queryParams.put("wmspath",		getConfiguration().getWmsPath());
-            send(workingDir,
-					workingDir,
-					getConfiguration().getGeoserverURL(),
-					new Long(System.currentTimeMillis()).toString(),
-					coverageStoreId,
-					baseFileName,
-					getConfiguration().getStyles(),
-					configId,
-					getConfiguration().getDefaultStyle(),
+            queryParams.put("style", getConfiguration().getDefaultStyle());
+            send(workingDir, 
+                    workingDir, 
+                    getConfiguration().getGeoserverURL(),
+                    new Long(System.currentTimeMillis()).toString(),
+                    coverageStoreId,
+                    baseFileName,
+                    configId,
                     queryParams,
                     getConfiguration().getDatatype());
 
@@ -192,43 +193,68 @@ public class SasMosaicGeoServerGenerator
      */
     public void send(final File inputDataDir, final File data, final String geoserverBaseURL,
             final String timeStamp, final String coverageStoreId, final String storeFilePrefix,
-            final List<String> dataStyles, final String configId, final String defaultStyle,
-            final Map<String, String> queryParams, final String type) 
+            final String configId, final Map<String, String> queryParams, final String type) 
 			throws MalformedURLException, FileNotFoundException {
         URL geoserverREST_URL = null;
         boolean sent = false;
 
-		String layerName = storeFilePrefix != null ? storeFilePrefix : coverageStoreId;
-
-        if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
-            geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
-                    + "/layers/" + layerName
-                    + "/file." + type + "?" + getQueryString(queryParams));
-            sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
-                    new FileInputStream(data), 
-					getConfiguration().getGeoserverUID(),
-					getConfiguration().getGeoserverPWD());
-        } else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
-            geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
-                    + "/layers/" + layerName
-                    + "/url." + type + "?" + getQueryString(queryParams)); 
-            sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
-					data.toURL().toExternalForm(),
-					getConfiguration().getGeoserverUID(),
-					getConfiguration().getGeoserverPWD());
-        }else if ("EXTERNAL".equals(getConfiguration().getDataTransferMethod())) {
-            geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
-                    + "/layers/" + layerName
-                    + "/external." + type + "?" + getQueryString(queryParams));
-            sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
-                                        data.toURL().toExternalForm(),
-                                        getConfiguration().getGeoserverUID(),
-                                        getConfiguration().getGeoserverPWD());
+        String layerName = storeFilePrefix != null ? storeFilePrefix : coverageStoreId;
+        if (GEOSERVER_VERSION.equalsIgnoreCase("1.7.2")){
+            if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
+                geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
+                        + "/layers/" + layerName
+                        + "/file." + type + "?" + getQueryString(queryParams));
+                sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
+                        new FileInputStream(data), 
+    					getConfiguration().getGeoserverUID(),
+    					getConfiguration().getGeoserverPWD());
+            } else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
+                geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
+                        + "/layers/" + layerName
+                        + "/url." + type + "?" + getQueryString(queryParams)); 
+                sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
+    					data.toURL().toExternalForm(),
+    					getConfiguration().getGeoserverUID(),
+    					getConfiguration().getGeoserverPWD());
+            }else if ("EXTERNAL".equals(getConfiguration().getDataTransferMethod())) {
+                geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
+                        + "/layers/" + layerName
+                        + "/external." + type + "?" + getQueryString(queryParams));
+                sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
+                                            data.toURL().toExternalForm(),
+                                            getConfiguration().getGeoserverUID(),
+                                            getConfiguration().getGeoserverPWD());
+            }
+        }else{
+		if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
+	            geoserverREST_URL = new URL(geoserverBaseURL + "/rest/workspaces/" + 
+	                    queryParams.get("namespace") + "/coveragestores/" + coverageStoreId
+	                    + "/file." + type + "?" + getQueryString(queryParams));
+	            sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
+	                    new FileInputStream(data), 
+	                                        getConfiguration().getGeoserverUID(),
+	                                        getConfiguration().getGeoserverPWD());
+	        } else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
+	            geoserverREST_URL = new URL(geoserverBaseURL + "/rest/workspaces/" + 
+                            queryParams.get("namespace") + "/coveragestores/" + coverageStoreId
+	                    + "/url." + type + "?" + getQueryString(queryParams)); 
+	            sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
+	                                        data.toURL().toExternalForm(),
+	                                        getConfiguration().getGeoserverUID(),
+	                                        getConfiguration().getGeoserverPWD());
+	        }else if ("EXTERNAL".equals(getConfiguration().getDataTransferMethod())) {
+	            geoserverREST_URL = new URL(geoserverBaseURL + "/rest/workspaces/" + 
+                            queryParams.get("namespace") + "/coveragestores/" + coverageStoreId
+	                    + "/external." + type + "?" + getQueryString(queryParams));
+	            sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
+	                                        data.toURL().toExternalForm(),
+	                                        getConfiguration().getGeoserverUID(),
+	                                        getConfiguration().getGeoserverPWD());
+	        }
         }
 
         if (sent) {
             LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
-            boolean sldSent = configureStyles(layerName);
         } else {
             LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
         }
@@ -276,8 +302,8 @@ public class SasMosaicGeoServerGenerator
         final String timePrefix = path.substring(0,missionIndex);
         final int legIndex = path.indexOf(BaseImageProcessingConfiguration.LEG_PREFIX);
         String missionPrefix = path.substring(missionIndex+1,legIndex);
-        final int indexOfMissionNumber = missionPrefix.lastIndexOf("_");
-        missionPrefix = new StringBuffer("mission").append(missionPrefix.substring(indexOfMissionNumber+1)).toString();
+//        final int indexOfMissionNumber = missionPrefix.lastIndexOf("_");
+//        missionPrefix = new StringBuffer("mission").append(missionPrefix.substring(indexOfMissionNumber+1)).toString();
         final String legPath = path.substring(legIndex+1);
         final String wmsPath = new StringBuilder("/").append(timePrefix).append("/").append(missionPrefix).append("/").append(legPath.replace("_","/")).toString();
         return wmsPath;

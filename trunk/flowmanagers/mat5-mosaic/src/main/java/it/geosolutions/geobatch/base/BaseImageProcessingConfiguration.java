@@ -160,12 +160,18 @@ public abstract class BaseImageProcessingConfiguration extends ActionConfigurati
          final String legName = legF.getName();
          final String mission = legF.getParent();
          final File missionF = new File(mission);
-         final String missionName = missionF.getName();
+//         final String missionName = missionF.getName();
+         String missionName = missionF.getName();
+         final int missionIndex = missionName.lastIndexOf("_");
+         if (missionIndex!=-1){
+             missionName = new StringBuffer("mission").append(missionName.substring(missionIndex+1)).toString();
+         }
+         
          dirName = new StringBuilder(location).append(File.separatorChar).append(prefix)
          .append(time).append("_")
          .append(missionName).append(LEG_PREFIX)
          .append(legName.substring(3,legName.length())).append("_")
-         .append(channelName).append(File.separatorChar).toString();
+         .append(channelName).toString();
          return dirName;
     }
 	
