@@ -23,7 +23,6 @@
 package it.geosolutions.geobatch.compose;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.base.BaseImageProcessingConfiguration;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 import it.geosolutions.geobatch.convert.FormatConverter;
 import it.geosolutions.geobatch.convert.FormatConverterConfiguration;
@@ -121,7 +120,8 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             final String outputFormat = configuration.getOutputFormat();
             final int downsampleStep = configuration.getDownsampleStep();
             final int numSteps = configuration.getNumSteps();
-            final String scaleAlgorithm = configuration.getScaleAlgorithm();
+            final String rawScaleAlgorithm = configuration.getRawScaleAlgorithm();
+            final String mosaicScaleAlgorithm = configuration.getMosaicScaleAlgorithm();
             final int tileH = configuration.getTileH();
             final int tileW = configuration.getTileW();
             final int chunkW = configuration.getChunkW();
@@ -200,8 +200,8 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                                       
                                       //Compose the mosaic.
                                       final String mosaicTobeIngested = composeMosaic(events,leafPath,outputDir.toString(), compressionRatio, compressionScheme,
-                                              inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, scaleAlgorithm, chunkW, chunkH, initTime,
-                                              configuration.getGeoserverURL(),configuration.getGeoserverUID(),configuration.getGeoserverPWD(),
+                                              inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, rawScaleAlgorithm, mosaicScaleAlgorithm,
+                                              chunkW, chunkH, initTime, configuration.getGeoserverURL(),configuration.getGeoserverUID(),configuration.getGeoserverPWD(),
                                               configuration.getGeoserverUploadMethod());
                                       if (mosaicTobeIngested != null && mosaicTobeIngested.trim().length()>0){
                                       
@@ -323,8 +323,9 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
     private String composeMosaic(Queue<FileSystemMonitorEvent> events, final String directory, final String outputDir,
             final double compressionRatio, final String compressionScheme, 
             final String inputFormats, String outputFormat, final int tileW, final int tileH, 
-            final int numSteps, final int downsampleStep, final String scaleAlgorithm, final int chunkW, final int chunkH,
-            final String time, final String geoserverURL, final String geoserverUID, final String geoserverPWD, final String geoserverUploadMethod) throws Exception {
+            final int numSteps, final int downsampleStep, final String rawScaleAlgorithm, final String mosaicScaleAlgorithm,
+            final int chunkW, final int chunkH, final String time, final String geoserverURL, final String geoserverUID, 
+            final String geoserverPWD, final String geoserverUploadMethod) throws Exception {
         
         // //
         //
@@ -341,7 +342,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         converterConfig.setInputFormats(inputFormats);
         converterConfig.setOutputFormat(outputFormat);
         converterConfig.setDownsampleStep(downsampleStep);
-        converterConfig.setScaleAlgorithm(scaleAlgorithm);
+        converterConfig.setScaleAlgorithm(rawScaleAlgorithm);
         converterConfig.setNumSteps(numSteps);
         converterConfig.setTileH(tileH);
         converterConfig.setTileW(tileW);
@@ -372,7 +373,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         mosaicerConfig.setDescription("Mosaic composer");
         mosaicerConfig.setNumSteps(numSteps);
         mosaicerConfig.setDownsampleStep(downsampleStep);
-        mosaicerConfig.setScaleAlgorithm(scaleAlgorithm);
+        mosaicerConfig.setScaleAlgorithm(mosaicScaleAlgorithm);
         mosaicerConfig.setWorkingDirectory(outputDir);
         mosaicerConfig.setTileH(tileH);
         mosaicerConfig.setTileW(tileW);
