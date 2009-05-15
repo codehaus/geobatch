@@ -23,12 +23,13 @@
 			<!--outputBaseFolder>/mnt/datastorage/sas/mosaic_output</outputBaseFolder-->
 			<!-- LINUX LOCAL -->
 			<outputBaseFolder>/home/geos/work/data/sas/output</outputBaseFolder>
-			<JAICacheCapacity>512</JAICacheCapacity>
+			<JAICacheCapacity>768</JAICacheCapacity>
 	        	<JAIParallelism>8</JAIParallelism>
 			<JAICacheThreshold>1</JAICacheThreshold>
 			<numSteps>6</numSteps>
 			<downsampleStep>2</downsampleStep>
-			<scaleAlgorithm>nn</scaleAlgorithm>
+			<rawScaleAlgorithm>nn</rawScaleAlgorithm>
+			<mosaicScaleAlgorithm>avg</mosaicScaleAlgorithm>
 			<tileH>512</tileH>
 			<tileW>512</tileW>
 			<chunkW>20480</chunkW>
@@ -39,7 +40,6 @@
 			<geoserverUID>admin</geoserverUID>
 			<geoserverPWD>geoserver</geoserverPWD>
 			<geoserverUploadMethod>EXTERNAL</geoserverUploadMethod>
-			
 			<id>SASMSC</id>
 			<description>description</description>
 			<name>SAS Tiles Mosaic composer</name>

@@ -66,7 +66,27 @@ public class ComposerConfiguration extends BaseImageProcessingConfiguration impl
     private int chunkW = 10240;
     
     private int chunkH = 10240;
+    
+    private String rawScaleAlgorithm;
+    
+    private String mosaicScaleAlgorithm;
 
+    public String getRawScaleAlgorithm() {
+        return rawScaleAlgorithm;
+    }
+
+    public void setRawScaleAlgorithm(final String rawScaleAlgorithm) {
+        this.rawScaleAlgorithm = rawScaleAlgorithm;
+    }
+
+    public String getMosaicScaleAlgorithm() {
+        return mosaicScaleAlgorithm;
+    }
+
+    public void setMosaicScaleAlgorithm(final String mosaicScaleAlgorithm) {
+        this.mosaicScaleAlgorithm = mosaicScaleAlgorithm;
+    }
+    
     public String getGeoserverURL() {
         return geoserverURL;
     }
@@ -99,6 +119,7 @@ public class ComposerConfiguration extends BaseImageProcessingConfiguration impl
         this.geoserverUploadMethod = geoserverUploadMethod;
     }
 
+    
 
     public ComposerConfiguration() {
         super();
@@ -201,7 +222,8 @@ public class ComposerConfiguration extends BaseImageProcessingConfiguration impl
         configuration.setNumSteps(getNumSteps());
         configuration.setOutputBaseFolder(outputBaseFolder);
         configuration.setOutputFormat(outputFormat);
-        configuration.setScaleAlgorithm(getScaleAlgorithm());
+        configuration.setRawScaleAlgorithm(rawScaleAlgorithm);
+        configuration.setMosaicScaleAlgorithm(mosaicScaleAlgorithm);
         configuration.setTileH(getTileH());
         configuration.setTileW(getTileW());
         configuration.setWorkingDirectory(getWorkingDirectory());
@@ -211,4 +233,5 @@ public class ComposerConfiguration extends BaseImageProcessingConfiguration impl
         configuration.setGeoserverURL(geoserverURL);
         return configuration;
     }
+
 }
