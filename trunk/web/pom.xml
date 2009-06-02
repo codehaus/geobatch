@@ -126,6 +126,11 @@
             <artifactId>gb-flowmanagers-ascii</artifactId>
             <version>${version}</version>
         </dependency>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-flowmanagers-netcdf</artifactId>
+            <version>${version}</version>
+        </dependency>
     </dependencies>
 
     <organization>

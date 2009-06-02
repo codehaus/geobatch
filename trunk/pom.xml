@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- =======================================================================    
-        Maven Project Configuration File                                        
-                                                                                
-        GeoSolutions GeoBatch Project                                                    
+<!-- =======================================================================
+        Maven Project Configuration File
+
+        GeoSolutions GeoBatch Project
             http://geobatch.codehaus.org
-                                                                                            
-        Version: $Id: pom.xml 63 2008-04-04 11:22:11Z alessio $              
+
+        Version: $Id: pom.xml 63 2008-04-04 11:22:11Z alessio $
      ======================================================================= -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                                 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -212,7 +212,7 @@
             </modules>
         </profile>
     </profiles>
-  
+
 
   <!-- =========================================================== -->
   <!--     Project Description                                     -->
@@ -223,7 +223,7 @@
     <version>${version}</version>
     <name>GeoSolutions GeoBatch</name>
     <url>http://www.geo-solutions.it/maven_reports/gb/</url>
-  
+
     <scm>
         <connection>
       scm:svn:https://svn.codehaus.org/geobatch/trunk/
@@ -345,7 +345,7 @@
                 <artifactId>jstl</artifactId>
                 <version>1.1.2</version>
             </dependency>
-		  
+
 		  <!-- Jetty -->
             <dependency>
                 <groupId>org.mortbay.jetty</groupId>
@@ -483,13 +483,71 @@
                 <artifactId>wkb4j</artifactId>
                 <version>1.0-RC1</version>
             </dependency>
-      
+
       <!-- XML -->
             <dependency>
                 <groupId>jdom</groupId>
                 <artifactId>jdom</artifactId>
                 <version>1.0</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.apache.xmlbeans</groupId>
+                <artifactId>xmlbeans</artifactId>
+                <version>2.4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlbeans</groupId>
+                <artifactId>xmlbeans-xpath</artifactId>
+                <version>2.4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlbeans</groupId>
+                <artifactId>xmlbeans-qname</artifactId>
+                <version>2.4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlbeans</groupId>
+                <artifactId>xmlbeans-xmlpublic</artifactId>
+                <version>2.4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.saxon</groupId>
+                <artifactId>saxon</artifactId>
+                <version>9.1.0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.saxon</groupId>
+                <artifactId>saxon-dom</artifactId>
+                <version>9.1.0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.saxon</groupId>
+                <artifactId>saxon-jdom</artifactId>
+                <version>9.1.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>it.geosolutions.xmlbeans</groupId>
+                <artifactId>geoserver-catalog</artifactId>
+                <version>2.4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>it.geosolutions.xmlbeans</groupId>
+                <artifactId>geoserver-catalog-coverage</artifactId>
+                <version>2.4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>it.geosolutions.xmlbeans</groupId>
+                <artifactId>geoserver-catalog-featureType</artifactId>
+                <version>2.4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>it.geosolutions.xmlbeans</groupId>
+                <artifactId>manager-config</artifactId>
+                <version>2.4.0</version>
+            </dependency>
+
       <!-- Apache -->
             <dependency>
                 <groupId>oro</groupId>
@@ -568,8 +626,8 @@
         <artifactId>hsqldb</artifactId>
         <version>1.8.0.7</version>
       </dependency -->
-			
-      
+
+
       <!-- Tests or legacy -->
             <dependency>
                 <groupId>junit</groupId>
@@ -663,7 +721,7 @@
                 </excludes>
             </testResource>
         </testResources>
-  
+
         <plugins>
 
       <!-- ======================================================= -->
@@ -726,7 +784,7 @@
                     </execution>
                 </executions>
             </plugin>
-	
+
 	   <!-- eclipse ide integration -->
             <plugin>
                 <artifactId>maven-eclipse-plugin</artifactId>
@@ -738,7 +796,7 @@
                     </additionalProjectnatures>
                 </configuration>
             </plugin>
-   
+
       <!-- ======================================================= -->
       <!--     JAR packaging.                                      -->
       <!-- ======================================================= -->
@@ -787,7 +845,7 @@
             <name>GeoSolutions Repository</name>
             <url>http://mvn.geo-solutions.it/maven_repo</url>
         </repository>
-    
+
         <repository>
             <id>java.net</id>
             <name>java.net Repository</name>
@@ -799,7 +857,7 @@
             <name>Refractions Research Maven 2 Repository</name>
             <url>http://lists.refractions.net/m2</url>
         </repository>
-    
+
         <repository>
             <snapshots>
                 <enabled>false</enabled>
@@ -808,7 +866,7 @@
             <name>Geotools repository</name>
             <url>http://maven.geotools.fr/repository</url>
         </repository>
-    
+
         <repository>
             <id>JBoss</id>
             <url>http://repository.jboss.com/maven2</url>

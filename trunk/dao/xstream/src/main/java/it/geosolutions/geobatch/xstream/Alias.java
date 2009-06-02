@@ -78,6 +78,9 @@ public class Alias {
 //                it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class,
 //                "eventGeneratorConfiguration");
 
+        xstream.alias("DataBaseActionConfiguration",
+		        it.geosolutions.geobatch.configuration.event.action.database.DataBaseActionConfiguration.class);
+
         xstream.addImplicitCollection(
                         it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration.class,
                         "rules",
