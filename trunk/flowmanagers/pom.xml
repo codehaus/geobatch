@@ -58,6 +58,7 @@
       <module>mat5-mosaic</module>
       <module>shapefile</module>
       <module>ascii-grids</module>
+      <module>netcdf</module>
     </modules>
     
 </project>
