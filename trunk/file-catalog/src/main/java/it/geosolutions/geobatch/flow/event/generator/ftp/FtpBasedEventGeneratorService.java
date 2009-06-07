@@ -97,11 +97,12 @@ public class FtpBasedEventGeneratorService
                     errorMsg = "Error on working directory: ".concat(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory())+ "/".concat(configuration.getWorkingDirectory()) ;
                     throw new Exception(errorMsg);
             }
+            final boolean keepFiles = configuration.getKeepFiles();
             if (configuration.getWildCard() == null)
-                return new FtpBasedEventGenerator(osType, eventType, sensedDir);
+                return new FtpBasedEventGenerator(osType, eventType, sensedDir,null,keepFiles);
             else
                 return new FtpBasedEventGenerator(osType, eventType, sensedDir,
-                        configuration.getWildCard(), configuration.getFtpserverUSR(),
+                        configuration.getWildCard(), keepFiles, configuration.getFtpserverUSR(),
                         configuration.getFtpserverPWD(),configuration.getFtpserverPort());
         } catch (IOException ex) {
             if (LOGGER.isLoggable(Level.SEVERE))

@@ -496,7 +496,7 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
     }
 
     /**
-     * Delete all the files with matching the specified {@link FilenameFilter} in the specified
+     * Delete all the files/dirs with matching the specified {@link FilenameFilter} in the specified
      * directory. The method can work recursively.
      * 
      * @param sourceDirectory
@@ -527,6 +527,41 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
         }
         return deleteItself ? sourceDirectory.delete() : true;
 
+    }
+
+    /**
+     * Empty the specified directory. The method can work recursively.
+     * 
+     * @param sourceDirectory
+     *            the directory to delete files/dirs from.
+     * @param recursive
+     *            boolean that specifies if we want to delete files/dirs recursively or not.
+     * @param deleteItself
+     *            boolean used if we want to delete the sourceDirectory itself
+     * @return
+     */
+    public static boolean emptyDirectory(File sourceDirectory,
+            boolean recursive, boolean deleteItself) {
+        inputNotNull(sourceDirectory);
+        if (!sourceDirectory.exists() || !sourceDirectory.canRead() || !sourceDirectory.isDirectory()) {
+            throw new IllegalStateException("Source is not in a legal state.");
+        }
+
+        final File[] files = sourceDirectory.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                if (recursive) {
+                    if (!emptyDirectory(file, recursive, true)) {//delete subdirs recursively
+                        return false;
+                    }
+                }
+            } else {
+                if (!file.delete()) {
+                    return false;
+                }
+            }
+        }
+        return deleteItself ? sourceDirectory.delete() : true;
     }
 
     /**

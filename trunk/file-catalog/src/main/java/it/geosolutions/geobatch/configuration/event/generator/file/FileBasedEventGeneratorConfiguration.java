@@ -55,6 +55,12 @@ public class FileBasedEventGeneratorConfiguration extends EventGeneratorConfigur
      */
     private String watchDirectory;
 
+
+    /**
+     * A flag used to keep files in watchDirectory when flow is started.
+     */
+    private boolean keepFiles=false;
+
     /**
      * The wild-card used to catch the kind of input files.
      */
@@ -67,8 +73,8 @@ public class FileBasedEventGeneratorConfiguration extends EventGeneratorConfigur
         super();
     }
 
-    /**
-     * 
+       /**
+     *
      * @param id
      * @param name
      * @param description
@@ -86,6 +92,29 @@ public class FileBasedEventGeneratorConfiguration extends EventGeneratorConfigur
         this.eventType = eventType;
         this.watchDirectory = workingDirectory;
         this.wildCard = wildCard;
+    }
+
+    /**
+     * 
+     * @param id
+     * @param name
+     * @param description
+     * @param dirty
+     * @param osType
+     * @param eventType
+     * @param workingDirectory
+     * @param wildCard
+     * @param keepFiles
+     */
+    public FileBasedEventGeneratorConfiguration(String id, String name, String description,
+            boolean dirty, OsType osType, FileSystemMonitorNotifications eventType,
+            String workingDirectory, String wildCard, boolean keepFiles) {
+        super(id, name, description, dirty);
+        this.osType = osType;
+        this.eventType = eventType;
+        this.watchDirectory = workingDirectory;
+        this.wildCard = wildCard;
+        this.keepFiles = keepFiles;
     }
 
     /**
@@ -158,6 +187,24 @@ public class FileBasedEventGeneratorConfiguration extends EventGeneratorConfigur
      */
     public void setEventType(FileSystemMonitorNotifications eventType) {
         this.eventType = eventType;
+    }
+
+    /**
+     * Getter for the keep files in watchDirectory flag.
+     *
+     * @return keepFiles
+     */
+    public boolean getKeepFiles() {
+        return keepFiles;
+    }
+
+    /**
+     * Setter for the keep files in watchDirectory flag.
+     *
+     * @param keepFiles
+     */
+    public void setKeepFiles(boolean keepFiles) {
+        this.keepFiles = keepFiles;
     }
 
 }

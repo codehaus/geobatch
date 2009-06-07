@@ -29,7 +29,6 @@ import it.geosolutions.filesystemmonitor.OsType;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
-import it.geosolutions.geobatch.catalog.impl.BaseService;
 import it.geosolutions.geobatch.configuration.event.generator.file.FileBasedEventGeneratorConfiguration;
 import it.geosolutions.geobatch.flow.event.generator.BaseEventGeneratorService;
 import it.geosolutions.geobatch.global.CatalogHolder;
@@ -95,11 +94,12 @@ public class FileBasedEventGeneratorService
                 if (!sensedDir.exists() || !sensedDir.isDirectory() || !sensedDir.canRead()) // TODO message
                     return null;
             }
+            final boolean keepFiles = configuration.getKeepFiles();
             if (configuration.getWildCard() == null)
-                return new FileBasedEventGenerator(osType, eventType, sensedDir);
+                return new FileBasedEventGenerator(osType, eventType, sensedDir, keepFiles);
             else
                 return new FileBasedEventGenerator(osType, eventType, sensedDir,
-                        configuration.getWildCard());
+                        configuration.getWildCard(),keepFiles);
         } catch (IOException ex) {
             if (LOGGER.isLoggable(Level.SEVERE))
                 LOGGER.log(Level.SEVERE, ex.getLocalizedMessage(), ex);

@@ -129,9 +129,15 @@ public class FtpBasedEventGenerator<T extends EventObject> extends BaseEventGene
     private FtpServer server;
     private FtpServerFactory serverFactory;
     private ListenerFactory factory;
+
     /**
      *
+     * A flag used to keep files in watchDirectory when flow is started.
+     *
+     * @uml.property name="keepFiles"
      */
+    private boolean keepFiles;
+
     private FileSystemMonitorNotifications eventType;
     /**
      * The file extension wildcard.
@@ -155,7 +161,25 @@ public class FtpBasedEventGenerator<T extends EventObject> extends BaseEventGene
     public FtpBasedEventGenerator(final OsType osType,
             final FileSystemMonitorNotifications eventType, final File dir)
             throws NotSupportedException {
-        this(osType, eventType, dir, null,null,null,null);
+        this(osType, eventType, dir, null,false,null,null,null);
+    }
+            /**
+     * Constructor which gets OS Type, watched dir and extension wildcard as parameters.
+     *
+     * @param osType
+     *            int OSType (0 - Undefined; 1 - Windows; 2 - Linux)
+     * @param dir
+     *            File directory to watch
+     * @param wildcard
+     *            String file extension wildcard
+     * @throws NotSupportedException
+     */
+    public FtpBasedEventGenerator(final OsType osType,
+            final FileSystemMonitorNotifications eventType, final File dir, final String wildcard)
+            throws NotSupportedException {
+        LOGGER.info("start");
+        initialize(osType, eventType, dir, wildcard,false,null, null,null);
+        LOGGER.info("end");
     }
 
     /**
@@ -170,13 +194,31 @@ public class FtpBasedEventGenerator<T extends EventObject> extends BaseEventGene
      * @throws NotSupportedException
      */
     public FtpBasedEventGenerator(final OsType osType,
-            final FileSystemMonitorNotifications eventType, final File dir, final String wildcard, final String ftpserverUSR,final String ftpserverPWD,final String ftpserverPort)
+            final FileSystemMonitorNotifications eventType, final File dir, final String wildcard,final boolean keepFiles)
             throws NotSupportedException {
         LOGGER.info("start");
-        initialize(osType, eventType, dir, wildcard,ftpserverUSR,ftpserverPWD,ftpserverPort);
+        initialize(osType, eventType, dir, wildcard,keepFiles,null,null,null);
         LOGGER.info("end");
     }
 
+        /**
+     * Constructor which gets OS Type, watched dir and extension wildcard as parameters.
+     *
+     * @param osType
+     *            int OSType (0 - Undefined; 1 - Windows; 2 - Linux)
+     * @param dir
+     *            File directory to watch
+     * @param wildcard
+     *            String file extension wildcard
+     * @throws NotSupportedException
+     */
+    public FtpBasedEventGenerator(final OsType osType,
+            final FileSystemMonitorNotifications eventType, final File dir, final String wildcard,final boolean keepFiles, final String ftpserverUSR,final String ftpserverPWD,final String ftpserverPort)
+            throws NotSupportedException {
+        LOGGER.info("start");
+        initialize(osType, eventType, dir, wildcard,keepFiles,ftpserverUSR,ftpserverPWD,ftpserverPort);
+        LOGGER.info("end");
+    }
     /**
      * @param osType
      * @param eventType
@@ -185,7 +227,7 @@ public class FtpBasedEventGenerator<T extends EventObject> extends BaseEventGene
      * @throws NotSupportedException
      */
     private void initialize(final OsType osType, FileSystemMonitorNotifications eventType,
-            final File dir, final String wildcard, final String ftpserverUSR,
+            final File dir, final String wildcard, final boolean keepFiles, final String ftpserverUSR,
             final String ftpserverPWD,final String ftpserverPort) throws NotSupportedException {
         LOGGER.info("start");
         FactoryFinder.scanForPlugins();
@@ -198,6 +240,8 @@ public class FtpBasedEventGenerator<T extends EventObject> extends BaseEventGene
         this.watchDirectory = dir;
         this.wildCard = wildcard;
         this.eventType = eventType;
+        this.keepFiles = keepFiles;
+
         LOGGER.info("FsMonitor Configured");
         if ((this.fsMonitor != null) && (this.watchDirectory != null) && this.watchDirectory.isDirectory() && this.watchDirectory.exists()) {
             if (this.wildCard != null) {
@@ -236,9 +280,8 @@ public class FtpBasedEventGenerator<T extends EventObject> extends BaseEventGene
                 // start the server
                 server = serverFactory.createServer();
                 LOGGER.info("createserver");
-                User user = um.getUserByName("root");
             } catch (Exception ex) {
-                LOGGER.info("Error: " + ex);
+                LOGGER.severe("Error: " + ex);
             }
         }
         else { LOGGER.warning("W:".concat(this.fsMonitor.toString()) +
@@ -260,8 +303,9 @@ public class FtpBasedEventGenerator<T extends EventObject> extends BaseEventGene
             throw new IOException("Invalid notify directory");
         }
 
+        boolean keepFiles = configuration.getKeepFiles();
         String wildCard = configuration.getWildCard();
-        initialize(osType, eventType, notifyDir, wildCard,configuration.getFtpserverUSR(),
+        initialize(osType, eventType, notifyDir, wildCard,keepFiles,configuration.getFtpserverUSR(),
                 configuration.getFtpserverPWD(),configuration.getFtpserverPort());
         LOGGER.info("end");
     }
@@ -389,16 +433,25 @@ public class FtpBasedEventGenerator<T extends EventObject> extends BaseEventGene
      * @see it.geosolutions.filesystemmonitor.monitor.Monitor#resume()
      */
     public synchronized void start() {
-        LOGGER.info("start");
+           if (LOGGER.isLoggable(Level.INFO)) LOGGER.info("start");
+        if (!keepFiles) {
+            if (LOGGER.isLoggable(Level.INFO)) {
+                LOGGER.info("Cleaning up " + watchDirectory.getAbsolutePath().toString());
+            }
+            IOUtils.emptyDirectory(watchDirectory, true, false);
+        } else if (LOGGER.isLoggable(Level.INFO)) {
+            LOGGER.info("Keep existing files in " + watchDirectory.getAbsolutePath().toString());
+        }
+
         fsMonitor.start();
         try {
             server.start();
         } catch (FtpException ex) {
-            LOGGER.info("Ftpserver :" + ex);
+               if (LOGGER.isLoggable(Level.SEVERE)) LOGGER.severe("Ftpserver :" + ex);
         } catch (Exception ex) {
-            LOGGER.info("Ftpserver :" + ex);
+               if (LOGGER.isLoggable(Level.SEVERE)) LOGGER.severe("Ftpserver :" + ex);
         }
-        LOGGER.info("end");
+           if (LOGGER.isLoggable(Level.INFO))  LOGGER.info("end");
     }
 
     /**
