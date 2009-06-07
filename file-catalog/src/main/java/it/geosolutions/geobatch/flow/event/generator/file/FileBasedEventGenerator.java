@@ -19,9 +19,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-
-
 package it.geosolutions.geobatch.flow.event.generator.file;
 
 import it.geosolutions.factory.NotSupportedException;
@@ -43,7 +40,6 @@ import it.geosolutions.geobatch.io.utils.IOUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.EventObject;
-import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,7 +47,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
 
-    /**
+/**
  * Comments here ...
  * 
  * @author AlFa (Alessio Fabiani)
@@ -59,6 +55,7 @@ import javax.swing.event.EventListenerList;
  */
 public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGenerator<T> implements EventGenerator<T> {
     // ----------------------------------------------- PRIVATE ATTRIBUTES
+
     /**
      * Private Logger
      */
@@ -75,72 +72,70 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
          * it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorListener#fileMonitorEventDelivered
          * (it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent)
          */
+
         public void fileMonitorEventDelivered(final FileSystemMonitorEvent fe) {
-            if (fe != null && fe.getSource()!=null){
-            
-    
+            if (fe != null && fe.getSource() != null) {
+
+
                 final FileSystemMonitorNotifications acceptedNotification =
-						FileBasedEventGenerator.this.getEventType();
+                        FileBasedEventGenerator.this.getEventType();
                 final FileSystemMonitorNotifications notification = fe.getNotification();
 
-                if (LOGGER.isLoggable(Level.INFO))
-                    LOGGER.info(new StringBuilder("Event: ")
-							.append(notification.toString())
-							.append(" ")
-							.append(fe.getSource())
-							.toString());
-    
-                if (acceptedNotification != null && notification.equals(acceptedNotification))
-                    FileBasedEventGenerator.this.sendEvent(fe);
-                else if (acceptedNotification == null)
-                    FileBasedEventGenerator.this.sendEvent(fe);
-            }
-            else{
-                if (fe == null){
-                    if (LOGGER.isLoggable(Level.INFO))
-                        LOGGER.info("Null Event delivered ");
+                if (LOGGER.isLoggable(Level.INFO)) {
+                    LOGGER.info(new StringBuilder("Event: ").append(notification.toString()).append(" ").append(fe.getSource()).toString());
                 }
-                else{
-                    if (LOGGER.isLoggable(Level.INFO))
+
+                if (acceptedNotification != null && notification.equals(acceptedNotification)) {
+                    FileBasedEventGenerator.this.sendEvent(fe);
+                } else if (acceptedNotification == null) {
+                    FileBasedEventGenerator.this.sendEvent(fe);
+                }
+            } else {
+                if (fe == null) {
+                    if (LOGGER.isLoggable(Level.INFO)) {
+                        LOGGER.info("Null Event delivered ");
+                    }
+                } else {
+                    if (LOGGER.isLoggable(Level.INFO)) {
                         LOGGER.info("Null Event's source ");
+                    }
                 }
             }
         }
-
     }
-
     /**
      * The File-System Monitor thread.
      * 
      * @uml.property name="fsMonitor"
      */
     private FileSystemMonitor fsMonitor;
-
     /**
      * The directory to watch.
      * 
      * @uml.property name="watchDirectory"
      */
     private File watchDirectory;
-
+    /**
+     *
+     * A flag used to keep files in watchDirectory when flow is started.
+     *
+     * @uml.property name="keepFiles"
+     */
+    private boolean keepFiles;
     /**
      * 
      */
     private FileSystemMonitorNotifications eventType;
-
     /**
      * The file extension wildcard.
      * 
      * @uml.property name="wildCard"
      */
     private String wildCard;
-
     private EventListenerList listeners = new EventListenerList();
-
     private EventListener fsListener;
 
     // ----------------------------------------------- PUBLIC CONSTRUCTORS
-
     /**
      * Constructor which gets OS Type and watched dir as parameters.
      * 
@@ -153,12 +148,12 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
     public FileBasedEventGenerator(final OsType osType,
             final FileSystemMonitorNotifications eventType, final File dir)
             throws NotSupportedException {
-        this(osType, eventType, dir, null);
+        this(osType, eventType, dir, null, false);
     }
 
     /**
      * Constructor which gets OS Type, watched dir and extension wildcard as parameters.
-     * 
+     *
      * @param osType
      *            int OSType (0 - Undefined; 1 - Windows; 2 - Linux)
      * @param dir
@@ -170,8 +165,43 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
     public FileBasedEventGenerator(final OsType osType,
             final FileSystemMonitorNotifications eventType, final File dir, final String wildcard)
             throws NotSupportedException {
+        this(osType, eventType, dir, wildcard, false);
+    }
 
-        initialize(osType, eventType, dir, wildcard);
+    /**
+     * Constructor which gets OS Type, watched dir and keep files in watched dir flag as parameters.
+     *
+     * @param osType
+     *            int OSType (0 - Undefined; 1 - Windows; 2 - Linux)
+     * @param sensedDir
+     *            File directory to watch
+     * @param keepFiles
+     *            Flag used to keep file in watched directory when flow is started
+     * @throws NotSupportedException
+     */
+    FileBasedEventGenerator(OsType osType, FileSystemMonitorNotifications eventType, File sensedDir, boolean keepFiles)
+            throws NotSupportedException {
+        this(osType, eventType, sensedDir, null, keepFiles);
+    }
+
+    /**
+     * Constructor which gets OS Type, watched dir, extension wildcard and keep files in watched dir flag as parameters.
+     *
+     * @param osType
+     *            int OSType (0 - Undefined; 1 - Windows; 2 - Linux)
+     * @param dir
+     *            File directory to watch
+     * @param wildcard
+     *            String file extension wildcard
+     * @param keepFiles
+     *            Flag used to keep file in watched directory when flow is started
+     * @throws NotSupportedException
+     */
+    public FileBasedEventGenerator(final OsType osType,
+            final FileSystemMonitorNotifications eventType, final File dir, final String wildcard, final boolean keepFiles)
+            throws NotSupportedException {
+
+        initialize(osType, eventType, dir, wildcard, keepFiles);
     }
 
     /**
@@ -179,10 +209,11 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
      * @param eventType
      * @param dir
      * @param wildcard
+     * @param keepFiles 
      * @throws NotSupportedException
      */
     private void initialize(final OsType osType, FileSystemMonitorNotifications eventType,
-            final File dir, final String wildcard) throws NotSupportedException {
+            final File dir, final String wildcard, final boolean keepFiles) throws NotSupportedException {
         FactoryFinder.scanForPlugins();
         this.fsMonitor = (BaseFileSystemMonitor) FactoryFinder.getMonitor(osType);
         // add myself as listener
@@ -192,9 +223,9 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
         this.watchDirectory = dir;
         this.wildCard = wildcard;
         this.eventType = eventType;
+        this.keepFiles = keepFiles;
 
-        if ((this.fsMonitor != null) && (this.watchDirectory != null)
-                && this.watchDirectory.isDirectory() && this.watchDirectory.exists()) {
+        if ((this.fsMonitor != null) && (this.watchDirectory != null) && this.watchDirectory.isDirectory() && this.watchDirectory.exists()) {
             if (this.wildCard != null) {
                 this.fsMonitor.setFile(this.watchDirectory, this.wildCard);
             } else {
@@ -204,30 +235,29 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
     }
 
     // ----------------------------------------------- PUBLIC ACCESS METHODS
-
     public FileBasedEventGenerator(FileBasedEventGeneratorConfiguration configuration)
             throws IOException, NotSupportedException {
         OsType osType = configuration.getOsType();
         FileSystemMonitorNotifications eventType = configuration.getEventType();
         final File notifyDir = IOUtils.findLocation(configuration.getWorkingDirectory(), new File(
                 ((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
-        if (notifyDir == null
-                || !(notifyDir.exists() && notifyDir.isDirectory() & notifyDir.canRead()))
+        if (notifyDir == null || !(notifyDir.exists() && notifyDir.isDirectory() & notifyDir.canRead())) {
             throw new IOException("Invalid notify directory");
-
+        }
+        boolean keepFiles = configuration.getKeepFiles();
         String wildCard = configuration.getWildCard();
-        initialize(osType, eventType, notifyDir, wildCard);
+        initialize(osType, eventType, notifyDir, wildCard, keepFiles);
     }
 
     /**
      * @return the watchDirectory
      * @uml.property name="watchDirectory"
      */
-    public File getWatchDirectory(){
+    public File getWatchDirectory() {
         return watchDirectory;
     }
 
-/**
+    /**
      * @return the wildCard
      * @uml.property name="wildCard"
      */
@@ -320,7 +350,6 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
     }
 
     // ----------------------------------------------- DELEGATE METHODS
-
     /**
      * 
      * @see it.geosolutions.filesystemmonitor.monitor.Monitor#dispose()
@@ -343,6 +372,15 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
      * @see it.geosolutions.filesystemmonitor.monitor.Monitor#resume()
      */
     public synchronized void start() {
+        if (!keepFiles) {
+            if (LOGGER.isLoggable(Level.INFO)) {
+                LOGGER.info("Cleaning up " + watchDirectory.getAbsolutePath().toString());
+            }
+            IOUtils.emptyDirectory(watchDirectory, true, false);
+        } else if (LOGGER.isLoggable(Level.INFO)) {
+            LOGGER.info("Keep existing files in " + watchDirectory.getAbsolutePath().toString());
+        }
+
         fsMonitor.start();
     }
 

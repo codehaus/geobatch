@@ -56,6 +56,11 @@ public class FtpBasedEventGeneratorConfiguration extends EventGeneratorConfigura
     private String watchDirectory;
 
     /**
+     * A flag used to keep files in watchDirectory when flow is started.
+     */
+    private boolean keepFiles = false;
+    
+    /**
      * The wild-card used to catch the kind of input files.
      */
     private String wildCard;
@@ -99,6 +104,35 @@ public class FtpBasedEventGeneratorConfiguration extends EventGeneratorConfigura
         this.ftpserverPWD = ftpserverPWD;
         this.ftpserverPort = ftpserverPort;
     }
+
+  /**
+     *
+     * @param id
+     * @param name
+     * @param description
+     * @param dirty
+     * @param osType
+     * @param eventType
+     * @param workingDirectory
+     * @param wildCard
+     * @param keepFiles
+     */
+    public FtpBasedEventGeneratorConfiguration(String id, String name, String description,
+            boolean dirty, OsType osType, FileSystemMonitorNotifications eventType,
+            String workingDirectory, String wildCard, String ftpserverUSR,String ftpserverPWD,
+            String ftpserverPort, boolean keepFiles) {
+        super(id, name, description, dirty);
+        this.osType = osType;
+        this.eventType = eventType;
+        this.watchDirectory = workingDirectory;
+        this.wildCard = wildCard;
+        this.ftpserverUSR = ftpserverUSR;
+        this.ftpserverPWD = ftpserverPWD;
+        this.ftpserverPort = ftpserverPort;
+        this.keepFiles = keepFiles;
+    }
+
+    /**
 
     /**
      * Getter for the OS type attribute.
@@ -212,6 +246,24 @@ public class FtpBasedEventGeneratorConfiguration extends EventGeneratorConfigura
      */
     public void setFtpserverPort(String ftpserverPort) {
         this.ftpserverPort = ftpserverPort;
+    }
+
+    /**
+     * Getter for the keep files in watchDirectory flag.
+     *
+     * @return keepFiles
+     */
+    public boolean getKeepFiles() {
+        return keepFiles;
+    }
+
+    /**
+     * Setter for the keep files in watchDirectory flag.
+     *
+     * @param keepFiles
+     */
+    public void setKeepFiles(boolean keepFiles) {
+        this.keepFiles = keepFiles;
     }
 
 }
