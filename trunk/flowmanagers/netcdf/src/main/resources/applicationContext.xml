@@ -4,7 +4,7 @@
 <beans>
 
 	<!-- Environment Initialization -->
-	<bean id="netcdffileGeneratorService" class="it.geosolutions.iengine.nc.NetCDFFileGeneratorService">
+	<bean id="netcdffileGeneratorService" class="it.geosolutions.geobatch.nc.NetCDFFileGeneratorService">
 		<property  name="id">
     		<value>netcdffileGeneratorService</value>
     	</property>
