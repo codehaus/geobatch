@@ -58,6 +58,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.postgresql.Driver;
 
 import ucar.ma2.Array;
+import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 import ucar.nc2.dataset.NetcdfDataset;
 
@@ -68,6 +69,7 @@ import com.vividsolutions.jts.io.WKTReader;
 
 
 /**
+ * 
  * Public class to insert NetCDF data file (gliders measurements) into DB 
  *  
  */
@@ -245,11 +247,13 @@ public class NetCDFFileConfigurator extends
 	 * 	@return array
 	 */
     private static Array readVariables(NetcdfDataset dataset, String name)throws IOException{
-    	Array array;
+    	Array array = null;
     	
     	try{
         	Variable v = dataset.findVariable(name);
-        	array = v.read(); 
+        	
+        	if(v != null)
+        		array = v.read(); 
         	
         	return array;
         	
@@ -324,56 +328,69 @@ public class NetCDFFileConfigurator extends
         	Array pTime, depth, lonValues, latValues;	        	
         	
         	pTime = readVariables(dataset, "ptime");
-        	depth = readVariables(dataset, "depth");
-        	lonValues = readVariables(dataset, "lon");
-        	latValues = readVariables(dataset, "lat");
         	
-        	Long size = pTime.getSize();
-        	
-        	Point[] positions = new Point[size.intValue()];
-        	GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
-        	
-        	for(int k=0; k<positions.length; k++){     		
-        		
-        		WKTReader reader = new WKTReader( geometryFactory );
-        		Point point = (Point) reader.read("POINT("+ lonValues.getDouble(lonValues.getIndex().set(k)) + " " + latValues.getDouble(latValues.getIndex().set(k)) + " 0)");
-        		point.setSRID(4326);     		
-        		
-        		positions[k] = point;
-        	} 
-        	
-        	SimpleFeatureType newFT = pgDataStore.getSchema(this.getConfiguration().getDbTableName());
-        	
-        	transaction = new DefaultTransaction(this.getConfiguration().getDbTableName());
-        	aWriter = pgDataStore.getFeatureWriterAppend(newFT.getTypeName(),transaction);
-        	
-        	for(int l=0; l<size.intValue(); l++){
-        		SimpleFeature aNewFeature = (SimpleFeature)aWriter.next();	
-	    		
-	    		aNewFeature.setAttribute("ship_id", 1);
-	    		aNewFeature.setAttribute("type_id", 2);
-	    		aNewFeature.setAttribute("cruise_id", 157);
-	    		aNewFeature.setAttribute("sens_id", 0);
-	    		aNewFeature.setAttribute("ext_name", "GLIDER_01");
-	    		
-	        	Date date = new Date(pTime.getLong(pTime.getIndex().set(l))*1000);
-	        	Time time = new Time(pTime.getLong(pTime.getIndex().set(l))*1000);	        	
-	        	
-	    		aNewFeature.setAttribute("obs_date", date);	    		
-	    		aNewFeature.setAttribute("obs_time", time.toString());
-	    		aNewFeature.setAttribute("lat", latValues.getDouble(latValues.getIndex().set(l)));	    		
-	    		aNewFeature.setAttribute("lon", lonValues.getDouble(lonValues.getIndex().set(l)));
-	    		aNewFeature.setAttribute("the_geom", positions[l]);
-	    		
-	    		aWriter.write();
-        	}
-        	
-        	aWriter.close();
-        	
-            transaction.commit();
-            transaction.close();
-        	pgDataStore.dispose();	
-        	
+            if(pTime == null)throw new IOException();
+            else{
+//            	depth = readVariables(dataset, "depth");
+            	lonValues = readVariables(dataset, "lon");
+            	latValues = readVariables(dataset, "lat");
+            	
+            	if(lonValues == null || latValues == null)throw new IOException();
+            	else{
+                	Attribute platform_code = dataset.findGlobalAttribute("platform_code");
+                	
+                	Long size = pTime.getSize();
+                	
+                	Point[] positions = new Point[size.intValue()];
+                	GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
+                	
+                	for(int k=0; k<positions.length; k++){     		
+                		
+                		WKTReader reader = new WKTReader( geometryFactory );
+                		Point point = (Point) reader.read("POINT("+ lonValues.getDouble(lonValues.getIndex().set(k)) + " " + latValues.getDouble(latValues.getIndex().set(k)) + " 0)");
+                		point.setSRID(4326);     		
+                		
+                		positions[k] = point;
+                	} 
+                	
+                	SimpleFeatureType newFT = pgDataStore.getSchema(this.getConfiguration().getDbTableName());
+                	
+                	transaction = new DefaultTransaction(this.getConfiguration().getDbTableName());
+                	aWriter = pgDataStore.getFeatureWriterAppend(newFT.getTypeName(),transaction);
+                	
+                	for(int l=0; l<size.intValue(); l++){
+                		SimpleFeature aNewFeature = (SimpleFeature)aWriter.next();	
+        	    		
+        	    		aNewFeature.setAttribute("ship_id", 1);
+        	    		aNewFeature.setAttribute("type_id", 2);
+        	    		aNewFeature.setAttribute("cruise_id", 157);
+        	    		aNewFeature.setAttribute("sens_id", 0);
+        	    		
+        	    		if(platform_code != null)
+        	    			aNewFeature.setAttribute("ext_name", platform_code.getStringValue());
+        	    		else
+        	    			aNewFeature.setAttribute("ext_name", "Not Available");
+        	    		
+        	        	Date date = new Date(pTime.getLong(pTime.getIndex().set(l))*1000);
+        	        	Time time = new Time(pTime.getLong(pTime.getIndex().set(l))*1000);	        	
+        	        	
+        	    		aNewFeature.setAttribute("obs_date", date);	    		
+        	    		aNewFeature.setAttribute("obs_time", time.toString());
+        	    		aNewFeature.setAttribute("lat", latValues.getDouble(latValues.getIndex().set(l)));	    		
+        	    		aNewFeature.setAttribute("lon", lonValues.getDouble(lonValues.getIndex().set(l)));
+        	    		aNewFeature.setAttribute("the_geom", positions[l]);
+        	    		
+        	    		aWriter.write();
+                	}
+                	
+                	aWriter.close();
+                	
+                    transaction.commit();
+                    transaction.close();
+                	pgDataStore.dispose();	
+            	}
+            }
+	
     	}catch(IOException exc){
     		throw new IOException("EXCEPTION -> " + exc.getLocalizedMessage());
     	}catch(ParseException exc){
@@ -399,10 +416,10 @@ public class NetCDFFileConfigurator extends
 	    
         try{
         	NetcdfDataset dataset = NetcdfDataset.openDataset((input).getPath());   	        	 
-        	
+
         	Array pTime, dist, pitch, inflecting, numHalfYolnSegment, cond, temperature, press, irrad412nm, irrad442nm, irrad491nm, irrad664nm, backscatterBlue,
         	backscatterGreen, backscatterRed, depth, cndr, salin, densi, pTemp, pDens, svel, prfl;	        	
-        	
+
         	pTime = readVariables(dataset, "ptime");
         	dist = readVariables(dataset, "dist");
         	pitch = readVariables(dataset, "pitch");
@@ -426,103 +443,118 @@ public class NetCDFFileConfigurator extends
         	pDens = readVariables(dataset, "pDens");
         	svel = readVariables(dataset, "svel");
         	prfl = readVariables(dataset, "prfl");       	    	
-        	
-            conTarget.setAutoCommit(false);            
-        
-        	int obs_id_min = 0;
-        	int obs_id_max = 0;
-        	
-//          	String sqlString = "SELECT MIN(obs_id) FROM observation";
-//          	stat = conTarget.prepareStatement(sqlString);
-//          	rs_glider_ms = stat.executeQuery();
-//            if(rs_glider_ms.next())	obs_id_min = rs_glider_ms.getInt(1);
-//            rs_glider_ms.close();
-//            stat.close();       	
-            
-        	String sqlString = "SELECT MAX(obs_id) FROM observation";
-          	stat = conTarget.prepareStatement(sqlString);
-          	rs_glider_ms = stat.executeQuery();
-            if(rs_glider_ms.next())	obs_id_max = rs_glider_ms.getInt(1);
-            rs_glider_ms.close();
-            stat.close();
-        	
-            Long size = pTime.getSize();
-            
-            obs_id_min = obs_id_max - size.intValue();
-            obs_id_min++;
-            
-	    	for(int i=obs_id_min, j=0; i<=obs_id_max && j<size; j++, i++){	     		   	            
-	        	StringBuffer zPos = new StringBuffer();
-	        	zPos.append(depth.getDouble(depth.getIndex().set(j)));
-	        	
-	        	Date date = new Date(pTime.getLong(pTime.getIndex().set(j))*1000);
-	        	
-	          	sqlString = "insert into measurement(zpos,tpos,obs_id,depth) values(ARRAY[" + zPos.toString() + "],?,?,?)";
-	          	stat = conTarget.prepareStatement(sqlString);
-	          	
-	          	stat.setTimestamp(1, new Timestamp(date.getTime()));
-	          	stat.setLong(2, i);
-	          	stat.setDouble(3, depth.getDouble(depth.getIndex().set(j))*-1);
-	          	stat.execute();  
-	          	stat.close();
-        	}	
-	    	
-        	int measurement_id_min = 0;
-        	int measurement_id_max = 0;
-	    	
-//          	sqlString = "SELECT MIN(measurement_id) FROM measurement";
-//          	stat = conTarget.prepareStatement(sqlString);
-//              rs_glider_ms = stat.executeQuery();
-//            if(rs_glider_ms.next())	measurement_id_min = rs_glider_ms.getInt(1);
-//            rs_glider_ms.close();
-//            stat.close();
-            
-          	sqlString = "SELECT MAX(measurement_id) FROM measurement";
-          	stat = conTarget.prepareStatement(sqlString);
-          	rs_glider_ms = stat.executeQuery();
-            if(rs_glider_ms.next())	measurement_id_max = rs_glider_ms.getInt(1);
-            rs_glider_ms.close();
-            stat.close();	          
-            
-            measurement_id_min = measurement_id_max - size.intValue();
-            measurement_id_min++;
-            
-            final Integer[] param_id = {20,21,22,23,3,2,1,13,14,15,16,17,18,19,12,4,6,24,11,5,25};
-            
-    		for(int y=measurement_id_min, h=0; y<=measurement_id_max; y++, h++){    			
-    			
-	    		final Double[] mValues = {
-	    				dist.getDouble(dist.getIndex().set(h)),
-	    				pitch.getDouble(pitch.getIndex().set(h)),
-	    				inflecting.getDouble(inflecting.getIndex().set(h)),
-	    				numHalfYolnSegment.getDouble(numHalfYolnSegment.getIndex().set(h)),
-	    				cond.getDouble(cond.getIndex().set(h))*100000,
-	    				temperature.getDouble(temperature.getIndex().set(h)),
-	    				press.getDouble(press.getIndex().set(h)),
-	    				irrad412nm.getDouble(irrad412nm.getIndex().set(h)),
-	    				irrad442nm.getDouble(irrad442nm.getIndex().set(h)),
-	    				irrad491nm.getDouble(irrad491nm.getIndex().set(h)),
-	    				irrad664nm.getDouble(irrad664nm.getIndex().set(h)),
-	    				backscatterBlue.getDouble(backscatterBlue.getIndex().set(h)),
-	    				backscatterGreen.getDouble(backscatterGreen.getIndex().set(h)),
-	    				backscatterRed.getDouble(backscatterRed.getIndex().set(h)),
-	    				cndr.getDouble(cndr.getIndex().set(h)),
-	    				salin.getDouble(salin.getIndex().set(h)),
-	    				densi.getDouble(densi.getIndex().set(h)),
-	    				pTemp.getDouble(pTemp.getIndex().set(h)),
-	    				pDens.getDouble(pDens.getIndex().set(h)),
-	    				svel.getDouble(svel.getIndex().set(h)),
-	    				prfl.getDouble(prfl.getIndex().set(h))
-	    		};
-    		    
-    			for(int k=0; k<mValues.length; k++){      	        	
-    	            sqlString = "insert into measurement_values(measurement_id,values,param_id) values(" + y + ", ARRAY['" + mValues[k] + "']," + param_id[k].longValue() + ")";
-    	          	stat = conTarget.prepareStatement(sqlString);
 
-    	          	stat.execute();
+            conTarget.setAutoCommit(false);      
+            
+            if(pTime == null)throw new Exception();
+            else{
+            	int obs_id_min = 0;
+            	int obs_id_max = 0;
+            	
+//              	String sqlString = "SELECT MIN(obs_id) FROM observation";
+//              	stat = conTarget.prepareStatement(sqlString);
+//              	rs_glider_ms = stat.executeQuery();
+//                if(rs_glider_ms.next())	obs_id_min = rs_glider_ms.getInt(1);
+//                rs_glider_ms.close();
+//                stat.close();       	
+
+            	String sqlString = "SELECT MAX(obs_id) FROM observation";
+              	stat = conTarget.prepareStatement(sqlString);
+              	rs_glider_ms = stat.executeQuery();
+                if(rs_glider_ms.next())	obs_id_max = rs_glider_ms.getInt(1);
+                rs_glider_ms.close();
+                stat.close();
+
+                Long size = pTime.getSize();
+                
+                obs_id_min = obs_id_max - size.intValue();
+                obs_id_min++;
+                
+    	    	for(int i=obs_id_min, j=0; i<=obs_id_max && j<size; j++, i++){	     	
+    	    		StringBuffer zPos = new StringBuffer();	     	    		
+    	    			 
+    	    		Double depth_value = new Double(depth == null ? Double.NaN : depth.getDouble(depth.getIndex().set(j)));
+//    	    		Double depth_value = new Double(depth.getDouble(depth.getIndex().set(j)));
+    	    		
+    	    		if(depth_value.isNaN())
+    	    			zPos.append(0.0);
+    	    		else
+    	    			zPos.append(depth.getDouble(depth.getIndex().set(j)));
+    	    		       	
+    	        	
+    	        	Date date = new Date(pTime.getLong(pTime.getIndex().set(j))*1000);
+    	        	
+    	          	sqlString = "insert into measurement(zpos,tpos,obs_id,depth) values(ARRAY[" + zPos.toString() + "],?,?,?)";
+    	          	stat = conTarget.prepareStatement(sqlString);
+    	          	stat.setTimestamp(1, new Timestamp(date.getTime()));
+    	          	stat.setLong(2, i);
+    	          	
+    	          	if(depth_value.isNaN())	
+    	          		stat.setDouble(3, 0.0);
+    	          	else
+    	          		stat.setDouble(3, depth_value.doubleValue()*-1);
+    	          	
+    	          	stat.execute();  
     	          	stat.close();
-    			}
-    		}	
+            	}	
+    	    	
+            	int measurement_id_min = 0;
+            	int measurement_id_max = 0;
+    	    	
+//              	sqlString = "SELECT MIN(measurement_id) FROM measurement";
+//              	stat = conTarget.prepareStatement(sqlString);
+//                  rs_glider_ms = stat.executeQuery();
+//                if(rs_glider_ms.next())	measurement_id_min = rs_glider_ms.getInt(1);
+//                rs_glider_ms.close();
+//                stat.close();
+                
+              	sqlString = "SELECT MAX(measurement_id) FROM measurement";
+              	stat = conTarget.prepareStatement(sqlString);
+              	rs_glider_ms = stat.executeQuery();
+                if(rs_glider_ms.next())	measurement_id_max = rs_glider_ms.getInt(1);
+                rs_glider_ms.close();
+                stat.close();	          
+                
+                measurement_id_min = measurement_id_max - size.intValue();
+                measurement_id_min++;
+                
+                final Integer[] param_id = {20,21,22,23,3,2,1,13,14,15,16,17,18,19,12,4,6,24,11,5,25};
+                
+        		for(int y=measurement_id_min, h=0; y<=measurement_id_max; y++, h++){    			
+        			
+    	    		final Double[] mValues = {
+    	    				dist == null ? Double.NaN : dist.getDouble(dist.getIndex().set(h)),	    				
+    	    				pitch == null ? Double.NaN : pitch.getDouble(pitch.getIndex().set(h)),	    				
+    	    				inflecting == null ? Double.NaN : inflecting.getDouble(inflecting.getIndex().set(h)),
+    	    				numHalfYolnSegment == null ? Double.NaN : numHalfYolnSegment.getDouble(numHalfYolnSegment.getIndex().set(h)),
+    	    				cond == null ? Double.NaN : cond.getDouble(cond.getIndex().set(h))*100000,
+    	    				temperature == null ? Double.NaN : temperature.getDouble(temperature.getIndex().set(h)),
+    	    				press == null ? Double.NaN : press.getDouble(press.getIndex().set(h)),
+    	    				irrad412nm == null ? Double.NaN : irrad412nm.getDouble(irrad412nm.getIndex().set(h)),
+    	    				irrad442nm == null ? Double.NaN : irrad442nm.getDouble(irrad442nm.getIndex().set(h)),
+    	    				irrad491nm == null ? Double.NaN : irrad491nm.getDouble(irrad491nm.getIndex().set(h)),
+    	    				irrad664nm == null ? Double.NaN : irrad664nm.getDouble(irrad664nm.getIndex().set(h)),
+    	    				backscatterBlue == null ? Double.NaN : backscatterBlue.getDouble(backscatterBlue.getIndex().set(h)),
+    	    				backscatterGreen == null ? Double.NaN : backscatterGreen.getDouble(backscatterGreen.getIndex().set(h)),
+    	    				backscatterRed == null ? Double.NaN : backscatterRed.getDouble(backscatterRed.getIndex().set(h)),
+    	    				cndr == null ? Double.NaN : cndr.getDouble(cndr.getIndex().set(h)),
+    	    				salin == null ? Double.NaN : salin.getDouble(salin.getIndex().set(h)),
+    	    				densi == null ? Double.NaN : densi.getDouble(densi.getIndex().set(h)),
+    	    				pTemp == null ? Double.NaN : pTemp.getDouble(pTemp.getIndex().set(h)),
+    	    				pDens == null ? Double.NaN : pDens.getDouble(pDens.getIndex().set(h)),
+    	    				svel == null ? Double.NaN : svel.getDouble(svel.getIndex().set(h)),
+    	    				prfl == null ? Double.NaN : prfl.getDouble(prfl.getIndex().set(h))	    				
+    	    		};
+        		    
+        			for(int k=0; k<mValues.length; k++){         				
+        	            sqlString = "insert into measurement_values(measurement_id,values,param_id) values(" + y + ", ARRAY['" + mValues[k].doubleValue() + "']," + param_id[k].longValue() + ")";
+        	            
+        	          	stat = conTarget.prepareStatement(sqlString);
+        	          	stat.execute();
+        	          	stat.close();
+        			}
+        		}
+            }
 
 		}catch(Exception exc){
 			throw new SQLException("EXCEPTION -> " + exc.getLocalizedMessage());

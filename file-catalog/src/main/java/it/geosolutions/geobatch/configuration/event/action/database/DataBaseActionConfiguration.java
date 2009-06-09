@@ -26,11 +26,18 @@ package it.geosolutions.geobatch.configuration.event.action.database;
 
 import it.geosolutions.geobatch.catalog.Configuration;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
+import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 
 
 
 public class DataBaseActionConfiguration extends ActionConfiguration implements Configuration {
 
+    protected DataBaseActionConfiguration(String id, String name,
+			String description, boolean dirty) {
+		super(id, name, description, dirty);
+		// TODO Auto-generated constructor stub
+	}
+    
     private String workingDirectory;
 
     private String dbPWD;
@@ -144,7 +151,8 @@ public class DataBaseActionConfiguration extends ActionConfiguration implements 
 
     @Override
     public ActionConfiguration clone() throws CloneNotSupportedException {
-     	final DataBaseActionConfiguration configuration= new DataBaseActionConfiguration();
+		final DataBaseActionConfiguration configuration = 
+			new DataBaseActionConfiguration(super.getId(),super.getName(),super.getDescription(),super.isDirty());
 
 		configuration.setDbPWD(dbPWD);
 		configuration.setDbUID(dbUID);
@@ -153,6 +161,7 @@ public class DataBaseActionConfiguration extends ActionConfiguration implements 
         configuration.setDbName(dbName);
 		configuration.setStoreFilePrefix(storeFilePrefix);
 		configuration.setConfigId(configId);
+		configuration.setServiceID(getServiceID());
 		configuration.setDbType(dbType);
 		configuration.setWorkingDirectory(workingDirectory);
 		configuration.setDbTableName(dbTableName);
