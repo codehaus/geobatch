@@ -43,7 +43,7 @@ public class NetCDFFileGeneratorService extends
             .toString());
 
     /**
-     * Action creator
+     *  Action creator
      * 
      *  @param configuration The data base action configuration 
      *  @return new NetCDFFileConfigurator()

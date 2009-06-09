@@ -17,12 +17,12 @@
 		
 		<DataBaseActionConfiguration>
 			<workingDirectory>flow5workingdir</workingDirectory>
-			<dbPWD>tobaro</dbPWD>
+			<dbPWD>postgres</dbPWD>
 			<dbUID>postgres</dbUID>
 			<dbServerIp>localhost</dbServerIp>
 			<dbType>postgis</dbType>
 			<dbPort>5432</dbPort>			
-			<dbName>prova</dbName>
+			<dbName>observations_db</dbName>
 			<dbTableName>observation</dbTableName>
 			<serviceID>netcdffileGeneratorService</serviceID>
 			<id>n1</id>
