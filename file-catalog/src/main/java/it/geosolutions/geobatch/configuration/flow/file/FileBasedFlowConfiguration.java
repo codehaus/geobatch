@@ -53,6 +53,12 @@ public class FileBasedFlowConfiguration extends BaseFlowConfiguration implements
     private String workingDirectory;
 
     /**
+     * autorun: this attribute is used to autorun a flow on startup.
+     *
+     */
+    private boolean autorun = false;
+
+    /**
      * Default Constructor.
      */
     public FileBasedFlowConfiguration() {
@@ -111,6 +117,25 @@ public class FileBasedFlowConfiguration extends BaseFlowConfiguration implements
         this.workingDirectory = workingDirectory;
         setDirty(true);
     }
+
+    /**
+     * Returns true if flow must be started on startup
+     * 
+     */
+
+    public boolean autorun() {
+        return autorun;
+    }
+
+    /**
+     * Set autorun flag.
+     *
+     * @param autorun
+     */
+    public void setautorun(boolean autorun) {
+        this.autorun = autorun;
+    }
+
 
 	@Override
 	public String toString() {
