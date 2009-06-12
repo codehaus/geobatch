@@ -65,6 +65,8 @@ public class FileBasedFlowManager
     /** Default Logger **/
     private final static Logger LOGGER = Logger.getLogger(FlowManager.class.toString());
 
+    private boolean autorun=false;
+
     /**
      * Base class for dispatchers.
      * 
@@ -266,7 +268,14 @@ public class FileBasedFlowManager
                     .append(">").append(baseDir).append("< ")
                     .append(">").append(configuration.getWorkingDirectory()).append("< ").toString()
 					);
+       
+       this.autorun = configuration.autorun();
 
+       if(this.autorun) {
+           if (LOGGER.isLoggable(Level.INFO))
+                    LOGGER.info("Automatic Flow Startup");
+           this.resume();
+       }
     }
 
     /*
@@ -450,6 +459,14 @@ public class FileBasedFlowManager
         return termination;
     }
 
+    public boolean autorun() {
+        return autorun;
+    }
+
+    public void setautorun(boolean autorun) {
+        this.autorun = autorun;
+    }
+    
     /**
      * @return the workingDirectory
      */
