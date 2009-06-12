@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FlowConfiguration>
 	<workingDirectory>flow2workingdir</workingDirectory>
+    <autorun>true</autorun>
 	<EventConsumerConfiguration>
 		<workingDirectory>flow2workingdir</workingDirectory>
 		<performBackup>true</performBackup>
@@ -63,6 +64,7 @@
 	<eventGeneratorConfiguration class="FsEventGeneratorConfiguration">
 		<wildCard>*.*</wildCard>
 		<watchDirectory>flow2workingdir/in</watchDirectory>
+        <keepFiles>true</keepFiles>
 		<osType>OS_UNDEFINED</osType>
 		<eventType>FILE_ADDED</eventType>
 		<id>id</id>
