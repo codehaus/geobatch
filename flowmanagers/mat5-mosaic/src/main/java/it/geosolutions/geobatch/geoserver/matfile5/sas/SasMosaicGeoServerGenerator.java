@@ -23,7 +23,7 @@
 package it.geosolutions.geobatch.geoserver.matfile5.sas;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.base.BaseImageProcessingConfiguration;
+import it.geosolutions.geobatch.base.Utils;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorAction;
@@ -104,7 +104,7 @@ public class SasMosaicGeoServerGenerator
             }
             
             final String inputFileName = workingDir.getAbsolutePath();
-	    String baseFileName = null;
+            String baseFileName = null;
             final String coverageStoreId = FilenameUtils.getBaseName(inputFileName);
 
             if (dataType.equalsIgnoreCase("imagemosaic")){
@@ -132,7 +132,7 @@ public class SasMosaicGeoServerGenerator
                         }
                     }
                 }
-            }else if (dataType.equalsIgnoreCase("geotiff")){
+            } else if (dataType.equalsIgnoreCase("geotiff")){
                 final GeoTiffFormat format = new GeoTiffFormat ();
                 GeoTiffReader coverageReader = null;
     
@@ -157,6 +157,9 @@ public class SasMosaicGeoServerGenerator
                         }
                     }
                 }
+            } else {
+            	LOGGER.log(Level.SEVERE,"Unsupported format type" + dataType);
+                return null;
             }
             // ////////////////////////////////////////////////////////////////////
             //
@@ -226,7 +229,7 @@ public class SasMosaicGeoServerGenerator
                                             getConfiguration().getGeoserverPWD());
             }
         }else{
-		if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
+        	if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
 	            geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/workspaces/")
 	            		.append(queryParams.get("namespace")).append("/coveragestores/").append(coverageStoreId)
 	            		.append("/file.").append(type).append("?").append(getQueryString(queryParams)).toString());
@@ -242,7 +245,7 @@ public class SasMosaicGeoServerGenerator
 	                                        data.toURL().toExternalForm(),
 	                                        getConfiguration().getGeoserverUID(),
 	                                        getConfiguration().getGeoserverPWD());
-	        }else if ("EXTERNAL".equals(getConfiguration().getDataTransferMethod())) {
+	        } else if ("EXTERNAL".equals(getConfiguration().getDataTransferMethod())) {
 	            geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/workspaces/")
 	            		.append(queryParams.get("namespace")).append("/coveragestores/").append(coverageStoreId)
 	            		.append("/external.").append(type).append("?").append(getQueryString(queryParams)).toString());
@@ -254,9 +257,11 @@ public class SasMosaicGeoServerGenerator
         }
 
         if (sent) {
-            LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
+        	if (LOGGER.isLoggable(Level.INFO))
+        		LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
         } else {
-            LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
+        	if (LOGGER.isLoggable(Level.INFO))
+        		LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
         }
     }
 
@@ -295,16 +300,24 @@ public class SasMosaicGeoServerGenerator
       geoserverIngestion.execute(null);
     }
 
-	public static String buildWmsPath(final String path) {
-		if (path==null || path.trim().length()==0)
+    /**
+     * Build a WMSPath from the specified String 
+     * Input names are in the form: DATE_missionXX_LegXXXX_CHANNEL
+     * As an instance: DATE=090316 and CHANNEL=port
+     * 
+     * @param name
+     * @return
+     */
+	public static String buildWmsPath(final String name) {
+		if (name==null || name.trim().length()==0)
 			return "";
-		final int missionIndex = path.indexOf("_");
-        final String timePrefix = path.substring(0,missionIndex);
-        final int legIndex = path.indexOf(BaseImageProcessingConfiguration.LEG_PREFIX);
-        String missionPrefix = path.substring(missionIndex+1,legIndex);
+		final int missionIndex = name.indexOf("_");
+        final String timePrefix = name.substring(0,missionIndex);
+        final int legIndex = name.indexOf(Utils.LEG_PREFIX);
+        String missionPrefix = name.substring(missionIndex+1,legIndex);
 //        final int indexOfMissionNumber = missionPrefix.lastIndexOf("_");
 //        missionPrefix = new StringBuffer("mission").append(missionPrefix.substring(indexOfMissionNumber+1)).toString();
-        final String legPath = path.substring(legIndex+1);
+        final String legPath = name.substring(legIndex+1);
         final String wmsPath = new StringBuilder("/").append(timePrefix).append("/").append(missionPrefix).append("/").append(legPath.replace("_","/")).toString();
         return wmsPath;
 	}

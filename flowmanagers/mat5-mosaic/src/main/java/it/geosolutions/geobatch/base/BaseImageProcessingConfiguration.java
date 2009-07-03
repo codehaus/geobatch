@@ -24,26 +24,38 @@ package it.geosolutions.geobatch.base;
 import it.geosolutions.geobatch.catalog.Configuration;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 
-import java.io.File;
-
-import javax.media.jai.Interpolation;
-
+/**
+ * A Base Configuration class sharing common configuration's parameters
+ *
+ * @author Daniele Romagnoli, GeoSolutions SAS
+ *
+ */
 public abstract class BaseImageProcessingConfiguration extends ActionConfiguration
 		implements Configuration {
 
-	public static final String LEG_PREFIX = "_Leg";
 	private String workingDirectory;
+	
 	/** Downsampling step. */
 	private int downsampleStep;
+	
+	/** Number of steps -> overviews */
 	private int numSteps;
+	
 	/** Scale algorithm. */
 	private String scaleAlgorithm;
+	
+	/** Compression ratio */
 	private double compressionRatio = 0.75f;
+	
+	/** Compression type */
 	private String compressionScheme = "LZW";
+	
 	/** Tile height. */
 	private int tileH = -1;
+	
 	/** Tile width. */
 	private int tileW = -1;
+	
 	private String serviceID;
 
 	private String time = "";
@@ -150,56 +162,4 @@ public abstract class BaseImageProcessingConfiguration extends ActionConfigurati
 	public void setServiceID(String serviceID) {
 	    this.serviceID = serviceID;
 	}
-
-	public static String buildRunName(final String location, final String time, final String prefix){
-    	String dirName = "";
-    	final File dir = new File(location);
-         final String channelName = dir.getName();
-         final String leg = dir.getParent();
-         final File legF = new File(leg);
-         final String legName = legF.getName();
-         final String mission = legF.getParent();
-         final File missionF = new File(mission);
-//         final String missionName = missionF.getName();
-         String missionName = missionF.getName();
-         final int missionIndex = missionName.lastIndexOf("_");
-         if (missionIndex!=-1){
-             missionName = new StringBuffer("mission").append(missionName.substring(missionIndex+1)).toString();
-         }
-         
-         dirName = new StringBuilder(location).append(File.separatorChar).append(prefix)
-         .append(time).append("_")
-         .append(missionName).append(LEG_PREFIX)
-         .append(legName.substring(3,legName.length())).append("_")
-         .append(channelName).toString();
-         return dirName;
-    }
-	
-	public static void addOverviews(final String inputFileName, final int downsampleStep,
-			final int numberOfSteps, final String scaleAlgorithm, final String compressionScheme,
-			final double compressionRatio, final int tileWidth, final int tileHeight) {
-        
-        if (downsampleStep <= 0)
-            throw new IllegalArgumentException("Illegal downsampleStep: "
-                    + downsampleStep);
-        if (numberOfSteps <= 0)
-            throw new IllegalArgumentException("Illegal numberOfSteps: "
-                    + numberOfSteps);
-
-        final OverviewsEmbedder oe = new OverviewsEmbedder();
-        oe.setDownsampleStep(downsampleStep);
-        oe.setNumSteps(numberOfSteps);
-        oe.setInterp(Interpolation.getInstance(Interpolation.INTERP_NEAREST));
-        oe.setScaleAlgorithm(scaleAlgorithm);
-        oe.setTileHeight(tileHeight);
-        oe.setTileWidth(tileWidth);
-        oe.setSourcePath(inputFileName);
-        if (compressionScheme != null
-                && !Double.isNaN(compressionRatio)) {
-            oe.setCompressionRatio(compressionRatio);
-            oe.setCompressionScheme(compressionScheme);
-        }
-       
-        oe.run();
-    }
 }

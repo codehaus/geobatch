@@ -48,7 +48,6 @@ public class MosaicerService extends BaseService implements
             .getLogger(Mosaicer.class.toString());
 
     public boolean canCreateAction(MosaicerConfiguration configuration) {
-        // XXX
         return true;
     }
 

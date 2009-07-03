@@ -106,7 +106,7 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 
 	/**
 	 * The source path. It could point to a single file or to a directory when
-	 * we want to embed overwies into a set of files having a certain name.
+	 * we want to embed overviews into a set of files having a certain name.
 	 */
 	private String sourcePath;
 
@@ -949,41 +949,6 @@ public class OverviewsEmbedder extends BaseArgumentsManager implements
 		}
 
 		return true;
-
-	}
-
-	/**
-	 * This tool is designed to be used by the command line using this main
-	 * class but it can also be used from an GUI by using the setters and
-	 * getters.
-	 * 
-	 * @param args
-	 * @throws IOException
-	 * @throws IllegalArgumentException
-	 * @throws InterruptedException
-	 */
-	public static void main(String[] args) throws IllegalArgumentException,
-			IOException, InterruptedException {
-
-		// creating an overviews embedder
-		final OverviewsEmbedder overviewsEmbedder = new OverviewsEmbedder();
-		// adding the embedder itself as a listener
-		// parsing input argumentBuilder
-		if (overviewsEmbedder.parseArgs(args)) {
-			// creating a thread to execute the request process, with the
-			// provided priority
-			final Thread t = new Thread(overviewsEmbedder, "OverviewsEmbedder");
-			t.setPriority(overviewsEmbedder.getPriority());
-			t.start();
-			try {
-				t.join();
-			} catch (InterruptedException e) {
-				LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-			}
-
-		} else if (LOGGER.isLoggable(Level.FINE))
-			LOGGER
-					.fine("Unable to parse command line argumentBuilder, exiting...");
 
 	}
 
