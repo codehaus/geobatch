@@ -28,20 +28,23 @@ import it.geosolutions.geobatch.base.BaseImageProcessingConfiguration;
 import it.geosolutions.geobatch.catalog.Configuration;
 
 /**
- * Comments here ...
+ * Format Converter configuration
  * 
  * @author Daniele Romagnoli, GeoSolutions
  */
 public class FormatConverterConfiguration extends BaseImageProcessingConfiguration implements
         Configuration {
 
-
+	/** Output Format to convert input data */
 	private String outputFormat;
     
+	/** Supported input formats */
     private String inputFormats;
     
+    /** Where to store converted data */
     private String outputDirectory;
     
+    // When converted, output data is ingested to geoserver
     private String geoserverURL;
 
     private String geoserverUID;
@@ -89,7 +92,6 @@ public class FormatConverterConfiguration extends BaseImageProcessingConfigurati
     protected FormatConverterConfiguration(String id, String name,
 			String description, boolean dirty) {
 		super(id, name, description, dirty);
-		// TODO Auto-generated constructor stub
 	}
     
     public String getOutputFormat() {

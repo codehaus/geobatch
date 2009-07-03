@@ -61,10 +61,8 @@ public class MosaicerConfiguration extends BaseImageProcessingConfiguration impl
     protected MosaicerConfiguration(String id, String name, String description,
             boolean dirty) {
         super(id, name, description, dirty);
-        // TODO Auto-generated constructor stub
     }
-    /** the time String prefix of the directory containing that mosaic */
-
+    
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[" + "id:" + getId() + ", name:"

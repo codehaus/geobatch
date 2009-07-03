@@ -23,7 +23,7 @@
 package it.geosolutions.geobatch.mosaic;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.base.BaseImageProcessingConfiguration;
+import it.geosolutions.geobatch.base.Utils;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
@@ -67,6 +67,7 @@ import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.NoninvertibleTransformException;
 
 /**
  * Main Mosaicer class.
@@ -86,7 +87,8 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
 
     public Queue<FileSystemMonitorEvent> execute(
             Queue<FileSystemMonitorEvent> events) throws Exception {
-        try {
+    	GeoTiffReader reader = null;
+    	try {
         	
             // looking for file
             // if (events.size() != 1)
@@ -119,7 +121,6 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
             final File fileDir = new File(directory);
             if (fileDir != null && fileDir.isDirectory()) {
                 final File[] files = fileDir.listFiles();
-
                 
                 // //
                 //
@@ -127,15 +128,11 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
                 //
                 // //
                 final String outputDirectory = buildOutputDirName(directory);
-//                final String outputBalanced = outputDirectory.replace(MOSAIC_PREFIX, BALANCED_PREFIX);
                 final File dir = new File(outputDirectory);
-//                final File balDir = new File(outputBalanced);
                 configuration.setMosaicDirectory(outputDirectory);
 
                 if (!dir.exists())
                     dir.mkdir();
-//                if(!balDir.exists())
-//                    balDir.mkdir();
 
                 if (files != null) {
                     final int numFiles = files.length;
@@ -147,8 +144,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
 
                         // get a reader
                         final File file = files[i];
-                        final GeoTiffReader reader = new GeoTiffReader(file,
-                                null);
+                        reader = new GeoTiffReader(file, null);
 
                         // //
                         //
@@ -179,23 +175,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
                     // //
                     // computing the final g2w
                     // //
-                    final GeneralMatrix gm = new GeneralMatrix(3);
-                    
-                    gm.setElement(0, 0, xscale);
-                    gm.setElement(1, 1, -yscale);
-                    gm.setElement(0, 1, 0);
-                    gm.setElement(1, 0, 0);
-                    gm.setElement(0, 2, globEnvelope.getLowerCorner()
-                            .getOrdinate(0));
-                    gm.setElement(1, 2, globEnvelope.getUpperCorner()
-                            .getOrdinate(1));
-                    final MathTransform mosaicTransform = ProjectiveTransform
-                            .create(gm);
-//                    final MathTransform tempTransform = PixelTranslation.translate(mosaicTransform, PixelInCell.CELL_CORNER, PixelInCell.CELL_CENTER);
-                    
-                    final MathTransform world2GridTransform = mosaicTransform
-                            .inverse();
-
+                    final MathTransform world2GridTransform = computeWorldToGridTransform(xscale,yscale,globEnvelope);
                     final GridCoverageFactory coverageFactory = CoverageFactoryFinder
                             .getGridCoverageFactory(null);
 
@@ -207,8 +187,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
                     final Iterator<String> it = sortedFiles.keySet().iterator();
                     while (it.hasNext()){
                         final File file = sortedFiles.get(it.next());
-                        final GeoTiffReader reader = new GeoTiffReader(file,
-                                null);
+                        reader = new GeoTiffReader(file, null);
                         final GridCoverage2D gc = (GridCoverage2D) reader.read(null);
                         coverages.add(gc);
                         updates(gc);
@@ -223,19 +202,6 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
                     	LOGGER.info("Retiling the balanced mosaic");
                     retileMosaic(balancedGc, chunkW, chunkH, tileW, tileH,
                             compressionRatio, compressionType, outputDirectory);
-
-                    
-//                    GridCoverage2D gc = coverageFactory.create("mosaiced", mosaicImage, globEnvelope);
-//
-//                    // //
-//                    //
-//                    // Retiling Mosaic to smaller Coverages
-//                    //
-//                    // //
-//                    LOGGER.log(Level.INFO, "Retiling the raw mosaic");
-//                    retileMosaic(gc, chunkW, chunkH, tileW, tileH,
-//                            compressionRatio, compressionType, outputDirectory);
-
                 }
             }
 
@@ -244,10 +210,51 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
             if (LOGGER.isLoggable(Level.SEVERE))
                 LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
             return null;
+        } finally {
+        	 if (reader != null) {
+                 try {
+                     reader.dispose();
+                 } catch (Throwable e) {
+                     if (LOGGER.isLoggable(Level.FINEST))
+                         LOGGER.log(Level.FINEST, e.getLocalizedMessage(), e);
+                 }
+             }
         }
     }
 
-    private Map<String,File> sortFilesByPing(final File[] files) {
+    /**
+     * Setup a proper global WorldToGrid transformation
+     * @param xscale
+     * @param yscale
+     * @param globEnvelope
+     * @return
+     * @throws NoninvertibleTransformException
+     */
+    private MathTransform computeWorldToGridTransform(final double xscale, final double yscale, 
+    		final GeneralEnvelope globEnvelope) throws NoninvertibleTransformException {
+    	final GeneralMatrix gm = new GeneralMatrix(3);
+        
+        gm.setElement(0, 0, xscale);
+        gm.setElement(1, 1, -yscale);
+        gm.setElement(0, 1, 0);
+        gm.setElement(1, 0, 0);
+        gm.setElement(0, 2, globEnvelope.getLowerCorner()
+                .getOrdinate(0));
+        gm.setElement(1, 2, globEnvelope.getUpperCorner()
+                .getOrdinate(1));
+        final MathTransform mosaicTransform = ProjectiveTransform
+                .create(gm);
+//        final MathTransform tempTransform = PixelTranslation.translate(mosaicTransform, PixelInCell.CELL_CORNER, PixelInCell.CELL_CENTER);
+        
+       return mosaicTransform.inverse();
+	}
+
+    /**
+     * Sort files by ping
+     * @param files
+     * @return
+     */
+	private Map<String,File> sortFilesByPing(final File[] files) {
         final Map<String,File> treeMap = new TreeMap<String, File>(java.util.Collections.reverseOrder());
         final DecimalFormat nf = new DecimalFormat("0000000000");
         
@@ -260,7 +267,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
             final String name = file.getName();
             final String[] dashes = name.split("_");
             
-            //TODO: Files are in the form: 
+            //TODO: Files are always in the form as depicted by Francesco: 
             // MUSCLE_COL2_090316_1_1_p_2_143_40_150
             // Improve this ordering logic, leveraging on metadata
             
@@ -277,6 +284,13 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
     
     protected abstract String buildOutputDirName(String directory) ;
 
+    /**
+     * Create the ImageMosaic from the list of coverages, using the provided 
+     * World2Grid transformation to place them on the image
+     * @param coverages
+     * @param world2GridTransform
+     * @return the produced Mosaic
+     */
     private RenderedImage createMosaic(
             final List<GridCoverage2D> coverages,
             final MathTransform world2GridTransform) {
@@ -292,7 +306,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
             final GridCoverage2D coverage = coverages.get(i);
             final ParameterBlockJAI pbAffine = new ParameterBlockJAI("Affine");
             pbAffine.addSource(coverage.getRenderedImage());
-            AffineTransform at = (AffineTransform) coverage.getGridGeometry()
+            final AffineTransform at = (AffineTransform) coverage.getGridGeometry()
                     .getGridToCRS2D();
             AffineTransform chained = (AffineTransform) at.clone();
             chained.preConcatenate((AffineTransform) world2GridTransform);
@@ -305,6 +319,19 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
         return mosaicImage;
     }
 
+    /**
+     * Retile the produced mosaic due to the TIFF Files size limit.
+     * Also internally retile the images
+     * 
+     * @param gc
+     * @param chunkWidth
+     * @param chunkHeight
+     * @param internalTileWidth
+     * @param internalTileHeight
+     * @param compressionRatio
+     * @param compressionScheme
+     * @param outputLocation
+     */
     private void retileMosaic(GridCoverage2D gc, int chunkWidth,
             int chunkHeight, int internalTileWidth, int internalTileHeight,
             final double compressionRatio, final String compressionScheme,
@@ -383,8 +410,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
                     if (LOGGER.isLoggable(Level.INFO))
                     	LOGGER.info(new StringBuilder("Writing tile: ").append(i+1)
                     			.append(" of ").append(numTileX).append(" [X] -- ")
-                    			.append(j+1)
-                    			.append(" of ").append(numTileY).append(" [Y]").toString());
+                    			.append(j+1).append(" of ").append(numTileY).append(" [Y]").toString());
                     
                     final GeoTiffWriter writerWI = new GeoTiffWriter(fileOut);
                     writerWI.write(gc, (GeneralParameterValue[]) params
@@ -407,7 +433,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
             	LOGGER.info( new StringBuilder("Adding overviews: File ").append(nOverviewsDone).
                     append(" of ").append(nFiles).toString());
             nOverviewsDone++;
-				BaseImageProcessingConfiguration.addOverviews(fileOverviews,
+				Utils.addOverviews(fileOverviews,
 						configuration.getDownsampleStep(),configuration.getNumSteps(),
 						configuration.getScaleAlgorithm(),configuration.getCompressionScheme(),
 						configuration.getCompressionRatio(),configuration.getTileW(),

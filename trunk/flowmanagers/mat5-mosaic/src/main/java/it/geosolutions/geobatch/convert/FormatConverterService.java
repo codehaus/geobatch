@@ -31,7 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Comments here ...
+ * Service allowing format conversion
  * 
  * @author Daniele Romagnoli, GeoSolutions
  */
@@ -46,7 +46,6 @@ public class FormatConverterService extends BaseService implements
 			.toString());
 
 	public boolean canCreateAction(FormatConverterConfiguration configuration) {
-		// XXX
 		return true;
 	}
 

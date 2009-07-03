@@ -23,7 +23,7 @@
 package it.geosolutions.geobatch.mosaic;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.base.BaseImageProcessingConfiguration;
+import it.geosolutions.geobatch.base.Utils;
 import it.geosolutions.geobatch.flow.event.action.Action;
 
 import java.awt.image.DataBuffer;
@@ -73,13 +73,13 @@ public class Mosaicer extends BaseMosaicer implements
         }
         
         final ROI roi = new ROI(sourceImage, 0);
-        ParameterBlock pb = new ParameterBlock();
+        final ParameterBlock pb = new ParameterBlock();
         pb.addSource(sourceImage); // The source image
         if (roi != null)
             pb.add(roi); // The region of the image to scan
 
         // Perform the extrema operation on the source image
-        RenderedOp ex = JAI.create("extrema", pb);
+        final RenderedOp ex = JAI.create("extrema", pb);
 
         // Retrieve both the maximum and minimum pixel value
         final double[][] ext = (double[][]) ex.getProperty("extrema");
@@ -126,13 +126,13 @@ public class Mosaicer extends BaseMosaicer implements
                 / (extrema[0] - extrema[1]) };
 
         // Preparing to rescaling values
-        ParameterBlock pbRescale = new ParameterBlock();
+        final ParameterBlock pbRescale = new ParameterBlock();
         pbRescale.add(scale);
         pbRescale.add(offset);
         pbRescale.addSource(inputImage);
         RenderedOp rescaledImage = JAI.create("Rescale", pbRescale);
 
-        ParameterBlock pbConvert = new ParameterBlock();
+        final ParameterBlock pbConvert = new ParameterBlock();
         pbConvert.addSource(rescaledImage);
         pbConvert.add(DataBuffer.TYPE_BYTE);
         RenderedOp destImage = JAI.create("format", pbConvert);
@@ -146,13 +146,13 @@ public class Mosaicer extends BaseMosaicer implements
      * @return
      */
     protected String buildOutputDirName(final String outputLocation){
-    	return BaseImageProcessingConfiguration.buildRunName(outputLocation, configuration.getTime(), MOSAIC_PREFIX);
+    	return Utils.buildRunName(outputLocation, configuration.getTime(), MOSAIC_PREFIX);
     }
     
     protected String buildFileName(final String outputLocation, final int i, final int j,
             final int chunkWidth) {
         final String name = new StringBuilder(outputLocation)
-        .append(File.separatorChar).append("m_")
+        .append(Utils.SEPARATOR).append("m_")
         .append(Integer.toString(i * chunkWidth + j)).append(
                         ".").append("tif").toString();
         return name;

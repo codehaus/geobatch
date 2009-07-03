@@ -23,7 +23,7 @@
 package it.geosolutions.geobatch.convert;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.base.BaseImageProcessingConfiguration;
+import it.geosolutions.geobatch.base.Utils;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
@@ -59,9 +59,16 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
     private final static Logger LOGGER = Logger.getLogger(FormatConverter.class
             .toString());
 
+    private final static Format[] formats;
+    
     public FormatConverter(FormatConverterConfiguration configuration)
             throws IOException {
         this.configuration = configuration;
+    }
+    
+    static{
+    	GridFormatFinder.scanForPlugins();
+        formats = GridFormatFinder.getFormatArray();
     }
 
     public Queue<FileSystemMonitorEvent> execute(
@@ -75,19 +82,12 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
             // "Wrong number of elements for this action: "
             // + events.size());
 
-            // //
-            //
             // data flow configuration and dataStore name must not be null.
-            //
-            // //
             if (configuration == null) {
                 LOGGER.severe("DataFlowConfig is null.");
                 throw new IllegalStateException("DataFlowConfig is null.");
             }
 
-            // get the first event
-            // final FileSystemMonitorEvent event = events.peek();
-            // final File inputFile = event.getSource();
             final String inputFormats = configuration.getInputFormats();
             final String[] inputExtensions;
             if (inputFormats != null) {
@@ -101,21 +101,26 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 
             // //
             //
-            // Setup the output directories structure
+            // Prepare the output directories structure
             //
             // //
             final File outputDir = new File(outputDirectory);
             if (!outputDir.exists()) {
                 makeDirectories(outputDirectory);
-
             }
-
+            
+            // //
+            //
+            // Files Scan
+            //
+            // //
             final File fileDir = new File(directory);
-            if (fileDir != null && fileDir.isDirectory()) {
+            if (fileDir != null && fileDir.exists() && fileDir.isDirectory()) {
                 final File files[] = fileDir.listFiles();
 
                 if (files != null) {
-                    GridFormatFinder.scanForPlugins();
+                	// TODO: Moved to static init on 3-07-2009. Check it
+                	//  GridFormatFinder.scanForPlugins();
                     final int numFiles = files.length;
 
                     if (LOGGER.isLoggable(Level.INFO))
@@ -141,44 +146,57 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
                                 continue;
                         }
 
-                        //A valid found has been found. Start conversion
+                        //A valid file has been found. Start conversion
                         final String name = FilenameUtils.getBaseName(path);
-                        final String fileOutputName = new StringBuilder(
-                                outputDirectory).append(File.separatorChar)
-                                .append(name).append(".tif").toString();
-
+                        final String outputFileName = new StringBuilder(outputDirectory).append(Utils.SEPARATOR)
+                        	.append(name).append(".tif").toString();
+                        
                         // //
-                        // Acquire proper format and reader
+                        //
+                        // 1) Conversion
+                        //
                         // //
                         if (LOGGER.isLoggable(Level.INFO))
-                            LOGGER.info(new StringBuilder(
-                                    "Converting file N. ").append(i + 1)
+                            LOGGER.info(new StringBuilder("Converting file N. ").append(i + 1)
                                     .append(":").append(path).toString());
-                        final File outFile = new File(fileOutputName);
-                        convert(file, outFile);
-                        BaseImageProcessingConfiguration.addOverviews(fileOutputName,
-        						configuration.getDownsampleStep(),configuration.getNumSteps(),
-        						configuration.getScaleAlgorithm(),configuration.getCompressionScheme(),
-        						configuration.getCompressionRatio(),configuration.getTileW(),
-        						configuration.getTileH());
-                        String runName = BaseImageProcessingConfiguration.buildRunName(outFile.getParent(), 
-                        		configuration.getTime(), "");
-                        
-                        int index = runName.lastIndexOf(File.separatorChar);
-                        if (index == runName.length()-1){
-                        	runName = runName.substring(0,runName.length()-1);
-                        	index = runName.lastIndexOf(File.separatorChar);
+                        final File outFile = new File(outputFileName);
+                        final boolean converted = convert(file, outFile);
+                        if (converted){
+                        	
+	                        // //
+	                        //
+	                        // 2) Adding Overviews
+	                        //
+	                        // //
+	                        addOverviews(outputFileName);
+	                        
+	                        // //
+	                        //
+	                        // 3) Geoserver Ingestion
+	                        //
+	                        // //
+	                        String runName = Utils.buildRunName(outFile.getParent(), 
+	                        		configuration.getTime(), "");
+	                        
+	                        int index = runName.lastIndexOf(Utils.SEPARATOR);
+	                        if (index == runName.length()-1){
+	                        	//Removing the last separator
+	                        	runName = runName.substring(0,runName.length()-1);
+	                        	index = runName.lastIndexOf(Utils.SEPARATOR);
+	                        }
+	                        
+	                        //Setting up the wmspath.
+	                        //Actually it is set by simply changing mosaic's name underscores to slashes.
+	                        //TODO: can be improved
+	                        final String filePath = runName.substring(index+1, runName.length());
+	                        final String wmsPath = SasMosaicGeoServerGenerator.buildWmsPath(filePath);
+	                        SasMosaicGeoServerGenerator.ingest(outputFileName, wmsPath, configuration.getGeoserverURL(), 
+	                        		configuration.getGeoserverUID(), configuration.getGeoserverPWD(), 
+	                        		configuration.getGeoserverUploadMethod(), SasMosaicGeoServerGenerator.SAS_RAW_STYLE, "geotiff");
+                        } else {
+                        	if (LOGGER.isLoggable(Level.WARNING))
+                        		LOGGER.warning("The following file hasn't been converted: " + outputFileName);
                         }
-                        
-                        //Setting up the wmspath.
-                        //Actually it is set by simply changing mosaic's name underscores to slashes.
-                        //TODO: can be improved
-                        final String filePath = runName.substring(index+1, runName.length());
-                        final String wmsPath = SasMosaicGeoServerGenerator.buildWmsPath(filePath);
-                        SasMosaicGeoServerGenerator.ingest(fileOutputName, wmsPath, configuration.getGeoserverURL(), 
-                        		configuration.getGeoserverUID(), configuration.getGeoserverPWD(), 
-                        		configuration.getGeoserverUploadMethod(), SasMosaicGeoServerGenerator.SAS_RAW_STYLE, "geotiff");
-
                     }
                 }
             }
@@ -192,6 +210,19 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
     }
 
     /**
+     * Add overviews to the specified file
+     * 
+     * @param fileOutputName
+     */
+    private void addOverviews(final String fileOutputName) {
+    	Utils.addOverviews(fileOutputName,
+				configuration.getDownsampleStep(),configuration.getNumSteps(),
+				configuration.getScaleAlgorithm(),configuration.getCompressionScheme(),
+				configuration.getCompressionRatio(),configuration.getTileW(),
+				configuration.getTileH());
+	}
+
+	/**
      * Build the proper directories hierarchy.
      * 
      * @param outputDirectory
@@ -215,9 +246,10 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
      * @throws IllegalArgumentException
      * @throws IOException
      */
-    private void convert(final File file, final File outputFile)
+    private boolean convert(final File file, final File outputFile)
             throws IllegalArgumentException, IOException {
 
+    	boolean converted = false;
         // //
         //
         // Getting a GridFormat
@@ -229,57 +261,77 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 
             final int tileW = configuration.getTileW();
             final int tileH = configuration.getTileH();
+           
             // //
             //
             // Reading the coverage
             // 
             // //
-            final GridCoverageReader reader = gridFormat.getReader(file, null);
-
-            final GridCoverage2D gc = (GridCoverage2D) reader.read(null);
-
-            final String outputFormatType = configuration.getOutputFormat();
-
-            // //
-            // Acquire required writer
-            // //
-            final AbstractGridFormat writerFormat = (AbstractGridFormat) acquireFormatByName(outputFormatType);
-
-            if (!(writerFormat instanceof UnknownFormat)) {
-                GridCoverageWriter writer = writerFormat.getWriter(
-                        outputFile);
-
-                GeoToolsWriteParams params = null;
-                ParameterValueGroup wparams = null;
-                try {
-                    wparams = writerFormat.getWriteParameters();
-                    params = writerFormat.getDefaultImageIOWriteParameters();
-                } catch (UnsupportedOperationException uoe) {
-                    params = null;
-                    wparams = null;
-                }
-                if (params != null) {
-                    params.setTilingMode(GeoToolsWriteParams.MODE_EXPLICIT);
-                    params.setTiling(tileW, tileH);
-                    wparams.parameter(
-                            AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName()
-                                    .toString()).setValue(params);
-                }
-
-                // //
-                //
-                // Write the converted coverage
-                //
-                // //
-                writer.write(gc,
-                        wparams != null ? (GeneralParameterValue[]) wparams
-                                .values().toArray(new GeneralParameterValue[1])
-                                : null);
-                writer.dispose();
-                gc.dispose(true);
-                reader.dispose();
+            GridCoverageReader reader = null;
+            try{
+            	reader = gridFormat.getReader(file, null);
+	            final GridCoverage2D gc = (GridCoverage2D) reader.read(null);
+	            final String outputFormatType = configuration.getOutputFormat();
+	
+	            // //
+	            // Acquire required writer
+	            // //
+	            final AbstractGridFormat writerFormat = (AbstractGridFormat) acquireFormatByName(outputFormatType);
+	
+	            if (!(writerFormat instanceof UnknownFormat)) {
+	                GridCoverageWriter writer = writerFormat.getWriter(
+	                        outputFile);
+	
+	                GeoToolsWriteParams params = null;
+	                ParameterValueGroup wparams = null;
+	                try {
+	                    wparams = writerFormat.getWriteParameters();
+	                    params = writerFormat.getDefaultImageIOWriteParameters();
+	                } catch (UnsupportedOperationException uoe) {
+	                    params = null;
+	                    wparams = null;
+	                }
+	                if (params != null) {
+	                    params.setTilingMode(GeoToolsWriteParams.MODE_EXPLICIT);
+	                    params.setTiling(tileW, tileH);
+	                    wparams.parameter(
+	                            AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName()
+	                                    .toString()).setValue(params);
+	                }
+	
+	                // //
+	                //
+	                // Write the converted coverage
+	                //
+	                // //
+	                writer.write(gc,
+	                        wparams != null ? (GeneralParameterValue[]) wparams
+	                                .values().toArray(new GeneralParameterValue[1])
+	                                : null);
+	                writer.dispose();
+	                converted = true;
+	                gc.dispose(true);
+	                reader.dispose();
+	            }
+	            else{
+	            	if (LOGGER.isLoggable(Level.WARNING))
+	            		LOGGER.warning("No Writer found for this format: " + outputFormatType);
+	            }
+            } catch (Throwable t){
+            	if (LOGGER.isLoggable(Level.SEVERE))
+            		LOGGER.severe(t.getLocalizedMessage());
+            } finally {
+            	 if (reader != null) {
+                     try {
+                         reader.dispose();
+                     } catch (Throwable e) {
+                         if (LOGGER.isLoggable(Level.FINEST))
+                             LOGGER.log(Level.FINEST, e.getLocalizedMessage(), e);
+                     }
+                 }
             }
         }
+        return converted;
     }
 
     public ActionConfiguration getConfiguration() {
@@ -294,8 +346,9 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
      * instance in case no format is found.
      */
     public static Format acquireFormatByName(final String formatName) {
-        final Format[] formats = GridFormatFinder.getFormatArray();
-        Format format = null;
+    	// TODO: formats are now statically initialized: Check it
+    	
+    	Format format = null;
         final int length = formats.length;
 
         for (int i = 0; i < length; i++) {

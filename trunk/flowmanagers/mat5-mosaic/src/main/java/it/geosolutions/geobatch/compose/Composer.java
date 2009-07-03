@@ -23,6 +23,7 @@
 package it.geosolutions.geobatch.compose;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
+import it.geosolutions.geobatch.base.Utils;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 import it.geosolutions.geobatch.convert.FormatConverter;
 import it.geosolutions.geobatch.convert.FormatConverterConfiguration;
@@ -151,7 +152,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 	            final File fileDir = new File(directory); //Mission dir
 	            if (fileDir != null && fileDir.isDirectory()) {
 	                final File[] foundFiles = fileDir.listFiles();
-	                if (foundFiles!=null){
+	                if (foundFiles != null && foundFiles.length>0){
 	                    directories = new ArrayList<File>();
 	                    for (File file : foundFiles){
 	                        if (file.exists() && file.isDirectory()){
@@ -203,18 +204,27 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 	                                      
 	                                      //Build the output directory path
 	                                      final StringBuffer outputDir = new StringBuffer(baseDir)
-	                                      .append(File.separatorChar).append(initTime).append(File.separatorChar)
-	                                      .append(fileDir.getName()).append(File.separatorChar)
-	                                      .append(legDir.getName()).append(File.separatorChar)
+	                                      .append(Utils.SEPARATOR).append(initTime).append(Utils.SEPARATOR)
+	                                      .append(fileDir.getName()).append(Utils.SEPARATOR)
+	                                      .append(legDir.getName()).append(Utils.SEPARATOR)
 	                                      .append(leafName);
 	                                      
-	                                      //Compose the mosaic.
+	                                      // //
+	                                      //
+	                                      // 1) Mosaic Composition
+	                                      //
+	                                      // //
 	                                      final String mosaicTobeIngested = composeMosaic(events,leafPath,outputDir.toString(), compressionRatio, compressionScheme,
 	                                              inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, rawScaleAlgorithm, mosaicScaleAlgorithm,
 	                                              chunkW, chunkH, initTime, configuration.getGeoserverURL(),configuration.getGeoserverUID(),configuration.getGeoserverPWD(),
 	                                              configuration.getGeoserverUploadMethod());
-	                                      if (mosaicTobeIngested != null && mosaicTobeIngested.trim().length()>0){
 	                                      
+	                                      // //
+	                                      //
+	                                      // 2) Mosaic Ingestion
+	                                      //
+	                                      // //
+	                                      if (mosaicTobeIngested != null && mosaicTobeIngested.trim().length()>0){
 		                                      final String style = SasMosaicGeoServerGenerator.SAS_STYLE;
 		                                      final int index = mosaicTobeIngested.lastIndexOf(Mosaicer.MOSAIC_PREFIX);
 		                                            
@@ -256,9 +266,9 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
      * @param leafPath
      */
     private void setInitTime(String leafPath) {
-        //TODO: implement ME:
+        //TODO: improve ME
         //actually, get this time from the file name
-        //next step is acquiring it from the matlab file
+        //next step is acquiring it from the matlab file, when also producing XML files
         
         final File fileDir = new File(leafPath);
         if (fileDir != null && fileDir.isDirectory()) {
@@ -328,7 +338,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         
         // //
         //
-        // First step: Data conversion
+        // 1) Data conversion
         //
         // //
         final FormatConverterConfiguration converterConfig = new FormatConverterConfiguration();
@@ -364,7 +374,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         }
         // //
         //
-        // Second step: Mosaic
+        // 2) Mosaic Composition
         //
         // //
         final MosaicerConfiguration mosaicerConfig = new MosaicerConfiguration();
@@ -423,6 +433,11 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         return dataDir;
     }
     
+    /**
+     * Find Data directories from the specified input file.
+     * @param xmlFile
+     * @return
+     */
     private List<String> getDataDirectories(final File xmlFile){
     	List<String> directories = new ArrayList<String>();
         String dataDir = null;
