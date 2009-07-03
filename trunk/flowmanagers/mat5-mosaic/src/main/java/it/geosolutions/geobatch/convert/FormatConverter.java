@@ -81,7 +81,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
             //
             // //
             if (configuration == null) {
-                LOGGER.log(Level.SEVERE, "DataFlowConfig is null.");
+                LOGGER.severe("DataFlowConfig is null.");
                 throw new IllegalStateException("DataFlowConfig is null.");
             }
 
@@ -119,7 +119,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
                     final int numFiles = files.length;
 
                     if (LOGGER.isLoggable(Level.INFO))
-                        LOGGER.log(Level.INFO, new StringBuilder("Found ")
+                        LOGGER.info(new StringBuilder("Found ")
                                 .append(numFiles).append(" files").toString());
                     
                     // //
@@ -151,7 +151,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
                         // Acquire proper format and reader
                         // //
                         if (LOGGER.isLoggable(Level.INFO))
-                            LOGGER.log(Level.INFO, new StringBuilder(
+                            LOGGER.info(new StringBuilder(
                                     "Converting file N. ").append(i + 1)
                                     .append(":").append(path).toString());
                         final File outFile = new File(fileOutputName);

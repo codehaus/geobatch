@@ -44,7 +44,7 @@ import org.geotools.coverage.grid.GridCoverage2D;
  * 
  * @author Daniele Romagnoli, GeoSolutions
  */
-public class Mosaicer extends AbstractMosaicer implements
+public class Mosaicer extends BaseMosaicer implements
         Action<FileSystemMonitorEvent> {
 
     private final static boolean IMAGE_IS_LINEAR;
@@ -58,7 +58,6 @@ public class Mosaicer extends AbstractMosaicer implements
     }
     
     public static final String MOSAIC_PREFIX = "balm_";
-//    public static final String BALANCED_PREFIX = "balm_";
     
     private double extrema[] = new double[]{Double.MAX_VALUE,Double.MIN_VALUE} ;
 

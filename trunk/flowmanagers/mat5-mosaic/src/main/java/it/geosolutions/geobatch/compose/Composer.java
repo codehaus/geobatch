@@ -93,7 +93,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             //
             // //
             if (configuration == null) {
-                LOGGER.log(Level.SEVERE, "DataFlowConfig is null.");
+                LOGGER.severe("DataFlowConfig is null.");
                 throw new IllegalStateException("DataFlowConfig is null.");
             }
             
@@ -107,139 +107,138 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             // Get the directory containing the data from the specified
             // XML file
             // //
-            final String directory = getDataDirectory(inputFile);
-            if (directory==null || directory.trim().length()==0){
+//            final String directory = getDataDirectory(inputFile);
+            final List<String> missionDirs = getDataDirectories(inputFile);
+            
+            if (missionDirs==null || missionDirs.isEmpty()){
             	LOGGER.warning("Unable to find LegData location from the specified file: "+inputFile.getAbsolutePath());
             	return events;
             }
+            final int nMissions = missionDirs.size();
+            if (LOGGER.isLoggable(Level.INFO))
+            	LOGGER.info(new StringBuilder("Found ").append(nMissions).append(" mission").append(nMissions>1?"s":"").toString());
+            
+            for (String mission : missionDirs){
+            	if (LOGGER.isLoggable(Level.INFO))
+                	LOGGER.info("Processing Mission: " + mission);
             	
-            // Preparing parameters
-            final double compressionRatio = configuration.getCompressionRatio();
-            final String compressionScheme = configuration.getCompressionScheme();
-            final String inputFormats = configuration.getInputFormats();
-            final String outputFormat = configuration.getOutputFormat();
-            final int downsampleStep = configuration.getDownsampleStep();
-            final int numSteps = configuration.getNumSteps();
-            final String rawScaleAlgorithm = configuration.getRawScaleAlgorithm();
-            final String mosaicScaleAlgorithm = configuration.getMosaicScaleAlgorithm();
-            final int tileH = configuration.getTileH();
-            final int tileW = configuration.getTileW();
-            final int chunkW = configuration.getChunkW();
-            final int chunkH = configuration.getChunkH();
-            final String baseDir = configuration.getOutputBaseFolder();
-            
-            //TODO: Refactor this search to leverage on a PATH_DEPTH parameter.
-            //Actually is looking for specifiedDir/dirdepth1/dirdepth2/
-            
-            // //
-            //
-            // Checking LEGS for the current MISSION
-            //
-            // //
-            ArrayList<File> directories = null;
-            final File fileDir = new File(directory); //Mission dir
-            if (fileDir != null && fileDir.isDirectory()) {
-                final File[] foundFiles = fileDir.listFiles();
-                if (foundFiles!=null){
-                    directories = new ArrayList<File>();
-                    for (File file : foundFiles){
-                        if (file.exists() && file.isDirectory()){
-                            directories.add(file);
-                        }
-                    }
-                    
-                }
-            }
-            
-            // //
-            //
-            // Mission Scan: Looking for LEGS
-            //
-            // //
-            if (directories != null && !directories.isEmpty()){
-                Collections.sort(directories);
-                final String leavesFolders = configuration.getLeavesFolders();
-                final String leaves[] = leavesFolders.split(";");
-                if (leaves != null){
-                    final List<String> leavesArray = Arrays.asList(leaves);
-                    final Set<String> leavesSet = new HashSet<String>(leavesArray);
-                    
-                    // //
-                    //
-                    // Leg Scan
-                    //
-                    // //
-                    for (File legDir : directories){
-                        if (legDir.isDirectory()){
-                            final File subFolders[] = legDir.listFiles();
-                            if (subFolders != null){
-                            	
-                            	// //
-                            	//
-                            	// Channel scan (leaves)
-                            	//
-                            	// //
-                                for (int i=0; i<subFolders.length; i++){
-                                    final File leaf = subFolders[i];
-                                    final String leafName = leaf.getName();
-                                    if (leavesSet.contains(leafName)){
-                                      
-                                      final String leafPath = leaf.getAbsolutePath();
-                                      
-                                      // Initialize time
-                                      if (initTime == null){
-                                          setInitTime(leafPath);
-                                      }
-                                      
-                                      //Build the output directory path
-                                      final StringBuffer outputDir = new StringBuffer(baseDir)
-                                      .append(File.separatorChar).append(initTime).append(File.separatorChar)
-                                      .append(fileDir.getName()).append(File.separatorChar)
-                                      .append(legDir.getName()).append(File.separatorChar)
-                                      .append(leafName);
-                                      
-                                      //Compose the mosaic.
-                                      final String mosaicTobeIngested = composeMosaic(events,leafPath,outputDir.toString(), compressionRatio, compressionScheme,
-                                              inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, rawScaleAlgorithm, mosaicScaleAlgorithm,
-                                              chunkW, chunkH, initTime, configuration.getGeoserverURL(),configuration.getGeoserverUID(),configuration.getGeoserverPWD(),
-                                              configuration.getGeoserverUploadMethod());
-                                      if (mosaicTobeIngested != null && mosaicTobeIngested.trim().length()>0){
-                                      
-                                      
-	                                      //Ingest the mosaics (balanced and raw) with the assumption that their path differ only in the prefix.
-	                                      //AS an instance: 
-	                                      // c:\data\010101\mission1\leg1\stbd\rawm_010101_mission1_leg1_stbd
-	                                      // c:\data\010101\mission1\leg1\stbd\balm_010101_mission1_leg1_stbd
-	                                      final String style = SasMosaicGeoServerGenerator.SAS_STYLE;
-	//                                      if (prefix.equalsIgnoreCase(Mosaicer.MOSAIC_PREFIX)){
-	//                                          style = SasMosaicGeoServerGenerator.SAS_STYLE;
-	//                                      }
-	//                                      else{
-	//                                          style = SasMosaicGeoServerGenerator.DEFAULT_STYLE;
-	//                                      }
+            	final String directory = mission;
+            	
+	            // Preparing parameters
+	            final double compressionRatio = configuration.getCompressionRatio();
+	            final String compressionScheme = configuration.getCompressionScheme();
+	            final String inputFormats = configuration.getInputFormats();
+	            final String outputFormat = configuration.getOutputFormat();
+	            final int downsampleStep = configuration.getDownsampleStep();
+	            final int numSteps = configuration.getNumSteps();
+	            final String rawScaleAlgorithm = configuration.getRawScaleAlgorithm();
+	            final String mosaicScaleAlgorithm = configuration.getMosaicScaleAlgorithm();
+	            final int tileH = configuration.getTileH();
+	            final int tileW = configuration.getTileW();
+	            final int chunkW = configuration.getChunkW();
+	            final int chunkH = configuration.getChunkH();
+	            final String baseDir = configuration.getOutputBaseFolder();
+	            
+	            //TODO: Refactor this search to leverage on a PATH_DEPTH parameter.
+	            //Actually is looking for specifiedDir/dirdepth1/dirdepth2/
+	            
+	            // //
+	            //
+	            // Checking LEGS for the current MISSION
+	            //
+	            // //
+	            ArrayList<File> directories = null;
+	            final File fileDir = new File(directory); //Mission dir
+	            if (fileDir != null && fileDir.isDirectory()) {
+	                final File[] foundFiles = fileDir.listFiles();
+	                if (foundFiles!=null){
+	                    directories = new ArrayList<File>();
+	                    for (File file : foundFiles){
+	                        if (file.exists() && file.isDirectory()){
+	                            directories.add(file);
+	                        }
+	                    }
+	                }
+	            }
+	            
+	            // //
+	            //
+	            // Mission Scan: Looking for LEGS
+	            //
+	            // //
+	            if (directories != null && !directories.isEmpty()){
+	                Collections.sort(directories);
+	                final String leavesFolders = configuration.getLeavesFolders();
+	                final String leaves[] = leavesFolders.split(";");
+	                if (leaves != null){
+	                    final List<String> leavesArray = Arrays.asList(leaves);
+	                    final Set<String> leavesSet = new HashSet<String>(leavesArray);
+	                    
+	                    // //
+	                    //
+	                    // Leg Scan
+	                    //
+	                    // //
+	                    for (File legDir : directories){
+	                        if (legDir.isDirectory()){
+	                            final File subFolders[] = legDir.listFiles();
+	                            if (subFolders != null){
+	                            	
+	                            	// //
+	                            	//
+	                            	// Channel scan (leaves)
+	                            	//
+	                            	// //
+	                                for (int i=0; i<subFolders.length; i++){
+	                                    final File leaf = subFolders[i];
+	                                    final String leafName = leaf.getName();
+	                                    if (leavesSet.contains(leafName)){
 	                                      
-	                                      final int index = mosaicTobeIngested.lastIndexOf(Mosaicer.MOSAIC_PREFIX);
-	                                            
-	                                            //Setting up the wmspath.
-	                                            //Actually it is set by simply changing mosaic's name underscores to slashes.
-	                                            //TODO: can be improved
-	                                      final String path = mosaicTobeIngested.substring(index + Mosaicer.MOSAIC_PREFIX.length());
-	                                      final String wmsPath = SasMosaicGeoServerGenerator.buildWmsPath(path);
+	                                      final String leafPath = leaf.getAbsolutePath();
 	                                      
-	                                      SasMosaicGeoServerGenerator.ingest(mosaicTobeIngested, wmsPath,configuration.getGeoserverURL(),configuration.getGeoserverUID()
-	                                    		  ,configuration.getGeoserverPWD(),configuration.getGeoserverUploadMethod(), style, "imagemosaic"
-	                                    		  );
-                                      	}
-                                      	else{
-                                      		if (LOGGER.isLoggable(Level.WARNING))
-                                      			LOGGER.log(Level.WARNING, "unable to build a mosaic for the following dataset:" + leafPath);
-                                      	}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+	                                      // Initialize time
+	                                      if (initTime == null){
+	                                          setInitTime(leafPath);
+	                                      }
+	                                      
+	                                      //Build the output directory path
+	                                      final StringBuffer outputDir = new StringBuffer(baseDir)
+	                                      .append(File.separatorChar).append(initTime).append(File.separatorChar)
+	                                      .append(fileDir.getName()).append(File.separatorChar)
+	                                      .append(legDir.getName()).append(File.separatorChar)
+	                                      .append(leafName);
+	                                      
+	                                      //Compose the mosaic.
+	                                      final String mosaicTobeIngested = composeMosaic(events,leafPath,outputDir.toString(), compressionRatio, compressionScheme,
+	                                              inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, rawScaleAlgorithm, mosaicScaleAlgorithm,
+	                                              chunkW, chunkH, initTime, configuration.getGeoserverURL(),configuration.getGeoserverUID(),configuration.getGeoserverPWD(),
+	                                              configuration.getGeoserverUploadMethod());
+	                                      if (mosaicTobeIngested != null && mosaicTobeIngested.trim().length()>0){
+	                                      
+		                                      final String style = SasMosaicGeoServerGenerator.SAS_STYLE;
+		                                      final int index = mosaicTobeIngested.lastIndexOf(Mosaicer.MOSAIC_PREFIX);
+		                                            
+		                                      //Setting up the wmspath.
+		                                      //Actually it is set by simply changing mosaic's name underscores to slashes.
+		                                      //TODO: can be improved
+		                                      final String path = mosaicTobeIngested.substring(index + Mosaicer.MOSAIC_PREFIX.length());
+		                                      final String wmsPath = SasMosaicGeoServerGenerator.buildWmsPath(path);
+		                                      
+		                                      SasMosaicGeoServerGenerator.ingest(mosaicTobeIngested, wmsPath,configuration.getGeoserverURL(),configuration.getGeoserverUID()
+		                                    		  ,configuration.getGeoserverPWD(),configuration.getGeoserverUploadMethod(), style, "imagemosaic"
+		                                    		  );
+	                                      	}
+	                                      	else{
+	                                      		if (LOGGER.isLoggable(Level.WARNING))
+	                                      			LOGGER.warning("unable to build a mosaic for the following dataset:" + leafPath);
+	                                      	}
+	                                    }
+	                                }
+	                            }
+	                        }
+	                    }
+	                }
+	            }
             }
             
             return events;
@@ -273,7 +272,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                 String date = fileName;
                 int index=0;
                 
-                //Files are so named like this:
+                //Files are named like this:
                 //muscle_col2_090316_1_2_p_5790_5962_40_150.tif
                 
                 for (int i=0;i<7&&index!=-1;i++){
@@ -351,7 +350,9 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         converterConfig.setGeoserverUID(geoserverUID);
         converterConfig.setGeoserverPWD(geoserverPWD);
         converterConfig.setGeoserverUploadMethod(geoserverUploadMethod);
-        LOGGER.log(Level.INFO, "Ingesting MatFiles in the mosaic composer");
+        
+        if (LOGGER.isLoggable(Level.INFO))
+        	LOGGER.log(Level.INFO, "Ingesting MatFiles in the mosaic composer");
         
         final FormatConverter converter = new FormatConverter(converterConfig);
         Queue<FileSystemMonitorEvent> proceed = converter.execute(events);
@@ -381,12 +382,13 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         mosaicerConfig.setChunkWidth(chunkW);
         mosaicerConfig.setTime(time);
 
-        LOGGER.log(Level.INFO, "Mosaic Composition");
+        if (LOGGER.isLoggable(Level.INFO))
+        	LOGGER.log(Level.INFO, "Mosaic Composition");
         final Mosaicer mosaicer = new Mosaicer(mosaicerConfig);
         proceed = mosaicer.execute(proceed);
         if (proceed == null){
         	if (LOGGER.isLoggable(Level.SEVERE))
-        		LOGGER.log(Level.SEVERE, "Unable to proceed with the mosaic ingestion due to problems occurred during mosaic composition");
+        		LOGGER.severe( "Unable to proceed with the mosaic ingestion due to problems occurred during mosaic composition");
         	return "";
         }
         return mosaicerConfig.getMosaicDirectory();
@@ -420,6 +422,31 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         }
         return dataDir;
     }
+    
+    private List<String> getDataDirectories(final File xmlFile){
+    	List<String> directories = new ArrayList<String>();
+        String dataDir = null;
+        if (xmlFile!=null){
+            try {
+                final FileImageInputStream fis = new FileImageInputStream(xmlFile);
+                String location=null;
+                while ((location = fis.readLine()) != null){
+                    if (location.startsWith(MISSION_LEGS_LOCATION)){
+                        dataDir=location.substring(location.indexOf(MISSION_LEGS_LOCATION)+MISSION_LEGS_LOCATION.length(), location.length()-(MISSION_LEGS_LOCATION.length()+1));
+                        directories.add(dataDir);
+                    }
+                }
+                
+            } catch (FileNotFoundException e) {
+                LOGGER.warning("Unable to find the specified file: " + xmlFile);
+            } catch (IOException e) {
+                LOGGER.warning(new StringBuilder("Problems occurred while reading: ")
+                .append(xmlFile).append("due to ").append(e.getLocalizedMessage()).toString());
+            }
+        }
+        return directories;
+    }
+
     
     /**
      * Set JAI Hints from the current configuration
