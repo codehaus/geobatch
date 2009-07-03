@@ -24,7 +24,6 @@ package it.geosolutions.geobatch.mosaic;
 
 import it.geosolutions.geobatch.base.BaseImageProcessingConfiguration;
 import it.geosolutions.geobatch.catalog.Configuration;
-import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 
 
 /**

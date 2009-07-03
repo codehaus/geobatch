@@ -201,25 +201,25 @@ public class SasMosaicGeoServerGenerator
         String layerName = storeFilePrefix != null ? storeFilePrefix : coverageStoreId;
         if (GEOSERVER_VERSION.equalsIgnoreCase("1.7.2")){
             if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
-                geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
-                        + "/layers/" + layerName
-                        + "/file." + type + "?" + getQueryString(queryParams));
+                geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/folders/")
+                		.append(coverageStoreId).append("/layers/").append(layerName).append("/file.")
+                		.append(type).append( "?" ).append(getQueryString(queryParams)).toString());
                 sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
                         new FileInputStream(data), 
     					getConfiguration().getGeoserverUID(),
     					getConfiguration().getGeoserverPWD());
             } else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
-                geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
-                        + "/layers/" + layerName
-                        + "/url." + type + "?" + getQueryString(queryParams)); 
+                geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL ).append("/rest/folders/")
+                		.append(coverageStoreId).append("/layers/").append(layerName).append("/url.")
+                		.append(type).append("?").append(getQueryString(queryParams)).toString()); 
                 sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
     					data.toURL().toExternalForm(),
     					getConfiguration().getGeoserverUID(),
     					getConfiguration().getGeoserverPWD());
             }else if ("EXTERNAL".equals(getConfiguration().getDataTransferMethod())) {
-                geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
-                        + "/layers/" + layerName
-                        + "/external." + type + "?" + getQueryString(queryParams));
+                geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/folders/")
+                		.append(coverageStoreId).append("/layers/").append(layerName).append("/external.")
+                		.append(type).append("?").append(getQueryString(queryParams)).toString());
                 sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
                                             data.toURL().toExternalForm(),
                                             getConfiguration().getGeoserverUID(),
@@ -227,25 +227,25 @@ public class SasMosaicGeoServerGenerator
             }
         }else{
 		if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
-	            geoserverREST_URL = new URL(geoserverBaseURL + "/rest/workspaces/" + 
-	                    queryParams.get("namespace") + "/coveragestores/" + coverageStoreId
-	                    + "/file." + type + "?" + getQueryString(queryParams));
+	            geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/workspaces/")
+	            		.append(queryParams.get("namespace")).append("/coveragestores/").append(coverageStoreId)
+	            		.append("/file.").append(type).append("?").append(getQueryString(queryParams)).toString());
 	            sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
 	                    new FileInputStream(data), 
 	                                        getConfiguration().getGeoserverUID(),
 	                                        getConfiguration().getGeoserverPWD());
 	        } else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
-	            geoserverREST_URL = new URL(geoserverBaseURL + "/rest/workspaces/" + 
-                            queryParams.get("namespace") + "/coveragestores/" + coverageStoreId
-	                    + "/url." + type + "?" + getQueryString(queryParams)); 
+	            geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/workspaces/")
+	            		.append(queryParams.get("namespace")).append("/coveragestores/").append(coverageStoreId)
+	            		.append("/url.").append(type).append("?").append(getQueryString(queryParams)).toString()); 
 	            sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
 	                                        data.toURL().toExternalForm(),
 	                                        getConfiguration().getGeoserverUID(),
 	                                        getConfiguration().getGeoserverPWD());
 	        }else if ("EXTERNAL".equals(getConfiguration().getDataTransferMethod())) {
-	            geoserverREST_URL = new URL(geoserverBaseURL + "/rest/workspaces/" + 
-                            queryParams.get("namespace") + "/coveragestores/" + coverageStoreId
-	                    + "/external." + type + "?" + getQueryString(queryParams));
+	            geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/workspaces/")
+	            		.append(queryParams.get("namespace")).append("/coveragestores/").append(coverageStoreId)
+	            		.append("/external.").append(type).append("?").append(getQueryString(queryParams)).toString());
 	            sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
 	                                        data.toURL().toExternalForm(),
 	                                        getConfiguration().getGeoserverUID(),

@@ -73,15 +73,14 @@ import org.opengis.referencing.operation.MathTransform;
  * 
  * @author Daniele Romagnoli, GeoSolutions
  */
-public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent> implements
+public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> implements
         Action<FileSystemMonitorEvent> {
 
     protected MosaicerConfiguration configuration;
 
-    private final static Logger LOGGER = Logger.getLogger(AbstractMosaicer.class
-            .toString());
+    private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger("it.geosolutions.geobatch.mosaic");
 
-    public AbstractMosaicer(MosaicerConfiguration configuration) throws IOException {
+    public BaseMosaicer(MosaicerConfiguration configuration) throws IOException {
         this.configuration = configuration;
     }
 
@@ -220,7 +219,8 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
                     final RenderedImage balancedMosaic = balanceMosaic(mosaicImage);
                     
                     final GridCoverage2D balancedGc = coverageFactory.create("balanced", balancedMosaic, globEnvelope);
-                    LOGGER.log(Level.INFO, "Retiling the balanced mosaic");
+                    if (LOGGER.isLoggable(Level.INFO))
+                    	LOGGER.info("Retiling the balanced mosaic");
                     retileMosaic(balancedGc, chunkW, chunkH, tileW, tileH,
                             compressionRatio, compressionType, outputDirectory);
 
@@ -286,7 +286,7 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
         pbMosaic.setParameter("mosaicType", MosaicDescriptor.MOSAIC_TYPE_OVERLAY);
 
         if (LOGGER.isLoggable(Level.INFO))
-        	LOGGER.log(Level.INFO, new StringBuffer("Found ").append(nCov).append(" tiles").toString());
+        	LOGGER.info(new StringBuffer("Found ").append(nCov).append(" tiles").toString());
         
         for (int i = 0; i < nCov; i++) {
             final GridCoverage2D coverage = coverages.get(i);
@@ -328,7 +328,7 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
         //
         // ///////////////////////////////////////////////////////////////////
         if (LOGGER.isLoggable(Level.INFO))
-        	LOGGER.log(Level.INFO, "Retiling mosaic to separated files");
+        	LOGGER.info( "Retiling mosaic to separated files");
         final int numTileX = w!=chunkWidth? (int) (w / (chunkWidth * 1.0) + 1):1;
         final int numTileY = h!=chunkHeight? (int) (h / (chunkHeight * 1.0) + 1):1;
         final List<String> filesToAddOverviews = new ArrayList<String>(numTileX*numTileY);
@@ -381,7 +381,7 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
                                     .toString()).setValue(wp);
 
                     if (LOGGER.isLoggable(Level.INFO))
-                    	LOGGER.log(Level.INFO, new StringBuilder("Writing tile: ").append(i+1)
+                    	LOGGER.info(new StringBuilder("Writing tile: ").append(i+1)
                     			.append(" of ").append(numTileX).append(" [X] -- ")
                     			.append(j+1)
                     			.append(" of ").append(numTileY).append(" [Y]").toString());
@@ -403,7 +403,8 @@ public abstract class AbstractMosaicer extends BaseAction<FileSystemMonitorEvent
             // TODO: Leverage on GeoTiffOverviewsEmbedder when involving
             // no more FileSystemEvent only
             // Or merge retiling and overviews adding to a single step
-            LOGGER.log(Level.INFO, new StringBuilder("Adding overviews: File ").append(nOverviewsDone).
+            if (LOGGER.isLoggable(Level.INFO))
+            	LOGGER.info( new StringBuilder("Adding overviews: File ").append(nOverviewsDone).
                     append(" of ").append(nFiles).toString());
             nOverviewsDone++;
 				BaseImageProcessingConfiguration.addOverviews(fileOverviews,
