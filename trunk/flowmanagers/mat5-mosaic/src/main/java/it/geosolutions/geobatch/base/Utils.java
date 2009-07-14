@@ -25,6 +25,8 @@ import java.io.File;
 
 import javax.media.jai.Interpolation;
 
+import org.geotools.utils.imageoverviews.OverviewsEmbedder;
+
 public class Utils {
 
 	public static final String LEG_PREFIX = "_Leg";

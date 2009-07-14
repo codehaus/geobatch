@@ -70,9 +70,6 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
     private final static Logger LOGGER = Logger
             .getLogger(Composer.class.toString());
     
-    /** The DATE/TIME associated to this run (Actually is YYMMDD) */
-    private String initTime = null;
-
     protected Composer(ComposerConfiguration configuration)
             throws IOException {
         this.configuration = configuration;
@@ -120,6 +117,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             	LOGGER.info(new StringBuilder("Found ").append(nMissions).append(" mission").append(nMissions>1?"s":"").toString());
             
             for (String mission : missionDirs){
+            	String initTime = null;
             	if (LOGGER.isLoggable(Level.INFO))
                 	LOGGER.info("Processing Mission: " + mission);
             	
@@ -199,7 +197,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 	                                      
 	                                      // Initialize time
 	                                      if (initTime == null){
-	                                          setInitTime(leafPath);
+	                                          initTime = setInitTime(leafPath);
 	                                      }
 	                                      
 	                                      //Build the output directory path
@@ -265,18 +263,19 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
      * 
      * @param leafPath
      */
-    private void setInitTime(String leafPath) {
+    private String setInitTime(String leafPath) {
         //TODO: improve ME
         //actually, get this time from the file name
         //next step is acquiring it from the matlab file, when also producing XML files
-        
+        String initTime = null;
         final File fileDir = new File(leafPath);
+        boolean found = false;
         if (fileDir != null && fileDir.isDirectory()) {
             final File files[] = fileDir.listFiles();
             List<File> filesArray = Arrays.asList(files);
             Collections.sort(filesArray);
             final File file = filesArray.get(0);
-            boolean found = false;
+           
             if (file!=null){
                 final String fileName = file.getName();
                 String date = fileName;
@@ -297,11 +296,11 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                     }
                 }
             }
-            if(!found)
-                initTime = new SimpleDateFormat("yyyyMMdd").format(new Date());
-            //Current time in case it's unable to find it from the file
-            
         }
+        if(!found)
+            initTime = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        //Current time in case it's unable to find it from the file
+        return initTime;
     }
 
 
