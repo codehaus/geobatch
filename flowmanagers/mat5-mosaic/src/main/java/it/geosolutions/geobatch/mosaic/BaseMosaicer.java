@@ -60,6 +60,7 @@ import org.geotools.gce.geotiff.GeoTiffReader;
 import org.geotools.gce.geotiff.GeoTiffWriteParams;
 import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.metadata.iso.spatial.PixelTranslation;
 import org.geotools.referencing.operation.matrix.GeneralMatrix;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
@@ -244,9 +245,9 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
                 .getOrdinate(1));
         final MathTransform mosaicTransform = ProjectiveTransform
                 .create(gm);
-//        final MathTransform tempTransform = PixelTranslation.translate(mosaicTransform, PixelInCell.CELL_CORNER, PixelInCell.CELL_CENTER);
+        final MathTransform tempTransform = PixelTranslation.translate(mosaicTransform, PixelInCell.CELL_CORNER, PixelInCell.CELL_CENTER);
         
-       return mosaicTransform.inverse();
+       return tempTransform.inverse();
 	}
 
     /**
