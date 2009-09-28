@@ -36,8 +36,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -168,7 +170,7 @@ public class SasMosaicGeoServerGenerator
             // ////////////////////////////////////////////////////////////////////
             final Map<String, String> queryParams = new HashMap<String, String>();
             queryParams.put("namespace",	getConfiguration().getDefaultNamespace());
-            queryParams.put("wmspath",		getConfiguration().getWmsPath());
+            queryParams.put("path",		getConfiguration().getWmsPath());
             queryParams.put("style", getConfiguration().getDefaultStyle());
             send(workingDir, 
                     workingDir, 
@@ -191,16 +193,17 @@ public class SasMosaicGeoServerGenerator
 
     /**
      * Sending data to geoserver via REST protocol
+     * @throws UnsupportedEncodingException 
      *
      * 
      */
     public void send(final File inputDataDir, final File data, final String geoserverBaseURL,
-            final String timeStamp, final String coverageStoreId, final String storeFilePrefix,
+            final String timeStamp, final String originalCoverageStoreId, final String storeFilePrefix,
             final String configId, final Map<String, String> queryParams, final String type) 
-			throws MalformedURLException, FileNotFoundException {
+			throws MalformedURLException, FileNotFoundException, UnsupportedEncodingException {
         URL geoserverREST_URL = null;
         boolean sent = false;
-
+        final String coverageStoreId = URLEncoder.encode(originalCoverageStoreId,"UTF-8"); 
         String layerName = storeFilePrefix != null ? storeFilePrefix : coverageStoreId;
         if (GEOSERVER_VERSION.equalsIgnoreCase("1.7.2")){
             if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
