@@ -64,6 +64,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 
     //TODO: TEMP SOLUTION. LEVERAGES ON REAL XML PARSING
     private String MISSION_LEGS_LOCATION = "<missionLegsLocation>";
+    private String MISSION_LEGS_LOCATION_END = "</missionLegsLocation>";
     
     private ComposerConfiguration configuration;
 
@@ -446,7 +447,33 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
                 String location=null;
                 while ((location = fis.readLine()) != null){
                     if (location.startsWith(MISSION_LEGS_LOCATION)){
-                        dataDir=location.substring(location.indexOf(MISSION_LEGS_LOCATION)+MISSION_LEGS_LOCATION.length(), location.length()-(MISSION_LEGS_LOCATION.length()+1));
+                    	if (location.endsWith(MISSION_LEGS_LOCATION_END)){
+                    		dataDir=location.substring(location.indexOf(MISSION_LEGS_LOCATION)+MISSION_LEGS_LOCATION.length(), location.length()-(MISSION_LEGS_LOCATION_END.length())).trim();
+                    	}
+                    	else{
+                    		String next = fis.readLine();
+                    		if (next!=null){
+                            	if (next.endsWith(MISSION_LEGS_LOCATION_END)){
+                            		dataDir=next.substring(0, next.length()-(MISSION_LEGS_LOCATION_END.length())).trim();
+                            	}
+                            	else{
+                            		String nextLine = fis.readLine();
+                            		if (nextLine!=null){
+                            			dataDir=next.trim();
+                            		}
+                            		else{
+	                           			 LOGGER.warning("Unable to find LEG missions");
+	                           			 return directories;
+                            		}
+                            	}
+                    		}
+                    		else{
+                    			 LOGGER.warning("Unable to find LEG missions");
+                    			 return directories;
+                    		}
+                    		
+                    	}
+                    	
                         directories.add(dataDir);
                     }
                 }
