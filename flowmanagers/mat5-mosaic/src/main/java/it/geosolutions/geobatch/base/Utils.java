@@ -79,11 +79,9 @@ public class Utils {
 			final double compressionRatio, final int tileWidth, final int tileHeight) {
 	    
 	    if (downsampleStep <= 0)
-	        throw new IllegalArgumentException("Illegal downsampleStep: "
-	                + downsampleStep);
+	        throw new IllegalArgumentException("Illegal downsampleStep: " + downsampleStep);
 	    if (numberOfSteps <= 0)
-	        throw new IllegalArgumentException("Illegal numberOfSteps: "
-	                + numberOfSteps);
+	        throw new IllegalArgumentException("Illegal numberOfSteps: "+ numberOfSteps);
 	
 	    final OverviewsEmbedder oe = new OverviewsEmbedder();
 	    oe.setDownsampleStep(downsampleStep);
@@ -93,8 +91,7 @@ public class Utils {
 	    oe.setTileHeight(tileHeight);
 	    oe.setTileWidth(tileWidth);
 	    oe.setSourcePath(inputFileName);
-	    if (compressionScheme != null
-	            && !Double.isNaN(compressionRatio)) {
+	    if (compressionScheme != null&& !Double.isNaN(compressionRatio)) {
 	        oe.setCompressionRatio(compressionRatio);
 	        oe.setCompressionScheme(compressionScheme);
 	    }

@@ -333,9 +333,14 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
      * @param compressionScheme
      * @param outputLocation
      */
-    private void retileMosaic(GridCoverage2D gc, int chunkWidth,
-            int chunkHeight, int internalTileWidth, int internalTileHeight,
-            final double compressionRatio, final String compressionScheme,
+    private void retileMosaic(
+    		GridCoverage2D gc, 
+    		int chunkWidth,
+            int chunkHeight, 
+            int internalTileWidth, 
+            int internalTileHeight,
+            final double compressionRatio, 
+            final String compressionScheme,
             final String outputLocation) {
 
         // //
@@ -369,8 +374,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
                 // computing the bbox for this tile
                 //
                 // //
-                final Rectangle sourceRegion = new Rectangle(i * chunkWidth, j
-                        * chunkHeight, chunkWidth, chunkHeight);
+                final Rectangle sourceRegion = new Rectangle(i * chunkWidth, j* chunkHeight, chunkWidth, chunkHeight);
 
                 // //
                 //
@@ -396,29 +400,24 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
                     wp.setTilingMode(GeoToolsWriteParams.MODE_EXPLICIT);
                     wp.setTiling(internalTileWidth, internalTileHeight);
                     wp.setSourceRegion(sourceRegion);
-                    if (compressionScheme != null
-                            && !Double.isNaN(compressionRatio)) {
+                    if (compressionScheme != null&& !Double.isNaN(compressionRatio)) {
                         wp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
                         wp.setCompressionType(compressionScheme);
                         wp.setCompressionQuality((float) compressionRatio);
                     }
-                    final ParameterValueGroup params = outFormat
-                            .getWriteParameters();
-                    params.parameter(
-                            AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName()
-                                    .toString()).setValue(wp);
+                    final ParameterValueGroup params = outFormat.getWriteParameters();
+                    params.parameter(AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName().toString()).setValue(wp);
 
                     if (LOGGER.isLoggable(Level.INFO))
-                    	LOGGER.info(new StringBuilder("Writing tile: ").append(i+1)
-                    			.append(" of ").append(numTileX).append(" [X] -- ")
-                    			.append(j+1).append(" of ").append(numTileY).append(" [Y]").toString());
+                    	LOGGER.info(new StringBuilder("Writing tile: ").append(i+1).append(" of ").append(numTileX).append(" [X] -- ").append(j+1).append(" of ").append(numTileY).append(" [Y]").toString());
                     
                     final GeoTiffWriter writerWI = new GeoTiffWriter(fileOut);
-                    writerWI.write(gc, (GeneralParameterValue[]) params
-                            .values().toArray(new GeneralParameterValue[1]));
+                    writerWI.write(gc, (GeneralParameterValue[]) params.values().toArray(new GeneralParameterValue[1]));
                     writerWI.dispose();
                     filesToAddOverviews.add(fileName);
                 } catch (IOException e) {
+                	 if (LOGGER.isLoggable(Level.WARNING))
+                     	LOGGER.warning("Exception occurred whilst writing tiles:" + e.getLocalizedMessage());
                     return;
                 }
             }
@@ -431,14 +430,17 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
             // no more FileSystemEvent only
             // Or merge retiling and overviews adding to a single step
             if (LOGGER.isLoggable(Level.INFO))
-            	LOGGER.info( new StringBuilder("Adding overviews: File ").append(nOverviewsDone).
-                    append(" of ").append(nFiles).toString());
+            	LOGGER.info( new StringBuilder("Adding overviews: File ").append(nOverviewsDone).append(" of ").append(nFiles).toString());
             nOverviewsDone++;
-				Utils.addOverviews(fileOverviews,
-						configuration.getDownsampleStep(),configuration.getNumSteps(),
-						configuration.getScaleAlgorithm(),configuration.getCompressionScheme(),
-						configuration.getCompressionRatio(),configuration.getTileW(),
-						configuration.getTileH());
+			Utils.addOverviews(
+					fileOverviews,
+					configuration.getDownsampleStep(),
+					configuration.getNumSteps(),
+					configuration.getScaleAlgorithm(),
+					configuration.getCompressionScheme(),
+					configuration.getCompressionRatio(),
+					configuration.getTileW(),
+					configuration.getTileH());
         }
     }
 
