@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- Environment Initialization -->
+<!--	<bean id="sasmosaicGeoServerGenerator" class="it.geosolutions.geobatch.geoserver.matfile5.sas.SasMosaicGeoServerGeneratorService">
+		<property  name="id">
+    		<value>sasmosaicGeoServerGenerator</value>
+    	</property>
+    	<property name="description">
+    		<value>sasmosaicGeoServerGenerator</value>
+    	</property>
+    	<property name="name">
+    		<value>sasmosaicGeoServerGenerator</value>
+    	</property>
+    </bean>	
+    -->
+    
+
+	<!-- Environment Initialization -->
+	<bean id="formatConverterService" class="it.geosolutions.geobatch.convert.FormatConverterService">
+		<property  name="id">
+    		<value>formatConverterService</value>
+    	</property>
+    	<property name="description">
+    		<value>formatConverterService</value>
+    	</property>
+    	<property name="name">
+    		<value>formatConverterService</value>
+    	</property>
+    </bean>	    
+    
+    
+	<!-- Environment Initialization -->
+	<bean id="mosaicerService" class="it.geosolutions.geobatch.mosaic.MosaicerService">
+		<property  name="id">
+    		<value>mosaicerService</value>
+    	</property>
+    	<property name="description">
+    		<value>mosaicerService</value>
+    	</property>
+    	<property name="name">
+    		<value>mosaicerService</value>
+    	</property>
+    </bean>	      
+    
+    <!-- Environment Initialization -->
+	<bean id="composerService" class="it.geosolutions.geobatch.compose.ComposerService">
+		<property  name="id">
+    		<value>composerService</value>
+    	</property>
+    	<property name="description">
+    		<value>composerService</value>
+    	</property>
+    	<property name="name">
+    		<value>composerService</value>
+    	</property>
+    </bean>	     
+
+</beans>
