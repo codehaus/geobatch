@@ -59,6 +59,12 @@ public abstract class BaseImageProcessingConfiguration extends ActionConfigurati
 	private String serviceID;
 
 	private String time = "";
+	
+	private int corePoolSize = 1;
+	
+	private int maxPoolSize = 1;
+	
+	private long maxAwaitingTime = 300; //Seconds
     
 	public BaseImageProcessingConfiguration(String id, String name, String description,
 			boolean dirty) {
@@ -76,7 +82,31 @@ public abstract class BaseImageProcessingConfiguration extends ActionConfigurati
     public String getTime() {
         return time;
     }
-	
+    
+    public int getCorePoolSize() {
+		return corePoolSize;
+	}
+
+	public void setCorePoolSize(final int corePoolSize) {
+		this.corePoolSize = corePoolSize;
+	}
+
+	public int getMaxPoolSize() {
+		return maxPoolSize;
+	}
+
+	public void setMaxPoolSize(final int maxPoolSize) {
+		this.maxPoolSize = maxPoolSize;
+	}
+
+	public long getMaxAwaitingTime() {
+		return maxAwaitingTime;
+	}
+
+	public void setMaxAwaitingTime(final long maxAwaitingTime) {
+		this.maxAwaitingTime = maxAwaitingTime;
+	}
+
 	/**
 	 * @return the workingDirectory
 	 */

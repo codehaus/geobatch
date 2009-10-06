@@ -119,6 +119,9 @@ public class MosaicerConfiguration extends BaseImageProcessingConfiguration impl
         configuration.setTileW(getTileW());
         configuration.setTileSizeLimit(tileSizeLimit);
         configuration.setWorkingDirectory(getWorkingDirectory());
+        configuration.setMaxAwaitingTime(getMaxAwaitingTime());
+        configuration.setCorePoolSize(getCorePoolSize());
+        configuration.setMaxPoolSize(getMaxPoolSize());
         return configuration;
     }
 

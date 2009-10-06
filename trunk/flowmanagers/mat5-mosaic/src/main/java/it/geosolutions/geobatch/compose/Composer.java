@@ -216,7 +216,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 	                                      final String mosaicTobeIngested = composeMosaic(events,leafPath,outputDir.toString(), compressionRatio, compressionScheme,
 	                                              inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, rawScaleAlgorithm, mosaicScaleAlgorithm,
 	                                              chunkW, chunkH, initTime, configuration.getGeoserverURL(),configuration.getGeoserverUID(),configuration.getGeoserverPWD(),
-	                                              configuration.getGeoserverUploadMethod());
+	                                              configuration.getGeoserverUploadMethod(), configuration.getCorePoolSize(), configuration.getMaxPoolSize(), configuration.getMaxAwaitingTime());
 	                                      
 	                                      // //
 	                                      //
@@ -326,6 +326,9 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
      * @param geoserverUID 
      * @param geoserverPWD 
      * @param geoserverUploadMethod 
+     * @param corePoolSize 
+     * @param maxPoolSize 
+     * @param maxAwaitingTime
      * @return the location where the mosaic have been created
      * @throws Exception
      */
@@ -333,8 +336,9 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             final double compressionRatio, final String compressionScheme, 
             final String inputFormats, String outputFormat, final int tileW, final int tileH, 
             final int numSteps, final int downsampleStep, final String rawScaleAlgorithm, final String mosaicScaleAlgorithm,
-            final int chunkW, final int chunkH, final String time, final String geoserverURL, final String geoserverUID, 
-            final String geoserverPWD, final String geoserverUploadMethod) throws Exception {
+            final int chunkW, final int chunkH, final String time, 
+            final String geoserverURL, final String geoserverUID, final String geoserverPWD, final String geoserverUploadMethod, 
+            final int corePoolSize, final int maxPoolSize, final long maxAwaitingTime) throws Exception {
         
         // //
         //
@@ -391,6 +395,9 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         mosaicerConfig.setChunkHeight(chunkH);
         mosaicerConfig.setChunkWidth(chunkW);
         mosaicerConfig.setTime(time);
+        mosaicerConfig.setCorePoolSize(corePoolSize);
+        mosaicerConfig.setMaxPoolSize(maxPoolSize);
+        mosaicerConfig.setMaxAwaitingTime(maxAwaitingTime);
 
         if (LOGGER.isLoggable(Level.INFO))
         	LOGGER.log(Level.INFO, "Mosaic Composition");
@@ -408,38 +415,14 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         return configuration;
     }
     
-    //TODO: Improve me, leveraging on real XML
-    private String getDataDirectory(final File xmlFile){
-        String dataDir = null;
-        if (xmlFile!=null){
-            try {
-                final FileImageInputStream fis = new FileImageInputStream(xmlFile);
-                String location=null;
-                while ((location = fis.readLine())!=null){
-                    if (location.startsWith(MISSION_LEGS_LOCATION)){
-                        dataDir=location.substring(location.indexOf(MISSION_LEGS_LOCATION)+MISSION_LEGS_LOCATION.length(), location.length()-(MISSION_LEGS_LOCATION.length()+1));
-                        break;
-                    }
-                }
-                
-            } catch (FileNotFoundException e) {
-                LOGGER.warning(new StringBuilder("Unable to find the specified file: ")
-                .append(xmlFile).toString());
-            } catch (IOException e) {
-                LOGGER.warning(new StringBuilder("Problems occurred while reading: ")
-                .append(xmlFile).append("due to ").append(e.getLocalizedMessage()).toString());
-            }
-        }
-        return dataDir;
-    }
-    
     /**
      * Find Data directories from the specified input file.
      * @param xmlFile
      * @return
      */
     private List<String> getDataDirectories(final File xmlFile){
-    	List<String> directories = new ArrayList<String>();
+    	//TODO: Improve me, leveraging on real XML
+    	final List<String> directories = new ArrayList<String>();
         String dataDir = null;
         if (xmlFile!=null){
             try {
