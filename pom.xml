@@ -70,7 +70,7 @@
         <gt.version>2.5-SNAPSHOT</gt.version>
         <gb.version>0.9-SNAPSHOT</gb.version>
 	      <imageio-ext.version>1.0.3</imageio-ext.version>
-        <spring.version>2.5.2</spring.version>
+        <spring.version>2.5.6.SEC01</spring.version>
         <dao.type>xstream</dao.type> <!-- the default dao type -->
     </properties>
 
@@ -335,6 +335,28 @@
                 <artifactId>spring-jdbc</artifactId>
                 <version>${spring.version}</version>
             </dependency>
+            <dependency>
+	        <groupId>org.springframework</groupId>
+	        <artifactId>spring</artifactId>
+	        <version>${spring.version}</version>
+   	    </dependency>
+   	    <!-- SCOPE TEST -->
+	    <dependency>
+	        <groupId>org.springframework</groupId>
+	        <artifactId>spring-test</artifactId>
+	        <version>${spring.version}</version>
+	        <scope>test</scope>
+	        <exclusions>
+	         <exclusion>
+	          <groupId>commons-collections</groupId>
+	          <artifactId>commons-collections</artifactId>
+	         </exclusion>
+	         <exclusion>
+	          <groupId>xerces</groupId>
+	          <artifactId>xercesImpl</artifactId>
+	         </exclusion>
+	        </exclusions>
+   	    </dependency>
             <dependency>
                 <groupId>taglibs</groupId>
                 <artifactId>standard</artifactId>
