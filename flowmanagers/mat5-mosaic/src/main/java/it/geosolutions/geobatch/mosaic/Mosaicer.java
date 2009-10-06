@@ -29,7 +29,6 @@ import it.geosolutions.geobatch.flow.event.action.Action;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
-import java.io.File;
 import java.io.IOException;
 
 import javax.media.jai.JAI;

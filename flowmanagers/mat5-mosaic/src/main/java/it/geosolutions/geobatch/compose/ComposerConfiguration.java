@@ -230,6 +230,9 @@ public class ComposerConfiguration extends BaseImageProcessingConfiguration impl
         configuration.setGeoserverUID(geoserverUID);
         configuration.setGeoserverUploadMethod(geoserverUploadMethod);
         configuration.setGeoserverURL(geoserverURL);
+        configuration.setCorePoolSize(getCorePoolSize());
+        configuration.setMaxPoolSize(getMaxPoolSize());
+        configuration.setMaxAwaitingTime(getMaxAwaitingTime());
         return configuration;
     }
 
