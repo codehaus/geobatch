@@ -13,7 +13,7 @@
     <parent>
         <groupId>it.geosolutions</groupId>
         <artifactId>gb</artifactId>
-        <version>${version}</version>
+        <version>0.9-SNAPSHOT</version>
     </parent>
   
 
@@ -104,32 +104,26 @@
         <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-core</artifactId>
-            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-fs-catalog</artifactId>
-            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-flowmanagers-geotiff</artifactId>
-            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-flowmanagers-shapefile</artifactId>
-            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-flowmanagers-ascii</artifactId>
-            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-flowmanagers-netcdf</artifactId>
-            <version>${version}</version>
         </dependency>
     </dependencies>
 
