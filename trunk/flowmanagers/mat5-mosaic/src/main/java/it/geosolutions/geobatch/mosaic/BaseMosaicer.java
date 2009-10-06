@@ -116,18 +116,22 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
     		
     	}
     	public String call() throws Exception {
-    		Utils.addOverviews(
-    				fileName,
-    				downsampleStep,
-    				numSteps,
-    				scaleAlgorithm,
-    				compressionScheme,
-    				compressionRatio,
-    				tileW,
-    				tileH);
-    		// decrement latch
-    		concurrentLatch.countDown();
-    		return fileName;
+    		try{
+	    		Utils.addOverviews(
+	    				fileName,
+	    				downsampleStep,
+	    				numSteps,
+	    				scaleAlgorithm,
+	    				compressionScheme,
+	    				compressionRatio,
+	    				tileW,
+	    				tileH);
+	    		return fileName;
+    		}finally{
+
+        		// decrement latch
+        		concurrentLatch.countDown();
+    		}
     		
     		
     	}
@@ -213,8 +217,8 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
 	            params.parameter(AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName().toString()).setValue(wp);
 
 	            if (LOGGER.isLoggable(Level.INFO))
-	            	LOGGER.info(new StringBuilder("Writing tile: ").append(row+1).append(" of ")
-	            			.append(numTileX).append(" [X] -- ").append(column+1).append(" of ").
+	            	LOGGER.info(new StringBuilder("Writing tile: ").append(column+1).append(" of ")
+	            			.append(numTileX).append(" [X] -- ").append(row+1).append(" of ").
 	            			append(numTileY).append(" [Y]").toString());
 	            
 	            writerWI= new GeoTiffWriter(fileOut);
@@ -235,10 +239,12 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
 	                     	LOGGER.log(Level.FINEST,"Exception occurred whilst writing tiles:"+e.getLocalizedMessage(),e );
 					}
 	        	}
+	        	
+
+	    		// decrement latch
+	    		concurrentLatch.countDown();
 	        }
 	        
-    		// decrement latch
-    		concurrentLatch.countDown();
 	        return fileName;
 		}
 	}	
@@ -573,7 +579,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
         
         boolean terminated = false;
         for (int tileIndex = 0; tileIndex < numTiles; tileIndex++) {
-        	final int row = tileIndex/numTileY;
+        	final int row = tileIndex/numTileX;
     		final int column = tileIndex%numTileX;
         	final String fileName = buildFileName(outputLocation,row,column,chunkWidth);
         	final Rectangle sourceRegion = new Rectangle(column * chunkWidth, row * chunkHeight, chunkWidth, chunkHeight);
