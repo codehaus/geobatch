@@ -125,6 +125,10 @@
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-flowmanagers-netcdf</artifactId>
         </dependency>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-flowmanagers-ais</artifactId>
+        </dependency>
     </dependencies>
 
     <organization>
