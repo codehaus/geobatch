@@ -82,8 +82,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             
             // looking for file
             if (events.size() != 1)
-                throw new IllegalArgumentException("Wrong number of elements for this action: "
-                        + events.size());
+                throw new IllegalArgumentException("Wrong number of elements for this action: "+ events.size());
             
            
             // //
@@ -92,7 +91,6 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             //
             // //
             if (configuration == null) {
-                LOGGER.severe("DataFlowConfig is null.");
                 throw new IllegalStateException("DataFlowConfig is null.");
             }
             
@@ -106,7 +104,6 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             // Get the directory containing the data from the specified
             // XML file
             // //
-//            final String directory = getDataDirectory(inputFile);
             final List<String> missionDirs = getDataDirectories(inputFile);
             
             if (missionDirs==null || missionDirs.isEmpty()){
@@ -202,7 +199,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 	                                      }
 	                                      
 	                                      //Build the output directory path
-	                                      final StringBuffer outputDir = new StringBuffer(baseDir)
+	                                      final StringBuilder outputDir = new StringBuilder(baseDir)
 	                                      .append(Utils.SEPARATOR).append(initTime).append(Utils.SEPARATOR)
 	                                      .append(fileDir.getName()).append(Utils.SEPARATOR)
 	                                      .append(legDir.getName()).append(Utils.SEPARATOR)

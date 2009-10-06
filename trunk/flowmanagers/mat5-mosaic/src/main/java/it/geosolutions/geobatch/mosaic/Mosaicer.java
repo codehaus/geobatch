@@ -43,8 +43,7 @@ import org.geotools.coverage.grid.GridCoverage2D;
  * 
  * @author Daniele Romagnoli, GeoSolutions
  */
-public class Mosaicer extends BaseMosaicer implements
-        Action<FileSystemMonitorEvent> {
+public class Mosaicer extends BaseMosaicer implements Action<FileSystemMonitorEvent> {
 
     private final static boolean IMAGE_IS_LINEAR;
 
@@ -114,15 +113,14 @@ public class Mosaicer extends BaseMosaicer implements
         return JAI.create("Rescale", pbRescale);
     }
 
-    protected RenderedImage balanceMosaic(RenderedImage mosaicImage) {
+    protected RenderedImage processMosaic(RenderedImage mosaicImage) {
         RenderedImage inputImage = mosaicImage;
         if (IMAGE_IS_LINEAR){
             inputImage = computeLog(inputImage);
         }
         
         final double[] scale = new double[] { (255) / (extrema[1] - extrema[0]) };
-        final double[] offset = new double[] { ((255) * extrema[0])
-                / (extrema[0] - extrema[1]) };
+        final double[] offset = new double[] { ((255) * extrema[0])/ (extrema[0] - extrema[1]) };
 
         // Preparing to rescaling values
         final ParameterBlock pbRescale = new ParameterBlock();
@@ -148,12 +146,12 @@ public class Mosaicer extends BaseMosaicer implements
     	return Utils.buildRunName(outputLocation, configuration.getTime(), MOSAIC_PREFIX);
     }
     
-    protected String buildFileName(final String outputLocation, final int i, final int j,
-            final int chunkWidth) {
-        final String name = new StringBuilder(outputLocation)
-        .append(Utils.SEPARATOR).append("m_")
-        .append(Integer.toString(i * chunkWidth + j)).append(
-                        ".").append("tif").toString();
-        return name;
-    }
+    protected String buildFileName(final String outputLocation, final int i,
+			final int j, final int chunkWidth) {
+		final String name = new StringBuilder(outputLocation).append(
+				Utils.SEPARATOR).append("m_").append(
+				Integer.toString(i * chunkWidth + j)).append(".").append("tif")
+				.toString();
+		return name;
+	}
 }

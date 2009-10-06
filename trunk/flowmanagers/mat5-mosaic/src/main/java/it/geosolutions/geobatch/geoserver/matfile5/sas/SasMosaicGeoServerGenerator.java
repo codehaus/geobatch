@@ -30,7 +30,6 @@ import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfigurato
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerRESTHelper;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.io.utils.IOUtils;
-import it.geosolutions.geobatch.mosaic.Mosaicer;
 
 import java.io.File;
 import java.io.FileInputStream;
