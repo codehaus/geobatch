@@ -56,8 +56,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 
     private FormatConverterConfiguration configuration;
     
-    private final static Logger LOGGER = Logger.getLogger(FormatConverter.class
-            .toString());
+    private final static Logger LOGGER = Logger.getLogger(FormatConverter.class.toString());
 
     private final static Format[] formats;
     

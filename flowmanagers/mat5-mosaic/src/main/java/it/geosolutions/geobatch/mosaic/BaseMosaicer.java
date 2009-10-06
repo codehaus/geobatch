@@ -23,6 +23,7 @@
 package it.geosolutions.geobatch.mosaic;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
+import it.geosolutions.geobatch.base.Utils;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
@@ -40,6 +41,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -47,6 +50,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.imageio.ImageWriteParam;
 import javax.media.jai.JAI;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.RenderedOp;
@@ -55,12 +59,19 @@ import javax.media.jai.operator.MosaicDescriptor;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
+import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
+import org.geotools.gce.geotiff.GeoTiffFormat;
 import org.geotools.gce.geotiff.GeoTiffReader;
+import org.geotools.gce.geotiff.GeoTiffWriteParams;
+import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.metadata.iso.spatial.PixelTranslation;
 import org.geotools.referencing.operation.matrix.GeneralMatrix;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
+import org.opengis.parameter.GeneralParameterValue;
+import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
@@ -70,12 +81,173 @@ import org.opengis.referencing.operation.NoninvertibleTransformException;
  * 
  * @author Daniele Romagnoli, GeoSolutions
  */
-public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> implements
-        Action<FileSystemMonitorEvent> {
+public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> implements Action<FileSystemMonitorEvent> {
 
-    protected MosaicerConfiguration configuration;
     
-    private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger("it.geosolutions.geobatch.mosaic");
+    private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(BaseMosaicer.class.toString());
+    
+    /**
+     * 
+     * @author Simone Giannecchini, GeoSolutions SAS
+     *
+     */
+    private  class OverviewsEmbedderTask implements Callable<String> {
+
+    	private String fileName;
+    	private int downsampleStep;
+    	private int numSteps;
+    	private String scaleAlgorithm;
+    	private String compressionScheme;
+    	private double compressionRatio;
+    	private int tileW;
+    	private int tileH;
+    	
+    	public OverviewsEmbedderTask(final String fileName, final int downsampleStep, final int numSteps, 
+    			final String scaleAlgorithm, final String compressionScheme, double compressionRatio, 
+    			final int tileW, final int tileH) {
+    		this.fileName = fileName;
+    		this.downsampleStep = downsampleStep;
+    		this.numSteps = numSteps;
+    		this.scaleAlgorithm = scaleAlgorithm;
+    		this.compressionScheme = compressionScheme;
+    		this.compressionRatio = compressionRatio;
+    		this.tileW = tileW;
+    		this.tileH = tileH;
+    		
+    	}
+    	public String call() throws Exception {
+    		Utils.addOverviews(
+    				fileName,
+    				downsampleStep,
+    				numSteps,
+    				scaleAlgorithm,
+    				compressionScheme,
+    				compressionRatio,
+    				tileW,
+    				tileH);
+    		// decrement latch
+    		concurrentLatch.countDown();
+    		return fileName;
+    		
+    		
+    	}
+
+    }    
+	/**
+	 * 
+	 * @author Simone Giannecchini, GeoSolutions SAS
+	 *
+	 */
+    private class TileWriter implements Callable<String> {
+		
+		private Rectangle sourceRegion;
+		
+		private int numTileX;
+		
+		private int numTileY;
+		
+		private int tileWidth;
+		
+		private int tileHeight;
+		
+		private GridCoverage2D gc;
+		
+		private String compressionScheme;
+		
+		private float compressionRatio;
+
+		private int row;
+
+		private int column;
+
+		private String fileName;
+
+		
+		public TileWriter(final GridCoverage2D gc, final Rectangle sourceRegion, final int row, final int column,
+				final int numTileX, final int numTileY, final int tileWidth, final int tileHeight, 
+				final String fileName, final String compressionScheme, final float compressionRatio){
+			this.gc = gc;
+			this.sourceRegion = sourceRegion;
+			this.numTileX = numTileX;
+			this.numTileY = numTileY;
+			this.tileHeight = tileHeight;
+			this.tileWidth = tileWidth;
+			this.fileName = fileName;
+			this.row = row;
+			this.column = column;
+			this.compressionRatio = compressionRatio;
+			this.compressionScheme = compressionScheme;
+		}
+		
+		public String call() throws Exception {
+		    // //
+	        //
+	        // building gridgeometry for the read operation with the actual
+	        // envelope
+	        //
+	        // //
+	        final File fileOut = new File(fileName);
+	        // remove an old output file if it exists
+	        if (fileOut.exists())
+	            fileOut.delete();
+
+	        // //
+	        //
+	        // Write this coverage out as a geotiff
+	        //
+	        // //
+	        final AbstractGridFormat outFormat = new GeoTiffFormat();
+	        GeoTiffWriter writerWI=null;
+	        try {
+
+	            final GeoTiffWriteParams wp = new GeoTiffWriteParams();
+	            wp.setTilingMode(GeoToolsWriteParams.MODE_EXPLICIT);
+	            wp.setTiling(tileWidth, tileHeight);
+	            wp.setSourceRegion(sourceRegion);
+	            if (compressionScheme != null&& !Double.isNaN(compressionRatio)) {
+	                wp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+	                wp.setCompressionType(compressionScheme);
+	                wp.setCompressionQuality((float) compressionRatio);
+	            }
+	            final ParameterValueGroup params = outFormat.getWriteParameters();
+	            params.parameter(AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName().toString()).setValue(wp);
+
+	            if (LOGGER.isLoggable(Level.INFO))
+	            	LOGGER.info(new StringBuilder("Writing tile: ").append(row+1).append(" of ")
+	            			.append(numTileX).append(" [X] -- ").append(column+1).append(" of ").
+	            			append(numTileY).append(" [Y]").toString());
+	            
+	            writerWI= new GeoTiffWriter(fileOut);
+	            writerWI.write(gc, (GeneralParameterValue[]) params.values().toArray(new GeneralParameterValue[1]));
+	           
+	        } catch (Error e) {
+	        	 if (LOGGER.isLoggable(Level.SEVERE))
+	             	LOGGER.log(Level.SEVERE,"Exception occurred whilst writing tiles:"+e.getLocalizedMessage(),e );
+	        	 final IOException ioe= new IOException();
+	        	 ioe.initCause(e);
+	        	 throw ioe;
+	        }finally{
+	        	if(writerWI!=null){
+	        		try{
+	        			writerWI.dispose();
+	        		}catch (Throwable e) {
+	        			if (LOGGER.isLoggable(Level.FINEST))
+	                     	LOGGER.log(Level.FINEST,"Exception occurred whilst writing tiles:"+e.getLocalizedMessage(),e );
+					}
+	        	}
+	        }
+	        
+    		// decrement latch
+    		concurrentLatch.countDown();
+	        return fileName;
+		}
+	}	
+
+	
+	
+	private  CountDownLatch concurrentLatch;
+	
+    protected MosaicerConfiguration configuration;
 
     public BaseMosaicer(MosaicerConfiguration configuration) throws IOException {
         this.configuration = configuration;
@@ -147,21 +319,18 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
                         // Updating the global mosaic's envelope
                         //
                         // //
-                        GeneralEnvelope envelope = (GeneralEnvelope) reader
-                                .getOriginalEnvelope();
+                        GeneralEnvelope envelope = (GeneralEnvelope) reader.getOriginalEnvelope();
                         AffineTransform at = (AffineTransform)reader.getOriginalGridToWorld(PixelInCell.CELL_CENTER);
                         if (globEnvelope == null) {
                             globEnvelope = new GeneralEnvelope(envelope);
-                            globEnvelope.setCoordinateReferenceSystem(envelope
-                                    .getCoordinateReferenceSystem());
+                            globEnvelope.setCoordinateReferenceSystem(envelope.getCoordinateReferenceSystem());
                             xscale = XAffineTransform.getScaleX0(at);
                             yscale = XAffineTransform.getScaleY0(at);
                         } else
                             globEnvelope.add(envelope);
                         double tempXscale = XAffineTransform.getScaleX0(at);
                         double tempYscale = XAffineTransform.getScaleY0(at);
-                        if ((tempXscale < tempYscale && tempXscale < xscale) ||
-                        		(tempYscale < tempXscale && tempYscale < yscale)){
+                        if ((tempXscale < tempYscale && tempXscale < xscale) ||(tempYscale < tempXscale && tempYscale < yscale)){
                         	yscale = tempYscale;
                     		xscale = tempXscale;
                         }
@@ -172,8 +341,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
                     // computing the final g2w
                     // //
                     final MathTransform world2GridTransform = computeWorldToGridTransform(xscale,yscale,globEnvelope);
-                    final GridCoverageFactory coverageFactory = CoverageFactoryFinder
-                            .getGridCoverageFactory(null);
+                    final GridCoverageFactory coverageFactory = CoverageFactoryFinder.getGridCoverageFactory(null);
 
                     // read them all
                     final List<GridCoverage2D> coverages = new LinkedList<GridCoverage2D>();
@@ -183,21 +351,31 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
                     final Iterator<String> it = sortedFiles.keySet().iterator();
                     while (it.hasNext()){
                         final File file = sortedFiles.get(it.next());
-                        reader = new GeoTiffReader(file, null);
-                        final GridCoverage2D gc = (GridCoverage2D) reader.read(null);
-                        coverages.add(gc);
-                        updates(gc);
-                        reader.dispose();
+                        try{
+	                        reader = new GeoTiffReader(file, null);
+	                        final GridCoverage2D gc = (GridCoverage2D) reader.read(null);
+	                        coverages.add(gc);
+	                        updates(gc);
+                        }finally{
+                        	if(reader!=null)
+                        		try{
+                        			reader.dispose();
+                        		}catch (Throwable e) {
+									if(LOGGER.isLoggable(Level.FINE))
+										LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+								}
+                        }
                     }
                     
                     final RenderedImage mosaicImage = createMosaic(coverages,world2GridTransform);
-                    final RenderedImage balancedMosaic = balanceMosaic(mosaicImage);
+                    
+                    final RenderedImage balancedMosaic = processMosaic(mosaicImage);
                     
                     final GridCoverage2D balancedGc = coverageFactory.create("balanced", balancedMosaic, globEnvelope);
                     if (LOGGER.isLoggable(Level.INFO))
                     	LOGGER.info("Retiling the balanced mosaic");
-                    retileMosaic(balancedGc, chunkW, chunkH, tileW, tileH,
-                            compressionRatio, compressionType, outputDirectory);
+                    
+                    retileMosaic(balancedGc, chunkW, chunkH, tileW, tileH,compressionRatio, compressionType, outputDirectory);
                 }
             }
 
@@ -276,7 +454,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
     /** Update some internal machinery to optimize balancing computations */
     protected abstract void updates(GridCoverage2D gc);
 
-    protected abstract RenderedImage balanceMosaic (RenderedImage ri);
+    protected abstract RenderedImage processMosaic (RenderedImage ri);
     
     protected abstract String buildOutputDirName(String directory) ;
 
@@ -298,12 +476,12 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
         if (LOGGER.isLoggable(Level.INFO))
         	LOGGER.info(new StringBuffer("Found ").append(nCov).append(" tiles").toString());
         
+        // aplplying an affine transform to the single granules
         for (int i = 0; i < nCov; i++) {
             final GridCoverage2D coverage = coverages.get(i);
             final ParameterBlockJAI pbAffine = new ParameterBlockJAI("Affine");
             pbAffine.addSource(coverage.getRenderedImage());
-            final AffineTransform at = (AffineTransform) coverage.getGridGeometry()
-                    .getGridToCRS2D();
+            final AffineTransform at = (AffineTransform) coverage.getGridGeometry().getGridToCRS2D();
             AffineTransform chained = (AffineTransform) at.clone();
             chained.preConcatenate((AffineTransform) world2GridTransform);
             pbAffine.setParameter("transform", chained);
@@ -311,6 +489,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
             pbMosaic.addSource(affine);
         }
 
+        // building up the final mosaic
         final RenderedOp mosaicImage = JAI.create("Mosaic", pbMosaic);
         return mosaicImage;
     }
@@ -329,11 +508,11 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
      * @param outputLocation
      */
     private void retileMosaic(
-    		GridCoverage2D gc, 
+    		final GridCoverage2D gc, 
     		int chunkWidth,
-            int chunkHeight, 
-            int internalTileWidth, 
-            int internalTileHeight,
+    		int chunkHeight, 
+    		final int internalTileWidth, 
+    		final int internalTileHeight,
             final double compressionRatio, 
             final String compressionScheme,
             final String outputLocation) {
@@ -376,33 +555,71 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
         final int maxPoolSize = configuration.getMaxPoolSize();
         final long keepAliveTime = configuration.getMaxWaitingTime();
         ThreadPoolExecutor executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAliveTime, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+        executor.prestartAllCoreThreads();
+        
+        // tasks that we are going to submit to the thread pool.
         final List<Future<String>> tasks= new ArrayList<Future<String>>();
         
+        
+        // //
+        //
+        // Queueing tasks for execution
+        //
+        // //
+        // number of tiles to create
         final int numTiles = numTileX*numTileY;
+        // set the latch so that we wait for the taks to complete
+        concurrentLatch= new CountDownLatch(numTiles);
+        
         boolean terminated = false;
         for (int tileIndex = 0; tileIndex < numTiles; tileIndex++) {
         	final int row = tileIndex/numTileY;
     		final int column = tileIndex%numTileX;
         	final String fileName = buildFileName(outputLocation,row,column,chunkWidth);
         	final Rectangle sourceRegion = new Rectangle(column * chunkWidth, row * chunkHeight, chunkWidth, chunkHeight);
-        	tasks.add(executor.submit(new TileWriter(gc, sourceRegion, row, column, numTileX, numTileY, 
-        			internalTileWidth, internalTileHeight, fileName, 
-        			compressionScheme, (float)compressionRatio)));
+        	if(sourceRegion.isEmpty())
+        	{
+        		LOGGER.warning("Empty regione when writing down mosaic tile:"+sourceRegion);
+        		continue;
+        	}
+        	// create task as a future
+        	final Future<String> task = executor.submit(
+        				new TileWriter(
+        						gc, 
+        						sourceRegion, 
+        						row, 
+        						column, 
+        						numTileX, 
+        						numTileY, 
+        						internalTileWidth, 
+        						internalTileHeight, 
+        						fileName,
+        						compressionScheme, 
+        						(float)compressionRatio));
+        	tasks.add(task);
+        	
+        	// contextually create the overview tasks queue
         	filesToAddOverviews.add(fileName);
         }
+        
+        // execute the tasks we have queued
         try {
-        	executor.shutdown();
-			terminated = executor.awaitTermination(keepAliveTime, TimeUnit.SECONDS);
+        	terminated = concurrentLatch.await(keepAliveTime, TimeUnit.SECONDS);
+
+//        	executor.shutdown();
+//			terminated = executor.awaitTermination(keepAliveTime, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			//TODO: Handle this
+			if(LOGGER.isLoggable(Level.WARNING))
+				LOGGER.log(Level.WARNING,e.getLocalizedMessage(),e);
 			
-		} finally{
-			
-			if (!terminated)
-				executor.shutdownNow();
-			//TODO: Check threads terminated
-			executor = null;
-		}
+		} 
+		
+    	if(!terminated)
+    	{
+    		if(LOGGER.isLoggable(Level.SEVERE))
+    				LOGGER.severe("Writing down mosaic in tiles timed out!!!");
+    		return;
+    	}
         
         // ///////////////////////////////////////////////////////////////////
         //
@@ -412,41 +629,60 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
 		
         //Overviews are added as a last step to minimize TileCache updates
 		final List<Future<String>> overviewsTasks= new ArrayList<Future<String>>();
-    	executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize ,keepAliveTime,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
-		 
+//    	executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize ,keepAliveTime,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
+		
         int nOverviewsDone = 1;
-        final int nFiles = filesToAddOverviews.size();
+        concurrentLatch= new CountDownLatch(numTiles);
         for (String fileOverviews: filesToAddOverviews){
             // TODO: Leverage on GeoTiffOverviewsEmbedder when involving
             // no more FileSystemEvent only
             // Or merge retiling and overviews adding to a single step
             if (LOGGER.isLoggable(Level.INFO))
-            	LOGGER.info( new StringBuilder("Adding overviews: File ").append(nOverviewsDone)
-            			.append(" of ").append(nFiles).toString());
+            	LOGGER.info( new StringBuilder("Adding overviews: File ").append(nOverviewsDone).append(" of ").append(numTiles).toString());
             nOverviewsDone++;
-            overviewsTasks.add(executor.submit(new OverviewsAdder(fileOverviews,
+            final Future<String> task = executor.submit(new OverviewsEmbedderTask(fileOverviews,
     				configuration.getDownsampleStep(),
     				configuration.getNumSteps(),
     				configuration.getScaleAlgorithm(),
     				configuration.getCompressionScheme(),
     				configuration.getCompressionRatio(),
     				configuration.getTileW(),
-    				configuration.getTileH())));
+    				configuration.getTileH()));
+            overviewsTasks.add(task);
         }
         
+//        try {
+//        	executor.shutdown();
+//			terminated = executor.awaitTermination(keepAliveTime, TimeUnit.SECONDS);
+//		} catch (InterruptedException e) {
+//			//TODO: Handle this
+//			
+//		} finally{
+//			
+//			if (!terminated)
+//				executor.shutdownNow();
+//			//TODO: Check threads terminated
+//			executor = null;
+//		}
+		
+        // execute the tasks we have queued
         try {
-        	executor.shutdown();
-			terminated = executor.awaitTermination(keepAliveTime, TimeUnit.SECONDS);
+        	terminated = concurrentLatch.await(keepAliveTime, TimeUnit.SECONDS);
+
+//        	executor.shutdown();
+//			terminated = executor.awaitTermination(keepAliveTime, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			//TODO: Handle this
+			if(LOGGER.isLoggable(Level.WARNING))
+				LOGGER.log(Level.WARNING,e.getLocalizedMessage(),e);
 			
-		} finally{
-			
-			if (!terminated)
-				executor.shutdownNow();
-			//TODO: Check threads terminated
-			executor = null;
-		}
+		} 
+		
+    	if(!terminated)
+    	{
+    		if(LOGGER.isLoggable(Level.SEVERE))
+    				LOGGER.severe("Writing down mosaic in tiles timed out!!!");
+    		return;
+    	}
     }
 
     protected abstract String buildFileName(String outputLocation, int i, int j,
