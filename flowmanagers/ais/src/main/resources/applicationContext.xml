@@ -7,6 +7,18 @@
 	default-autowire="byName">
 
 
+	<!-- Environment Initialization -->
+	<bean id="aisAnomaliesGeoServerGeneratorService" class="it.geosolutions.geobatch.ais.anomalies.AISAnomaliesGeoServerGeneratorService">
+		<property  name="id">
+    		<value>aisAnomaliesGeoServerGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>aisAnomaliesGeoServerGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>aisAnomaliesGeoServerGeneratorService</value>
+    	</property>	
+	</bean>
 
 	<import resource="applicationContext-database.xml" />
 	<import resource="applicationContext-DAO.xml" />
@@ -17,9 +29,10 @@
 		<property name="targetMethod" value="initLogging" />
 		<property name="arguments">
 			<list>
-				<value>classpath:/log4j.properties</value>
+				<value>classpath:log4j.properties</value>
 			</list>
 		</property>
 	</bean>
-
+	
+	
 </beans>
