@@ -28,6 +28,7 @@ import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitor;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorListener;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
+import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorSPI;
 import it.geosolutions.filesystemmonitor.monitor.impl.BaseFileSystemMonitor;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.configuration.event.generator.file.FileBasedEventGeneratorConfiguration;
@@ -40,6 +41,8 @@ import it.geosolutions.geobatch.io.utils.IOUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.EventObject;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -212,10 +215,12 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
      * @param keepFiles 
      * @throws NotSupportedException
      */
-    private void initialize(final OsType osType, FileSystemMonitorNotifications eventType,
-            final File dir, final String wildcard, final boolean keepFiles) throws NotSupportedException {
-        FactoryFinder.scanForPlugins();
-        this.fsMonitor = (BaseFileSystemMonitor) FactoryFinder.getMonitor(osType);
+    private void initialize(
+    		final OsType osType, 
+    		final FileSystemMonitorNotifications eventType,
+            final File dir, 
+            final String wildcard, 
+            final boolean keepFiles) throws NotSupportedException {
         // add myself as listener
         fsListener = new EventListener();
         this.fsMonitor.addListener(fsListener);
@@ -225,13 +230,18 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
         this.eventType = eventType;
         this.keepFiles = keepFiles;
 
-        if ((this.fsMonitor != null) && (this.watchDirectory != null) && this.watchDirectory.isDirectory() && this.watchDirectory.exists()) {
-            if (this.wildCard != null) {
-                this.fsMonitor.setFile(this.watchDirectory, this.wildCard);
-            } else {
-                this.fsMonitor.setFile(this.watchDirectory);
-            }
+        FactoryFinder.scanForPlugins();
+        if ((this.watchDirectory != null) && this.watchDirectory.isDirectory() && this.watchDirectory.exists()) 
+        {
+            	
+    		final Map<String,Object>params= new HashMap<String, Object>();
+    		params.put(FileSystemMonitorSPI.SOURCE, dir);
+    		if (this.wildCard != null)
+    			params.put(FileSystemMonitorSPI.WILDCARD, wildCard);	
+            this.fsMonitor = (BaseFileSystemMonitor) FactoryFinder.getMonitor(params,osType);
         }
+        else
+        	throw new IllegalArgumentException("Unable to start the FileSystemMonitor for directory:"+dir.getAbsolutePath());
     }
 
     // ----------------------------------------------- PUBLIC ACCESS METHODS

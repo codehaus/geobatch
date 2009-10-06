@@ -28,6 +28,7 @@ import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitor;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorListener;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
+import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorSPI;
 import it.geosolutions.filesystemmonitor.monitor.impl.BaseFileSystemMonitor;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.configuration.event.generator.ftp.FtpBasedEventGeneratorConfiguration;
@@ -41,6 +42,8 @@ import it.geosolutions.geobatch.io.utils.IOUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.EventObject;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -232,7 +235,6 @@ public class FtpBasedEventGenerator<T extends EventObject> extends BaseEventGene
         LOGGER.info("start");
         FactoryFinder.scanForPlugins();
         LOGGER.info("FsMonitor Init");
-        this.fsMonitor = (BaseFileSystemMonitor) FactoryFinder.getMonitor(osType);
         // add myself as listener
         fsListener = new EventListener();
         this.fsMonitor.addListener(fsListener);
@@ -243,12 +245,14 @@ public class FtpBasedEventGenerator<T extends EventObject> extends BaseEventGene
         this.keepFiles = keepFiles;
 
         LOGGER.info("FsMonitor Configured");
-        if ((this.fsMonitor != null) && (this.watchDirectory != null) && this.watchDirectory.isDirectory() && this.watchDirectory.exists()) {
-            if (this.wildCard != null) {
-                this.fsMonitor.setFile(this.watchDirectory, this.wildCard);
-            } else {
-                this.fsMonitor.setFile(this.watchDirectory);
-            }
+        if ((this.watchDirectory != null) && this.watchDirectory.isDirectory() && this.watchDirectory.exists()) 
+        {
+            	
+    		final Map<String,Object>params= new HashMap<String, Object>();
+    		params.put(FileSystemMonitorSPI.SOURCE, dir);
+    		if (this.wildCard != null)
+    			params.put(FileSystemMonitorSPI.WILDCARD, wildCard);	
+            this.fsMonitor = (BaseFileSystemMonitor) FactoryFinder.getMonitor(params,osType);
             LOGGER.info("Trying to set FTPServer");
             try {
                 LOGGER.info("FtpServer initialization");
@@ -284,11 +288,9 @@ public class FtpBasedEventGenerator<T extends EventObject> extends BaseEventGene
                 LOGGER.severe("Error: " + ex);
             }
         }
-        else { LOGGER.warning("W:".concat(this.fsMonitor.toString()) +
-                "-".concat(this.watchDirectory.getAbsolutePath()) +
-                "-".concat((this.watchDirectory.isDirectory()?"true":"false"))+
-                "-".concat((this.watchDirectory.exists()?"true":"false")));}
-        LOGGER.info("end");
+            else
+            	throw new IllegalArgumentException("Unable to start the FileSystemMonitor for directory:"+dir.getAbsolutePath());
+       
     }
 
     // ----------------------------------------------- PUBLIC ACCESS METHODS
