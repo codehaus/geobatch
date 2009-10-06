@@ -223,7 +223,6 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
             final boolean keepFiles) throws NotSupportedException {
         // add myself as listener
         fsListener = new EventListener();
-        this.fsMonitor.addListener(fsListener);
 
         this.watchDirectory = dir;
         this.wildCard = wildcard;
@@ -239,6 +238,7 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
     		if (this.wildCard != null)
     			params.put(FileSystemMonitorSPI.WILDCARD, wildCard);	
             this.fsMonitor = (BaseFileSystemMonitor) FactoryFinder.getMonitor(params,osType);
+            this.fsMonitor.addListener(fsListener);
         }
         else
         	throw new IllegalArgumentException("Unable to start the FileSystemMonitor for directory:"+dir.getAbsolutePath());
