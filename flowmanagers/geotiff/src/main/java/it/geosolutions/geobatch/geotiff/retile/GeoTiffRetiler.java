@@ -42,12 +42,14 @@ import javax.media.jai.RenderedOp;
 
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridCoverageWriter;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.grid.io.GridFormatFinder;
+import org.geotools.coverage.grid.io.UnknownFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
 import org.geotools.factory.Hints;
 import org.geotools.gce.geotiff.GeoTiffFormat;
-import org.geotools.gce.geotiff.GeoTiffReader;
 import org.geotools.gce.geotiff.GeoTiffWriteParams;
 import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.opengis.parameter.GeneralParameterValue;
@@ -62,6 +64,7 @@ import com.sun.media.jai.operator.ImageReadDescriptor;
  * 
  * @version $GeoTIFFOverviewsEmbedder.java $ Revision: x.x $ 23/mar/07 11:42:25
  */
+@SuppressWarnings("deprecation")
 public class GeoTiffRetiler extends BaseAction<FileSystemMonitorEvent> implements
         Action<FileSystemMonitorEvent> {
 
@@ -75,7 +78,7 @@ public class GeoTiffRetiler extends BaseAction<FileSystemMonitorEvent> implement
         this.configuration = configuration;
     }
 
-    public Queue<FileSystemMonitorEvent> execute(Queue<FileSystemMonitorEvent> events)
+	public Queue<FileSystemMonitorEvent> execute(Queue<FileSystemMonitorEvent> events)
             throws Exception {
         try {
 
@@ -116,8 +119,10 @@ public class GeoTiffRetiler extends BaseAction<FileSystemMonitorEvent> implement
 			if (LOGGER.isLoggable(Level.INFO))
 				LOGGER.info("Acquiring a reader for the provided file...");
 			// getting a reader for the given input
-			final GeoTiffReader reader= new GeoTiffReader(tiledInputFile, new Hints(
-					Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE));
+			final AbstractGridFormat format= (AbstractGridFormat) GridFormatFinder.findFormat(tiledInputFile);
+			if(format ==null || format instanceof UnknownFormat)
+				throw new IllegalArgumentException("Unable to find a reader for the file:"+tiledInputFile.getAbsolutePath());
+			final AbstractGridCoverage2DReader reader= (AbstractGridCoverage2DReader) format.getReader(tiledInputFile, new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE));
 
 			// /////////////////////////////////////////////////////////////////////
 			//
@@ -134,8 +139,7 @@ public class GeoTiffRetiler extends BaseAction<FileSystemMonitorEvent> implement
 			//
 			// /////////////////////////////////////////////////////////////////////
 			if (LOGGER.isLoggable(Level.INFO))
-				LOGGER
-						.info("Writing down the file in the decoded directory...");
+				LOGGER.info("Writing down the file in the decoded directory...");
 			final double compressionRatio=configuration.getCompressionRatio();
 			final String compressionType=configuration.getCompressionScheme();
 			
@@ -150,9 +154,7 @@ public class GeoTiffRetiler extends BaseAction<FileSystemMonitorEvent> implement
 			wp.setTilingMode(GeoToolsWriteParams.MODE_EXPLICIT);
 			wp.setTiling(configuration.getTileW(), configuration.getTileH());
 			final ParameterValueGroup wparams = wformat.getWriteParameters();
-			wparams.parameter(
-					AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName()
-							.toString()).setValue(wp);
+			wparams.parameter(AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName().toString()).setValue(wp);
 
 			
 			// keep original name
@@ -171,10 +173,8 @@ public class GeoTiffRetiler extends BaseAction<FileSystemMonitorEvent> implement
 			// PERFORMING FINAL CLEAN UP AFTER THE WRITE PROCESS
 			//
 			// /////////////////////////////////////////////////////////////////////
-			final RenderedOp initImage = (RenderedOp) inCoverage
-					.getRenderedImage();
-			ImageReader r = (ImageReader) initImage
-					.getProperty(ImageReadDescriptor.PROPERTY_NAME_IMAGE_READER);
+			final RenderedOp initImage = (RenderedOp) inCoverage.getRenderedImage();
+			ImageReader r = (ImageReader) initImage.getProperty(ImageReadDescriptor.PROPERTY_NAME_IMAGE_READER);
 			r.dispose();
 			Object input = r.getInput();
 			if (input instanceof ImageInputStream) 
