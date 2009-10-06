@@ -59,6 +59,7 @@
       <module>shapefile</module>
       <module>ascii-grids</module>
       <module>netcdf</module>
+      <module>ais</module>
     </modules>
     
 </project>
