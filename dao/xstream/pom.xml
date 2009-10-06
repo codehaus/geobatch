@@ -8,7 +8,7 @@
     <parent>
         <artifactId>gb-dao</artifactId>
         <groupId>it.geosolutions</groupId>
-        <version>${version}</version>
+        <version>0.9-SNAPSHOT</version>
     </parent>
 
   <!-- =========================================================== -->
@@ -17,13 +17,10 @@
 
     <groupId>it.geosolutions</groupId>
     <artifactId>gb-dao-xstream</artifactId>
-    <version>${version}</version>
     <name>GeoSolutions GeoBatch pluggable DAOs - XStream</name>
     <url>http://www.geo-solutions.it/maven_reports/gb/data/</url>
 
     <dependencies>
-
-
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
@@ -33,24 +30,20 @@
         <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-core</artifactId>
-            <version>${version}</version>
         </dependency>
 
         <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-fs-catalog</artifactId>
-            <version>${version}</version>
         </dependency>
 
-        <dependency>
+       <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-flowmanagers-geotiff</artifactId>
-            <version>${version}</version>
-        </dependency>
+        </dependency> 
         <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-flowmanagers-composer</artifactId>
-            <version>${version}</version>
         </dependency>
         
 

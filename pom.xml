@@ -68,8 +68,8 @@
         <test.maxHeapSize>512M</test.maxHeapSize>
         <src.output>${basedir}/target</src.output>
         <gt.version>2.5-SNAPSHOT</gt.version>
-        <version>0.9-SNAPSHOT</version>
-	<imageio-ext.version>1.02</imageio-ext.version>
+        <gb.version>0.9-SNAPSHOT</gb.version>
+	      <imageio-ext.version>1.0.3</imageio-ext.version>
         <spring.version>2.5.2</spring.version>
         <dao.type>xstream</dao.type> <!-- the default dao type -->
     </properties>
@@ -220,7 +220,7 @@
     <groupId>it.geosolutions</groupId>
     <artifactId>gb</artifactId>
     <packaging>pom</packaging>
-    <version>${version}</version>
+    <version>0.9-SNAPSHOT</version>
     <name>GeoSolutions GeoBatch</name>
     <url>http://www.geo-solutions.it/maven_reports/gb/</url>
 
@@ -626,6 +626,43 @@
         <artifactId>hsqldb</artifactId>
         <version>1.8.0.7</version>
       </dependency -->
+
+      <!-- Geobatch -->
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-core</artifactId>
+            <version>${gb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-fs-catalog</artifactId>
+            <version>${gb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-flowmanagers-geotiff</artifactId>
+            <version>${gb.version}</version>
+        </dependency>
+         <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-flowmanagers-composer</artifactId>
+            <version>${gb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-flowmanagers-shapefile</artifactId>
+            <version>${gb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-flowmanagers-ascii</artifactId>
+            <version>${gb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-flowmanagers-netcdf</artifactId>
+            <version>${gb.version}</version>
+        </dependency>
 
 
       <!-- Tests or legacy -->
