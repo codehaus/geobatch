@@ -24,11 +24,9 @@ package it.geosolutions.geobatch.mosaic;
 import it.geosolutions.geobatch.base.Utils;
 
 import java.util.concurrent.Callable;
-import java.util.logging.Logger;
 
 public class OverviewsAdder implements Callable<String> {
 
-	private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger("it.geosolutions.geobatch.mosaic");
 	private String fileName;
 	private int downsampleStep;
 	private int numSteps;

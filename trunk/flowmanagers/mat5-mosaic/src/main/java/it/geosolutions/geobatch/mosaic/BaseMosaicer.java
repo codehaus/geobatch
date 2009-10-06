@@ -374,7 +374,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
         // //
         final int corePoolSize = configuration.getCorePoolSize();
         final int maxPoolSize = configuration.getMaxPoolSize();
-        final long keepAliveTime = configuration.getMaxAwaitingTime();
+        final long keepAliveTime = configuration.getMaxWaitingTime();
         ThreadPoolExecutor executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAliveTime, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
         final List<Future<String>> tasks= new ArrayList<Future<String>>();
         
@@ -399,7 +399,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
 		} finally{
 			
 			if (!terminated)
-				executor.shutdown();
+				executor.shutdownNow();
 			//TODO: Check threads terminated
 			executor = null;
 		}
@@ -443,7 +443,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
 		} finally{
 			
 			if (!terminated)
-				executor.shutdown();
+				executor.shutdownNow();
 			//TODO: Check threads terminated
 			executor = null;
 		}

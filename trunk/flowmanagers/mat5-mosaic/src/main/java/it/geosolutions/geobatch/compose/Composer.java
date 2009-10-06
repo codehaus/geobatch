@@ -216,7 +216,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 	                                      final String mosaicTobeIngested = composeMosaic(events,leafPath,outputDir.toString(), compressionRatio, compressionScheme,
 	                                              inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, rawScaleAlgorithm, mosaicScaleAlgorithm,
 	                                              chunkW, chunkH, initTime, configuration.getGeoserverURL(),configuration.getGeoserverUID(),configuration.getGeoserverPWD(),
-	                                              configuration.getGeoserverUploadMethod(), configuration.getCorePoolSize(), configuration.getMaxPoolSize(), configuration.getMaxAwaitingTime());
+	                                              configuration.getGeoserverUploadMethod(), configuration.getCorePoolSize(), configuration.getMaxPoolSize(), configuration.getMaxWaitingTime());
 	                                      
 	                                      // //
 	                                      //
@@ -328,7 +328,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
      * @param geoserverUploadMethod 
      * @param corePoolSize 
      * @param maxPoolSize 
-     * @param maxAwaitingTime
+     * @param maxWaitingTime
      * @return the location where the mosaic have been created
      * @throws Exception
      */
@@ -338,7 +338,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             final int numSteps, final int downsampleStep, final String rawScaleAlgorithm, final String mosaicScaleAlgorithm,
             final int chunkW, final int chunkH, final String time, 
             final String geoserverURL, final String geoserverUID, final String geoserverPWD, final String geoserverUploadMethod, 
-            final int corePoolSize, final int maxPoolSize, final long maxAwaitingTime) throws Exception {
+            final int corePoolSize, final int maxPoolSize, final long maxWaitingTime) throws Exception {
         
         // //
         //
@@ -397,7 +397,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         mosaicerConfig.setTime(time);
         mosaicerConfig.setCorePoolSize(corePoolSize);
         mosaicerConfig.setMaxPoolSize(maxPoolSize);
-        mosaicerConfig.setMaxAwaitingTime(maxAwaitingTime);
+        mosaicerConfig.setMaxWaitingTime(maxWaitingTime);
 
         if (LOGGER.isLoggable(Level.INFO))
         	LOGGER.log(Level.INFO, "Mosaic Composition");

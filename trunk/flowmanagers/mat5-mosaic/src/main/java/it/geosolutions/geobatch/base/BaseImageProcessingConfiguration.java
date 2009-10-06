@@ -64,7 +64,7 @@ public abstract class BaseImageProcessingConfiguration extends ActionConfigurati
 	
 	private int maxPoolSize = 1;
 	
-	private long maxAwaitingTime = 300; //Seconds
+	private long maxWaitingTime = 300; //Seconds
     
 	public BaseImageProcessingConfiguration(String id, String name, String description,
 			boolean dirty) {
@@ -99,12 +99,12 @@ public abstract class BaseImageProcessingConfiguration extends ActionConfigurati
 		this.maxPoolSize = maxPoolSize;
 	}
 
-	public long getMaxAwaitingTime() {
-		return maxAwaitingTime;
+	public long getMaxWaitingTime() {
+		return maxWaitingTime;
 	}
 
-	public void setMaxAwaitingTime(final long maxAwaitingTime) {
-		this.maxAwaitingTime = maxAwaitingTime;
+	public void setMaxWaitingTime(final long maxWaitingTime) {
+		this.maxWaitingTime = maxWaitingTime;
 	}
 
 	/**
