@@ -33,8 +33,12 @@ import it.geosolutions.geobatch.ais.model.AISAnomalies;
 
 /**
  * @author Francesco
- *
+ * 
  */
 public interface IDAOAISAnomalies extends IDAOAbstractSpring<AISAnomalies> {
+
+	public AISAnomalies save(AISAnomalies aisAnomalies) throws DAOException;
+	
+	public void delete(final String type) throws DAOException;
 
 }

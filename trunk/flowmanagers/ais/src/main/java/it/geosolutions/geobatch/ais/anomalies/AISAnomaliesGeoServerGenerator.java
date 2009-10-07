@@ -204,6 +204,9 @@ public class AISAnomaliesGeoServerGenerator extends
 				}
 			}
 
+			LOGGER.info(" CLASS TYPE ANOMALIES >>>>>>>>>>>>>>>>>>>>>>>>>"
+					+ anomalies.get(0).getType());
+
 			storeAISAnomalies(anomalies);
 
 		} catch (Throwable t) {
@@ -223,15 +226,22 @@ public class AISAnomaliesGeoServerGenerator extends
 	}
 
 	private void storeAISAnomalies(List<AISAnomalies> anomalies) {
+		try {
+			// ///////////////////////////////////////////
+			// First deleted form DB
+			// ///////////////////////////////////////////
+			if (anomalies.size() > 0)
+				aisAnomaliesDAO.delete(anomalies.get(0).getType());
 
-		for (AISAnomalies ais : anomalies) {
-			try {
-				aisAnomaliesDAO.makePersistent(ais);
-			} catch (DAOException e) {
-				LOGGER.info(e.getMessage());
+			// ///////////////////////////////////////////
+			// Thean insert all features
+			// ///////////////////////////////////////////
+			for (AISAnomalies ais : anomalies) {
+				aisAnomaliesDAO.save(ais);
 			}
+		} catch (DAOException e) {
+			LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
 		}
-
 	}
 
 	private File[] handleShapefile(Queue<FileSystemMonitorEvent> events) {
