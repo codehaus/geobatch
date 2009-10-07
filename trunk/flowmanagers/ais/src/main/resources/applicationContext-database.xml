@@ -10,15 +10,19 @@
 	<!-- File Config -->
 	<bean id="placeholderConfig"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="location" value="classpath:/postgis.properties" />
+		<property name="location">
+			<value>classpath:/postgis.properties</value>
+		</property>
+
 	</bean>
 
 	<!--  Data source -->
-	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
-		<property name="driverClass" value="${jdbc.driver}" />
-		<property name="jdbcUrl" value="${jdbc.url}" />
-		<property name="user" value="${jdbc.user}" />
-		<property name="password" value="${jdbc.password}" />
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" >
+	
+		<property name="driverClass" value="org.postgresql.Driver" />
+		<property name="jdbcUrl" value="jdbc:postgresql:AIS" />
+		<property name="user" value="pguser" />
+		<property name="password" value="pguser" />
 		<property name="minPoolSize" value="10" />
 		<property name="maxPoolSize" value="20" />
 		<property name="maxStatements" value="100" />
@@ -42,7 +46,7 @@
 					org.hibernate.transaction.JDBCTransactionFactory
 				</prop>
 				<prop key="dialect">
-					${hibernate.dialect}
+					org.hibernatespatial.postgis.PostgisDialect
                 </prop>
 				<prop key="hibernate.show_sql">false</prop>
 				<prop key="hibernate.connection.autocommit">false</prop>

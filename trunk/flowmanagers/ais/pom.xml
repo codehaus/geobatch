@@ -56,6 +56,11 @@
 			<version>${version}</version>
 		</dependency>
 		<dependency>
+	      <groupId>org.geotools</groupId>
+	      <artifactId>gt-shapefile</artifactId>
+	      <version>${gt.version}</version>
+	    </dependency>
+		<dependency>
 			<groupId>it.geosolutions</groupId>
 			<artifactId>gb-fs-catalog</artifactId>
 			<version>${version}</version>

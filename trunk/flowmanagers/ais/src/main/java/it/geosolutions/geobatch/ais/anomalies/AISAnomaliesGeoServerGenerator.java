@@ -23,6 +23,9 @@
 package it.geosolutions.geobatch.ais.anomalies;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
+import it.geosolutions.geobatch.ais.dao.DAOException;
+import it.geosolutions.geobatch.ais.dao.IDAOAISAnomalies;
+import it.geosolutions.geobatch.ais.model.AISAnomalies;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorAction;
@@ -31,21 +34,46 @@ import it.geosolutions.geobatch.io.utils.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.logging.Level;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.geotools.data.DataStore;
+import org.geotools.data.DataStoreFinder;
+import org.geotools.data.FeatureSource;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
+import org.opengis.feature.Feature;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+
+import com.vividsolutions.jts.geom.Point;
 
 public class AISAnomaliesGeoServerGenerator extends
 		GeoServerConfiguratorAction<FileSystemMonitorEvent> {
-	
+
+	private IDAOAISAnomalies aisAnomaliesDAO;
+
 	private File tempOutDir = null;
 
 	public AISAnomaliesGeoServerGenerator(
 			GeoServerActionConfiguration configuration) throws IOException {
 		super(configuration);
+	}
+
+	public AISAnomaliesGeoServerGenerator(
+			GeoServerActionConfiguration configuration,
+			IDAOAISAnomalies aisAnomaliesDAO) throws IOException {
+		super(configuration);
+		this.aisAnomaliesDAO = aisAnomaliesDAO;
 	}
 
 	public Queue<FileSystemMonitorEvent> execute(
@@ -57,55 +85,126 @@ public class AISAnomaliesGeoServerGenerator extends
 		//
 		// ////////////////////////////////////////////////////////////////////
 		try {
-
 			if (configuration == null) {
 				LOGGER.log(Level.SEVERE, "ActionConfig is null.");
 				throw new IllegalStateException("ActionConfig is null.");
 			}
-			
-			final File workingDir = IOUtils.findLocation(configuration.getWorkingDirectory(),
-                    new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
-			
-			if (workingDir == null) {
-                LOGGER.log(Level.SEVERE, "Working directory is null.");
-                throw new IllegalStateException("Working directory is null.");
-            }
 
-            if ( !workingDir.exists() || !workingDir.isDirectory()) {
-                LOGGER.log(Level.SEVERE, "Working directory does not exist ("+workingDir.getAbsolutePath()+").");
-                throw new IllegalStateException("Working directory does not exist ("+workingDir.getAbsolutePath()+").");
-            }
-            
-            FileSystemMonitorEvent event = events.peek();
+			final File workingDir = IOUtils.findLocation(configuration
+					.getWorkingDirectory(), new File(
+					((FileBaseCatalog) CatalogHolder.getCatalog())
+							.getBaseDirectory()));
+
+			if (workingDir == null) {
+				LOGGER.log(Level.SEVERE, "Working directory is null.");
+				throw new IllegalStateException("Working directory is null.");
+			}
+
+			if (!workingDir.exists() || !workingDir.isDirectory()) {
+				LOGGER.log(Level.SEVERE, "Working directory does not exist ("
+						+ workingDir.getAbsolutePath() + ").");
+				throw new IllegalStateException(
+						"Working directory does not exist ("
+								+ workingDir.getAbsolutePath() + ").");
+			}
+
+			FileSystemMonitorEvent event = events.peek();
 
 			File[] shpList;
 
-			if(events.size() == 1 && FilenameUtils.getExtension(event.getSource().getAbsolutePath()).equalsIgnoreCase("zip")) {
+			if (events.size() == 1
+					&& FilenameUtils.getExtension(
+							event.getSource().getAbsolutePath())
+							.equalsIgnoreCase("zip")) {
 				shpList = handleZipFile(event.getSource(), workingDir);
 			} else {
 				shpList = handleShapefile(events);
 			}
 
-			if(shpList == null)
+			if (shpList == null)
 				throw new Exception("Error while processing the shape file set");
 
 			// look for the main shp file in the set
 			File shapeFile = null;
 			for (File file : shpList) {
-				if(FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("shp")) {
+				if (FilenameUtils.getExtension(file.getName())
+						.equalsIgnoreCase("shp")) {
 					shapeFile = file;
 					break;
 				}
 			}
 
-			if(shapeFile == null) {
-                LOGGER.log(Level.SEVERE, "Shp file not found in fileset.");
-                throw new IllegalStateException("Shp file not found in fileset.");
+			if (shapeFile == null) {
+				LOGGER.log(Level.SEVERE, "Shp file not found in fileset.");
+				throw new IllegalStateException(
+						"Shp file not found in fileset.");
 			}
 
 			String shpBaseName = FilenameUtils.getBaseName(shapeFile.getName());
-			
-			LOGGER.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " +shpBaseName);
+
+			LOGGER.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + shpBaseName);
+
+			// //
+			// creating dataStore
+			// //
+
+			Map<String, Serializable> connectionParams = new HashMap();
+
+			try {
+				connectionParams.put("url", shapeFile.toURI().toURL());
+			} catch (MalformedURLException e) {
+				LOGGER.log(Level.SEVERE,
+						"No valid ShapeFile URL found for this Data Flow: "
+								+ e.getLocalizedMessage());
+				throw new IllegalStateException(
+						"No valid ShapeFile URL found for this Data Flow: "
+								+ e.getLocalizedMessage());
+			}
+
+			DataStore dataStore = DataStoreFinder
+					.getDataStore(connectionParams);
+
+			String typeName = dataStore.getTypeNames()[0];
+
+			FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+			FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
+			FeatureIterator<SimpleFeature> iterator;
+
+			featureSource = dataStore.getFeatureSource(typeName);
+			collection = featureSource.getFeatures();
+			iterator = collection.features();
+
+			List<AISAnomalies> anomalies = new ArrayList<AISAnomalies>();
+			final SimpleDateFormat sdf = new SimpleDateFormat(
+					"yyyyMMdd'T'HHmmss");
+
+			while (iterator.hasNext()) {
+				AISAnomalies theAnomaly = null;
+				try {
+					final Feature feature = iterator.next();
+					theAnomaly = new AISAnomalies();
+					theAnomaly.setMsmsi((Long) feature.getProperty("MMSI")
+							.getValue());
+					theAnomaly.setTime(sdf.parse((String) feature.getProperty(
+							"Time").getValue()));
+					theAnomaly.setType((String) feature.getProperty("Class")
+							.getValue());
+
+					theAnomaly.setLocation((Point) feature.getProperty(
+							"the_geom").getValue());
+
+				} catch (java.text.ParseException e) {
+					theAnomaly = null;
+					LOGGER.finest("createAndStoreAnomaly - " + e.toString()
+							+ " : " + e.getLocalizedMessage());
+					throw e;
+				} finally {
+					if (theAnomaly != null)
+						anomalies.add(theAnomaly);
+				}
+			}
+
+			storeAISAnomalies(anomalies);
 
 		} catch (Throwable t) {
 			LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
@@ -122,7 +221,19 @@ public class AISAnomaliesGeoServerGenerator extends
 
 		return null;
 	}
-	
+
+	private void storeAISAnomalies(List<AISAnomalies> anomalies) {
+
+		for (AISAnomalies ais : anomalies) {
+			try {
+				aisAnomaliesDAO.makePersistent(ais);
+			} catch (DAOException e) {
+				LOGGER.info(e.getMessage());
+			}
+		}
+
+	}
+
 	private File[] handleShapefile(Queue<FileSystemMonitorEvent> events) {
 		File ret[] = new File[events.size()];
 		int idx = 0;
@@ -131,63 +242,71 @@ public class AISAnomaliesGeoServerGenerator extends
 		}
 		return ret;
 	}
-	
+
 	private File[] handleZipFile(File source, File workingdir) {
 
-		tempOutDir = new File(workingdir, "unzip_"+System.currentTimeMillis());
+		tempOutDir = new File(workingdir, "unzip_" + System.currentTimeMillis());
 
-		try{
-			if(!tempOutDir.mkdir()) {
-				throw new IOException("Can't create temp dir '"+tempOutDir.getAbsolutePath()+"'");
+		try {
+			if (!tempOutDir.mkdir()) {
+				throw new IOException("Can't create temp dir '"
+						+ tempOutDir.getAbsolutePath() + "'");
 			}
 			List<File> fileList = IOUtils.unzipFlat(source, tempOutDir);
-			if(fileList == null) {
+			if (fileList == null) {
 				throw new Exception("Error unzipping file");
 			}
 
-			if(fileList.isEmpty()) {
+			if (fileList.isEmpty()) {
 				throw new IllegalStateException("Unzip returned no files");
 			}
 
-			int shp=0, shx=0, dbf=0;
-			int prj=0;
+			int shp = 0, shx = 0, dbf = 0;
+			int prj = 0;
 
 			// check that all the files have the same basename
 			File file0 = fileList.get(0);
 			String basename = FilenameUtils.getBaseName(file0.getName());
 			for (File file : fileList) {
-				if( ! basename.equals(FilenameUtils.getBaseName(file.getAbsolutePath()))) {
-					throw new Exception("Basename mismatch (expected:'"+basename+"', file found:'"+file.getAbsolutePath()+"')");
+				if (!basename.equals(FilenameUtils.getBaseName(file
+						.getAbsolutePath()))) {
+					throw new Exception("Basename mismatch (expected:'"
+							+ basename + "', file found:'"
+							+ file.getAbsolutePath() + "')");
 				}
 				String ext = FilenameUtils.getExtension(file.getAbsolutePath());
 				// do we want such an hardcoded list?
-				if("shp".equalsIgnoreCase(ext))
+				if ("shp".equalsIgnoreCase(ext))
 					shp++;
-				else if("shx".equalsIgnoreCase(ext))
+				else if ("shx".equalsIgnoreCase(ext))
 					shx++;
-				else if("dbf".equalsIgnoreCase(ext))
+				else if ("dbf".equalsIgnoreCase(ext))
 					dbf++;
-				else if("prj".equalsIgnoreCase(ext))
+				else if ("prj".equalsIgnoreCase(ext))
 					prj++;
 				else {
-					// Do we want to be more lenient if unexpected/useless files are found?
-					throw new IllegalStateException("Unexpected file extension in zipfile '"+ext+"'");
+					// Do we want to be more lenient if unexpected/useless files
+					// are found?
+					throw new IllegalStateException(
+							"Unexpected file extension in zipfile '" + ext
+									+ "'");
 				}
 			}
 
-			if(shp*shx*dbf != 1) {
+			if (shp * shx * dbf != 1) {
 				throw new Exception("Bad fileset in zip file.");
 			}
 
 			return fileList.toArray(new File[fileList.size()]);
 
-		} catch(Throwable t) {
+		} catch (Throwable t) {
 			LOGGER.log(Level.WARNING, "Error examining zipfile", t);
 			try {
-				//org.apache.commons.io.IOUtils.
+				// org.apache.commons.io.IOUtils.
 				FileUtils.forceDelete(tempOutDir);
 			} catch (IOException ex) {
-				LOGGER.log(Level.SEVERE, "Can't delete temp dir '"+tempOutDir+"'", ex);
+				LOGGER.log(Level.SEVERE, "Can't delete temp dir '" + tempOutDir
+						+ "'", ex);
 			}
 			return null;
 		}
