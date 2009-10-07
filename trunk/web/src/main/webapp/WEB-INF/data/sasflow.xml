@@ -45,7 +45,7 @@
 			<name>SAS Tiles Mosaic composer</name>
 			<corePoolSize>3</corePoolSize>
 			<maxPoolSize>3</maxPoolSize>
-			<maxAwaitingTime>300</maxAwaitingTime>
+			<maxWaitingTime>300</maxWaitingTime>
 		</ComposerConfiguration>		
 		<id>id</id>
 		<description>description</description>

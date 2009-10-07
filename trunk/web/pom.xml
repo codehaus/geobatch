@@ -45,6 +45,8 @@
   <!-- =========================================================== -->
   <!--     Dependency Management                                   -->
   <!-- =========================================================== -->
+
+   
     <dependencies>
   	<!-- ============================== -->
   	<!--     Platform                   -->
@@ -121,14 +123,6 @@
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-flowmanagers-ascii</artifactId>
         </dependency>
-        <dependency>
-            <groupId>it.geosolutions</groupId>
-            <artifactId>gb-flowmanagers-netcdf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>it.geosolutions</groupId>
-            <artifactId>gb-flowmanagers-ais</artifactId>
-        </dependency>
     </dependencies>
 
     <organization>
@@ -201,6 +195,24 @@
                 </dependency>
             </dependencies>
         </profile>
+        <profile>
+        <id>netcdf</id>
+        <dependencies>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-flowmanagers-netcdf</artifactId>
+        </dependency>
+        </dependencies>
+      </profile>
+      <profile>
+        <id>ais</id>
+        <dependencies>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-flowmanagers-ais</artifactId>
+        </dependency>
+        </dependencies>
+      </profile>
     </profiles>
 
 

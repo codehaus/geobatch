@@ -66,12 +66,12 @@
 	    <dependency>
 	      <groupId>it.geosolutions.imageio-ext</groupId>
 	      <artifactId>imageio-ext-arcgrid</artifactId>
-	      <version>1.0-SNAPSHOT</version>
+	      <version>${imageio-ext.version}</version>
 	    </dependency>
 	    <dependency>
 	      <groupId>it.geosolutions.imageio-ext</groupId>
 	      <artifactId>imageio-ext-customstreams</artifactId>
-	      <version>1.0-SNAPSHOT</version>
+	      <version>${imageio-ext.version}</version>
 	    </dependency>
 	    <dependency>
 	    	<groupId>it.geosolutions</groupId>
