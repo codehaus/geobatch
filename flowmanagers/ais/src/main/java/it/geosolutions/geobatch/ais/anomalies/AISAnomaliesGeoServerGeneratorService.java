@@ -23,6 +23,7 @@
 package it.geosolutions.geobatch.ais.anomalies;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
+import it.geosolutions.geobatch.ais.dao.IDAOAISAnomalies;
 import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorService;
@@ -38,10 +39,21 @@ public class AISAnomaliesGeoServerGeneratorService
 	private final static Logger LOGGER = Logger
 			.getLogger(AISAnomaliesGeoServerGeneratorService.class.toString());
 
+	private IDAOAISAnomalies aisAnomaliesDAO;
+
+	public void setAisAnomaliesDAO(IDAOAISAnomalies aisAnomaliesDAO) {
+		this.aisAnomaliesDAO = aisAnomaliesDAO;
+	}
+
+	public IDAOAISAnomalies getAisAnomaliesDAO() {
+		return aisAnomaliesDAO;
+	}
+
 	public Action<FileSystemMonitorEvent> createAction(
 			GeoServerActionConfiguration configuration) {
 		try {
-			return new AISAnomaliesGeoServerGenerator(configuration);
+			return new AISAnomaliesGeoServerGenerator(configuration,
+					this.aisAnomaliesDAO);
 		} catch (IOException e) {
 			if (LOGGER.isLoggable(Level.WARNING))
 				LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);

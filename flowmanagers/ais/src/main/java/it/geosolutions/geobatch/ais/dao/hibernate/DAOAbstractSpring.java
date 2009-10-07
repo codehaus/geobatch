@@ -33,9 +33,8 @@ import it.geosolutions.geobatch.ais.dao.DAOException;
 import it.geosolutions.geobatch.ais.dao.IDAOAbstractSpring;
 
 import java.util.List;
+import java.util.logging.Logger;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
@@ -46,14 +45,16 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * @author Francesco
  * 
  */
-public abstract class DAOAbstractSpring<T> extends HibernateDaoSupport implements
-		IDAOAbstractSpring<T> {
+public abstract class DAOAbstractSpring<T> extends HibernateDaoSupport
+		implements IDAOAbstractSpring<T> {
 
-	private static Log logger = LogFactory.getLog(DAOAbstractSpring.class);
+	private static Logger logger = Logger.getLogger(DAOAbstractSpring.class
+			.getName());
 
 	private Class<T> persistentClass;
 
 	public DAOAbstractSpring(Class<T> persistentClass) {
+		logger.info("Persistent Class : " + persistentClass);
 		this.persistentClass = persistentClass;
 	}
 
@@ -79,7 +80,7 @@ public abstract class DAOAbstractSpring<T> extends HibernateDaoSupport implement
 			}
 			return crit.list();
 		} catch (HibernateException ex) {
-			logger.error(ex);
+			logger.fine(ex.getMessage());
 			throw new DAOException(ex);
 		}
 	}
@@ -96,7 +97,7 @@ public abstract class DAOAbstractSpring<T> extends HibernateDaoSupport implement
 			crit.setMaxResults(limite);
 			return crit.list();
 		} catch (HibernateException ex) {
-			logger.error(ex);
+			logger.fine(ex.getMessage());
 			throw new DAOException(ex);
 		}
 	}
@@ -112,7 +113,7 @@ public abstract class DAOAbstractSpring<T> extends HibernateDaoSupport implement
 				entity = (T) getSession().load(getPersistentClass(), id);
 			}
 		} catch (HibernateException ex) {
-			logger.error(ex);
+			logger.fine(ex.getMessage());
 			throw new DAOException(ex);
 		}
 		return entity;
@@ -123,7 +124,7 @@ public abstract class DAOAbstractSpring<T> extends HibernateDaoSupport implement
 		try {
 			getSession().lock(entity, LockMode.UPGRADE);
 		} catch (HibernateException ex) {
-			logger.error(ex);
+			logger.fine(ex.getMessage());
 			throw new DAOException(ex);
 		}
 	}
@@ -132,7 +133,7 @@ public abstract class DAOAbstractSpring<T> extends HibernateDaoSupport implement
 		try {
 			getSession().saveOrUpdate(entity);
 		} catch (HibernateException ex) {
-			logger.error(ex);
+			logger.fine(ex.getMessage());
 			throw new DAOException(ex);
 		}
 		return entity;
@@ -142,7 +143,7 @@ public abstract class DAOAbstractSpring<T> extends HibernateDaoSupport implement
 		try {
 			getSession().delete(entity);
 		} catch (HibernateException ex) {
-			logger.error(ex);
+			logger.fine(ex.getMessage());
 			throw new DAOException(ex);
 		}
 	}

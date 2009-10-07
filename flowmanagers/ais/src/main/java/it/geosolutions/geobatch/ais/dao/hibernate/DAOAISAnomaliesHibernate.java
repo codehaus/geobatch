@@ -29,6 +29,10 @@
  */
 package it.geosolutions.geobatch.ais.dao.hibernate;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import it.geosolutions.geobatch.ais.dao.DAOException;
 import it.geosolutions.geobatch.ais.dao.IDAOAISAnomalies;
 import it.geosolutions.geobatch.ais.model.AISAnomalies;
 
@@ -41,6 +45,11 @@ public class DAOAISAnomaliesHibernate extends DAOAbstractSpring<AISAnomalies> im
 
 	public DAOAISAnomaliesHibernate() {
 		super(AISAnomalies.class);
+	}
+	
+	@Transactional(propagation = Propagation.REQUIRED)
+	public AISAnomalies makePersistent(AISAnomalies ais) throws DAOException{
+		return super.makePersistent(ais);
 	}
 
 	
