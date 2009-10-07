@@ -24,9 +24,9 @@
 	</bean>
 -->
 	<bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-	  <property name="corePoolSize" value="3" />
-	  <property name="maxPoolSize" value="3" />
-	  <property name="queueCapacity" value="10" />
+	  <property name="corePoolSize" value="30" />
+	  <property name="maxPoolSize" value="300" />
+	  <property name="queueCapacity" value="100" />
 	</bean>
 	
 	
