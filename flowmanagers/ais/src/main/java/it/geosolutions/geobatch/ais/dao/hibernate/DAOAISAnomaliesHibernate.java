@@ -29,6 +29,12 @@
  */
 package it.geosolutions.geobatch.ais.dao.hibernate;
 
+import java.sql.SQLException;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,20 +44,37 @@ import it.geosolutions.geobatch.ais.model.AISAnomalies;
 
 /**
  * @author Francesco
- *
+ * 
  */
-public class DAOAISAnomaliesHibernate extends DAOAbstractSpring<AISAnomalies> implements
-		IDAOAISAnomalies {
+public class DAOAISAnomaliesHibernate extends DAOAbstractSpring<AISAnomalies>
+		implements IDAOAISAnomalies {
 
 	public DAOAISAnomaliesHibernate() {
 		super(AISAnomalies.class);
 	}
-	
+
 	@Transactional(propagation = Propagation.REQUIRED)
-	public AISAnomalies makePersistent(AISAnomalies ais) throws DAOException{
-		return super.makePersistent(ais);
+	public AISAnomalies save(AISAnomalies aisAnomalies) throws DAOException {
+		return super.makePersistent(aisAnomalies);
 	}
 
-	
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void delete(final String type) throws DAOException {
+		try {
+			getHibernateTemplate().execute(new HibernateCallback() {
+
+				public Object doInHibernate(Session session)
+						throws HibernateException, SQLException {
+					Query query = session
+							.createQuery("delete from AISAnomalies ais where ais.type = ?");
+					query.setParameter(0, type);
+					query.executeUpdate();
+					return null;
+				}
+			});
+		} catch (HibernateException e) {
+			throw new DAOException(e);
+		}
+	}
 
 }
