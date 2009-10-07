@@ -58,8 +58,22 @@
       <module>mat5-mosaic</module>
       <module>shapefile</module>
       <module>ascii-grids</module>
-      <module>netcdf</module>
-      <module>ais</module>
     </modules>
+    
+    <profiles>
+    <profile>
+        <id>netcdf</id>
+        <modules>
+           <module>netcdf</module>
+        </modules>
+    </profile>
+        <profile>
+        <id>ais</id>
+        <modules>
+           <module>ais</module>
+        </modules>
+    </profile>
+
+    </profiles>
     
 </project>
