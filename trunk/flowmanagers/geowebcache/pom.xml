@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- =======================================================================    
+        Maven Project Configuration File                                        
+                                                                                
+        GeoSolutions GeoBach Project
+            http://www.geo-solutions.it/trac/IngestionEngine
+                                                                                            
+        Version: $Id: pom.xml 63 2008-04-04 11:22:11Z alessio $              
+     ======================================================================= -->
+  <project xmlns="http://maven.apache.org/POM/4.0.0" 
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                               http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>it.geosolutions</groupId>
+    <artifactId>gb-flowmanagers</artifactId>
+    <version>0.9-SNAPSHOT</version>
+  </parent>
+  
+
+  <!-- =========================================================== -->
+  <!--     Module Description                                      -->
+  <!-- =========================================================== -->
+  <groupId>it.geosolutions</groupId>
+  <artifactId>gb-flowmanagers-geowebcache</artifactId>
+  <packaging>jar</packaging>
+  <name>GeoSolutions GeoBatch flow managers - ESRI geowebcache configuration file flow</name>
+  <url>http://www.geo-solutions.it/maven_reports/ie/flowmanagers/</url>
+  
+  <scm>
+    <connection>
+      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/flowmanagers/
+    </connection>
+    <url>http://svn.geotools.org/geotools/trunk/gt/modules/flowmanagers/</url>
+  </scm>
+  
+  <description>
+    GeoSolutions GeoBatch flow managers - ESRI netcdf file flow.
+  </description>
+
+  <licenses>
+    <license>
+      <name>Lesser General Public License (LGPL)</name>
+      <url>http://www.gnu.org/copyleft/lesser.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <!-- =========================================================== -->
+  <!--     Dependency Management                                   -->
+  <!-- =========================================================== -->
+  <dependencies>	
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		
+		<!--dependency>
+			<groupId>com.vividsolutions</groupId>
+			<artifactId>jts</artifactId>
+		</dependency-->
+	
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+
+		<!--dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-main</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-epsg-hsql</artifactId>
+		</dependency-->
+	    <dependency>
+	      	<groupId>commons-cli</groupId>
+	      	<artifactId>commons-cli</artifactId>
+	    </dependency>
+	    <dependency>
+	      	<groupId>commons-io</groupId>
+	     	 	<artifactId>commons-io</artifactId>
+	      	<version>1.4</version>
+	   	 </dependency>
+
+		<!--dependency>
+            	<groupId>org.geotools</groupId>
+            	<artifactId>gt-postgis</artifactId>
+            	<version>2.5-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+            	<groupId>org.geotools</groupId>
+            	<artifactId>gt-jdbc</artifactId>
+            	<version>2.5-SNAPSHOT</version>
+		</dependency-->
+
+		<!--dependency>
+			<groupId>postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>8.1-407.jdbc3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>javax.servlet</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-pool</groupId>
+			<artifactId>commons-pool</artifactId>
+		</dependency-->
+
+
+        
+    	<dependency>
+      		<groupId>java3d</groupId>
+      		<artifactId>vecmath</artifactId>
+      		<scope>test</scope>
+    	</dependency>
+
+    	<!-- Grid data formats -->
+    	
+    	<dependency>
+      		<groupId>edu.ucar</groupId>
+      		<artifactId>netcdf</artifactId>
+      		<version>2.2.20</version>
+    	</dependency>
+    	<dependency>
+      		<groupId>org.slf4j</groupId>
+      		<artifactId>slf4j-jdk14</artifactId>
+      		<version>1.4.0</version>
+      		<scope>runtime</scope>
+    	</dependency> 
+
+		<!-- REST libraries -->
+
+		<dependency>
+			<groupId>org.restlet</groupId>
+			<artifactId>org.restlet</artifactId>
+			<version>1.1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.noelios.restlet</groupId>
+			<artifactId>com.noelios.restlet</artifactId>
+			<version>1.1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.noelios.restlet</groupId>
+			<artifactId>com.noelios.restlet.ext.net</artifactId>
+			<version>1.1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.noelios.restlet</groupId>
+			<artifactId>com.noelios.restlet.ext.asyncweb</artifactId>
+			<version>1.0.9</version>
+		</dependency>
+		
+		<!-- JSON lib -->
+
+		<dependency>
+			<groupId>net.sf.json-lib</groupId>
+			<artifactId>json-lib</artifactId>
+			<version>2.1</version>
+			<classifier>jdk15</classifier>
+		</dependency>
+
+		<dependency>
+		    <groupId>org.codehaus.jettison</groupId>
+		    <artifactId>jettison</artifactId>
+		    <version>1.0.1</version>
+		</dependency>
+    	
+    	<!-- GEOBATCH lib -->
+    	
+        <dependency>
+			  <groupId>it.geosolutions</groupId>
+			  <artifactId>gb-core</artifactId>
+	    </dependency>
+
+	    <dependency>
+	    	<groupId>it.geosolutions</groupId>
+	    	<artifactId>gb-fs-catalog</artifactId>
+	    </dependency>
+	          
+  </dependencies>
+
+	<repositories>
+
+		<repository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>maven-restlet</id>
+			<name>Public online Restlet repository</name>
+			<url>http://maven.restlet.org</url>
+		</repository>
+
+		<repository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>noelios</id>
+			<name>Public online Noelios repository</name>
+			<url>http://maven.noelios.com</url>
+		</repository>
+
+	</repositories>
+
+</project>
