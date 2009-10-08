@@ -690,6 +690,11 @@
 	    <artifactId>gb-flowmanagers-ais</artifactId>
 	    <version>${gb.version}</version>
         </dependency>
+        <dependency>
+	    <groupId>it.geosolutions</groupId>
+	    <artifactId>gb-flowmanagers-geowebcache</artifactId>
+	    <version>${gb.version}</version>
+        </dependency>
 
 
       <!-- Tests or legacy -->

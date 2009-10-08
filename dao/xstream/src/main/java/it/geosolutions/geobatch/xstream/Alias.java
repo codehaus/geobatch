@@ -80,6 +80,9 @@ public class Alias {
 
         xstream.alias("DataBaseActionConfiguration",
 		        it.geosolutions.geobatch.configuration.event.action.database.DataBaseActionConfiguration.class);
+        
+        xstream.alias("GeoWebCacheActionConfiguration",
+        		it.geosolutions.geobatch.configuration.event.action.geowebcache.GeoWebCacheActionConfiguration.class);
 
         xstream.addImplicitCollection(
                         it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration.class,

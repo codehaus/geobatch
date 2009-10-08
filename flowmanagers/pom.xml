@@ -67,10 +67,16 @@
            <module>netcdf</module>
         </modules>
     </profile>
-        <profile>
+    <profile>
         <id>ais</id>
         <modules>
            <module>ais</module>
+        </modules>
+    </profile>
+    <profile>
+        <id>geowebcache</id>
+        <modules>
+           <module>geowebcache</module>
         </modules>
     </profile>
 
