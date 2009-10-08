@@ -266,7 +266,11 @@ public class GeoServerRESTHelper {
         if (response!=null && response.trim().length()>0){
             final int indexOfNameStart = response.indexOf("<name>");
             final int indexOfNameEnd = response.indexOf("</name>");
-            name = response.substring(indexOfNameStart+6, indexOfNameEnd);
+            try {
+            	name = response.substring(indexOfNameStart+6, indexOfNameEnd);
+            } catch (StringIndexOutOfBoundsException e) {
+            	name = response;
+            }
         }
         return name;
     }

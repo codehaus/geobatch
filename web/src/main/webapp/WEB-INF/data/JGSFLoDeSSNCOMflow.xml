@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlowConfiguration>
+
+	<workingDirectory>JGSFLoDeSSworkingdir/NCOM</workingDirectory>
+
+	<EventConsumerConfiguration>
+		<workingDirectory>JGSFLoDeSSworkingdir/NCOM</workingDirectory>
+		<performBackup>false</performBackup>
+		<FileEventRule>
+			<optional>false</optional>
+			<originalOccurrencies>1</originalOccurrencies>
+			<regex>.*\.zip</regex>
+			<id>r1</id>
+			<description>description</description>
+			<name>test</name>
+		</FileEventRule>
+
+		<GeoServerActionConfiguration>
+			<workingDirectory>JGSFLoDeSSworkingdir/NCOM</workingDirectory>
+			<crs>EPSG:4326</crs>
+			<envelope/>
+			<dataTransferMethod>DIRECT</dataTransferMethod>
+			<geoserverPWD>geoserver</geoserverPWD>
+			<geoserverUID>admin</geoserverUID>
+			<geoserverURL>http://localhost:8081/geoserver</geoserverURL>
+			<!-- storeFilePrefix>c41078a</storeFilePrefix -->
+			<wmsPath>/</wmsPath>
+			<defaultStyle>raster</defaultStyle>
+			<styles/>
+			<!-- styles>
+				<style>raster.sld</style>
+			</styles -->
+			<serviceID>JGSFLoDeSSNCOMGeneratorService</serviceID>
+			<id>a1</id>
+			<description>description</description>
+			<name>test</name>
+		</GeoServerActionConfiguration>		
+		<id>id</id>
+		<description>description</description>
+		<name>test</name>
+	</EventConsumerConfiguration>
+	
+	<eventGeneratorConfiguration class="FsEventGeneratorConfiguration">
+		<wildCard>*.*</wildCard>
+		<watchDirectory>JGSFLoDeSSworkingdir/NCOM/in</watchDirectory>
+		<osType>OS_UNDEFINED</osType>
+		<eventType>FILE_ADDED</eventType>
+		<id>JGSFLoDeSSNcomId</id>
+        <serviceID>fsEventGeneratorService</serviceID>
+		<description>description</description>
+		<name>test</name>
+	</eventGeneratorConfiguration>
+	
+	<id>JGSFLoDeSSNCOMflow</id>
+	<description>JGSFLoDeSSNCOMflow</description>
+	<name>JGSFLoDeSSNCOMflow</name>
+</FlowConfiguration>
