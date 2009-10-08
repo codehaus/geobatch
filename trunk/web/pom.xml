@@ -228,6 +228,7 @@
         <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-flowmanagers-JGSFLoDeSS</artifactId>
+			<version>${gb.version}</version>
         </dependency>
         </dependencies>
       </profile>
