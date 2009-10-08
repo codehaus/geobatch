@@ -213,12 +213,21 @@
         </dependency>
         </dependencies>
       </profile>
-        <profile>
+      <profile>
         <id>geowebcache</id>
         <dependencies>
         <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-flowmanagers-geowebcache</artifactId>
+        </dependency>
+        </dependencies>
+      </profile>
+	  <profile>
+        <id>JGSFLoDeSS</id>
+        <dependencies>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-flowmanagers-JGSFLoDeSS</artifactId>
         </dependency>
         </dependencies>
       </profile>

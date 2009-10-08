@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- Environment Initialization -->
+	<bean id="JGSFLoDeSSSWANGeneratorService" class="it.geosolutions.geobatch.jgsflodess.JGSFLoDeSSSWANGeneratorService">
+		<property  name="id">
+    		<value>JGSFLoDeSSSWANGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>JGSFLoDeSSSWANGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>JGSFLoDeSSSWANGeneratorService</value>
+    	</property>	
+	</bean>
+	
+	<bean id="JGSFLoDeSSCOAMPSGeneratorService" class="it.geosolutions.geobatch.jgsflodess.JGSFLoDeSSCOAMPSGeneratorService">
+		<property  name="id">
+    		<value>JGSFLoDeSSCOAMPSGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>JGSFLoDeSSCOAMPSGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>JGSFLoDeSSCOAMPSGeneratorService</value>
+    	</property>	
+	</bean>
+	
+	<bean id="JGSFLoDeSSNCOMGeneratorService" class="it.geosolutions.geobatch.jgsflodess.JGSFLoDeSSNCOMGeneratorService">
+		<property  name="id">
+    		<value>JGSFLoDeSSNCOMGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>JGSFLoDeSSNCOMGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>JGSFLoDeSSNCOMGeneratorService</value>
+    	</property>	
+	</bean>
+
+</beans>

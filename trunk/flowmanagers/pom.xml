@@ -79,6 +79,12 @@
            <module>geowebcache</module>
         </modules>
     </profile>
+	<profile>
+        <id>JGSFLoDeSS</id>
+        <modules>
+           <module>JGSFLoDeSS</module>
+        </modules>
+    </profile>
 
     </profiles>
     
