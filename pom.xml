@@ -989,7 +989,7 @@
   <!--     Modules for the build in approximate dependency order   -->
   <!-- =========================================================== -->
     <modules>
-
+	  <module>filesystem-monitor</module>
         <module>core</module>
         <module>file-catalog</module>
         <module>dao</module>
