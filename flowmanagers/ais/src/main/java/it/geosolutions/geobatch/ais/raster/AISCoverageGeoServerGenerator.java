@@ -42,26 +42,36 @@ public class AISCoverageGeoServerGenerator extends
 		URL geoserverREST_URL = null;
 		boolean sent = false;
 
-		if ("DIRECT".equals(dataTransferMethod)) {
+		if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
 			geoserverREST_URL = new URL(geoserverBaseURL + "/rest/workspaces/"
-					+ "topp"
-					+ "/coveragestores/" + coverageStoreId  
-					+ "/file.arcgrid");
+					+ queryParams.get("namespace") + "/coveragestores/"
+					+ coverageStoreId + "/file.arcgrid?" + "style="
+					+ queryParams.get("style") + "&" + "wmspath="
+					+ queryParams.get("wmspath"));
 			sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
 					new FileInputStream(data), getConfiguration()
 							.getGeoserverUID(), getConfiguration()
 							.getGeoserverPWD());
-		} else if ("URL".equals(dataTransferMethod)) {
+		} else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
 			geoserverREST_URL = new URL(geoserverBaseURL + "/rest/workspaces/"
-					+ "topp"
-					+ "/coveragestores/" + coverageStoreId + "/url.arcgrid",
-					getConfiguration().getGeoserverUID(), getConfiguration()
-							.getGeoserverPWD());
-
+					+ queryParams.get("namespace") + "/coveragestores/"
+					+ coverageStoreId + "/url.arcgrid?" + "style="
+					+ queryParams.get("style") + "&" + "wmspath="
+					+ queryParams.get("wmspath"));
 			sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
-					.toURL().toExternalForm(), getConfiguration()
+					.toURI().toURL().toExternalForm(), getConfiguration()
 					.getGeoserverUID(), getConfiguration().getGeoserverPWD());
-
+		} else if ("EXTERNAL"
+				.equals(getConfiguration().getDataTransferMethod())) {
+			geoserverREST_URL = new URL(geoserverBaseURL + "/rest/workspaces/"
+					+ queryParams.get("namespace") + "/coveragestores/"
+					+ coverageStoreId + "/external.arcgrid?" + "style="
+					+ queryParams.get("style") + "&" + "wmspath="
+					+ queryParams.get("wmspath"));
+			System.out.println(geoserverREST_URL);
+			sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
+					.toURI().toURL().toExternalForm(), getConfiguration()
+					.getGeoserverUID(), getConfiguration().getGeoserverPWD());
 		}
 
 		if (sent) {
@@ -245,6 +255,7 @@ public class AISCoverageGeoServerGenerator extends
 			queryParams.put("namespace", getConfiguration()
 					.getDefaultNamespace());
 			queryParams.put("wmspath", getConfiguration().getWmsPath());
+			queryParams.put("style", getConfiguration().getDefaultStyle());
 
 			send(workingDir, event.getSource(), getConfiguration()
 					.getGeoserverURL(), new Long(event.getTimestamp())
@@ -259,11 +270,10 @@ public class AISCoverageGeoServerGenerator extends
 
 			send(workingDir, event.getSource(), getConfiguration()
 					.getGeoserverURL(), new Long(event.getTimestamp())
-					.toString(), "Last" + getConfiguration().getId(), "Last"
-					+ getConfiguration().getId(), getConfiguration()
-					.getStyles(), configId, getConfiguration()
-					.getDefaultStyle(), queryParams, getConfiguration()
-					.getDataTransferMethod());
+					.toString(), "Last" + getConfiguration().getId(),
+					storeFilePrefix, getConfiguration().getStyles(), configId,
+					getConfiguration().getDefaultStyle(), queryParams,
+					getConfiguration().getDataTransferMethod());
 
 			return events;
 
