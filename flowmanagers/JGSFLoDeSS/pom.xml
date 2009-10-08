@@ -138,6 +138,11 @@
 
 		<!-- Utils -->
 		<dependency>
+			<groupId>it.geosolutions</groupId>
+			<artifactId>COAMPSParser</artifactId>
+			<version>0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>javatar</groupId>
 			<artifactId>javatar</artifactId>
 			<version>2.5</version>
