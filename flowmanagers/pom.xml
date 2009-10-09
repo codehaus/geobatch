@@ -62,9 +62,9 @@
     
     <profiles>
 		<profile>
-			<id>netcdf</id>
+			<id>gliders</id>
 			<modules>
-			   <module>netcdf</module>
+			   <module>gb-gliders</module>
 			</modules>
 		</profile>
 		<profile>
@@ -84,7 +84,7 @@
 			<modules>
 			   <module>geowebcache</module>
 			   <module>ais</module>
-			   <module>netcdf</module>
+			   <module>gb-gliders</module>
 			</modules>
 		</profile>		
 	<profile>

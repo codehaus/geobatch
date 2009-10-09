@@ -196,11 +196,11 @@
             </dependencies>
         </profile>
         <profile>
-        <id>netcdf</id>
+        <id>gliders</id>
         <dependencies>
         <dependency>
             <groupId>it.geosolutions</groupId>
-            <artifactId>gb-flowmanagers-netcdf</artifactId>
+            <artifactId>gb-flowmanagers-gliders</artifactId>
         </dependency>
         </dependencies>
       </profile>

@@ -24,9 +24,9 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>it.geosolutions</groupId>
-  <artifactId>gb-flowmanagers-netcdf</artifactId>
+  <artifactId>gb-flowmanagers-gliders</artifactId>
   <packaging>jar</packaging>
-  <name>GeoSolutions GeoBatch flow managers - netcdf file flow</name>
+  <name>GeoSolutions GeoBatch flow managers - gliders file flow</name>
   <url>http://www.geo-solutions.it/maven_reports/ie/flowmanagers/</url>
   
   <scm>
@@ -37,7 +37,7 @@
   </scm>
   
   <description>
-    GeoSolutions GeoBatch flow managers - ESRI netcdf file flow.
+    GeoSolutions GeoBatch flow managers - gliders file flow.
   </description>
 
   <licenses>
