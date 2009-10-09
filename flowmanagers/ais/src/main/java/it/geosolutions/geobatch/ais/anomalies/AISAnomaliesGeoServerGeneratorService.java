@@ -23,7 +23,7 @@
 package it.geosolutions.geobatch.ais.anomalies;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.ais.dao.IDAOAISAnomalies;
+import it.geosolutions.geobatch.ais.dao.AISAnomaliesDAO;
 import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorService;
@@ -39,13 +39,13 @@ public class AISAnomaliesGeoServerGeneratorService
 	private final static Logger LOGGER = Logger
 			.getLogger(AISAnomaliesGeoServerGeneratorService.class.toString());
 
-	private IDAOAISAnomalies aisAnomaliesDAO;
+	private AISAnomaliesDAO aisAnomaliesDAO;
 
-	public void setAisAnomaliesDAO(IDAOAISAnomalies aisAnomaliesDAO) {
+	public void setAisAnomaliesDAO(AISAnomaliesDAO aisAnomaliesDAO) {
 		this.aisAnomaliesDAO = aisAnomaliesDAO;
 	}
 
-	public IDAOAISAnomalies getAisAnomaliesDAO() {
+	public AISAnomaliesDAO getAisAnomaliesDAO() {
 		return aisAnomaliesDAO;
 	}
 
