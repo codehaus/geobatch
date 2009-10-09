@@ -29,7 +29,7 @@ import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.configuration.event.action.geowebcache.GeoWebCacheActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.geowebcache.GeoWebCacheConfiguratorAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
-import it.geosolutions.geobatch.io.utils.IOUtils;
+import it.geosolutions.geobatch.utils.IOUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
