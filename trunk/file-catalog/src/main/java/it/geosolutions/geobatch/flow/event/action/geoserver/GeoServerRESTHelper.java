@@ -56,7 +56,7 @@ public class GeoServerRESTHelper {
      * @return
      */
     public static boolean putBinaryFileTo(URL geoserverREST_URL, InputStream inputStream,
-            String geoserverUser, String geoserverPassword) {
+            String geoserverUser, String geoserverPassword, final String[] returnedLayerName) {
         boolean res = false;
 
         try {
@@ -90,10 +90,12 @@ public class GeoServerRESTHelper {
                 InputStreamReader is = new InputStreamReader(con.getInputStream());
                 String response = readIs(is);
                 is.close();
+                final String name = extractName(response);
+                if (returnedLayerName!=null && returnedLayerName.length>0)
+                	returnedLayerName[0]=name;
                 if (LOGGER.isLoggable(Level.FINE))
                     LOGGER.log(Level.FINE,"HTTP CREATED: " + response);
                 else{
-                    final String name = extractName(response);
                     LOGGER.info("HTTP CREATED: " + name);
                 }
                 res = true;
@@ -111,6 +113,12 @@ public class GeoServerRESTHelper {
         return res;
 
     }
+    
+    public static boolean putBinaryFileTo(URL geoserverREST_URL, InputStream inputStream,
+            String geoserverUser, String geoserverPassword) {
+    	return putBinaryFileTo(geoserverREST_URL, inputStream, geoserverUser, geoserverPassword, null);
+    	
+    }
 
     /**
      * 
@@ -121,7 +129,7 @@ public class GeoServerRESTHelper {
      * @return
      */
     public static boolean putTextFileTo(URL geoserverREST_URL, InputStream inputStream,
-            String geoserverPassword, String geoserverUser) {
+            String geoserverPassword, String geoserverUser, final String[] returnedLayerName) {
         boolean res = false;
 
         try {
@@ -165,12 +173,13 @@ public class GeoServerRESTHelper {
                 InputStreamReader is = new InputStreamReader(con.getInputStream());
                 String response = readIs(is);
                 is.close();
+                final String name = extractName(response);
+                if (returnedLayerName!=null && returnedLayerName.length>0)
+                	returnedLayerName[0]=name;
                 if (LOGGER.isLoggable(Level.FINE))
                     LOGGER.log(Level.FINE,"HTTP CREATED: " + response);
-                else{
-                    final String name = extractName(response);
+                else
                     LOGGER.info("HTTP CREATED: " + name);
-                }
                 res = true;
             } else {
                 LOGGER.info("HTTP ERROR: " + con.getResponseMessage());
@@ -186,6 +195,11 @@ public class GeoServerRESTHelper {
             return res;
         }
     }
+    
+    public static boolean putTextFileTo(URL geoserverREST_URL, InputStream inputStream,
+            String geoserverPassword, String geoserverUser) {
+    	return putTextFileTo(geoserverREST_URL, inputStream, geoserverPassword, geoserverUser,null);
+    }
 
     /**
      * 
@@ -196,7 +210,7 @@ public class GeoServerRESTHelper {
      * @return
      */
     public static boolean putContent(URL geoserverREST_URL, String content, String geoserverUser,
-            String geoserverPassword) {
+            String geoserverPassword, final String[] returnedLayerName) {
         boolean res = false;
 
         try {
@@ -233,12 +247,13 @@ public class GeoServerRESTHelper {
                 InputStreamReader is = new InputStreamReader(con.getInputStream());
                 String response = readIs(is);
                 is.close();
+                final String name = extractName(response);
+                if (returnedLayerName!=null && returnedLayerName.length>0)
+                	returnedLayerName[0]=name;
                 if (LOGGER.isLoggable(Level.FINE))
                     LOGGER.log(Level.FINE,"HTTP CREATED: " + response);
-                else{
-                    final String name = extractName(response);
+                else
                     LOGGER.info("HTTP CREATED: " + name);
-                }
                 res = true;
             } else {
                 LOGGER.info("HTTP ERROR: " + con.getResponseMessage());
@@ -252,7 +267,11 @@ public class GeoServerRESTHelper {
             res = false;
         }
         return res;
-
+    }
+    
+    public static boolean putContent(URL geoserverREST_URL, String content, String geoserverUser,
+            String geoserverPassword) {
+    	return putContent(geoserverREST_URL, content, geoserverUser, geoserverPassword, null);
     }
 
     // ////////////////////////////////////////////////////////////////////////
