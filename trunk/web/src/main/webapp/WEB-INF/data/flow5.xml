@@ -25,7 +25,7 @@
 			<dbName>obs_db</dbName>
 			<dbTableName>observation</dbTableName>
 			<simplyTollerance>0.0035</simplyTollerance>
-			<serviceID>netcdffileGeneratorService</serviceID>
+			<serviceID>glidersfileGeneratorService</serviceID>
 			<id>n1</id>
 			<description>description</description>
 			<name>test</name>

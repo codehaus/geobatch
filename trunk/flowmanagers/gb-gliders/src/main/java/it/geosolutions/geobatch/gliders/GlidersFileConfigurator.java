@@ -22,7 +22,7 @@
 
 
 
-package it.geosolutions.geobatch.nc;
+package it.geosolutions.geobatch.gliders;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
@@ -67,15 +67,12 @@ import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.simplify.DouglasPeuckerLineSimplifier;
 
 
-import java.util.Arrays;
-
-
 /**
  * 
- * Public class to insert NetCDF data file (gliders measurements) into DB 
+ * Public class to insert Gliders netcdf data file (gliders measurements) into DB 
  *  
  */
-public class NetCDFFileConfigurator extends
+public class GlidersFileConfigurator extends
         DataBaseConfiguratorAction<FileSystemMonitorEvent>{
 	
 	// //////////////////////////
@@ -86,7 +83,7 @@ public class NetCDFFileConfigurator extends
     private boolean isConnected = false;   
     
 
-    protected NetCDFFileConfigurator(DataBaseActionConfiguration configuration)
+    protected GlidersFileConfigurator(DataBaseActionConfiguration configuration)
             throws IOException {
         super(configuration);
     }
