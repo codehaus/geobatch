@@ -53,6 +53,10 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
+        <dependency>
+			  <groupId>it.geosolutions</groupId>
+			  <artifactId>gb-core</artifactId>
+	    </dependency>		
 	</dependencies>
 
 

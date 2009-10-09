@@ -88,9 +88,9 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
     private final static Map<String, Integer> FILE_ATTEMPTS_COUNTS = Collections.synchronizedMap(new HashMap<String, Integer>());
 
     /**
-     * 30 seconds is the default period beteen two checks.
+     * 30 seconds is the default period between two checks.
      */
-    private static long DEFAULT_PERIOD = 5L;
+    public static long DEFAULT_PERIOD = 5L;
 
     /**
      * The default number of attempts is 50
@@ -103,7 +103,7 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
      * The max time the node will wait for, prior to stop to attempt for acquiring a lock on a
      * <code>File</code>.
      */
-    private static final long MAX_WAITING_TIME_FOR_LOCK = 12*60*60 * 1000;//12h
+    public static final long MAX_WAITING_TIME_FOR_LOCK = 12*60*60 * 1000;//12h
     static {
         FILE_CLEANER.setMaxAttempts(100);
         FILE_CLEANER.setPeriod(30);
@@ -702,58 +702,7 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
      */
     public static boolean acquireLock(Object caller, File inputFile) throws InterruptedException,
             IOException {
-        // //
-        //
-        // Acquire an exclusive lock to wait for long
-        // writing processes before trying to check on them
-        //
-        // //
-        double sumWait = 0;
-        while (true) {
-            FileChannel channel = null;
-            FileLock lock = null;
-            try {
-                // get a rw channel
-                channel = getOuputChannel(inputFile);
-
-                if (channel != null) {
-                    // here we could block
-                    lock = channel.tryLock();
-                    if (lock != null)
-                        return true;
-                }
-            } catch (OverlappingFileLockException e) {
-                // File is already locked in this thread or virtual machine
-                LOGGER.info("File is already locked in this thread or virtual machine");
-            } catch (Exception e) {
-                LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
-            } finally {
-                // release the lock
-                if (lock != null)
-                    lock.release();
-                if (channel != null)
-                    channel.close();
-            }
-
-            // Sleep for ATOMIC_WAIT milliseconds prior to retry for acquiring
-            // the lock
-            synchronized (caller) {
-                caller.wait(ATOMIC_WAIT);
-            }
-
-            sumWait += ATOMIC_WAIT;
-            if(LOGGER.isLoggable(Level.FINE))
-            	LOGGER.fine("Waiting time is "+sumWait);
-            if (sumWait > MAX_WAITING_TIME_FOR_LOCK) {
-                LOGGER.info("Waiting time beyond maximum specified waiting time, exiting...");
-                // Quitting the loop
-                break;
-            }
-        }
-
-        // A time greater than MAX_WAITING_TIME_FOR_LOCK has elapsed and no lock has
-        // been acquired. Thus, I need to return false
-        return false;
+        return acquireLock(caller, inputFile, IOUtils.MAX_WAITING_TIME_FOR_LOCK);
     }
 
     /**
@@ -1183,5 +1132,81 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
      */
 	public static String toString(final File file) {
 		return toString(file, null);
+	}
+
+	/**
+	 * This method is responsible for checking if the input file is still being written or if its
+	 * available for being parsed.
+	 * 
+	 * <p>
+	 * Specifically this method tries to open up a "rw" channel on the provided input file. If the
+	 * file is still being written this operation fails with an exception, we therefore catch this
+	 * exception and sleep for {@value #ATOMIC_WAIT} seconds as defined in the constant
+	 * {@link #ATOMIC_WAIT}.
+	 * 
+	 * <p>
+	 * If after having waited for {@link #MAX_WAITING_TIME_FOR_LOCK} (which is read from the
+	 * configuration or set to the default value of {@link #DEFAULT_WAITING_TIME}) we have not yet
+	 * acquired the channel we skip this file but we signal this situation.
+	 * @param caller 
+	 * @param inputFile
+	 * @param maxwait
+	 * @return <code>true</code> if the lock has been successfully acquired. <code>false</code>
+	 *         otherwise
+	 * @throws InterruptedException
+	 * @throws IOException
+	 */
+	public static boolean acquireLock(Object caller, File inputFile, final long maxwait) throws InterruptedException,
+	        IOException {
+	    // //
+	    //
+	    // Acquire an exclusive lock to wait for long
+	    // writing processes before trying to check on them
+	    //
+	    // //
+	    double sumWait = 0;
+	    while (true) {
+	        FileChannel channel = null;
+	        FileLock lock = null;
+	        try {
+	            // get a rw channel
+	            channel = getOuputChannel(inputFile);
+	
+	            if (channel != null) {
+	                // here we could block
+	                lock = channel.tryLock();
+	                if (lock != null)
+	                    return true;
+	            }
+	        } catch (OverlappingFileLockException e) {
+	            // File is already locked in this thread or virtual machine
+	            LOGGER.info("File is already locked in this thread or virtual machine");
+	        } catch (Exception e) {
+	            LOGGER.log(Level.FINE, e.getLocalizedMessage(), e);
+	        } finally {
+	            // release the lock
+	            if (lock != null)
+	                lock.release();
+	            if (channel != null)
+	                channel.close();
+	        }
+	
+	        // Sleep for ATOMIC_WAIT milliseconds prior to retry for acquiring
+	        // the lock
+	        synchronized (caller) {
+	            caller.wait(ATOMIC_WAIT);
+	        }
+	
+	        sumWait += ATOMIC_WAIT;
+	        if (sumWait > maxwait) {
+	            LOGGER.info("Waiting time beyond maximum specified waiting time, exiting...");
+	            // Quitting the loop
+	            break;
+	        }
+	    }
+	
+	    // A time greater than MAX_WAITING_TIME_FOR_LOCK has elapsed and no lock has
+	    // been acquired. Thus, I need to return false
+	    return false;
 	}
 }
