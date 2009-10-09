@@ -200,18 +200,18 @@
         </dependency>
         <dependency>
             <groupId>it.geosolutions</groupId>
-            <artifactId>fsm-purejava</artifactId>
-            <version>0.9-SNAPSHOT</version>
+            <artifactId>gb-fsm-purejava</artifactId>
+            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>it.geosolutions</groupId>
-            <artifactId>fsm-native</artifactId>
-            <version>0.9-SNAPSHOT</version>
+            <artifactId>gb-fsm-native</artifactId>
+            <version>${version}</version>
         </dependency>		
         <dependency>
             <groupId>it.geosolutions</groupId>
-            <artifactId>fsm-core</artifactId>
-            <version>0.9-SNAPSHOT</version>
+            <artifactId>gb-fsm-core</artifactId>
+            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>com.enterprisedt</groupId>
