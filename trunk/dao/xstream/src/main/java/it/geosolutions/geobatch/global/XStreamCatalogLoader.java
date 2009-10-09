@@ -39,6 +39,8 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletContext;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.BeansException;
@@ -96,12 +98,13 @@ public class XStreamCatalogLoader extends CatalogHolder implements ApplicationCo
                         dataDir = new File(prop);
                     else {
                         if (this.context instanceof WebApplicationContext) {
-                            String rootDir = ((WebApplicationContext) context).getServletContext().getInitParameter("GEOBATCH_DATA_DIR");
+                        	final WebApplicationContext wContext=(WebApplicationContext) context;
+                        	final ServletContext servletContext = wContext.getServletContext();
+                            String rootDir = servletContext.getInitParameter("GEOBATCH_DATA_DIR");
 		                    if (rootDir != null)
 		                        dataDir = new File(rootDir);     
 		                    else {
-	                            rootDir = ((WebApplicationContext) context).getServletContext()
-	                                    .getRealPath("/WEB-INF/data");
+	                            rootDir = ((WebApplicationContext) context).getServletContext().getRealPath("/WEB-INF/data");
 	                            if (rootDir != null)
 	                                dataDir = new File(rootDir);
 		                    }
