@@ -11,8 +11,8 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
 	  <groupId>it.geosolutions</groupId>
-		<artifactId>fsm</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<artifactId>gb-fsm</artifactId>
+		<version>0.9-SNAPSHOT</version>
   </parent>
 
 
@@ -25,10 +25,10 @@
   <name>Monitor module</name>
   <url>http://www.geo-solutions.it/reports/monitor/</url>
   <scm>
-    <connection>scm:svn:https://www.geo-solutions.it/svn/repo/FileSystemMonitor/trunk/module/monitor/</connection>
-    <url>https://www.geo-solutions.it/svn/repo/FileSystemMonitor/trunk/module/monitor/</url>
+    <connection>scm:svn:https://svn.codehaus.org/geobatch/trunk/</connection>
+    <url>https://svn.codehaus.org/geobatch/trunk/</url>
   </scm>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.9-SNAPSHOT</version>
   <description>
     The FileSystemMonitor Monitor module.
   </description>
@@ -46,7 +46,7 @@
     </dependency>
     <dependency>
 		  <groupId>it.geosolutions</groupId>
-			<artifactId>factory</artifactId>
+		<artifactId>factory</artifactId>
     </dependency>
      <dependency>
         <groupId>commons-io</groupId>

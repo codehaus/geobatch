@@ -11,8 +11,8 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
 	  <groupId>it.geosolutions</groupId>
-		<artifactId>fsm-lib-deployer</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<artifactId>gb-fsm-lib-deployer</artifactId>
+		<version>0.9-SNAPSHOT</version>
   </parent>
 
 
@@ -20,12 +20,12 @@
   <!--     Module description                               -->
   <!-- ==================================================== -->
   <groupId>it.geosolutions</groupId>
-  <artifactId>fsm-lib-linux-deployer</artifactId>
+  <artifactId>gb-fsm-lib-linux-deployer</artifactId>
   <packaging>pom</packaging>
   <name>File System Monitor - Libs Linux Deployer</name>
   <url>http://www.geo-solutions.it/reports/FileSystemMonitor/</url>
   <scm>
-    <connection>scm:svn:https://filesystem-monitor.googlecode.com/svn/trunk/</connection>
+    <connection>scm:svn:https://svn.codehaus.org/geobatch/trunk//</connection>
     <url>https://filesystem-monitor.googlecode.com/svn/trunk/</url>
   </scm>
   <description>
