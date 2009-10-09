@@ -59,19 +59,7 @@
     		<value>fsEventGeneratorService</value>
     	</property>    	
     </bean>
-    
-    <!-- Ftp based event generator service based on the ftpserver -->
-    <bean id="ftpEventGeneratorService" class="it.geosolutions.geobatch.flow.event.generator.ftp.FtpBasedEventGeneratorService" >
-    	<property  name="id">
-    		<value>ftpEventGeneratorService</value>
-    	</property>
-    	<property name="description">
-    		<value>Ftp based event generator service</value>
-    	</property>
-    	<property name="name">
-    		<value>ftpEventGeneratorService</value>
-    	</property>
-    </bean>
+
     
     <!-- File based flow manager service-->
     <bean id="fsFlowManagerService" class="it.geosolutions.geobatch.flow.file.FileBasedFlowManagerService" >
@@ -90,21 +78,7 @@
     </bean>  
     
     
-    <!-- File based flow manager service-->
-    <bean id="ftpUploadActionService" class="it.geosolutions.geobatch.flow.event.action.ftp.FTPUploadActionService" >
-    	<property  name="available">
-    		<value>true</value>
-    	</property>
-    	<property  name="id">
-    		<value>ftpUploadActionService</value>
-    	</property>
-    	<property name="description">
-    		<value>ftpUploadActionService</value>
-    	</property>
-    	<property name="name">
-    		<value>fsFlowManagerService</value>
-    	</property>    	
-    </bean>      
+
     
     
     <!-- JIBX flow manager DAO-->
