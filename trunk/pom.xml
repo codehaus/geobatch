@@ -671,7 +671,7 @@
         </dependency>
         <dependency>
             <groupId>it.geosolutions</groupId>
-            <artifactId>gb-flowmanagers-netcdf</artifactId>
+            <artifactId>gb-flowmanagers-gliders</artifactId>
             <version>${gb.version}</version>
         </dependency>
         <dependency>
