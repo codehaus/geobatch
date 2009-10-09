@@ -32,7 +32,8 @@ import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.configuration.event.generator.file.FileBasedEventGeneratorConfiguration;
 import it.geosolutions.geobatch.flow.event.generator.BaseEventGeneratorService;
 import it.geosolutions.geobatch.global.CatalogHolder;
-import it.geosolutions.geobatch.io.utils.IOUtils;
+import it.geosolutions.geobatch.utils.IOUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;

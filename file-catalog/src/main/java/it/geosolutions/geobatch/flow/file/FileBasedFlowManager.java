@@ -39,7 +39,7 @@ import it.geosolutions.geobatch.flow.event.generator.EventGeneratorService;
 import it.geosolutions.geobatch.flow.event.generator.FlowEventListener;
 import it.geosolutions.geobatch.flow.event.generator.file.FileBasedEventGenerator;
 import it.geosolutions.geobatch.global.CatalogHolder;
-import it.geosolutions.geobatch.io.utils.IOUtils;
+import it.geosolutions.geobatch.utils.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
