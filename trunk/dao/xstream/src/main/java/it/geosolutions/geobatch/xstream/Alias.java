@@ -78,8 +78,8 @@ public class Alias {
 //                it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class,
 //                "eventGeneratorConfiguration");
 
-        xstream.alias("DataBaseActionConfiguration",
-		        it.geosolutions.geobatch.configuration.event.action.database.DataBaseActionConfiguration.class);
+        xstream.alias("GlidersActionConfiguration",
+		        it.geosolutions.geobatch.gliders.configuration.GlidersActionConfiguration.class);
         
         xstream.alias("GeoWebCacheActionConfiguration",
         		it.geosolutions.geobatch.configuration.event.action.geowebcache.GeoWebCacheActionConfiguration.class);

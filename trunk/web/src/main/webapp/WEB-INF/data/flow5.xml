@@ -15,9 +15,9 @@
 			<name>test</name>
 		</FileEventRule>
 		
-		<DataBaseActionConfiguration>
+		<GlidersActionConfiguration>
 			<workingDirectory>flow5workingdir</workingDirectory>
-			<dbPWD>postgres</dbPWD>
+			<dbPWD>tobaro</dbPWD>
 			<dbUID>postgres</dbUID>
 			<dbServerIp>localhost</dbServerIp>
 			<dbType>postgis</dbType>
@@ -29,7 +29,7 @@
 			<id>n1</id>
 			<description>description</description>
 			<name>test</name>
-		</DataBaseActionConfiguration>
+		</GlidersActionConfiguration>
 				
 		<id>flow5Id</id>
 		<description>description</description>
