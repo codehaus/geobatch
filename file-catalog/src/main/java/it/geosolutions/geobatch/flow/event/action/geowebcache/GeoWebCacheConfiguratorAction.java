@@ -56,7 +56,6 @@ extends BaseAction<T> {
         
 		if ((configuration.getGeoserverUrl() == null) || configuration.getGwcUrl() == null 
 				|| (configuration.getWorkingDirectory() == null)) {
-			LOGGER.log(Level.SEVERE, "Some configuration parameters is null!");
 			throw new IllegalStateException("Some configuration parameters is null!");
 		}
 
