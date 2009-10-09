@@ -96,8 +96,7 @@ public class XStreamCatalogLoader extends CatalogHolder implements ApplicationCo
                         dataDir = new File(prop);
                     else {
                         if (this.context instanceof WebApplicationContext) {
-                            String rootDir = ((WebApplicationContext) context).getServletContext()
-                            .getInitParameter("GEOBATCH_DATA_DIR");
+                            String rootDir = ((WebApplicationContext) context).getServletContext().getInitParameter("GEOBATCH_DATA_DIR");
 		                    if (rootDir != null)
 		                        dataDir = new File(rootDir);     
 		                    else {
