@@ -81,24 +81,37 @@ public class AsciiGeoServerGenerator extends GeoServerConfiguratorAction<FileSys
         URL geoserverREST_URL = null;
         boolean sent = false;
 
-        if ("DIRECT".equals(dataTransferMethod)) {
-            geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
-                    + "/layers/" + storeFilePrefix + "/file.asc?" + getQueryString(queryParams));
-            sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
-                    new FileInputStream(data), 
-					getConfiguration().getGeoserverUID(),
-					getConfiguration().getGeoserverPWD());
-        } else if ("URL".equals(dataTransferMethod)) {
-            geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + coverageStoreId
-                    + "/layers/" + storeFilePrefix + "/url.asc",
-					getConfiguration().getGeoserverUID(),
-					getConfiguration().getGeoserverPWD());
-
-            sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data.toURL().toExternalForm(),
-					getConfiguration().getGeoserverUID(),
-					getConfiguration().getGeoserverPWD());
-
-        }
+        if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
+			geoserverREST_URL = new URL(geoserverBaseURL + "/rest/workspaces/"
+					+ queryParams.get("namespace") + "/coveragestores/"
+					+ coverageStoreId + "/file.arcgrid?" + "style="
+					+ queryParams.get("style") + "&" + "wmspath="
+					+ queryParams.get("wmspath"));
+			sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
+					new FileInputStream(data), getConfiguration()
+							.getGeoserverUID(), getConfiguration()
+							.getGeoserverPWD());
+		} else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
+			geoserverREST_URL = new URL(geoserverBaseURL + "/rest/workspaces/"
+					+ queryParams.get("namespace") + "/coveragestores/"
+					+ coverageStoreId + "/url.arcgrid?" + "style="
+					+ queryParams.get("style") + "&" + "wmspath="
+					+ queryParams.get("wmspath"));
+			sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
+					.toURI().toURL().toExternalForm(), getConfiguration()
+					.getGeoserverUID(), getConfiguration().getGeoserverPWD());
+		} else if ("EXTERNAL"
+				.equals(getConfiguration().getDataTransferMethod())) {
+			geoserverREST_URL = new URL(geoserverBaseURL + "/rest/workspaces/"
+					+ queryParams.get("namespace") + "/coveragestores/"
+					+ coverageStoreId + "/external.arcgrid?" + "style="
+					+ queryParams.get("style") + "&" + "wmspath="
+					+ queryParams.get("wmspath"));
+			System.out.println(geoserverREST_URL);
+			sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
+					.toURI().toURL().toExternalForm(), getConfiguration()
+					.getGeoserverUID(), getConfiguration().getGeoserverPWD());
+		}
 
         if (sent) {
             LOGGER.info("ArcGrid GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
@@ -320,21 +333,7 @@ public class AsciiGeoServerGenerator extends GeoServerConfiguratorAction<FileSys
             //
             // ////////////////////////////////////////////////////////////////////
             // http://localhost:8080/geoserver/rest/coveragestores/test_cv_store/test/file.tiff
-            LOGGER.info("Sending ArcGrid to GeoServer ... " + getConfiguration().getGeoserverURL());
-            Map<String, String> queryParams = new HashMap<String, String>();
-            queryParams.put("namespace", getConfiguration().getDefaultNamespace());
-            queryParams.put("wmspath", getConfiguration().getWmsPath());
-            send(workingDir, 
-					event.getSource(),
-					getConfiguration().getGeoserverURL(),
-					new Long(event.getTimestamp()).toString(),
-					coverageStoreId,
-					storeFilePrefix,
-					getConfiguration().getStyles(),
-					configId,
-					getConfiguration().getDefaultStyle(),
-                    queryParams,
-					getConfiguration().getDataTransferMethod());
+            this.sendToGeoServer(workingDir, event, coverageStoreId, storeFilePrefix, configId);
             return events;
         } catch (Throwable t) {
             if (LOGGER.isLoggable(Level.SEVERE))
@@ -343,4 +342,23 @@ public class AsciiGeoServerGenerator extends GeoServerConfiguratorAction<FileSys
         }
 
     }
+
+	public void sendToGeoServer(File workingDir, FileSystemMonitorEvent event, String coverageStoreId, String storeFilePrefix, String configId) throws MalformedURLException, FileNotFoundException {
+		LOGGER.info("Sending ArcGrid to GeoServer ... " + getConfiguration().getGeoserverURL());
+        Map<String, String> queryParams = new HashMap<String, String>();
+        queryParams.put("namespace", getConfiguration().getDefaultNamespace());
+        queryParams.put("wmspath", getConfiguration().getWmsPath());
+        send(workingDir, 
+				event.getSource(),
+				getConfiguration().getGeoserverURL(),
+				new Long(event.getTimestamp()).toString(),
+				coverageStoreId,
+				storeFilePrefix,
+				getConfiguration().getStyles(),
+				configId,
+				getConfiguration().getDefaultStyle(),
+                queryParams,
+				getConfiguration().getDataTransferMethod());
+		
+	}
 }

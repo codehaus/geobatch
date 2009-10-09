@@ -12,18 +12,18 @@ public class AISCoverageGeoServerGeneratorService
 		extends
 		GeoServerConfiguratorService<FileSystemMonitorEvent, GeoServerActionConfiguration> {
 
-	private final static Logger LOGGER = Logger.getLogger(AISCoverageGeoServerGeneratorService.class
-	           .toString());
-	
+	private final static Logger LOGGER = Logger
+			.getLogger(AISCoverageGeoServerGeneratorService.class.toString());
+
 	public AISCoverageGeoServerGenerator createAction(
 			GeoServerActionConfiguration configuration) {
 		try {
-	           return new AISCoverageGeoServerGenerator(configuration);
-	       } catch (IOException e) {
-	           if (LOGGER.isLoggable(Level.INFO))
-	               LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
-	           return null;
-	       }
+			return new AISCoverageGeoServerGenerator(configuration);
+		} catch (IOException e) {
+			if (LOGGER.isLoggable(Level.INFO))
+				LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
+			return null;
+		}
 	}
 
 	@Override

@@ -65,6 +65,12 @@
 			<artifactId>gb-fs-catalog</artifactId>
 			<version>${version}</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>it.geosolutions</groupId>
+			<artifactId>gb-flowmanagers-ascii</artifactId>
+			<version>${version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.hibernatespatial</groupId>
 			<artifactId>hibernate-spatial-postgis</artifactId>
