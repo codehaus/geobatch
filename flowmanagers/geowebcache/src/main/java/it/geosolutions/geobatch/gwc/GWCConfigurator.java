@@ -32,9 +32,7 @@ import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.utils.IOUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Authenticator;
@@ -122,7 +120,7 @@ public class GWCConfigurator extends
                 throw new IllegalStateException("layer data file not found in fileset.");
 			}
             
-			String dataString = read(dataFile);
+			String dataString = IOUtils.toString(dataFile);
 			String[] layerData = dataString.split("&");
 			
 			String namespace = layerData[0].split("=")[1];
@@ -187,27 +185,7 @@ public class GWCConfigurator extends
 		}
 		return ret;
 	}
-	
-	private String read(File file) {
-		try {
-			FileInputStream fis = new FileInputStream(file);
-			return stream2String(fis);
-		} catch (IOException ex) {
-			LOGGER.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
-			return null;
-		}
-	}
 
-    private String stream2String(InputStream is) throws IOException {
-        InputStreamReader isr = new InputStreamReader(is);
-		char buff[] = new char[1024];
-        StringBuffer sb = new StringBuffer();
-        int read;
-        while((read = isr.read(buff)) != -1) {
-            sb.append(buff,0,read);            
-        }
-        return sb.toString();
-    }
 	
 	private String getGSLayerData(final String namespace, final String store, final String layerName, final String geoserverUrl) throws Exception{
     	try{
@@ -326,13 +304,13 @@ public class GWCConfigurator extends
             final int responseCode = con.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 InputStreamReader is = new InputStreamReader(con.getInputStream());
-                String response = readIs(is);
+                String response = IOUtils.toString(is);
                 is.close();
                 LOGGER.info("HTTP OK: " + response);
                 res = true;
             } else if (responseCode == HttpURLConnection.HTTP_CREATED){
                 InputStreamReader is = new InputStreamReader(con.getInputStream());
-                String response = readIs(is);
+                String response =  IOUtils.toString(is);
                 is.close();
                 if (LOGGER.isLoggable(Level.FINE))
                     LOGGER.log(Level.FINE,"HTTP CREATED: " + response);
@@ -356,27 +334,6 @@ public class GWCConfigurator extends
         return res;
     }
 	
-    /**
-     * 
-     * @param is
-     * @return
-     */
-    private static String readIs(InputStreamReader is) {
-        char[] inCh = new char[1024];
-        StringBuffer input = new StringBuffer();
-        int r;
-
-        try {
-            while ((r = is.read(inCh)) > 0) {
-                input.append(inCh, 0, r);
-            }
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        return input.toString();
-    }
     
     private static String extractName(final String response) {
         String name ="";
