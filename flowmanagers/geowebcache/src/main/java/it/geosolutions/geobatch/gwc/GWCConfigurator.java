@@ -26,8 +26,6 @@ package it.geosolutions.geobatch.gwc;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
-import it.geosolutions.geobatch.configuration.event.action.geowebcache.GeoWebCacheActionConfiguration;
-import it.geosolutions.geobatch.flow.event.action.geowebcache.GeoWebCacheConfiguratorAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.utils.IOUtils;
 
@@ -57,8 +55,7 @@ import org.restlet.data.Response;
  * Public class to insert layer configuration file into GeoWebCache 
  *  
  */
-public class GWCConfigurator extends 
-			GeoWebCacheConfiguratorAction<FileSystemMonitorEvent>{
+public class GWCConfigurator extends  GeoWebCacheConfiguratorAction<FileSystemMonitorEvent>{
 	
 
     protected GWCConfigurator(GeoWebCacheActionConfiguration configuration)
@@ -98,7 +95,7 @@ public class GWCConfigurator extends
             }
             
 			File[] dataList;
-			dataList = handleDataFfile(events);
+			dataList = handleDataFile(events);
 
 			if(dataList == null)
 				throw new Exception("Error while processing the layer data file set");
@@ -177,7 +174,7 @@ public class GWCConfigurator extends
 	 * @param events The received event queue
 	 * @return
 	 */
-	private File[] handleDataFfile(Queue<FileSystemMonitorEvent> events) {
+	private File[] handleDataFile(Queue<FileSystemMonitorEvent> events) {
 		File ret[] = new File[events.size()];
 		int idx = 0;
 		for (FileSystemMonitorEvent event : events) {

@@ -25,8 +25,6 @@
 package it.geosolutions.geobatch.gwc;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.configuration.event.action.geowebcache.GeoWebCacheActionConfiguration;
-import it.geosolutions.geobatch.flow.event.action.geowebcache.GeoWebCacheConfiguratorService;
 
 import java.io.IOException;
 import java.util.logging.Level;
