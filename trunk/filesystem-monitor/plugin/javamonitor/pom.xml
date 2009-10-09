@@ -11,8 +11,8 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
 	  <groupId>it.geosolutions</groupId>
-		<artifactId>fsm-plugin</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<artifactId>gb-fsm-plugin</artifactId>
+		<version>0.9-SNAPSHOT</version>
   </parent>
 
 
@@ -20,7 +20,7 @@
   <!--     Module description                               -->
   <!-- ==================================================== -->
   <groupId>it.geosolutions</groupId>
-  <artifactId>fsm-purejava</artifactId>
+  <artifactId>gb-fsm-purejava</artifactId>
   <packaging>jar</packaging>
   <name>Directory Monitor Pure Java plugin</name>
   <url>http://www.geo-solutions.it/reports/DirMonitorPolling/</url>
@@ -28,7 +28,7 @@
     <connection>scm:svn:https://www.geo-solutions.it/svn/repo/FileSystemMonitor/trunk/plugin/DirMonitorPolling/</connection>
     <url>https://www.geo-solutions.it/svn/repo/FileSystemMonitor/trunk/plugin/DirMonitorPolling/</url>
   </scm>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.9-SNAPSHOT</version>
   <description>
     The FileSystemMonitor Directory Monitor DirMonitorPolling plugin.
   </description>
@@ -42,7 +42,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>it.geosolutions</groupId>
-			<artifactId>fsm-core</artifactId>
+			<artifactId>gb-fsm-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
