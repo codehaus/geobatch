@@ -96,11 +96,11 @@
             <artifactId>gt-api</artifactId>
       <!-- The version number is specified in the parent POM. -->
         </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-main</artifactId>
-      <!-- The version number is specified in the parent POM. -->
-        </dependency>
+	<dependency>
+		<groupId>org.geotools</groupId>
+		<artifactId>gt-main</artifactId>
+		<!-- The version number is specified in the parent POM. -->
+	</dependency>
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-referencing</artifactId>
@@ -181,22 +181,12 @@
             <artifactId>commons-logging</artifactId>
       <!-- The version number is specified in the parent POM. -->
         </dependency>
-        <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jsp-2.0</artifactId>
-            <type>pom</type>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
       <!-- The version number is specified in the parent POM. -->
-            <scope>provided</scope>   <!-- Needed for compilation, not for running -->
+            <scope>test</scope>   <!-- Needed for compilation, not for running -->
         </dependency>
         <dependency>
             <groupId>it.geosolutions</groupId>
@@ -213,11 +203,7 @@
             <artifactId>gb-fsm-core</artifactId>
             <version>${version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.enterprisedt</groupId>
-            <artifactId>edtFTPj</artifactId>
-            <version>2.0.3</version>
-        </dependency>
+
 <!--
     <dependency>
     	<groupId>org.jibx</groupId>
@@ -235,46 +221,6 @@
             <artifactId>gb-core</artifactId>
             <version>${version}</version>
         </dependency>
-
-
- 	<!-- ============================== -->
-  	<!--     Apache MINA FTP            -->
-  	<!-- ============================== -->
-
-        <dependency>
-        <groupId>org.apache.mina</groupId>
-        <artifactId>mina-core</artifactId>
-        <version>2.0.0-M4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.5.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ftpserver</groupId>
-            <artifactId>ftplet-api</artifactId>
-            <version>1.0.0-RC1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ftpserver</groupId>
-            <artifactId>ftpserver-core</artifactId>
-            <version>1.0.0-RC1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.5.6</version>
-        </dependency>
-
-		<dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.9</version>
-            <scope>compile</scope>
-        </dependency>
-
-
 
     </dependencies>
 
