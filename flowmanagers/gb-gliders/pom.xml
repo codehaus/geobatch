@@ -86,37 +86,23 @@
 	    	<dependency>
 	      	<groupId>commons-io</groupId>
 	     	 	<artifactId>commons-io</artifactId>
-	      	<version>1.4</version>
 	   	 </dependency>
 
 		<dependency>
             	<groupId>org.geotools</groupId>
             	<artifactId>gt-postgis</artifactId>
-            	<version>2.5-SNAPSHOT</version>
-			<!--scope>system</scope>
-				<systemPath>
-					${basedir}/lib/gt-postgis-2.5-SNAPSHOT.jar
-				</systemPath-->
+
 		</dependency>
 		<dependency>
             	<groupId>org.geotools</groupId>
             	<artifactId>gt-jdbc</artifactId>
-            	<version>2.5-SNAPSHOT</version>
-			<!--scope>system</scope>
-				<systemPath>
-					${basedir}/lib/gt-jdbc-2.5-SNAPSHOT.jar
-				</systemPath-->
+
 		</dependency>
 
 		<dependency>
 			<groupId>postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>8.1-407.jdbc3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>javax.servlet</artifactId>
-			<version>1.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-dbcp</groupId>

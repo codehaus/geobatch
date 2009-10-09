@@ -72,8 +72,8 @@ public class Alias {
 //        xstream.alias("GlidersActionConfiguration",
 //		        it.geosolutions.geobatch.gliders.configuration.GlidersActionConfiguration.class);
         
-        xstream.alias("GeoWebCacheActionConfiguration",
-        		it.geosolutions.geobatch.configuration.event.action.geowebcache.GeoWebCacheActionConfiguration.class);
+//        xstream.alias("GeoWebCacheActionConfiguration",
+//        		it.geosolutions.geobatch.gwc.GeoWebCacheActionConfiguration.class);
 
         xstream.addImplicitCollection(
                         it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration.class,
