@@ -30,8 +30,9 @@
 package it.geosolutions.geobatch.ais.dao.hibernate;
 
 import it.geosolutions.geobatch.ais.dao.DAOException;
-import it.geosolutions.geobatch.ais.dao.IDAOAbstractSpring;
+import it.geosolutions.geobatch.ais.dao.GenericDAO;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -42,11 +43,10 @@ import org.hibernate.criterion.Criterion;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
- * @author Francesco
+ * @author Francesco Izzi
  * 
  */
-public abstract class DAOAbstractSpring<T> extends HibernateDaoSupport
-		implements IDAOAbstractSpring<T> {
+public abstract class DAOAbstractSpring<T,ID extends Serializable> extends HibernateDaoSupport implements GenericDAO<T,ID> {
 
 	private static Logger logger = Logger.getLogger(DAOAbstractSpring.class
 			.getName());
@@ -103,12 +103,11 @@ public abstract class DAOAbstractSpring<T> extends HibernateDaoSupport
 	}
 
 	@SuppressWarnings("unchecked")
-	public T findById(Long id, boolean lock) throws DAOException {
+	public T findById(ID id, boolean lock) throws DAOException {
 		T entity;
 		try {
 			if (lock) {
-				entity = (T) getSession().load(getPersistentClass(), id,
-						LockMode.UPGRADE);
+				entity = (T) getSession().load(getPersistentClass(), id,LockMode.UPGRADE);
 			} else {
 				entity = (T) getSession().load(getPersistentClass(), id);
 			}
