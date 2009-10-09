@@ -24,7 +24,8 @@
   <!--     Module description                               -->
   <!-- ==================================================== -->
   <groupId>it.geosolutions</groupId>
-  <artifactId>fsm-deployer</artifactId>
+  <artifactId>gb-fsm-deployer</artifactId>
+  <version>0.9-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>File System Monitor - Deployer</name>
   <url>http://www.geo-solutions.it/reports/FileSystemMonitor/</url>

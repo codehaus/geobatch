@@ -21,6 +21,7 @@
   <!-- ===================================================================== -->
   <groupId>it.geosolutions</groupId>
   <artifactId>gb-fsm-module</artifactId>
+  <version>0.9-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>FileSystemMonitor Core modules</name>
   <url>http://www.geo-solutions.it/reports/module/</url>
