@@ -22,8 +22,9 @@
 			<dbServerIp>localhost</dbServerIp>
 			<dbType>postgis</dbType>
 			<dbPort>5432</dbPort>			
-			<dbName>observations_db</dbName>
+			<dbName>obs_db</dbName>
 			<dbTableName>observation</dbTableName>
+			<simplyTollerance>0.0035</simplyTollerance>
 			<serviceID>netcdffileGeneratorService</serviceID>
 			<id>n1</id>
 			<description>description</description>
