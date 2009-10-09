@@ -24,13 +24,13 @@ package it.geosolutions.geobatch.ais.anomalies;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.ais.dao.DAOException;
-import it.geosolutions.geobatch.ais.dao.IDAOAISAnomalies;
+import it.geosolutions.geobatch.ais.dao.AISAnomaliesDAO;
 import it.geosolutions.geobatch.ais.model.AISAnomalies;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
-import it.geosolutions.geobatch.io.utils.IOUtils;
+import it.geosolutions.geobatch.utils.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,7 +60,7 @@ import com.vividsolutions.jts.geom.Point;
 public class AISAnomaliesGeoServerGenerator extends
 		GeoServerConfiguratorAction<FileSystemMonitorEvent> {
 
-	private IDAOAISAnomalies aisAnomaliesDAO;
+	private AISAnomaliesDAO aisAnomaliesDAO;
 
 	private File tempOutDir = null;
 
@@ -71,7 +71,7 @@ public class AISAnomaliesGeoServerGenerator extends
 
 	public AISAnomaliesGeoServerGenerator(
 			GeoServerActionConfiguration configuration,
-			IDAOAISAnomalies aisAnomaliesDAO) throws IOException {
+			AISAnomaliesDAO aisAnomaliesDAO) throws IOException {
 		super(configuration);
 		this.aisAnomaliesDAO = aisAnomaliesDAO;
 	}
