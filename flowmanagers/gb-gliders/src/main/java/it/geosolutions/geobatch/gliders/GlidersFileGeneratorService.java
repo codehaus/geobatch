@@ -39,7 +39,7 @@ import java.util.logging.Logger;
 public class GlidersFileGeneratorService extends
         DataBaseConfiguratorService<FileSystemMonitorEvent, DataBaseActionConfiguration> {
 	
-    private final static Logger LOGGER = Logger.getLogger(NetCDFFileGeneratorService.class
+    private final static Logger LOGGER = Logger.getLogger(GlidersFileGeneratorService.class
             .toString());
 
     /**
@@ -48,9 +48,9 @@ public class GlidersFileGeneratorService extends
      *  @param configuration The data base action configuration 
      *  @return new NetCDFFileConfigurator()
      */
-    public NetCDFFileConfigurator createAction(DataBaseActionConfiguration configuration) {
+    public GlidersFileConfigurator createAction(DataBaseActionConfiguration configuration) {
         try {
-            return new NetCDFFileConfigurator(configuration);
+            return new GlidersFileConfigurator(configuration);
         } catch (IOException e) {
             if (LOGGER.isLoggable(Level.INFO))
                 LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
