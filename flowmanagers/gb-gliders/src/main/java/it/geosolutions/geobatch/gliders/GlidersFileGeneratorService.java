@@ -22,7 +22,7 @@
 
 
 
-package it.geosolutions.geobatch.nc;
+package it.geosolutions.geobatch.gliders;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.configuration.event.action.database.DataBaseActionConfiguration;
@@ -36,7 +36,7 @@ import java.util.logging.Logger;
  * Public class to generate NetCDF Service 
  * 
  */
-public class NetCDFFileGeneratorService extends
+public class GlidersFileGeneratorService extends
         DataBaseConfiguratorService<FileSystemMonitorEvent, DataBaseActionConfiguration> {
 	
     private final static Logger LOGGER = Logger.getLogger(NetCDFFileGeneratorService.class

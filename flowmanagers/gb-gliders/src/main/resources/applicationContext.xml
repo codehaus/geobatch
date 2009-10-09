@@ -4,15 +4,15 @@
 <beans>
 
 	<!-- Environment Initialization -->
-	<bean id="netcdffileGeneratorService" class="it.geosolutions.geobatch.nc.NetCDFFileGeneratorService">
+	<bean id="glidersfileGeneratorService" class="it.geosolutions.geobatch.gliders.GlidersFileGeneratorService">
 		<property  name="id">
-    		<value>netcdffileGeneratorService</value>
+    		<value>glidersfileGeneratorService</value>
     	</property>
     	<property name="description">
-    		<value>netcdffileGeneratorService</value>
+    		<value>glidersfileGeneratorService</value>
     	</property>
     	<property name="name">
-    		<value>netcdffileGeneratorService</value>
+    		<value>glidersfileGeneratorService</value>
     	</property>	
 	</bean>
 
