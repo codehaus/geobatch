@@ -33,7 +33,6 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.Reader;
@@ -511,8 +510,7 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
                 || !sourceDirectory.isDirectory())
             throw new IllegalStateException("Source is not in a legal state.");
 
-        final File[] files = (filter != null ? sourceDirectory.listFiles(filter) : sourceDirectory
-                .listFiles());
+        final File[] files = (filter != null ? sourceDirectory.listFiles(filter) : sourceDirectory.listFiles());
         for (File file : files) {
             if (file.isDirectory()) {
                 if (recursive)
@@ -824,20 +822,7 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
         }
     }
 
-    /**
-     * Convert the input from the provided {@link InputStream} into a {@link String}.
-     * 
-     * @param inputStream
-     *            the {@link InputStream} to copy from.
-     * @return a {@link String} that contains the content of the provided {@link InputStream}.
-     * @throws IOException
-     *             in case something bad happens.
-     */
-    public static String getStringFromStream(InputStream inputStream) throws IOException {
-        inputNotNull(inputStream);
-        final Reader inReq = new InputStreamReader(inputStream);
-        return getStringFromReader(inReq);
-    }
+
 
     /**
      * Convert the input from the provided {@link Reader} into a {@link String}.
@@ -848,38 +833,36 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
      * @throws IOException
      *             in case something bad happens.
      */
-    public static String getStringFromReader(final Reader inputReader) throws IOException {
-        inputNotNull(inputReader);
-        final StringBuilder sb = new StringBuilder();
-        final char[] buffer = new char[1024];
-        int len;
-        while ((len = inputReader.read(buffer)) >= 0) {
-            char[] read = new char[len];
-            System.arraycopy(buffer, 0, read, 0, len);
-            sb.append(read);
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Convert the input from the provided {@link Reader} into a {@link String}.
-     * 
-     * @param inputStream
-     *            the {@link Reader} to copy from.
-     * @return a {@link String} that contains the content of the provided {@link Reader}.
-     * @throws IOException
-     *             in case something bad happens.
-     */
-    public static String getStringFromStreamSource(StreamSource src) throws IOException {
-
+    public static String toString(StreamSource src) throws IOException {
         inputNotNull(src);
         InputStream inputStream = src.getInputStream();
         if (inputStream != null) {
-            return getStringFromStream(inputStream);
+            return toString(inputStream);
         } else {
 
             final Reader r = src.getReader();
-            return getStringFromReader(r);
+            return toString(r);
+        }
+    }
+    
+    /**
+     * Convert the input from the provided {@link Reader} into a {@link String}.
+     * 
+     * @param inputStream
+     *            the {@link Reader} to copy from.
+     * @return a {@link String} that contains the content of the provided {@link Reader}.
+     * @throws IOException
+     *             in case something bad happens.
+     */
+    public static String toString(final StreamSource src, final String ecoding) throws IOException {
+        inputNotNull(src);
+        InputStream inputStream = src.getInputStream();
+        if (inputStream != null) {
+            return toString(inputStream,ecoding);
+        } else {
+
+            final Reader r = src.getReader();
+            return toString(r);
         }
     }
 
@@ -1161,4 +1144,44 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 
         return null;
     }
+
+    /**
+     * Get the contents of a {@link File} as a String using the specified character encoding.
+     * @param file {@link File} to read from
+     * @param encoding IANA encoding
+     * @return a {@link String} containig the content of the {@link File} or <code>null<code> if an error happens.
+     */
+	public static String toString(final File file, final String encoding) {
+		inputNotNull(file);
+		if(!file.isFile()||!file.canRead()||!file.exists())
+			return null;
+		InputStream stream =null;
+		try {
+			if(encoding==null)
+				return toString(new FileInputStream(file));
+			else
+				return toString(new FileInputStream(file),encoding);
+		}catch (Throwable e) {
+			if(LOGGER.isLoggable(Level.WARNING))
+				LOGGER.log(Level.WARNING,e.getLocalizedMessage(),e);
+			return null;
+		}finally{
+			if(stream!=null)
+				try {
+					stream.close();
+				}catch (Throwable e) {
+					if(LOGGER.isLoggable(Level.FINEST))
+						LOGGER.log(Level.FINEST,e.getLocalizedMessage(),e);
+				}				
+		}
+	}
+	
+    /**
+     * Get the contents of a {@link File} as a String using the default character encoding.
+     * @param file {@link File} to read from
+     * @return a {@link String} containig the content of the {@link File} or <code>null<code> if an error happens.
+     */
+	public static String toString(final File file) {
+		return toString(file, null);
+	}
 }
