@@ -57,6 +57,8 @@ public class DataBaseActionConfiguration extends ActionConfiguration implements 
     private String dbType;
     
     private String dbTableName;
+    
+    private Double simplyTollerance;
 
     public DataBaseActionConfiguration() {
         super();
@@ -148,6 +150,14 @@ public class DataBaseActionConfiguration extends ActionConfiguration implements 
     public void setDbTableName(String dbtablename) {
         this.dbTableName = dbtablename;
     }
+    
+    public double getSimplyTollerance(){
+    	return simplyTollerance;
+    }
+    
+    public void setSimplyTollerance(double simplyTollerance){
+    	this.simplyTollerance = simplyTollerance;
+    }
 
     @Override
     public ActionConfiguration clone() throws CloneNotSupportedException {
@@ -165,6 +175,7 @@ public class DataBaseActionConfiguration extends ActionConfiguration implements 
 		configuration.setDbType(dbType);
 		configuration.setWorkingDirectory(workingDirectory);
 		configuration.setDbTableName(dbTableName);
+		configuration.setSimplyTollerance(simplyTollerance);
 		return configuration;
     }
 

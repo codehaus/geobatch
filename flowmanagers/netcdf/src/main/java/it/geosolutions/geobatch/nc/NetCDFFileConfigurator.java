@@ -19,6 +19,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+
+
 package it.geosolutions.geobatch.nc;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
@@ -38,20 +41,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.logging.Level;
 
 import org.apache.commons.io.FilenameUtils;
-import org.geotools.data.DataStore;
-import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FeatureWriter;
-import org.geotools.data.Transaction;
-import org.geotools.data.postgis.PostgisDataStoreFactory;
 import org.geotools.geometry.jts.JTSFactoryFinder;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.postgresql.Driver;
 
 import ucar.ma2.Array;
@@ -59,10 +58,16 @@ import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 import ucar.nc2.dataset.NetcdfDataset;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.simplify.DouglasPeuckerLineSimplifier;
+
+
+import java.util.Arrays;
 
 
 /**
@@ -73,14 +78,6 @@ import com.vividsolutions.jts.io.WKTReader;
 public class NetCDFFileConfigurator extends
         DataBaseConfiguratorAction<FileSystemMonitorEvent>{
 	
-	
-	// //////////////////////////
-	// GT-PostGIS fields 
-	// //////////////////////////
-	
-	private static PostgisDataStoreFactory factory = new PostgisDataStoreFactory();    
-    private static DataStore pgDataStore = null;
-    
 	// //////////////////////////
 	// JDBC data fields  
 	// //////////////////////////
@@ -152,22 +149,25 @@ public class NetCDFFileConfigurator extends
                 throw new IllegalStateException("netcdf file not found in fileset.");
 			}
 
-	        	
-        	// //////////////////////////////////////
-        	// Inserting data into OBSERVATON table
-        	// //////////////////////////////////////
-        	
-        	insertHeaderData(netcdfFile);
-        	
-        	// ////////////////////////////////////////////////////////////
-        	// Inserting data in MEASUREMENT and MEASUREMENT_VALUES tables 
-        	// and closing JDBC connection.
-        	// ////////////////////////////////////////////////////////////
+			NetcdfDataset dataset = NetcdfDataset.openDataset((netcdfFile).getPath()); 
+			
+			List<Variable> list_variables = dataset.getVariables();
+			String[] variables_name = new String[list_variables.size()];
+			
+			ListIterator<Variable> iterator = list_variables.listIterator();
+			for(int j=0;list_variables.listIterator().hasNext() && j<list_variables.size(); j++){
+				Variable var = (Variable)iterator.next();
+				variables_name[j] = var.getName();
+			}
+ 		
+        	// ///////////////////////
+        	// Inserting data 
+        	// ///////////////////////
         	
             initJDBCConnection();
             
 	        if (isConnected()) {
-                insertData(netcdfFile);
+                insertData(dataset, variables_name);
                 closeConnections();
 	        }
 
@@ -211,30 +211,7 @@ public class NetCDFFileConfigurator extends
 		}
 		return ret;
 	}
-	
-	/**
-	 * This function initialize the params HashMap for PostGIS Data Store
-	 * 
-	 */
-    private void PGDataStoreConfig()throws IOException{
-    	
-    	try{
-	    	Map<String, Comparable> params = new HashMap<String, Comparable>();
-			params.put("dbtype", this.getConfiguration().getDbType());        //must be postgis
-			params.put("charset", "");
-			params.put("host", this.getConfiguration().getDbServerIp());      //the name or ip address of the machine running PostGIS
-			params.put("port", this.getConfiguration().getDbPort());          //the port that PostGIS is running on (generally 5432)
-			params.put("database", this.getConfiguration().getDbName());      //the name of the database to connect to.
-			params.put("user", this.getConfiguration().getDbUID());           //the user to connect with
-			params.put("passwd", this.getConfiguration().getDbPWD());         //the password of the user.
-			
-			pgDataStore = factory.createDataStore(params);			
-			
-    	}catch(IOException exc){
-    		throw new IOException("EXCEPTION -> " + exc.getLocalizedMessage());
-    	}  
-    }
-    
+	    
 	/**
 	 * Utility function to read variables from NetCDF file
 	 * 
@@ -243,7 +220,7 @@ public class NetCDFFileConfigurator extends
 	 * 
 	 * 	@return array
 	 */
-    private static Array readVariables(NetcdfDataset dataset, String name)throws IOException{
+    private static Array readVariables(final NetcdfDataset dataset, final String name)throws IOException{
     	Array array = null;
     	
     	try{
@@ -303,36 +280,46 @@ public class NetCDFFileConfigurator extends
     }
     
     /**
-     * Insert method for the data into OBSERVATION table (the header) 
+     * Insert function to insert the data into MEASUREMENT and MEASUREMENT_VALUES tables
      * 
      * @params input The NetCDF file
+     * @throws SQLException 
      * 
      */
-    private void insertHeaderData(File input)throws IOException, ParseException{
+    private void insertData(final NetcdfDataset dataset, final String[] variables_name) throws SQLException {
+    	
+    	dataset.sort();
     	
 		// ///////////////////////////////////////////
-		// Managing GT-PostGIS Connection 
+		// Managing JDBC-PostGIS Connection 
 		// ///////////////////////////////////////////
     	
-    	Transaction transaction = null;
-    	FeatureWriter<SimpleFeatureType, SimpleFeature> aWriter = null;
-    	
-    	try{
-    		PGDataStoreConfig();
-    		
-    		NetcdfDataset dataset = NetcdfDataset.openDataset((input).getPath());   	        	 
+    	PreparedStatement stat = null;        	
+	    ResultSet rs_glider_ms = null;
+	    
+        try{        	
+	    	Map<String, Array> map_variables = new HashMap<String, Array>();
         	
-        	Array pTime, depth, lonValues, latValues;	        	
-        	
+        	for(int c=0; c<variables_name.length; c++){
+        		if(variables_name[c].equalsIgnoreCase("ptime") || variables_name[c].equalsIgnoreCase("lon") 
+        				|| variables_name[c].equalsIgnoreCase("lat")) continue;
+        		
+        		Array array = readVariables(dataset, variables_name[c]);
+        		map_variables.put(variables_name[c], array);
+        	}
+	    	
+        	Array pTime, lonValues, latValues;	              	
         	pTime = readVariables(dataset, "ptime");
         	
-            if(pTime == null)throw new IOException();
+        	conTarget.setAutoCommit(false);
+        	
+            if(pTime == null)throw new IOException("EXCEPTION -> Missing ptime variable!");
             else{
-//            	depth = readVariables(dataset, "depth");
+
             	lonValues = readVariables(dataset, "lon");
             	latValues = readVariables(dataset, "lat");
             	
-            	if(lonValues == null || latValues == null)throw new IOException();
+            	if(lonValues == null || latValues == null)throw new IOException("EXCEPTION -> Missing lon or lat variable!");
             	else{
                 	Attribute platform_code = dataset.findGlobalAttribute("platform_code");
                 	
@@ -349,210 +336,183 @@ public class NetCDFFileConfigurator extends
                 		
                 		positions[k] = point;
                 	} 
-                	
-                	SimpleFeatureType newFT = pgDataStore.getSchema(this.getConfiguration().getDbTableName());
-                	
-                	transaction = new DefaultTransaction(this.getConfiguration().getDbTableName());
-                	aWriter = pgDataStore.getFeatureWriterAppend(newFT.getTypeName(),transaction);
-                	
-                	for(int l=0; l<size.intValue(); l++){
-                		SimpleFeature aNewFeature = (SimpleFeature)aWriter.next();	
-        	    		
-        	    		aNewFeature.setAttribute("ship_id", 1);
-        	    		aNewFeature.setAttribute("type_id", 2);
-        	    		aNewFeature.setAttribute("cruise_id", 157);
-        	    		aNewFeature.setAttribute("sens_id", 0);
-        	    		
-        	    		if(platform_code != null)
-        	    			aNewFeature.setAttribute("ext_name", platform_code.getStringValue());
-        	    		else
-        	    			aNewFeature.setAttribute("ext_name", "Not Available");
-        	    		
-        	        	Date date = new Date(pTime.getLong(pTime.getIndex().set(l))*1000);
-        	        	Time time = new Time(pTime.getLong(pTime.getIndex().set(l))*1000);	        	
-        	        	
-        	    		aNewFeature.setAttribute("obs_date", date);	    		
-        	    		aNewFeature.setAttribute("obs_time", time.toString());
-        	    		aNewFeature.setAttribute("lat", latValues.getDouble(latValues.getIndex().set(l)));	    		
-        	    		aNewFeature.setAttribute("lon", lonValues.getDouble(lonValues.getIndex().set(l)));
-        	    		aNewFeature.setAttribute("the_geom", positions[l]);
-        	    		
-        	    		aWriter.write();
-                	}
-                	
-                	aWriter.close();
-                	
-                    transaction.commit();
-                    transaction.close();
-                	pgDataStore.dispose();	
-            	}
-            }
-	
-    	}catch(IOException exc){
-    		throw new IOException("EXCEPTION -> " + exc.getLocalizedMessage());
-    	}catch(ParseException exc){
-    		throw new ParseException("EXCEPTION -> " + exc.getLocalizedMessage());
-    	}	
-    }
-    
-    /**
-     * Insert function to insert the data into MEASUREMENT and MEASUREMENT_VALUES tables
-     * 
-     * @params input The NetCDF file
-     * @throws SQLException 
-     * 
-     */
-    private void insertData(File input) throws SQLException {
-    	
-		// ///////////////////////////////////////////
-		// Managing JDBC-PostGIS Connection 
-		// ///////////////////////////////////////////
-    	
-    	PreparedStatement stat = null;        	
-	    ResultSet rs_glider_ms = null;
-	    
-        try{
-        	NetcdfDataset dataset = NetcdfDataset.openDataset((input).getPath());   	        	 
 
-        	Array pTime, dist, pitch, inflecting, numHalfYolnSegment, cond, temperature, press, irrad412nm, irrad442nm, irrad491nm, irrad664nm, backscatterBlue,
-        	backscatterGreen, backscatterRed, depth, cndr, salin, densi, pTemp, pDens, svel, prfl;	        	
+                	Coordinate[] coordinate = new Coordinate[positions.length];
+                	for(int l=0; l<positions.length; l++)            			
+             			coordinate[l] = new Coordinate (positions[l].getCoordinate());
 
-        	pTime = readVariables(dataset, "ptime");
-        	dist = readVariables(dataset, "dist");
-        	pitch = readVariables(dataset, "pitch");
-        	inflecting = readVariables(dataset, "inflecting");
-        	numHalfYolnSegment = readVariables(dataset, "numHalfYosInSegment");
-        	cond = readVariables(dataset, "cond");
-        	temperature = readVariables(dataset, "temp");
-        	press = readVariables(dataset, "press");
-        	irrad412nm = readVariables(dataset, "irrad412nm");
-        	irrad442nm = readVariables(dataset, "irrad442nm");
-        	irrad491nm = readVariables(dataset, "irrad491nm");
-        	irrad664nm = readVariables(dataset, "irrad664nm");
-        	backscatterBlue = readVariables(dataset, "backscatterBlue");
-        	backscatterGreen = readVariables(dataset, "backscatterGreen");
-        	backscatterRed = readVariables(dataset, "backscatterRed");
-        	depth = readVariables(dataset, "depth");
-        	cndr = readVariables(dataset, "cndr");
-        	salin = readVariables(dataset, "salin");
-        	densi = readVariables(dataset, "densi");
-        	pTemp = readVariables(dataset, "pTemp");
-        	pDens = readVariables(dataset, "pDens");
-        	svel = readVariables(dataset, "svel");
-        	prfl = readVariables(dataset, "prfl");       	    	
+                	coordinate = DouglasPeuckerLineSimplifier.simplify(coordinate, this.getConfiguration().getSimplyTollerance());
 
-            conTarget.setAutoCommit(false);      
-            
-            if(pTime == null)throw new Exception();
-            else{
-            	int obs_id_min = 0;
-            	int obs_id_max = 0;
-            	
-//              	String sqlString = "SELECT MIN(obs_id) FROM observation";
-//              	stat = conTarget.prepareStatement(sqlString);
-//              	rs_glider_ms = stat.executeQuery();
-//                if(rs_glider_ms.next())	obs_id_min = rs_glider_ms.getInt(1);
-//                rs_glider_ms.close();
-//                stat.close();       	
+                	CoordinateSequence sequence = geometryFactory.getCoordinateSequenceFactory().create(coordinate);
+                	LineString course = new LineString(sequence, geometryFactory);                	
 
-            	String sqlString = "SELECT MAX(obs_id) FROM observation";
-              	stat = conTarget.prepareStatement(sqlString);
-              	rs_glider_ms = stat.executeQuery();
-                if(rs_glider_ms.next())	obs_id_max = rs_glider_ms.getInt(1);
-                rs_glider_ms.close();
-                stat.close();
-
-                Long size = pTime.getSize();
-                
-                obs_id_min = obs_id_max - size.intValue();
-                obs_id_min++;
-                
-    	    	for(int i=obs_id_min, j=0; i<=obs_id_max && j<size; j++, i++){	     	
-    	    		StringBuffer zPos = new StringBuffer();	     	    		
-    	    			 
-    	    		Double depth_value = new Double(depth == null ? Double.NaN : depth.getDouble(depth.getIndex().set(j)));
-//    	    		Double depth_value = new Double(depth.getDouble(depth.getIndex().set(j)));
-    	    		
-    	    		if(depth_value.isNaN())
-    	    			zPos.append(0.0);
-    	    		else
-    	    			zPos.append(depth.getDouble(depth.getIndex().set(j)));
-    	    		       	
-    	        	
-    	        	Date date = new Date(pTime.getLong(pTime.getIndex().set(j))*1000);
-    	        	
-    	          	sqlString = "insert into measurement(zpos,tpos,obs_id,depth) values(ARRAY[" + zPos.toString() + "],?,?,?)";
+    	          	String sqlString = "insert into mission(cruise_id,start_date,end_date,ext_name,the_geom) " +
+    	          			"values(?,?,?,?," + "geometryFromText('" + course.toText() + "', 4326) " + ")";
     	          	stat = conTarget.prepareStatement(sqlString);
-    	          	stat.setTimestamp(1, new Timestamp(date.getTime()));
-    	          	stat.setLong(2, i);
+	
+    	          	stat.setLong(1, 157);
+
+    	          	Date start_date = new Date(pTime.getLong(pTime.getIndex().set(0))*1000);
+    	          	stat.setDate(2, start_date);    	      	          	
+    	          	Date end_date = new Date(pTime.getLong(pTime.getIndex().set(positions.length - 1))*1000);
+    	          	stat.setDate(3, end_date);
     	          	
-    	          	if(depth_value.isNaN())	
-    	          		stat.setDouble(3, 0.0);
-    	          	else
-    	          		stat.setDouble(3, depth_value.doubleValue()*-1);
+    	          	stat.setString(4, "BP09-" + new Timestamp(start_date.getTime()));
     	          	
     	          	stat.execute();  
     	          	stat.close();
-            	}	
-    	    	
-            	int measurement_id_min = 0;
-            	int measurement_id_max = 0;
-    	    	
-//              	sqlString = "SELECT MIN(measurement_id) FROM measurement";
-//              	stat = conTarget.prepareStatement(sqlString);
-//                  rs_glider_ms = stat.executeQuery();
-//                if(rs_glider_ms.next())	measurement_id_min = rs_glider_ms.getInt(1);
-//                rs_glider_ms.close();
-//                stat.close();
-                
-              	sqlString = "SELECT MAX(measurement_id) FROM measurement";
-              	stat = conTarget.prepareStatement(sqlString);
-              	rs_glider_ms = stat.executeQuery();
-                if(rs_glider_ms.next())	measurement_id_max = rs_glider_ms.getInt(1);
-                rs_glider_ms.close();
-                stat.close();	          
-                
-                measurement_id_min = measurement_id_max - size.intValue();
-                measurement_id_min++;
-                
-                final Integer[] param_id = {20,21,22,23,3,2,1,13,14,15,16,17,18,19,12,4,6,24,11,5,25};
-                
-        		for(int y=measurement_id_min, h=0; y<=measurement_id_max; y++, h++){    			
-        			
-    	    		final Double[] mValues = {
-    	    				dist == null ? Double.NaN : dist.getDouble(dist.getIndex().set(h)),	    				
-    	    				pitch == null ? Double.NaN : pitch.getDouble(pitch.getIndex().set(h)),	    				
-    	    				inflecting == null ? Double.NaN : inflecting.getDouble(inflecting.getIndex().set(h)),
-    	    				numHalfYolnSegment == null ? Double.NaN : numHalfYolnSegment.getDouble(numHalfYolnSegment.getIndex().set(h)),
-    	    				cond == null ? Double.NaN : cond.getDouble(cond.getIndex().set(h))*100000,
-    	    				temperature == null ? Double.NaN : temperature.getDouble(temperature.getIndex().set(h)),
-    	    				press == null ? Double.NaN : press.getDouble(press.getIndex().set(h)),
-    	    				irrad412nm == null ? Double.NaN : irrad412nm.getDouble(irrad412nm.getIndex().set(h)),
-    	    				irrad442nm == null ? Double.NaN : irrad442nm.getDouble(irrad442nm.getIndex().set(h)),
-    	    				irrad491nm == null ? Double.NaN : irrad491nm.getDouble(irrad491nm.getIndex().set(h)),
-    	    				irrad664nm == null ? Double.NaN : irrad664nm.getDouble(irrad664nm.getIndex().set(h)),
-    	    				backscatterBlue == null ? Double.NaN : backscatterBlue.getDouble(backscatterBlue.getIndex().set(h)),
-    	    				backscatterGreen == null ? Double.NaN : backscatterGreen.getDouble(backscatterGreen.getIndex().set(h)),
-    	    				backscatterRed == null ? Double.NaN : backscatterRed.getDouble(backscatterRed.getIndex().set(h)),
-    	    				cndr == null ? Double.NaN : cndr.getDouble(cndr.getIndex().set(h)),
-    	    				salin == null ? Double.NaN : salin.getDouble(salin.getIndex().set(h)),
-    	    				densi == null ? Double.NaN : densi.getDouble(densi.getIndex().set(h)),
-    	    				pTemp == null ? Double.NaN : pTemp.getDouble(pTemp.getIndex().set(h)),
-    	    				pDens == null ? Double.NaN : pDens.getDouble(pDens.getIndex().set(h)),
-    	    				svel == null ? Double.NaN : svel.getDouble(svel.getIndex().set(h)),
-    	    				prfl == null ? Double.NaN : prfl.getDouble(prfl.getIndex().set(h))	    				
-    	    		};
-        		    
-        			for(int k=0; k<mValues.length; k++){         				
-        	            sqlString = "insert into measurement_values(measurement_id,values,param_id) values(" + y + ", ARRAY['" + mValues[k].doubleValue() + "']," + param_id[k].longValue() + ")";
-        	            
-        	          	stat = conTarget.prepareStatement(sqlString);
-        	          	stat.execute();
-        	          	stat.close();
-        			}
-        		}
-            }
+            	     
+            	    int mission_id_max = 0;           	                	    
+                	
+                	sqlString = "SELECT MAX(mission_id) FROM mission";
+                  	stat = conTarget.prepareStatement(sqlString);
+                  	rs_glider_ms = stat.executeQuery();
+                    if(rs_glider_ms.next())	mission_id_max = rs_glider_ms.getInt(1);
+                    
+                    rs_glider_ms.close();
+                    stat.close();
 
+                	for(int l=0; l<size.intValue(); l++){
+//                		Double lat = latValues.getDouble(latValues.getIndex().set(l));
+//                		Double lon = lonValues.getDouble(lonValues.getIndex().set(l));
+                		
+//                		sqlString = "insert into observation(ship_id,mission_id,type_id,cruise_id,sens_id,ext_name,obs_date,obs_time,lat,lon,the_geom) " +
+//        					"values(?,?,?,?,?,?,?,?,?,?,"+ "geometryFromText('POINT(" + positions[l].getX() + " " + positions[l].getY() + ")', 4326) " + ")";
+//                		sqlString = "insert into observation(ship_id,mission_id,type_id,cruise_id,sens_id,ext_name,obs_date,obs_time,lat,lon,the_geom) " +
+//                				"values(?,?,?,?,?,?,?,?,?,?,"+ "geometryFromText('POINT(" + lon.doubleValue() + " " + lat.doubleValue() + ")', 4326) " + ")";
+                		sqlString = "insert into observation(ship_id,mission_id,type_id,cruise_id,sens_id,ext_name,obs_date,obs_time,lat,lon,the_geom) " +
+        					"values(?,?,?,?,?,?,?,?,?,?,"+ "geometryFromText('" + positions[l].toText() + "', 4326) " + ")";
+                		stat = conTarget.prepareStatement(sqlString);
+        	          	
+        	          	stat.setLong(1, 1);
+        	          	stat.setLong(2, mission_id_max);
+        	          	stat.setLong(3, 2);
+        	          	stat.setLong(4, 157);
+        	          	stat.setLong(5, 0);
+        	          	
+        	    		if(platform_code != null)
+        	    			stat.setString(6, platform_code.getStringValue());
+        	    		else
+        	    			stat.setString(6, "Not Available");
+                		
+        	        	Date date = new Date(pTime.getLong(pTime.getIndex().set(l))*1000);
+        	        	Time time = new Time(pTime.getLong(pTime.getIndex().set(l))*1000);
+        	        	
+        	        	stat.setDate(7, date);
+        	        	stat.setString(8, time.toString());
+        	        	stat.setDouble(9, positions[l].getY());
+        	        	stat.setDouble(10, positions[l].getX());
+        	        	
+        	          	stat.execute();  
+        	          	stat.close();
+                	}
+
+                	int obs_id_min = 0;
+                	int obs_id_max = 0;     	
+
+                	sqlString = "SELECT MAX(obs_id) FROM observation";
+                  	stat = conTarget.prepareStatement(sqlString);
+                  	rs_glider_ms = stat.executeQuery();
+                    if(rs_glider_ms.next())	obs_id_max = rs_glider_ms.getInt(1);
+                    rs_glider_ms.close();
+                    stat.close();
+                    
+                    obs_id_min = obs_id_max - size.intValue();
+                    obs_id_min++;
+
+        	    	for(int i=obs_id_min, j=0; i<=obs_id_max && j<size; j++, i++){	     	
+        	    		StringBuffer zPos = new StringBuffer();	     	    		
+        	    		
+        	    		Double depth_value = null;
+        	    		if(map_variables.containsKey("depth")){
+        	    			depth_value = map_variables.get("depth").getDouble(map_variables.get("depth").getIndex().set(j));
+        	    			
+            	    		if(depth_value.isNaN())
+            	    			zPos.append(0.0);
+            	    		else
+            	    			zPos.append(map_variables.get("depth").getDouble(map_variables.get("depth").getIndex().set(j)));  
+        	    		}else{
+        	    			LOGGER.log(Level.INFO, "Missing depth variable!");
+        	    			
+        	    			depth_value = Double.NaN;
+        	    			zPos.append(0.0);
+        	    		}
+        	        	
+        	        	Date date = new Date(pTime.getLong(pTime.getIndex().set(j))*1000);
+        	        	
+        	          	sqlString = "insert into measurement(zpos,tpos,obs_id,depth) values(ARRAY[" + zPos.toString() + "],?,?,?)";
+        	          	stat = conTarget.prepareStatement(sqlString);
+        	          	stat.setTimestamp(1, new Timestamp(date.getTime()));
+        	          	stat.setLong(2, i);
+        	          	
+        	          	if(depth_value.isNaN())	
+        	          		stat.setDouble(3, 0.0);
+        	          	else
+        	          		stat.setDouble(3, depth_value.doubleValue()*-1);
+        	          	
+        	          	stat.execute();  
+        	          	stat.close();
+                	}	
+        	    	
+                	int measurement_id_min = 0;
+                	int measurement_id_max = 0;
+                    
+                  	sqlString = "SELECT MAX(measurement_id) FROM measurement";
+                  	stat = conTarget.prepareStatement(sqlString);
+                  	rs_glider_ms = stat.executeQuery();
+                    if(rs_glider_ms.next())	measurement_id_max = rs_glider_ms.getInt(1);
+                    rs_glider_ms.close();
+                    stat.close();	          
+
+                    measurement_id_min = measurement_id_max - size.intValue();
+                    measurement_id_min++;
+                    
+                    ArrayList<Long> param_id = new ArrayList<Long>();
+                    
+                    Map<Long, Array> check_var = new HashMap<Long, Array>();
+                    
+                    for(int k=0; k<variables_name.length; k++){
+                		if(variables_name[k].equalsIgnoreCase("ptime") || variables_name[k].equalsIgnoreCase("lon") 
+                				|| variables_name[k].equalsIgnoreCase("lat") || variables_name[k].equalsIgnoreCase("depth")) continue;
+
+                      	sqlString = "select * from parameter where default_label='" + variables_name[k] + "'";
+                      	
+                      	stat = conTarget.prepareStatement(sqlString);
+                      	rs_glider_ms = stat.executeQuery();
+                      	
+                        if(rs_glider_ms.next()){
+                        	check_var.put(rs_glider_ms.getLong("param_id"), map_variables.get(variables_name[k]));
+                        	param_id.add(rs_glider_ms.getLong("param_id"));
+                        }else{
+                        	LOGGER.log(Level.INFO, "The " + variables_name[k] + " variable won't be inserted " +
+                        			"because the data base is not properly configured");
+                        }                    	
+                        
+                        rs_glider_ms.close();
+                        stat.close();
+                    }
+                    
+            		for(int y=measurement_id_min, h=0; y<=measurement_id_max; y++, h++){            		    
+            			for(int p=0; p<param_id.size(); p++){       
+            				if(check_var.containsKey(param_id.get(p))){
+            					Double mValue;
+            					
+            					if(param_id.get(p) == 3)
+            						mValue = check_var.get(param_id.get(p)).getDouble(check_var.get(param_id.get(p)).getIndex().set(h))*100000;
+            					else
+            						mValue = check_var.get(param_id.get(p)).getDouble(check_var.get(param_id.get(p)).getIndex().set(h));
+            					
+                	            sqlString = "insert into measurement_values(measurement_id,values,param_id) values(" + 
+                	            	y + ", ARRAY['" + mValue.doubleValue() + "']," + param_id.get(p) + ")";   
+                	            
+                	          	stat = conTarget.prepareStatement(sqlString);
+                	          	stat.execute();
+                	          	stat.close();
+            				}
+            			}
+            		}
+            	}	
+            }
 		}catch(Exception exc){
 			throw new SQLException("EXCEPTION -> " + exc.getLocalizedMessage());
     	}finally{
@@ -573,4 +533,3 @@ public class NetCDFFileConfigurator extends
 	 	}
     }
 }
-
