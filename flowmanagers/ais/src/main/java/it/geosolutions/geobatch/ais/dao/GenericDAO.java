@@ -43,7 +43,7 @@ public interface GenericDAO<T,ID extends Serializable> {
 
 	public List<T> findAll() throws DAOException;
 
-	public List<T> findAll(int offset, int limite) throws DAOException;
+	public List<T> findAll(int offset, int limit) throws DAOException;
 
 	public T makePersistent(T entity) throws DAOException;
 
