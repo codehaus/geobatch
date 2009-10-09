@@ -25,8 +25,8 @@
   <name>File System Monitor - Libs Windows Deployer</name>
   <url>http://www.geo-solutions.it/reports/FileSystemMonitor/</url>
   <scm>
-    <connection>scm:svn:https://filesystem-monitor.googlecode.com/svn/trunk/</connection>
-    <url>https://filesystem-monitor.googlecode.com/svn/trunk/</url>
+    <connection>scm:svn:https://svn.codehaus.org/geobatch/trunk/</connection>
+    <url>https://svn.codehaus.org/geobatch/trunk/</url>
   </scm>
   <description>
     The FileSystemMonitor - Libs Windows Deployer.
