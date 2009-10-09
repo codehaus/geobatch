@@ -60,23 +60,8 @@
 		<!--     Platform                   -->
 		<!-- ============================== -->
 		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<!-- The version number is specified in the parent POM. -->
-		</dependency>
-		<dependency>
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
-			<!-- The version number is specified in the parent POM. -->
-		</dependency>
-		<dependency>
-			<groupId>commons-pool</groupId>
-			<artifactId>commons-pool</artifactId>
-			<!-- The version number is specified in the parent POM. -->
-		</dependency>
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
 			<!-- The version number is specified in the parent POM. -->
 		</dependency>
 		<dependency>

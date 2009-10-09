@@ -24,7 +24,6 @@
 
 package it.geosolutions.geobatch.catalog.dao.file.xstream;
 
-import com.thoughtworks.xstream.XStream;
 import it.geosolutions.filesystemmonitor.OsType;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
@@ -34,15 +33,20 @@ import it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfigurati
 import it.geosolutions.geobatch.flow.event.consumer.file.FileEventRule;
 import it.geosolutions.geobatch.geotiff.overview.GeoTiffOverviewsEmbedderConfiguration;
 import it.geosolutions.geobatch.xstream.Alias;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import junit.framework.TestCase;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.Resource;
+
+import com.thoughtworks.xstream.XStream;
 
 /**
  * 

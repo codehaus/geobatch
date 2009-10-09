@@ -45,9 +45,6 @@ public class Alias {
 						it.geosolutions.geobatch.geotiff.retile.GeoTiffRetilerConfiguration.class);
         xstream.alias("GeoServerActionConfiguration",
                         it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration.class);
-//
-//        xstream.alias("FtpServerActionConfiguration",
-//                        it.geosolutions.geobatch.configuration.event.action.ftp.FTPUploadActionConfiguration.class);
 
         xstream.alias("EventConsumerConfiguration",
                         it.geosolutions.geobatch.configuration.event.consumer.EventConsumerConfiguration.class,
@@ -71,15 +68,9 @@ public class Alias {
 //                it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class,
 //                "eventGeneratorConfiguration");
 
-//        xstream.alias("FtpEventGeneratorConfiguration",
-//                        it.geosolutions.geobatch.configuration.event.generator.EventGeneratorConfiguration.class,
-//                        it.geosolutions.geobatch.configuration.event.generator.ftp.FtpBasedEventGeneratorConfiguration.class);
-//        xstream.aliasField("FtpEventGeneratorConfiguration",
-//                it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class,
-//                "eventGeneratorConfiguration");
 
-        xstream.alias("GlidersActionConfiguration",
-		        it.geosolutions.geobatch.gliders.configuration.GlidersActionConfiguration.class);
+//        xstream.alias("GlidersActionConfiguration",
+//		        it.geosolutions.geobatch.gliders.configuration.GlidersActionConfiguration.class);
         
         xstream.alias("GeoWebCacheActionConfiguration",
         		it.geosolutions.geobatch.configuration.event.action.geowebcache.GeoWebCacheActionConfiguration.class);
