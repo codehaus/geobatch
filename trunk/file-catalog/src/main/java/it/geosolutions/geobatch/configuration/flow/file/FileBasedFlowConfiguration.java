@@ -28,7 +28,6 @@ import it.geosolutions.geobatch.configuration.event.consumer.EventConsumerConfig
 import it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration;
 import it.geosolutions.geobatch.configuration.event.generator.EventGeneratorConfiguration;
 import it.geosolutions.geobatch.configuration.event.generator.file.FileBasedEventGeneratorConfiguration;
-import it.geosolutions.geobatch.configuration.event.generator.ftp.FtpBasedEventGeneratorConfiguration;
 import it.geosolutions.geobatch.configuration.flow.BaseFlowConfiguration;
 import it.geosolutions.geobatch.configuration.flow.FlowConfiguration;
 
@@ -75,12 +74,6 @@ public class FileBasedFlowConfiguration extends BaseFlowConfiguration implements
      */
     public FileBasedFlowConfiguration(String id, String name,
             FileBasedEventGeneratorConfiguration eventGeneratorConfiguration, String description,
-            FileBasedEventConsumerConfiguration eventConsumerConfiguration) {
-        super(id, name, eventGeneratorConfiguration, description, eventConsumerConfiguration);
-    }
-//TODO: USE GENERICS!!!!
-    public FileBasedFlowConfiguration(String id, String name,
-            FtpBasedEventGeneratorConfiguration eventGeneratorConfiguration, String description,
             FileBasedEventConsumerConfiguration eventConsumerConfiguration) {
         super(id, name, eventGeneratorConfiguration, description, eventConsumerConfiguration);
     }
