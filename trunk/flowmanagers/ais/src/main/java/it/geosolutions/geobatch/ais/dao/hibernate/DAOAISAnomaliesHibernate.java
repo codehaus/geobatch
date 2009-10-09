@@ -39,15 +39,15 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import it.geosolutions.geobatch.ais.dao.DAOException;
-import it.geosolutions.geobatch.ais.dao.IDAOAISAnomalies;
+import it.geosolutions.geobatch.ais.dao.AISAnomaliesDAO;
 import it.geosolutions.geobatch.ais.model.AISAnomalies;
 
 /**
  * @author Francesco
  * 
  */
-public class DAOAISAnomaliesHibernate extends DAOAbstractSpring<AISAnomalies>
-		implements IDAOAISAnomalies {
+public class DAOAISAnomaliesHibernate extends DAOAbstractSpring<AISAnomalies,Long>
+		implements AISAnomaliesDAO {
 
 	public DAOAISAnomaliesHibernate() {
 		super(AISAnomalies.class);
