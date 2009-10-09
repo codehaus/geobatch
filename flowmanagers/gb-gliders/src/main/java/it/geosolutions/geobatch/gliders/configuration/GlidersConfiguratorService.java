@@ -20,7 +20,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.geosolutions.geobatch.flow.event.action.database;
+package it.geosolutions.geobatch.gliders.configuration;
 
 import it.geosolutions.geobatch.catalog.impl.BaseService;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
@@ -30,10 +30,10 @@ import java.util.EventObject;
 
 
 
-public abstract class DataBaseConfiguratorService <T extends EventObject, C extends ActionConfiguration>
+public abstract class GlidersConfiguratorService <T extends EventObject, C extends ActionConfiguration>
         extends BaseService implements ActionService<T, C> {
 
-    public DataBaseConfiguratorService() {
+    public GlidersConfiguratorService() {
         super(true);
     }
 

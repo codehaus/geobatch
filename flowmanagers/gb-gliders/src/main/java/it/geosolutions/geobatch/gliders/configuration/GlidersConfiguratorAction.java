@@ -20,9 +20,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.geosolutions.geobatch.flow.event.action.database;
+package it.geosolutions.geobatch.gliders.configuration;
 
-import it.geosolutions.geobatch.configuration.event.action.database.DataBaseActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
 
 import java.util.EventObject;
@@ -31,15 +30,15 @@ import java.util.logging.Logger;
 
 
 
-public abstract class DataBaseConfiguratorAction<T extends EventObject>
+public abstract class GlidersConfiguratorAction<T extends EventObject>
 extends BaseAction<T> {
 	
 	/**
      * Default logger
      */
-    protected final static Logger LOGGER = Logger.getLogger(DataBaseConfiguratorAction.class.toString());
+    protected final static Logger LOGGER = Logger.getLogger(GlidersConfiguratorAction.class.toString());
 
-    protected final DataBaseActionConfiguration configuration;
+    protected final GlidersActionConfiguration configuration;
     
     
     /**
@@ -47,7 +46,7 @@ extends BaseAction<T> {
 	 * The operation name will be the same than the parameter descriptor name.
 	 * 
      */
-    public DataBaseConfiguratorAction(DataBaseActionConfiguration configuration) {
+    public GlidersConfiguratorAction(GlidersActionConfiguration configuration) {
         this.configuration = configuration;
         
         // //////////////////////////
@@ -61,7 +60,7 @@ extends BaseAction<T> {
 
     }
     
-    public DataBaseActionConfiguration getConfiguration() {
+    public GlidersActionConfiguration getConfiguration() {
         return configuration;
     }
 }

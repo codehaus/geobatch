@@ -22,17 +22,16 @@
 
 
 
-package it.geosolutions.geobatch.configuration.event.action.database;
+package it.geosolutions.geobatch.gliders.configuration;
 
 import it.geosolutions.geobatch.catalog.Configuration;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
-import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 
 
 
-public class DataBaseActionConfiguration extends ActionConfiguration implements Configuration {
+public class GlidersActionConfiguration extends ActionConfiguration implements Configuration {
 
-    protected DataBaseActionConfiguration(String id, String name,
+    protected GlidersActionConfiguration(String id, String name,
 			String description, boolean dirty) {
 		super(id, name, description, dirty);
 		// TODO Auto-generated constructor stub
@@ -60,7 +59,7 @@ public class DataBaseActionConfiguration extends ActionConfiguration implements 
     
     private Double simplyTollerance;
 
-    public DataBaseActionConfiguration() {
+    public GlidersActionConfiguration() {
         super();
     }
 
@@ -161,8 +160,8 @@ public class DataBaseActionConfiguration extends ActionConfiguration implements 
 
     @Override
     public ActionConfiguration clone() throws CloneNotSupportedException {
-		final DataBaseActionConfiguration configuration = 
-			new DataBaseActionConfiguration(super.getId(),super.getName(),super.getDescription(),super.isDirty());
+		final GlidersActionConfiguration configuration = 
+			new GlidersActionConfiguration(super.getId(),super.getName(),super.getDescription(),super.isDirty());
 
 		configuration.setDbPWD(dbPWD);
 		configuration.setDbUID(dbUID);

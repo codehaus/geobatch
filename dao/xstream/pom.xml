@@ -45,6 +45,10 @@
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-flowmanagers-composer</artifactId>
         </dependency>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-flowmanagers-gliders</artifactId>
+        </dependency>
         
 
         <dependency>

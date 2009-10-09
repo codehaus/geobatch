@@ -25,8 +25,8 @@
 package it.geosolutions.geobatch.gliders;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.configuration.event.action.database.DataBaseActionConfiguration;
-import it.geosolutions.geobatch.flow.event.action.database.DataBaseConfiguratorService;
+import it.geosolutions.geobatch.gliders.configuration.GlidersActionConfiguration;
+import it.geosolutions.geobatch.gliders.configuration.GlidersConfiguratorService;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -37,7 +37,7 @@ import java.util.logging.Logger;
  * 
  */
 public class GlidersFileGeneratorService extends
-        DataBaseConfiguratorService<FileSystemMonitorEvent, DataBaseActionConfiguration> {
+        GlidersConfiguratorService<FileSystemMonitorEvent, GlidersActionConfiguration> {
 	
     private final static Logger LOGGER = Logger.getLogger(GlidersFileGeneratorService.class
             .toString());
@@ -48,7 +48,7 @@ public class GlidersFileGeneratorService extends
      *  @param configuration The data base action configuration 
      *  @return new NetCDFFileConfigurator()
      */
-    public GlidersFileConfigurator createAction(DataBaseActionConfiguration configuration) {
+    public GlidersFileConfigurator createAction(GlidersActionConfiguration configuration) {
         try {
             return new GlidersFileConfigurator(configuration);
         } catch (IOException e) {
@@ -59,7 +59,7 @@ public class GlidersFileGeneratorService extends
     }
 
     @Override
-    public boolean canCreateAction(DataBaseActionConfiguration configuration) {
+    public boolean canCreateAction(GlidersActionConfiguration configuration) {
         final boolean superRetVal = super.canCreateAction(configuration);
         return superRetVal;
     }

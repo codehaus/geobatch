@@ -26,8 +26,8 @@ package it.geosolutions.geobatch.gliders;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
-import it.geosolutions.geobatch.configuration.event.action.database.DataBaseActionConfiguration;
-import it.geosolutions.geobatch.flow.event.action.database.DataBaseConfiguratorAction;
+import it.geosolutions.geobatch.gliders.configuration.GlidersActionConfiguration;
+import it.geosolutions.geobatch.gliders.configuration.GlidersConfiguratorAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.io.utils.IOUtils;
 
@@ -73,7 +73,7 @@ import com.vividsolutions.jts.simplify.DouglasPeuckerLineSimplifier;
  *  
  */
 public class GlidersFileConfigurator extends
-        DataBaseConfiguratorAction<FileSystemMonitorEvent>{
+        GlidersConfiguratorAction<FileSystemMonitorEvent>{
 	
 	// //////////////////////////
 	// JDBC data fields  
@@ -83,7 +83,7 @@ public class GlidersFileConfigurator extends
     private boolean isConnected = false;   
     
 
-    protected GlidersFileConfigurator(DataBaseActionConfiguration configuration)
+    protected GlidersFileConfigurator(GlidersActionConfiguration configuration)
             throws IOException {
         super(configuration);
     }
