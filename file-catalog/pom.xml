@@ -201,12 +201,17 @@
         <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>fsm-purejava</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.9-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>it.geosolutions</groupId>
+            <artifactId>fsm-native</artifactId>
+            <version>0.9-SNAPSHOT</version>
+        </dependency>		
+        <dependency>
+            <groupId>it.geosolutions</groupId>
             <artifactId>fsm-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.9-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.enterprisedt</groupId>
@@ -258,70 +263,11 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-<!--            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.4.3</version> -->
             <artifactId>slf4j-simple</artifactId>
             <version>1.5.6</version>
         </dependency>
 
-
-
- 	<!-- ============================== -->
-  	<!--     ColdCore Colorado FTP      -->
-  	<!-- ============================== -->
-
-    <!--
-        <dependency>
-            <groupId>com.coldcore.coloradoftp</groupId>
-            <artifactId>coloradoftp</artifactId>
-            <version>1.25</version>
-            <scope>compile</scope>
-        </dependency>
-  	<dependency>
-            <groupId>com.coldcore.coloradoftp</groupId>
-            <artifactId>ccc_misc5</artifactId>
-            <version>1.02</version>
-            <scope>compile</scope>
-        </dependency>
-  	<dependency>
-            <groupId>com.coldcore.coloradoftp</groupId>
-            <artifactId>gateway</artifactId>
-            <version>1.02</version>
-            <scope>compile</scope>
-        </dependency>
-  	<dependency>
-            <groupId>com.coldcore.coloradoftp</groupId>
-            <artifactId>hardfilesystem</artifactId>
-            <version>1.04</version>
-            <scope>compile</scope>
-        </dependency>
-  	<dependency>
-            <groupId>com.coldcore.coloradoftp</groupId>
-            <artifactId>impl3659</artifactId>
-            <version>1.00</version>
-            <scope>compile</scope>
-        </dependency>
-  	<dependency>
-            <groupId>com.coldcore.coloradoftp</groupId>
-            <artifactId>coloradoftp</artifactId>
-            <version>1.25</version>
-            <scope>compile</scope>
-        </dependency>
-  	<dependency>
-            <groupId>com.coldcore.coloradoftp</groupId>
-            <artifactId>intellipack</artifactId>
-            <version>1.13</version>
-            <scope>compile</scope>
-        </dependency>
-   	<dependency>
-            <groupId>com.coldcore.coloradoftp</groupId>
-            <artifactId>xmlfs</artifactId>
-            <version>1.00</version>
-            <scope>compile</scope>
-        </dependency>
--->
-
-  	<dependency>
+		<dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.9</version>

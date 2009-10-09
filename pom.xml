@@ -69,7 +69,7 @@
         <src.output>${basedir}/target</src.output>
         <gt.version>2.5-SNAPSHOT</gt.version>
         <gb.version>0.9-SNAPSHOT</gb.version>
-	      <imageio-ext.version>1.0.3</imageio-ext.version>
+	    <imageio-ext.version>1.0.3</imageio-ext.version>
         <spring.version>2.5.6.SEC01</spring.version>
         <dao.type>xstream</dao.type> <!-- the default dao type -->
     </properties>
@@ -549,27 +549,6 @@
                 <version>9.1.0.2</version>
             </dependency>
 
-            <dependency>
-                <groupId>it.geosolutions.xmlbeans</groupId>
-                <artifactId>geoserver-catalog</artifactId>
-                <version>2.4.0</version>
-            </dependency>
-            <dependency>
-                <groupId>it.geosolutions.xmlbeans</groupId>
-                <artifactId>geoserver-catalog-coverage</artifactId>
-                <version>2.4.0</version>
-            </dependency>
-            <dependency>
-                <groupId>it.geosolutions.xmlbeans</groupId>
-                <artifactId>geoserver-catalog-featureType</artifactId>
-                <version>2.4.0</version>
-            </dependency>
-            <dependency>
-                <groupId>it.geosolutions.xmlbeans</groupId>
-                <artifactId>manager-config</artifactId>
-                <version>2.4.0</version>
-            </dependency>
-
       <!-- Apache -->
             <dependency>
                 <groupId>oro</groupId>
@@ -591,6 +570,11 @@
                 <artifactId>commons-collections</artifactId>
                 <version>3.1</version>  <!-- Same as the dependency in commons-pool -->
             </dependency>
+     <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+		<version>1.4</version>
+      </dependency>			
             <dependency>
                 <groupId>commons-pool</groupId>
                 <artifactId>commons-pool</artifactId>
@@ -642,13 +626,18 @@
                 <version>1.1.3.4.O</version>
             </dependency>
 
-      <!-- Databases -->
-      <!-- dependency>
-        <groupId>hsqldb</groupId>
-        <artifactId>hsqldb</artifactId>
-        <version>1.8.0.7</version>
-      </dependency -->
 
+      <dependency>
+        <groupId>it.geosolutions</groupId>
+        <artifactId>factory</artifactId>
+        <version>1.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>it.geosolutions</groupId>
+        <artifactId>test-data</artifactId>
+        <version>1.0-SNAPSHOT</version>
+      </dependency>
+	  
       <!-- Geobatch -->
         <dependency>
             <groupId>it.geosolutions</groupId>
@@ -695,6 +684,7 @@
 			<artifactId>gb-flowmanagers-geowebcache</artifactId>
 			<version>${gb.version}</version>
         </dependency>
+
 
 
       <!-- Tests or legacy -->
@@ -989,7 +979,7 @@
   <!--     Modules for the build in approximate dependency order   -->
   <!-- =========================================================== -->
     <modules>
-	  <module>filesystem-monitor</module>
+	  <module>gb-fsm</module>
         <module>core</module>
         <module>file-catalog</module>
         <module>dao</module>
