@@ -81,12 +81,17 @@ public class AsciiGeoServerGenerator extends GeoServerConfiguratorAction<FileSys
         URL geoserverREST_URL = null;
         boolean sent = false;
 
+        String coverageNamePath = "";
+    	if(queryParams.get("coverageName") != null){
+    		coverageNamePath = "&coverageName="+queryParams.get("coverageName");
+    	}
+    	
         if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
 			geoserverREST_URL = new URL(geoserverBaseURL + "/rest/workspaces/"
 					+ queryParams.get("namespace") + "/coveragestores/"
 					+ coverageStoreId + "/file.arcgrid?" + "style="
 					+ queryParams.get("style") + "&" + "wmspath="
-					+ queryParams.get("wmspath"));
+					+ queryParams.get("wmspath") + coverageNamePath);
 			sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
 					new FileInputStream(data), getConfiguration()
 							.getGeoserverUID(), getConfiguration()
@@ -96,7 +101,7 @@ public class AsciiGeoServerGenerator extends GeoServerConfiguratorAction<FileSys
 					+ queryParams.get("namespace") + "/coveragestores/"
 					+ coverageStoreId + "/url.arcgrid?" + "style="
 					+ queryParams.get("style") + "&" + "wmspath="
-					+ queryParams.get("wmspath"));
+					+ queryParams.get("wmspath") + coverageNamePath);
 			sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
 					.toURI().toURL().toExternalForm(), getConfiguration()
 					.getGeoserverUID(), getConfiguration().getGeoserverPWD());
@@ -106,7 +111,7 @@ public class AsciiGeoServerGenerator extends GeoServerConfiguratorAction<FileSys
 					+ queryParams.get("namespace") + "/coveragestores/"
 					+ coverageStoreId + "/external.arcgrid?" + "style="
 					+ queryParams.get("style") + "&" + "wmspath="
-					+ queryParams.get("wmspath"));
+					+ queryParams.get("wmspath") + coverageNamePath);
 			System.out.println(geoserverREST_URL);
 			sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
 					.toURI().toURL().toExternalForm(), getConfiguration()
