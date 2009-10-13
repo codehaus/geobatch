@@ -7,9 +7,15 @@
            http://www.springframework.org/schema/context/spring-context-2.5.xsd"
 	default-autowire="byName">
 
+	<context:annotation-config />
 
-	<import resource="applicationContext-database.xml" />
-	<import resource="applicationContext-DAO.xml" />
-	<import resource="ftp-server.xml" />
+	<!-- FTP USER DAO -->
+
+	<bean id="ftpUserDAO"
+		class="it.geosolutions.geobatch.ftp.server.dao.hibernate.DAOFtpUserHibernate">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
 
 </beans>
