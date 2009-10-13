@@ -1,16 +1,52 @@
-<server xmlns="http://mina.apache.org/ftpserver/spring/v1"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="
-	   http://mina.apache.org/ftpserver/spring/v1 http://mina.apache.org/ftpserver/ftpserver-1.0.xsd	
-	   "
-	id="myServer">
-	<listeners>
-		<nio-listener name="default" port="2121">
-			<!--
-				<ssl> <keystore file="./res/ftpserver.jks" password="password" />
-				</ssl>
-			-->
-		</nio-listener>
-	</listeners>
-	<!--  file-user-manager file="./res/conf/users.properties" /-->
-</server>
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://mina.apache.org/ftpserver/spring/v1"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation=" http://www.springframework.org/schema/beans
+             http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+             http://www.springframework.org/schema/tx
+             http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+             http://www.springframework.org/schema/aop
+             http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+             http://www.springframework.org/schema/lang
+             http://www.springframework.org/schema/lang/spring-lang-2.0.xsd
+             http://mina.apache.org/ftpserver/spring/v1
+             http://mina.apache.org/ftpserver/ftpserver-1.0.xsd ">
+
+	<server id="server">
+		<listeners>
+			<nio-listener name="default" port="2121"></nio-listener>
+		</listeners>
+		<db-user-manager encrypt-passwords="clear">
+			<data-source>
+				<beans:ref bean="dataSource" />
+			</data-source>
+			<insert-user>INSERT INTO FTP_USER ( user_id, user_password, home_directory,
+                enable_flag, write_permission,
+                idle_time, upload_rate, download_rate ) VALUES ('{userid}', '{userpassword}', '{homedirectory}',
+                '{enableflag}', '{writepermission}', {idletime}, {uploadrate}, {downloadrate})
+            </insert-user>
+			<update-user>UPDATE FTP_USER SET user_password
+                ='{userpassword}',home_directory='{homedirectory}',enable_flag={enableflag},
+                write_permission={writepermission},idle_time={idletime},
+                upload_rate={uploadrate},download_rate={downloadrate}
+                WHERE user_id='{userid}'
+            </update-user>
+			<delete-user>DELETE FROM FTP_USER WHERE user_id = '{userid}'</delete-user>
+			<select-user>SELECT user_id as userid, 100000 as maxloginperip ,
+                100000 as maxloginnumber , user_password as
+                userpassword, '/folder/to/store/files/uploads/'|| user_id as homedirectory, true as
+                enableflag, true as writepermission, true as readpermission, 100000 as idletime, 100000 as uploadrate,
+                100000 as downloadrate FROM FTP_USER WHERE user_id = '{userid}'
+            </select-user>
+			<select-all-users>SELECT user_id FROM FTP_USER ORDER BY user_id</select-all-users>
+			<is-admin>SELECT user_id as userid FROM FTP_USER WHERE user_id='{userid}' AND user_id='admin'</is-admin>
+			<authenticate>SELECT user_password as userpassword from FTP_USER WHERE user_id='{userid}'</authenticate>
+		</db-user-manager>
+
+		<native-filesystem case-insensitive="false"
+			create-home="true" />
+
+	</server>
+
+</beans:beans>

@@ -1,25 +1,16 @@
 package it.geosolutions.geobatch.ftp.server;
 
 import org.apache.ftpserver.FtpServer;
-import org.apache.ftpserver.FtpServerFactory;
-import org.apache.ftpserver.ftplet.FtpException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class GeoBatchServer {
-
-	public GeoBatchServer() {
-		
-		FtpServerFactory serverFactory = new FtpServerFactory();
-		FtpServer server = serverFactory.createServer();
-		// start the server
-		try {
-			server.start();
-		} catch (FtpException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+	public static void main(String[] args) throws Throwable {
+		ApplicationContext classPathXmlApplicationContext = new ClassPathXmlApplicationContext(
+				"applicationContext.xml");
+		FtpServer ftpServer = (FtpServer) classPathXmlApplicationContext
+				.getBean("server");
+		ftpServer.start();
 	}
-	
-	
 
 }
