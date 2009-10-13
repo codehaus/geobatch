@@ -46,7 +46,8 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * @author Francesco Izzi
  * 
  */
-public abstract class DAOAbstractSpring<T,ID extends Serializable> extends HibernateDaoSupport implements GenericDAO<T,ID> {
+public abstract class DAOAbstractSpring<T, ID extends Serializable> extends
+		HibernateDaoSupport implements GenericDAO<T, ID> {
 
 	private static Logger logger = Logger.getLogger(DAOAbstractSpring.class
 			.getName());
@@ -107,7 +108,8 @@ public abstract class DAOAbstractSpring<T,ID extends Serializable> extends Hiber
 		T entity;
 		try {
 			if (lock) {
-				entity = (T) getSession().load(getPersistentClass(), id,LockMode.UPGRADE);
+				entity = (T) getSession().load(getPersistentClass(), id,
+						LockMode.UPGRADE);
 			} else {
 				entity = (T) getSession().load(getPersistentClass(), id);
 			}
