@@ -211,6 +211,18 @@
                 <module>deploy</module>
             </modules>
         </profile>
+        <profile>
+			<id>gb-ftp-support</id>
+			<modules>
+			   <module>gb-ftp-support</module>
+			</modules>
+		</profile>
+        <profile>
+			<id>gb-ftp-server</id>
+			<modules>
+			   <module>gb-ftp-server</module>
+			</modules>
+		</profile>
     </profiles>
 
 
@@ -652,6 +664,11 @@
 			<groupId>it.geosolutions</groupId>
 			<artifactId>gb-ftp-support</artifactId>
 			<version>${gb.version}</version>
+        </dependency>
+        <dependency>
+			<groupId>it.geosolutions</groupId>
+			<artifactId>gb-ftp-server</artifactId>
+			<version>${gb.version}</version>
         </dependency>		
 
 
@@ -954,9 +971,6 @@
         <module>dao</module>
         <module>flowmanagers</module>
         <module>web</module>
-		<module>gb-ftp-support</module>
-        
-
     </modules>
 
 </project>
