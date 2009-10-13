@@ -134,7 +134,7 @@ public abstract class DAOAbstractSpring<T, ID extends Serializable> extends
 		try {
 			getSession().saveOrUpdate(entity);
 		} catch (HibernateException ex) {
-			logger.fine(ex.getMessage());
+			logger.info(ex.getMessage());
 			throw new DAOException(ex);
 		}
 		return entity;

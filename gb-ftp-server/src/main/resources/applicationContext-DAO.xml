@@ -14,7 +14,7 @@
 	<bean id="ftpUserDAO"
 		class="it.geosolutions.geobatch.ftp.server.dao.hibernate.DAOFtpUserHibernate">
 		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
+			<ref bean="sessionFactory-gb-ftp-server" />
 		</property>
 	</bean>
 

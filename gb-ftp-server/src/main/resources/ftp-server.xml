@@ -19,7 +19,7 @@
 		</listeners>
 		<db-user-manager encrypt-passwords="clear">
 			<data-source>
-				<beans:ref bean="dataSource" />
+				<beans:ref bean="dataSource-gb-ftp-server" />
 			</data-source>
 			<insert-user>INSERT INTO FTP_USER ( user_id, user_password, home_directory,
                 enable_flag, write_permission,
