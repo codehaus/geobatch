@@ -22,13 +22,14 @@
 package it.geosolutions.geobatch.jgsflodess;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
+import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorAction;
-import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerRESTHelper;
 import it.geosolutions.geobatch.global.CatalogHolder;
-import it.geosolutions.geobatch.io.utils.IOUtils;
 import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
+import it.geosolutions.geobatch.utils.IOUtils;
+import it.geosolutions.imageio.plugins.netcdf.NetCDFConverterUtilities;
 import it.geosolutions.utils.coamps.data.FlatFileGrid;
 
 import java.awt.image.DataBuffer;
@@ -36,17 +37,12 @@ import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -55,15 +51,14 @@ import javax.media.jai.JAI;
 import javax.media.jai.RasterFactory;
 
 import org.apache.commons.io.FilenameUtils;
-import org.geotools.gce.geotiff.GeoTiffFormat;
 import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import ucar.ma2.Array;
+import ucar.ma2.DataType;
+import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFileWriteable;
+import ucar.nc2.Variable;
 
 /**
  * 
@@ -73,50 +68,13 @@ import ucar.nc2.NetcdfFile;
 public class JGSFLoDeSSCOAMPSFileConfigurator extends
 		GeoServerConfiguratorAction<FileSystemMonitorEvent> {
 
-	public final static String GEOSERVER_VERSION = "2.x";
+	/**
+	 * Static DateFormat Converter
+	 */
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
 	
-	private final static GeoTiffFormat format = new GeoTiffFormat();
-
-	private static final int DEFAULT_TILE_SIZE = 256;
-
-	private static final int DEFAULT_TILE_CACHE_SIZE = 16;
-
-	private static final int MINIMUM_TILE_SIZE = 50;
-
-	private static final double DEFAULT_COMPRESSION_RATIO = 0.75;
-
-	private static final String DEFAULT_COMPRESSION_TYPE = "LZW";
-
-	private static final int DEFAULT_OVERVIEWS_NUMBER = 0;
-
-//	private static final int DEFAULT_OVERVIEWS_ALGORITHM = 0;
-
-	private static final CoordinateReferenceSystem WGS_84;
-	
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_0HHmmss");
-	
-	private static final long startTime;
-
 	static {
-		GregorianCalendar calendar = new GregorianCalendar(1980, 00, 01, 00, 00, 00);
-		calendar.setTimeZone(TimeZone.getTimeZone("Europe/Greenwich"));
-		startTime = calendar.getTimeInMillis();
-	}
-
-	static {
-		CoordinateReferenceSystem crs;
-		try {
-			crs = CRS.decode("EPSG:4326", true);
-
-		} catch (NoSuchAuthorityCodeException e) {
-
-			LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-			crs = DefaultGeographicCRS.WGS84;
-		} catch (FactoryException e) {
-			LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-			crs = DefaultGeographicCRS.WGS84;
-		}
-		WGS_84 = crs;
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
 	
 	protected JGSFLoDeSSCOAMPSFileConfigurator(
@@ -133,12 +91,11 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends
 		if (LOGGER.isLoggable(Level.INFO))
 			LOGGER.info("Starting with processing...");
 		NetcdfFile ncGridAreaDefinitionFile = null;
+		NetcdfFileWriteable ncFileOut = null;
 		try {
 			// looking for file
 			if (events.size() != 1)
-				throw new IllegalArgumentException(
-						"Wrong number of elements for this action: "
-								+ events.size());
+				throw new IllegalArgumentException("Wrong number of elements for this action: " + events.size());
 			FileSystemMonitorEvent event = events.remove();
 			final String configId = configuration.getName();
 
@@ -164,10 +121,8 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends
 			// ////////////////////////////////////////////////////////////////////
 			if ((workingDir == null) || !workingDir.exists()
 					|| !workingDir.isDirectory()) {
-				LOGGER.log(Level.SEVERE,
-						"GeoServerDataDirectory is null or does not exist.");
-				throw new IllegalStateException(
-						"GeoServerDataDirectory is null or does not exist.");
+				LOGGER.log(Level.SEVERE, "GeoServerDataDirectory is null or does not exist.");
+				throw new IllegalStateException("GeoServerDataDirectory is null or does not exist.");
 			}
 
 			// ... BUSINESS LOGIC ... //
@@ -230,7 +185,7 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends
 			}
 
 			// building Envelope
-			final GeneralEnvelope envelope = new GeneralEnvelope(WGS_84);
+			final GeneralEnvelope envelope = new GeneralEnvelope(JGSFLoDeSSIOUtils.WGS_84);
 
 			float xmin = Float.POSITIVE_INFINITY;
             float ymin = Float.POSITIVE_INFINITY;
@@ -287,6 +242,82 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends
 			});
 			
 			// ////
+			// ... create the output file data structure
+			// ////
+            final File outputFile = new File(outDir, "windModel_COAMPS.nc");
+            ncFileOut = NetcdfFileWriteable.createNew(outputFile.getAbsolutePath());
+
+            //NetCDFConverterUtilities.copyGlobalAttributes(ncFileOut, ncFileIn.getGlobalAttributes());
+            final List<String> varsFound = new ArrayList<String>();
+            final List<String> timesFound = new ArrayList<String>();
+            final List<Long> levelsFound = new ArrayList<Long>();
+            
+            for (File COAMPSFile : COAMPSFiles) {
+				final FlatFileGrid COAMPSFileGrid = new FlatFileGrid(COAMPSFile);
+				
+				if (COAMPSFileGrid != null && COAMPSFileGrid.getWidth() == width && COAMPSFileGrid.getHeight() == height) {
+					final String timeInstant = COAMPSFileGrid.getTimeGroup().substring(0, COAMPSFileGrid.getTimeGroup().length() - 2) + "_" + COAMPSFileGrid.getForecastTime().substring(1);
+					final Long level = new Long(COAMPSFileGrid.getLevel());
+
+					if (!varsFound.contains(COAMPSFileGrid.getParamName().replaceAll("_", "")))
+						varsFound.add(COAMPSFileGrid.getParamName().replaceAll("_", ""));
+					
+					if (!timesFound.contains(timeInstant))
+						timesFound.add(timeInstant);
+					
+					if (!levelsFound.contains(level))
+						levelsFound.add(level);
+				}
+            }
+            
+            final List<Dimension> outDimensions = JGSFLoDeSSIOUtils.createNetCDFCFGeodeticDimensions(
+            		ncFileOut,
+            		true, timesFound.size(),
+            		true, levelsFound.size(), JGSFLoDeSSIOUtils.UP, 
+            		true, height,
+            		true, width
+            );
+            
+            for (String varName : varsFound) {
+            	// defining output variable
+            	Variable var = ncFileOut.addVariable(varName, DataType.FLOAT, outDimensions);
+            	NetCDFConverterUtilities.setVariableAttributes(var, ncFileOut, new String[] { "positions" });
+			}
+			
+            // writing bin data ...
+            ncFileOut.create();
+            
+            // time Variable data
+            Array time1Data = NetCDFConverterUtilities.getArray(timesFound.size(), DataType.FLOAT);
+            for (int t = 0; t < timesFound.size(); t++) {
+            	Date timeInstant = sdf.parse(timesFound.get(t));
+            	float timeValue = (timeInstant.getTime() - JGSFLoDeSSIOUtils.startTime) / 1000.0f;
+				time1Data.setFloat(time1Data.getIndex().set(t), timeValue);
+            }
+            ncFileOut.write(JGSFLoDeSSIOUtils.TIME_DIM, time1Data);
+            
+            // z level Variable data
+            Array zeta1Data = NetCDFConverterUtilities.getArray(levelsFound.size(), DataType.FLOAT);
+            for (int z = 0; z < levelsFound.size(); z++)
+            	zeta1Data.setLong(zeta1Data.getIndex().set(z), levelsFound.get(z));
+            ncFileOut.write(JGSFLoDeSSIOUtils.HEIGHT_DIM, zeta1Data);
+            
+            final double resY = (envelope.getMaximum(1) - envelope.getMinimum(1)) / height;
+            final double resX = (envelope.getMaximum(0) - envelope.getMinimum(0)) / width;
+
+            // lat Variable data
+			Array lat1Data = NetCDFConverterUtilities.getArray(height, DataType.FLOAT);
+			for (int y = 0; y < height; y++)
+				lat1Data.setFloat(lat1Data.getIndex().set(y), (float) (envelope.getMinimum(1) + y*resY));
+			ncFileOut.write(JGSFLoDeSSIOUtils.LAT_DIM, lat1Data);
+
+			// lon Variable data
+			Array lon1Data = NetCDFConverterUtilities.getArray(width, DataType.FLOAT);
+			for (int x = 0; x < width; x++)
+				lon1Data.setFloat(lon1Data.getIndex().set(x), (float) (envelope.getMinimum(0) + x*resX));
+			ncFileOut.write(JGSFLoDeSSIOUtils.LON_DIM, lon1Data);
+			
+			// ////
 			// writing out rasters
 			// ////
 			SampleModel outSampleModel = RasterFactory.createBandedSampleModel(
@@ -295,8 +326,8 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends
 					height, //height
 					1); //num bands
 			
-			for (File COMAPSFile : COAMPSFiles) {
-				final FlatFileGrid COAMPSFileGrid = new FlatFileGrid(COMAPSFile);
+			for (File COAMPSFile : COAMPSFiles) {
+				final FlatFileGrid COAMPSFileGrid = new FlatFileGrid(COAMPSFile);
 				
 				if (COAMPSFileGrid != null && COAMPSFileGrid.getWidth() == width && COAMPSFileGrid.getHeight() == height) {
 					WritableRaster userRaster = Raster.createWritableRaster(outSampleModel, null);
@@ -313,134 +344,48 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends
 							latData, 
 							width, height, 
 							2, userRaster, 0,
-							true);
+							false);
 					
-					// ////
-					// producing the Coverage here...
-					// ////
-					final StringBuilder coverageName = new StringBuilder("windModel_COAMPS");
-					              coverageName.append("_").append(COAMPSFileGrid.getParamName().replaceAll("_", ""));
-					              coverageName.append("_").append(COAMPSFileGrid.getLevel());
-					              coverageName.append("_").append(COAMPSFileGrid.getTimeGroup());
-								  coverageName.append("_").append(COAMPSFileGrid.getForecastTime());
-					
-				    final String coverageStoreId = coverageName.toString();
+					final String varName = COAMPSFileGrid.getParamName().replaceAll("_", "");
+					final Variable outVar = ncFileOut.findVariable(varName);
+					final Array outVarData = outVar.read();
 
-					File gtiffFile = JGSFLoDeSSIOUtils.storeCoverageAsGeoTIFF(outDir, coverageName.toString(), COAMPSFileGrid.getParamName(), userRaster, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
+					int tIndex = 0;
+					final String timeInstant = COAMPSFileGrid.getTimeGroup().substring(0, COAMPSFileGrid.getTimeGroup().length() - 2) + "_" + COAMPSFileGrid.getForecastTime().substring(1);
+            		
+            		for (String timeFound : timesFound) {
+            			if (timeFound.equals(timeInstant))
+            				break;
+            			tIndex++;
+            		}
+            		
+            		for (int z = 0; z < levelsFound.size(); z++)
+            			for (int y = 0; y < height; y++)
+            				for (int x = 0; x < width; x++)
+            					outVarData.setFloat(outVarData.getIndex().set(tIndex, z, y, x), userRaster.getSampleFloat(x, y, 0));
 					
-					// ////////////////////////////////////////////////////////////////////
-					//
-					// SENDING data to GeoServer via REST protocol.
-					//
-					// ////////////////////////////////////////////////////////////////////
-					Map<String, String> queryParams = new HashMap<String, String>();
-					queryParams.put("namespace", getConfiguration().getDefaultNamespace());
-					queryParams.put("wmspath", getConfiguration().getWmsPath());
-					send(outDir, 
-						gtiffFile, 
-						getConfiguration().getGeoserverURL(), 
-						new Long(event.getTimestamp()).toString(), 
-						coverageStoreId, 
-						coverageName.toString(),
-						getConfiguration().getStyles(), 
-						configId,
-						getConfiguration().getDefaultStyle(), 
-						queryParams
-					);
+					ncFileOut.write(varName, outVarData);
 				}
 			}
 			
+			// ... setting up the appropriate event for the next action
+			events.add(new FileSystemMonitorEvent(outputFile, FileSystemMonitorNotifications.FILE_ADDED));
 			return events;
 		} catch (Throwable t) {
 			LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
 			JAI.getDefaultInstance().getTileCache().flush();
 			return null;
+		} finally {
+			try {
+				if (ncFileOut != null)
+					ncFileOut.close();
+			} catch (IOException e) {
+				if (LOGGER.isLoggable(Level.WARNING))
+					LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
+			} finally {
+				JAI.getDefaultInstance().getTileCache().flush();
+			}
 		}
 	}
 	
-	/**
-     */
-	public void send(
-			final File inputDataDir, final File data,
-			final String geoserverBaseURL, final String timeStamp,
-			final String coverageStoreId, final String storeFilePrefix,
-			final List<String> dataStyles, final String configId,
-			final String defaultStyle, final Map<String, String> queryParams)
-			throws MalformedURLException, FileNotFoundException {
-		URL geoserverREST_URL = null;
-		boolean sent = false;
-
-		String layerName = storeFilePrefix != null ? storeFilePrefix : coverageStoreId;
-
-		if (GEOSERVER_VERSION.equalsIgnoreCase("1.7.x")) {
-			if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
-				geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/"
-						+ coverageStoreId + "/layers/" + layerName + "/file.geotiff"
-						+ getQueryString(queryParams));
-				sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
-						new FileInputStream(data), getConfiguration()
-								.getGeoserverUID(), getConfiguration()
-								.getGeoserverPWD());
-			} else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
-				geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/"
-						+ coverageStoreId + "/layers/" + layerName + "/url.geotiff"
-						+ getQueryString(queryParams));
-				sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
-						.toURL().toExternalForm(), getConfiguration()
-						.getGeoserverUID(), getConfiguration()
-						.getGeoserverPWD());
-			} else if ("EXTERNAL".equals(getConfiguration()
-					.getDataTransferMethod())) {
-				geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/"
-						+ coverageStoreId + "/layers/" + layerName
-						+ "/external.geotiff" 
-						+ getQueryString(queryParams));
-				sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
-						.toURL().toExternalForm(), getConfiguration()
-						.getGeoserverUID(), getConfiguration()
-						.getGeoserverPWD());
-			}
-		} else {
-			if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
-				geoserverREST_URL = new URL(geoserverBaseURL
-						+ "/rest/workspaces/" + queryParams.get("namespace")
-						+ "/coveragestores/" + coverageStoreId
-						+ "/file.geotiff");
-				sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
-						new FileInputStream(data), getConfiguration()
-								.getGeoserverUID(), getConfiguration()
-								.getGeoserverPWD());
-			} else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
-				geoserverREST_URL = new URL(geoserverBaseURL
-						+ "/rest/workspaces/" + queryParams.get("namespace")
-						+ "/coveragestores/" + coverageStoreId + "/url.geotiff");
-				sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
-						.toURL().toExternalForm(), getConfiguration()
-						.getGeoserverUID(), getConfiguration()
-						.getGeoserverPWD());
-			} else if ("EXTERNAL".equals(getConfiguration()
-					.getDataTransferMethod())) {
-				geoserverREST_URL = new URL(geoserverBaseURL
-						+ "/rest/workspaces/" + queryParams.get("namespace")
-						+ "/coveragestores/" + coverageStoreId
-						+ "/external.geotiff");
-				sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
-						.toURL().toExternalForm(), getConfiguration()
-						.getGeoserverUID(), getConfiguration()
-						.getGeoserverPWD());
-			}
-
-		}
-
-		if (sent) {
-			if (LOGGER.isLoggable(Level.INFO))
-				LOGGER
-						.info("GeoTIFF GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
-			boolean sldSent = configureStyles(layerName);
-		} else {
-			if (LOGGER.isLoggable(Level.INFO))
-				LOGGER
-						.info("GeoTIFF GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
-		}
-	}
 }

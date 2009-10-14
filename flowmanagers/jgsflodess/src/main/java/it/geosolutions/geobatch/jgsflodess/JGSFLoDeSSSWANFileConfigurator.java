@@ -22,53 +22,33 @@
 package it.geosolutions.geobatch.jgsflodess;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
+import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorAction;
-import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerRESTHelper;
 import it.geosolutions.geobatch.global.CatalogHolder;
-import it.geosolutions.geobatch.io.utils.IOUtils;
 import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
+import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFConverterUtilities;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFUtilities;
 
-import java.awt.image.DataBuffer;
-import java.awt.image.Raster;
-import java.awt.image.SampleModel;
-import java.awt.image.WritableRaster;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
-import java.util.TimeZone;
 import java.util.logging.Level;
 
 import javax.media.jai.JAI;
-import javax.media.jai.RasterFactory;
 
 import org.apache.commons.io.FilenameUtils;
-import org.geotools.gce.geotiff.GeoTiffFormat;
-import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
+import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 /**
@@ -79,52 +59,6 @@ import ucar.nc2.Variable;
 public class JGSFLoDeSSSWANFileConfigurator extends
 		GeoServerConfiguratorAction<FileSystemMonitorEvent> {
 
-	public final static String GEOSERVER_VERSION = "2.x";
-	
-	private final static GeoTiffFormat format = new GeoTiffFormat();
-
-	private static final int DEFAULT_TILE_SIZE = 256;
-
-	private static final int DEFAULT_TILE_CACHE_SIZE = 16;
-
-	private static final int MINIMUM_TILE_SIZE = 50;
-
-	private static final double DEFAULT_COMPRESSION_RATIO = 0.75;
-
-	private static final String DEFAULT_COMPRESSION_TYPE = "LZW";
-
-	private static final int DEFAULT_OVERVIEWS_NUMBER = 0;
-
-//	private static final int DEFAULT_OVERVIEWS_ALGORITHM = 0;
-
-	private static final CoordinateReferenceSystem WGS_84;
-	
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_0HHmmss");
-	
-	private static final long startTime;
-
-	static {
-		GregorianCalendar calendar = new GregorianCalendar(1980, 00, 01, 00, 00, 00);
-		calendar.setTimeZone(TimeZone.getTimeZone("Europe/Greenwich"));
-		startTime = calendar.getTimeInMillis();
-	}
-
-	static {
-		CoordinateReferenceSystem crs;
-		try {
-			crs = CRS.decode("EPSG:4326", true);
-
-		} catch (NoSuchAuthorityCodeException e) {
-
-			LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-			crs = DefaultGeographicCRS.WGS84;
-		} catch (FactoryException e) {
-			LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-			crs = DefaultGeographicCRS.WGS84;
-		}
-		WGS_84 = crs;
-	}
-	
 	protected JGSFLoDeSSSWANFileConfigurator(
 			GeoServerActionConfiguration configuration) throws IOException {
 		super(configuration);
@@ -139,12 +73,11 @@ public class JGSFLoDeSSSWANFileConfigurator extends
 		if (LOGGER.isLoggable(Level.INFO))
 			LOGGER.info("Starting with processing...");
 		NetcdfFile ncFileIn = null;
+		NetcdfFileWriteable ncFileOut = null;
 		try {
 			// looking for file
 			if (events.size() != 1)
-				throw new IllegalArgumentException(
-						"Wrong number of elements for this action: "
-								+ events.size());
+				throw new IllegalArgumentException("Wrong number of elements for this action: " + events.size());
 			FileSystemMonitorEvent event = events.remove();
 			final String configId = configuration.getName();
 
@@ -199,25 +132,25 @@ public class JGSFLoDeSSSWANFileConfigurator extends
 				throw new IllegalStateException("Unexpected file '" + inputFileName + "'");
 			}
 
-			inputFileName = FilenameUtils.getName(inputFileName);
+			inputFileName = FilenameUtils.getBaseName(inputFileName);
 			ncFileIn = NetcdfFile.open(event.getSource().getAbsolutePath());
 			final File outDir = JGSFLoDeSSIOUtils.createTodayDirectory(workingDir);
-
+            
 			boolean hasZeta = false;
+			
 			// input dimensions
-			final Dimension timeDim0 = ncFileIn.findDimension("time");
-			final int nTimes = timeDim0.getLength();
+			final Dimension timeDim = ncFileIn.findDimension("time");
+			final int nTimes = timeDim.getLength();
 
-			final Dimension latDim0 = ncFileIn.findDimension(NetCDFUtilities.LATITUDE);
-			final int nLat = latDim0.getLength();
+			final Dimension latDim = ncFileIn.findDimension(NetCDFUtilities.LATITUDE);
+			final int nLat = latDim.getLength();
 
-			final Dimension lonDim0 = ncFileIn.findDimension(NetCDFUtilities.LONGITUDE);
-			final int nLon = lonDim0.getLength();
+			final Dimension lonDim = ncFileIn.findDimension(NetCDFUtilities.LONGITUDE);
+			final int nLon = lonDim.getLength();
 
 			// input VARIABLES
 			final Variable timeOriginalVar = ncFileIn.findVariable("time");
 			final Array timeOriginalData = timeOriginalVar.read();
-			final Index timeOriginalIndex = timeOriginalData.getIndex();
 			final DataType timeDataType = timeOriginalVar.getDataType();
 
 			final Variable lonOriginalVar = ncFileIn.findVariable(NetCDFUtilities.LONGITUDE);
@@ -239,7 +172,7 @@ public class JGSFLoDeSSSWANFileConfigurator extends
 			Array zeta1Data = null;
 			DataType zetaDataType = null;
 
-			final Variable levelOriginalVar = ncFileIn.findVariable("z"); // Depth
+			final Variable levelOriginalVar = ncFileIn.findVariable("z"); // Height
 			if (levelOriginalVar != null) {
 				nZeta = levelOriginalVar.getDimension(0).getLength();
 				levelOriginalData = levelOriginalVar.read();
@@ -247,31 +180,24 @@ public class JGSFLoDeSSSWANFileConfigurator extends
 				hasZeta = true;
 			}
 
-			// lat Variable
-			Array lat1Data = NetCDFConverterUtilities.getArray(nLat, latDataType);
-			NetCDFConverterUtilities.setData1D(latOriginalData, lat1Data, latDataType, nLat, true);
+			// ////
+			// ... create the output file data structure
+			// ////
+            final File outputFile = new File(outDir, "waveModel_SWAN.nc");
+            ncFileOut = NetcdfFileWriteable.createNew(outputFile.getAbsolutePath());
 
-			// lon Variable
-			Array lon1Data = NetCDFConverterUtilities.getArray(nLon, lonDataType);
-			NetCDFConverterUtilities.setData1D(lonOriginalData, lon1Data, lonDataType, nLon, false);
+            //NetCDFConverterUtilities.copyGlobalAttributes(ncFileOut, ncFileIn.getGlobalAttributes());
+            
+            final List<Dimension> outDimensions = JGSFLoDeSSIOUtils.createNetCDFCFGeodeticDimensions(
+            		ncFileOut,
+            		true, timeDim.getLength(),
+            		hasZeta, nZeta, JGSFLoDeSSIOUtils.UP, 
+            		true, latDim.getLength(),
+            		true, lonDim.getLength()
+            );
 
-			if (hasZeta) {
-				// depth level Variable
-				zeta1Data = NetCDFConverterUtilities.getArray(nZeta, zetaDataType);
-				NetCDFConverterUtilities.setData1D(levelOriginalData, zeta1Data, zetaDataType, nZeta, false);
-			}
-
-			// building Envelope
-			final GeneralEnvelope envelope = new GeneralEnvelope(WGS_84);
-			envelope.setRange(0, lon1Data.getDouble(lon1Data.getIndex().set(0)), lon1Data.getDouble(lon1Data.getIndex().set(nLon-1)));
-			envelope.setRange(1, lat1Data.getDouble(lat1Data.getIndex().set(nLat-1)), lat1Data.getDouble(lat1Data.getIndex().set(0)));
-
-			// {} Variables
-			final ArrayList<String> variables = new ArrayList<String>(5);
-			int numVars = 0;
-
-			List<Variable> findVariables = ncFileIn.getVariables();
-			for (Variable var : findVariables) {
+            final List<Variable> foundVariables = ncFileIn.getVariables();
+			for (Variable var : foundVariables) {
 				if (var != null) {
 					String varName = var.getName();
 					if (varName.equalsIgnoreCase(NetCDFUtilities.LATITUDE)
@@ -279,79 +205,61 @@ public class JGSFLoDeSSSWANFileConfigurator extends
 							|| varName.equalsIgnoreCase(NetCDFUtilities.TIME)
 							|| varName.equalsIgnoreCase(NetCDFUtilities.ZETA))
 						continue;
-					variables.add(varName);
-					
-					// //
-					// defining the SampleModel data type
-					// //
-					final int dataType;
-					final DataType varDataType = var.getDataType();
-					if (varDataType == DataType.FLOAT)
-						dataType = DataBuffer.TYPE_FLOAT;
-					else if (varDataType == DataType.DOUBLE)
-						dataType = DataBuffer.TYPE_DOUBLE;
-					else if (varDataType == DataType.BYTE)
-						dataType = DataBuffer.TYPE_BYTE;
-					else if (varDataType == DataType.SHORT)
-						dataType = DataBuffer.TYPE_SHORT;
-					else if (varDataType == DataType.INT)
-						dataType = DataBuffer.TYPE_INT;
-					else
-						dataType = DataBuffer.TYPE_UNDEFINED;
-					
-					SampleModel outSampleModel = RasterFactory.createBandedSampleModel(
-							dataType, //data type
-							nLon, //width
-							nLat, //height
-							1); //num bands
+					// defining output variable
+					ncFileOut.addVariable(varName, var.getDataType(), outDimensions);
+	                NetCDFConverterUtilities.setVariableAttributes(var, ncFileOut, new String[] { "positions" });
+				}
+			}
+			
+            // writing bin data ...
+            ncFileOut.create();
 
-					Array originalVarArray = var.read();
+            // time Variable data
+			Array time1Data = NetCDFConverterUtilities.getArray(nTimes, timeDataType);
+			NetCDFConverterUtilities.setData1D(timeOriginalData, time1Data, timeDataType, nTimes, false);
+			ncFileOut.write(JGSFLoDeSSIOUtils.TIME_DIM, time1Data);
+            
+			// z level Variable data
+			if (hasZeta) {
+				zeta1Data = NetCDFConverterUtilities.getArray(nZeta, zetaDataType);
+				NetCDFConverterUtilities.setData1D(levelOriginalData, zeta1Data, zetaDataType, nZeta, false);
+				ncFileOut.write(JGSFLoDeSSIOUtils.HEIGHT_DIM, zeta1Data);
+			}
 
-					for (int z = 0; z < nZeta; z++) {
-						for (int t = 0; t < nTimes; t++) {
-							WritableRaster userRaster = Raster.createWritableRaster(outSampleModel, null);
+			// lat Variable data
+			Array lat1Data = NetCDFConverterUtilities.getArray(nLat, latDataType);
+			NetCDFConverterUtilities.setData1D(latOriginalData, lat1Data, latDataType, nLat, false);
+			ncFileOut.write(JGSFLoDeSSIOUtils.LAT_DIM, lat1Data);
 
-							JGSFLoDeSSIOUtils.write2DData(userRaster, varName, var, originalVarArray, false, false, new int[] {t, z, nLat, nLon}, true);
-							
-							// ////
-							// producing the Coverage here...
-							// ////
-							final StringBuilder coverageName = new StringBuilder("waveModel_SWAN");
-							              coverageName.append("_").append(varName.replaceAll("_", ""));
-							              coverageName.append("_").append(zeta1Data.getLong(zeta1Data.getIndex().set(z)));
-										  coverageName.append("_").append(sdf.format(startTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*1000));
+			// lon Variable data
+			Array lon1Data = NetCDFConverterUtilities.getArray(nLon, lonDataType);
+			NetCDFConverterUtilities.setData1D(lonOriginalData, lon1Data, lonDataType, nLon, false);
+			ncFileOut.write(JGSFLoDeSSIOUtils.LON_DIM, lon1Data);
 
-							final String coverageStoreId = coverageName.toString();
-
-							File gtiffFile = JGSFLoDeSSIOUtils.storeCoverageAsGeoTIFF(outDir, coverageName.toString(), varName, userRaster, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
-
-							// ////////////////////////////////////////////////////////////////////
-							//
-							// SENDING data to GeoServer via REST protocol.
-							//
-							// ////////////////////////////////////////////////////////////////////
-							Map<String, String> queryParams = new HashMap<String, String>();
-							queryParams.put("namespace", getConfiguration().getDefaultNamespace());
-							queryParams.put("wmspath", getConfiguration().getWmsPath());
-							send(outDir, 
-								gtiffFile, 
-								getConfiguration().getGeoserverURL(), 
-								new Long(event.getTimestamp()).toString(), 
-								coverageStoreId, 
-								coverageName.toString(),
-								getConfiguration().getStyles(), 
-								configId,
-								getConfiguration().getDefaultStyle(), 
-								queryParams
-							);
-
-						}
-					}
-
-					numVars++;
+			// {} Variables
+			for (Variable var : foundVariables) {
+				if (var != null) {
+					String varName = var.getName();
+					if (varName.equalsIgnoreCase(NetCDFUtilities.LATITUDE)
+							|| varName.equalsIgnoreCase(NetCDFUtilities.LONGITUDE)
+							|| varName.equalsIgnoreCase(NetCDFUtilities.TIME)
+							|| varName.equalsIgnoreCase(NetCDFUtilities.ZETA))
+						continue;
+					// writing output variable
+					final Array originalVarData = var.read();
+	                final Index varIndex = originalVarData.getIndex();
+	                Attribute fv = var.findAttribute("_FillValue");
+	                float fillValue = Float.NaN;
+	                if (fv != null) {
+	                    fillValue = (fv.getNumericValue()).floatValue();
+	                }
+	                
+	                ncFileOut.write(varName, originalVarData);
 				}
 			}
 
+			// ... setting up the appropriate event for the next action
+			events.add(new FileSystemMonitorEvent(outputFile, FileSystemMonitorNotifications.FILE_ADDED));
 			return events;
 		} catch (Throwable t) {
 			LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
@@ -361,98 +269,15 @@ public class JGSFLoDeSSSWANFileConfigurator extends
 			try {
 				if (ncFileIn != null)
 					ncFileIn.close();
+				
+				if (ncFileOut != null)
+					ncFileOut.close();
 			} catch (IOException e) {
 				if (LOGGER.isLoggable(Level.WARNING))
 					LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
 			} finally {
 				JAI.getDefaultInstance().getTileCache().flush();
 			}
-		}
-	}
-	
-	/**
-     */
-	public void send(
-			final File inputDataDir, final File data,
-			final String geoserverBaseURL, final String timeStamp,
-			final String coverageStoreId, final String storeFilePrefix,
-			final List<String> dataStyles, final String configId,
-			final String defaultStyle, final Map<String, String> queryParams)
-			throws MalformedURLException, FileNotFoundException {
-		URL geoserverREST_URL = null;
-		boolean sent = false;
-
-		String layerName = storeFilePrefix != null ? storeFilePrefix : coverageStoreId;
-
-		if (GEOSERVER_VERSION.equalsIgnoreCase("1.7.x")) {
-			if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
-				geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/"
-						+ coverageStoreId + "/layers/" + layerName + "/file.geotiff"
-						+ getQueryString(queryParams));
-				sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
-						new FileInputStream(data), getConfiguration()
-								.getGeoserverUID(), getConfiguration()
-								.getGeoserverPWD());
-			} else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
-				geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/"
-						+ coverageStoreId + "/layers/" + layerName + "/url.geotiff"
-						+ getQueryString(queryParams));
-				sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
-						.toURL().toExternalForm(), getConfiguration()
-						.getGeoserverUID(), getConfiguration()
-						.getGeoserverPWD());
-			} else if ("EXTERNAL".equals(getConfiguration()
-					.getDataTransferMethod())) {
-				geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/"
-						+ coverageStoreId + "/layers/" + layerName
-						+ "/external.geotiff" 
-						+ getQueryString(queryParams));
-				sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
-						.toURL().toExternalForm(), getConfiguration()
-						.getGeoserverUID(), getConfiguration()
-						.getGeoserverPWD());
-			}
-		} else {
-			if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
-				geoserverREST_URL = new URL(geoserverBaseURL
-						+ "/rest/workspaces/" + queryParams.get("namespace")
-						+ "/coveragestores/" + coverageStoreId
-						+ "/file.geotiff");
-				sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
-						new FileInputStream(data), getConfiguration()
-								.getGeoserverUID(), getConfiguration()
-								.getGeoserverPWD());
-			} else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
-				geoserverREST_URL = new URL(geoserverBaseURL
-						+ "/rest/workspaces/" + queryParams.get("namespace")
-						+ "/coveragestores/" + coverageStoreId + "/url.geotiff");
-				sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
-						.toURL().toExternalForm(), getConfiguration()
-						.getGeoserverUID(), getConfiguration()
-						.getGeoserverPWD());
-			} else if ("EXTERNAL".equals(getConfiguration()
-					.getDataTransferMethod())) {
-				geoserverREST_URL = new URL(geoserverBaseURL
-						+ "/rest/workspaces/" + queryParams.get("namespace")
-						+ "/coveragestores/" + coverageStoreId
-						+ "/external.geotiff");
-				sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
-						.toURL().toExternalForm(), getConfiguration()
-						.getGeoserverUID(), getConfiguration()
-						.getGeoserverPWD());
-			}
-
-		}
-
-		if (sent) {
-			if (LOGGER.isLoggable(Level.INFO))
-				LOGGER
-						.info("GeoTIFF GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
-			boolean sldSent = configureStyles(layerName);
-		} else {
-			if (LOGGER.isLoggable(Level.INFO))
-				LOGGER
-						.info("GeoTIFF GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
 		}
 	}
 }

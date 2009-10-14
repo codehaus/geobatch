@@ -23,7 +23,7 @@ package it.geosolutions.geobatch.jgsflodess;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
-import it.geosolutions.geobatch.flow.event.action.database.DataBaseConfiguratorService;
+import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorService;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  * 
  */
 public class JGSFLoDeSSSWANGeneratorService extends
-        DataBaseConfiguratorService<FileSystemMonitorEvent, GeoServerActionConfiguration> {
+		GeoServerConfiguratorService<FileSystemMonitorEvent, GeoServerActionConfiguration> {
 	
     private final static Logger LOGGER = Logger.getLogger(JGSFLoDeSSSWANGeneratorService.class.toString());
 
