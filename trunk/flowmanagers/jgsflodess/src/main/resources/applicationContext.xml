@@ -4,6 +4,18 @@
 <beans>
 
 	<!-- Environment Initialization -->
+	<bean id="NetCDFCFGeodetic2GeoTIFFsGeneratorService" class="it.geosolutions.geobatch.jgsflodess.NetCDFCFGeodetic2GeoTIFFsGeneratorService">
+		<property  name="id">
+    		<value>NetCDFCFGeodetic2GeoTIFFsGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>NetCDFCFGeodetic2GeoTIFFsGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>NetCDFCFGeodetic2GeoTIFFsGeneratorService</value>
+    	</property>	
+	</bean>
+	
 	<bean id="JGSFLoDeSSSWANGeneratorService" class="it.geosolutions.geobatch.jgsflodess.JGSFLoDeSSSWANGeneratorService">
 		<property  name="id">
     		<value>JGSFLoDeSSSWANGeneratorService</value>

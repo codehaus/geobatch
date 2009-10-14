@@ -32,9 +32,31 @@
 			</styles -->
 			<serviceID>JGSFLoDeSSNCOMGeneratorService</serviceID>
 			<id>a1</id>
-			<description>description</description>
+			<description>description1</description>
 			<name>test</name>
-		</GeoServerActionConfiguration>		
+		</GeoServerActionConfiguration>
+		
+		<GeoServerActionConfiguration>
+			<workingDirectory>JGSFLoDeSSworkingdir/NCOM</workingDirectory>
+			<crs>EPSG:4326</crs>
+			<envelope/>
+			<dataTransferMethod>DIRECT</dataTransferMethod>
+			<geoserverPWD>geoserver</geoserverPWD>
+			<geoserverUID>admin</geoserverUID>
+			<geoserverURL>http://localhost:8081/geoserver</geoserverURL>
+			<!-- storeFilePrefix>c41078a</storeFilePrefix -->
+			<wmsPath>/</wmsPath>
+			<defaultStyle>raster</defaultStyle>
+			<styles/>
+			<!-- styles>
+				<style>raster.sld</style>
+			</styles -->
+			<serviceID>NetCDFCFGeodetic2GeoTIFFsGeneratorService</serviceID>
+			<id>a2</id>
+			<description>description2</description>
+			<name>test2</name>
+		</GeoServerActionConfiguration>
+		
 		<id>id</id>
 		<description>description</description>
 		<name>test</name>

@@ -16,8 +16,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -38,10 +42,15 @@ import org.geotools.factory.Hints;
 import org.geotools.gce.geotiff.GeoTiffFormat;
 import org.geotools.gce.geotiff.GeoTiffWriteParams;
 import org.geotools.gce.geotiff.GeoTiffWriter;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.geometry.Envelope;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchAuthorityCodeException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -49,6 +58,7 @@ import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
+import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import com.ice.tar.TarEntry;
@@ -63,6 +73,76 @@ public class JGSFLoDeSSIOUtils {
 
 	protected final static Logger LOGGER = Logger.getLogger(JGSFLoDeSSIOUtils.class.toString());
 	
+	/**
+	 * NetCDF-CF Dimensions and Variables
+	 */
+    public final static String TIME_DIM = "time";
+
+    public final static String DEPTH_DIM = "depth";
+
+    public final static String HEIGHT_DIM = "height";
+
+    public final static String LAT_DIM = "lat";
+
+    public final static String LON_DIM = "lon";
+
+
+    public final static String LATITUDE = "Latitude";
+
+    public final static String LONGITUDE = "Longitude";
+
+    
+    public static final String POSITIVE = "positive";
+    
+    public static final String UP = "up";
+    
+    public static final String DOWN = "down";
+
+    public static final String DEG_NORTH = "degrees_north";
+    
+    public static final String DEG_EAST = "degrees_east";
+    
+    public static final String UNITS = "units";
+    
+    public static final String NAME = "name";
+    
+    public static final String LONG_NAME = "long_name";
+
+    /**
+     * Static WGS_84 CoordSys
+     */
+	public static final CoordinateReferenceSystem WGS_84;
+
+	static {
+		CoordinateReferenceSystem crs;
+		try {
+			crs = CRS.decode("EPSG:4326", true);
+
+		} catch (NoSuchAuthorityCodeException e) {
+
+			LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+			crs = DefaultGeographicCRS.WGS84;
+		} catch (FactoryException e) {
+			LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+			crs = DefaultGeographicCRS.WGS84;
+		}
+		WGS_84 = crs;
+	}
+
+	/**
+	 * Static DateFormat Converter
+	 */
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
+	
+	public static final long startTime;
+
+	static {
+		GregorianCalendar calendar = new GregorianCalendar(1980, 00, 01, 00, 00, 00);
+		calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		startTime = calendar.getTimeInMillis();
+	}
+
 	/**
 	 * 
 	 * @param outDir 
@@ -576,23 +656,39 @@ public class JGSFLoDeSSIOUtils {
 	 */
 	public static double[] computeExtrema(
 			final Array latOriginalData, final Array lonOriginalData, 
-			final Dimension X_Index, final Dimension Y_Index) {
+			final Dimension Y_Index, final Dimension X_Index) {
 		double[] extrema = new double[4];
 		extrema[0] = Double.POSITIVE_INFINITY;
 		extrema[1] = Double.POSITIVE_INFINITY;
 		extrema[2] = Double.NEGATIVE_INFINITY;
 		extrema[3] = Double.NEGATIVE_INFINITY;
 		
-		for (int X = 0; X < X_Index.getLength(); X++)
+		if (latOriginalData.getRank() == 1 && lonOriginalData.getRank() == 1) {
 			for (int Y = 0; Y < Y_Index.getLength(); Y++) {
-				double lon = lonOriginalData.getDouble(lonOriginalData.getIndex().set(Y, X));
-				double lat = latOriginalData.getDouble(latOriginalData.getIndex().set(Y, X));
-				
-				extrema[0] = lon < extrema[0] ? lon : extrema[0];
+				double lat = latOriginalData.getDouble(latOriginalData.getIndex().set(Y));
+
 				extrema[1] = lat < extrema[1] ? lat : extrema[1];
-				extrema[2] = lon > extrema[2] ? lon : extrema[2];
 				extrema[3] = lat > extrema[3] ? lat : extrema[3];
 			}
+
+			for (int X = 0; X < X_Index.getLength(); X++) {
+				double lon = lonOriginalData.getDouble(lonOriginalData.getIndex().set(X));
+
+				extrema[0] = lon < extrema[0] ? lon : extrema[0];
+				extrema[2] = lon > extrema[2] ? lon : extrema[2];
+			}
+		} else if (latOriginalData.getRank() == 2 && lonOriginalData.getRank() == 2) {
+			for (int X = 0; X < X_Index.getLength(); X++)
+				for (int Y = 0; Y < Y_Index.getLength(); Y++) {
+					double lon = lonOriginalData.getDouble(lonOriginalData.getIndex().set(Y, X));
+					double lat = latOriginalData.getDouble(latOriginalData.getIndex().set(Y, X));
+					
+					extrema[0] = lon < extrema[0] ? lon : extrema[0];
+					extrema[1] = lat < extrema[1] ? lat : extrema[1];
+					extrema[2] = lon > extrema[2] ? lon : extrema[2];
+					extrema[3] = lat > extrema[3] ? lat : extrema[3];
+				}
+		}
 		
 		return extrema;
 	}
@@ -866,6 +962,99 @@ public class JGSFLoDeSSIOUtils {
 		}
 
 		return target;
+	}
+
+	/**
+	 * For the NetCDF_CF Geodetic file we assume that it contains georectified
+	 * geodetic grids and therefore has a maximum set of dimensions as follows:
+	 * 
+	 * lat {
+	 *  lat:long_name = "Latitude"
+	 *  lat:units = "degrees_north"
+	 * }
+	 * 
+	 * lon {
+	 *  lon:long_name = "Longitude"
+	 *  lon:units = "degrees_east"
+	 * }
+	 * 
+	 * time {
+	 *  time:long_name = "time"
+	 *  time:units = "seconds since 1980-1-1 0:0:0"
+	 * }
+	 * 
+	 * depth {
+	 *  depth:long_name = "depth";
+	 *  depth:units = "m";
+	 *  depth:positive = "down";
+	 * }
+	 * 
+	 * height {
+	 *  height:long_name = "height";
+	 *  height:units = "m";
+	 *  height:positive = "up";
+	 * }
+	 * 
+	 * @param ncFileOut
+	 * @param hasTimeDim
+	 * @param tDimLength
+	 * @param hasZetaDim
+	 * @param zDimLength
+	 * @param hasLatDim
+	 * @param latDimLength
+	 * @param hasLonDimaram length3
+	 * @return 
+	 */
+	public static List<Dimension> createNetCDFCFGeodeticDimensions(
+			NetcdfFileWriteable ncFileOut, 
+			final boolean hasTimeDim, final int tDimLength,
+			final boolean hasZetaDim, final int zDimLength, final String zOrder, 
+			final boolean hasLatDim,  final int latDimLength, 
+			final boolean hasLonDim,  final int lonDimLength) {
+		final List<Dimension> dimensions = new ArrayList<Dimension>();
+		
+		if (hasTimeDim) {
+			Dimension timeDim = ncFileOut.addDimension(TIME_DIM, tDimLength);
+
+			ncFileOut.addVariable(TIME_DIM, DataType.FLOAT, new Dimension[] { timeDim });
+	        ncFileOut.addVariableAttribute(TIME_DIM, LONG_NAME, TIME_DIM);
+	        ncFileOut.addVariableAttribute(TIME_DIM, UNITS, "seconds since 1980-1-1 0:0:0");
+	        
+	        dimensions.add(timeDim);
+		}
+		
+		if (hasZetaDim) {
+			Dimension zDim = ncFileOut.addDimension(zOrder.equals(DOWN) ? DEPTH_DIM : HEIGHT_DIM, zDimLength);
+
+	        ncFileOut.addVariable(zOrder.equals(DOWN) ? DEPTH_DIM : HEIGHT_DIM, DataType.FLOAT, new Dimension[] { zDim });
+	        ncFileOut.addVariableAttribute(zOrder.equals(DOWN) ? DEPTH_DIM : HEIGHT_DIM, LONG_NAME, NetCDFUtilities.DEPTH);
+	        ncFileOut.addVariableAttribute(zOrder.equals(DOWN) ? DEPTH_DIM : HEIGHT_DIM, UNITS, "m");
+	        ncFileOut.addVariableAttribute(zOrder.equals(DOWN) ? DEPTH_DIM : HEIGHT_DIM, POSITIVE, zOrder);
+
+	        dimensions.add(zDim);
+		}
+		
+		if (hasLatDim) {
+			Dimension latDim = ncFileOut.addDimension(LAT_DIM, latDimLength);
+
+	        ncFileOut.addVariable(LAT_DIM, DataType.FLOAT, new Dimension[] { latDim });
+	        ncFileOut.addVariableAttribute(LAT_DIM, LONG_NAME, NetCDFUtilities.LATITUDE);
+	        ncFileOut.addVariableAttribute(LAT_DIM, UNITS, DEG_NORTH);
+	        
+	        dimensions.add(latDim);
+		}
+		
+		if (hasLonDim) {
+			Dimension lonDim = ncFileOut.addDimension(LON_DIM, lonDimLength);
+
+	        ncFileOut.addVariable(LON_DIM, DataType.FLOAT, new Dimension[] { lonDim });
+	        ncFileOut.addVariableAttribute(LON_DIM, LONG_NAME, NetCDFUtilities.LONGITUDE);
+	        ncFileOut.addVariableAttribute(LON_DIM, UNITS, DEG_EAST);
+	        
+	        dimensions.add(lonDim);
+		}
+
+		return dimensions;
 	}
 	
 }

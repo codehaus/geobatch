@@ -30,23 +30,23 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Public class to generate JGSFLoDeSS Services 
+ * Public class to generate NetCDF_CF-2-GeoTIFFs Services 
  * 
  */
-public class JGSFLoDeSSNCOMGeneratorService extends
+public class NetCDFCFGeodetic2GeoTIFFsGeneratorService extends
 		GeoServerConfiguratorService<FileSystemMonitorEvent, GeoServerActionConfiguration> {
 	
-    private final static Logger LOGGER = Logger.getLogger(JGSFLoDeSSNCOMGeneratorService.class.toString());
+    private final static Logger LOGGER = Logger.getLogger(NetCDFCFGeodetic2GeoTIFFsGeneratorService.class.toString());
 
     /**
      *  Action creator
      * 
      *  @param configuration The data base action configuration 
-     *  @return new JGSFLoDeSSNCOMFileConfigurator()
+     *  @return new JGSFLoDeSSSWANFileConfigurator()
      */
-    public JGSFLoDeSSNCOMFileConfigurator createAction(GeoServerActionConfiguration configuration) {
+    public NetCDFCFGeodetic2GeoTIFFsFileConfigurator createAction(GeoServerActionConfiguration configuration) {
         try {
-            return new JGSFLoDeSSNCOMFileConfigurator(configuration);
+            return new NetCDFCFGeodetic2GeoTIFFsFileConfigurator(configuration);
         } catch (IOException e) {
             if (LOGGER.isLoggable(Level.INFO))
                 LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
