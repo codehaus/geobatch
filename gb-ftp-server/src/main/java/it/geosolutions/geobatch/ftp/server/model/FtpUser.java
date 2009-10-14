@@ -36,6 +36,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.apache.ftpserver.usermanager.impl.BaseUser;
 
 /**
  * @author giuseppe
@@ -43,7 +46,7 @@ import javax.persistence.Table;
  */
 @Entity(name = "FtpUser")
 @Table(name = "FTP_USER")
-public class FtpUser implements Serializable {
+public class FtpUser extends BaseUser implements Serializable {
 
 	/**
 	 * 
@@ -305,5 +308,17 @@ public class FtpUser implements Serializable {
 				+ getDownloadRate() + " - MAX_LOGIN_NUMBER "
 				+ getMaxLoginNumber() + " - MAX_LOGIN_PER_IP "
 				+ getMaxLoginPerIp() + "]";
+	}
+
+	@Transient
+	public String getName() {
+		// TODO Auto-generated method stub
+		return getUserId();
+	}
+
+	@Transient
+	public String getPassword() {
+		// TODO Auto-generated method stub
+		return getUserPassword();
 	}
 }

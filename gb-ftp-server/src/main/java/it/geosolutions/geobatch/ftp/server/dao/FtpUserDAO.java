@@ -37,4 +37,6 @@ import it.geosolutions.geobatch.ftp.server.model.FtpUser;
  */
 public interface FtpUserDAO extends GenericDAO<FtpUser, Long> {
 
+	public FtpUser findByUserName(String userName) throws DAOException;
+
 }
