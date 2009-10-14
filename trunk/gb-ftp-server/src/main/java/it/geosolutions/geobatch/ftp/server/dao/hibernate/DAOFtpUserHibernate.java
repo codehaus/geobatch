@@ -29,8 +29,15 @@
  */
 package it.geosolutions.geobatch.ftp.server.dao.hibernate;
 
+import it.geosolutions.geobatch.ftp.server.dao.DAOException;
 import it.geosolutions.geobatch.ftp.server.dao.FtpUserDAO;
 import it.geosolutions.geobatch.ftp.server.model.FtpUser;
+
+import java.util.List;
+
+import org.hibernate.criterion.Restrictions;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author giuseppe
@@ -42,6 +49,13 @@ public class DAOFtpUserHibernate extends DAOAbstractSpring<FtpUser, Long>
 	public DAOFtpUserHibernate() {
 		super(FtpUser.class);
 		// TODO Auto-generated constructor stub
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public FtpUser findByUserName(String userName) throws DAOException {
+		List<FtpUser> users = super.findByCriteria(Restrictions.eq("userId",
+				userName));
+		return users.get(0);
 	}
 
 }

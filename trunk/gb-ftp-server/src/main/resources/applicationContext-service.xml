@@ -8,9 +8,6 @@
 	default-autowire="byName">
 
 	<bean id="geoBatchServer" class="it.geosolutions.geobatch.ftp.server.GeoBatchServer">
-		<property name="ftpUserDAO">
-			<ref bean="ftpUserDAO" />
-		</property>
 		<property name="ftpServer">
 			<ref bean="server" />
 		</property>
