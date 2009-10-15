@@ -29,9 +29,11 @@
  */
 package it.geosolutions.geobatch.ftp.server;
 
+import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.ftp.server.dao.DAOException;
 import it.geosolutions.geobatch.ftp.server.dao.FtpUserDAO;
 import it.geosolutions.geobatch.ftp.server.model.FtpUser;
+import it.geosolutions.geobatch.global.CatalogHolder;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -67,29 +69,9 @@ public class GeoBatchUserManager implements UserManager {
 	private DefaultFtpServer ftpServer;
 
 	public GeoBatchUserManager() {
-		String prop = System.getProperty("GEOBATCH_DATA_DIR");
-
-		if (prop != null)
-			ftpRootDir = new File(prop + File.separator + "FTP"
+		String baseDir = ((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory();
+		ftpRootDir = new File(baseDir + File.separator + "FTP"
 					+ File.separator);
-		else {
-			prop = System.getenv("GEOBATCH_DATA_DIR");
-			if (prop != null)
-				ftpRootDir = new File(prop + File.separator + "FTP"
-						+ File.separator);
-		}
-
-		logger.info("ftpRootDir : " + ftpRootDir.getAbsolutePath());
-
-		if (!ftpRootDir.exists())
-			if (!ftpRootDir.mkdir()) {
-				final IllegalStateException e = new IllegalStateException(
-						"Unalbe to create root ftp dir at "
-								+ ftpRootDir.getAbsolutePath());
-				ftpRootDir = null;
-				throw e;
-			}
-
 	}
 
 	/**
