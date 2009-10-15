@@ -58,7 +58,7 @@ public class FlowManagerResumeController extends AbstractController {
             }
         }
 
-        ModelAndView mav = new ModelAndView("index");
+        ModelAndView mav = new ModelAndView("flows");
         mav.addObject("flowManagers", catalog.getFlowManagers(FileBasedFlowManager.class));
 
         return mav;

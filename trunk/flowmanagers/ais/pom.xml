@@ -157,7 +157,7 @@
 		</dependency>
 	</dependencies>
 
-	<!-- build>
+	<build>
 		<plugins>
 			<plugin>
 				<inherited>true</inherited>
@@ -221,6 +221,6 @@
 				</dependencies>
 			</plugin>
 		</plugins>
-	</build-->
+	</build>
 
 </project>

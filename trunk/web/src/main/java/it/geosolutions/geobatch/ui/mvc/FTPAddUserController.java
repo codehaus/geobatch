@@ -24,8 +24,7 @@
  */
 package it.geosolutions.geobatch.ui.mvc;
 
-import it.geosolutions.geobatch.catalog.Catalog;
-import it.geosolutions.geobatch.flow.file.FileBasedFlowManager;
+import it.geosolutions.geobatch.ftp.server.dao.FtpUserDAO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,7 +36,7 @@ import org.springframework.web.servlet.mvc.AbstractController;
  * @author Alessio
  * 
  */
-public class FlowManagerDisposeController extends AbstractController {
+public class FTPAddUserController extends AbstractController {
     /*
      * (non-Javadoc)
      * 
@@ -48,21 +47,9 @@ public class FlowManagerDisposeController extends AbstractController {
     @Override
     protected ModelAndView handleRequestInternal(HttpServletRequest request,
             HttpServletResponse response) throws Exception {
-        Catalog catalog = (Catalog) getApplicationContext().getBean("catalog");
-        String fmId = request.getParameter("fmId");
 
-        if (fmId != null) {
-            FileBasedFlowManager fm = catalog.getResource(fmId, FileBasedFlowManager.class);
+        ModelAndView mav = new ModelAndView("ftpAddUser");
 
-            if (fm != null) {
-                fm.dispose();
-                // catalog.getResourceThreadPool().remove((Runnable) fm);
-                catalog.remove(fm);
-            }
-        }
-
-        ModelAndView mav = new ModelAndView("flows");
-        mav.addObject("flowManagers", catalog.getFlowManagers(FileBasedFlowManager.class));
         return mav;
     }
 }

@@ -50,7 +50,7 @@ public class FlowManagerController extends AbstractController {
             HttpServletResponse response) throws Exception {
         Catalog catalog = (Catalog) getApplicationContext().getBean("catalog");
 
-        ModelAndView mav = new ModelAndView("index");
+        ModelAndView mav = new ModelAndView("flows");
         mav.addObject("flowManagers", catalog.getFlowManagers(FileBasedFlowManager.class));
 
         return mav;

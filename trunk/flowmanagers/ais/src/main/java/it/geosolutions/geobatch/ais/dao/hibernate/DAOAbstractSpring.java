@@ -55,7 +55,7 @@ public abstract class DAOAbstractSpring<T, ID extends Serializable> extends
 	private Class<T> persistentClass;
 
 	public DAOAbstractSpring(Class<T> persistentClass) {
-		logger.info("Persistent Class : " + persistentClass);
+		logger.finest("Persistent Class : " + persistentClass);
 		this.persistentClass = persistentClass;
 	}
 

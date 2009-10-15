@@ -26,18 +26,42 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HEAD>
-</HEAD>
-<BODY>
-	<H1>GeoBatch Control Panel</H1>
-	<P>
-		<H2>
-		  Flow Managers
-			<!-- a href="newFlowManager.form" --><a href="javascript:alert('Disabled!')"><image src='img/new_document.png' border='0' title='new FlowManager' alt='new FlowManager' width='16' height='16'/></a>
-			<a href="javascript:alert('Disabled!')"><image src='img/save.png' border='0' title='save configuration' alt='save configuration' width='16' height='16'/></a>
-		</H2>
-		<HR/>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title wicket:id="pageTitle">GeoBatch</title>
+      <link href="img/favicon.ico" rel="shortcut icon"/>
+      <link rel="stylesheet" href="css/blueprint/screen.css" type="text/css" media="screen, projection" />
+      <link rel="stylesheet" href="css/blueprint/print.css" type="text/css" media="print" />
+	  <link rel="stylesheet" href="css/app.css" type="text/css" media="screen, projection" />
+      <!--[if IE]>
+        <link rel="stylesheet" href="css/blueprint/ie.css" type="text/css" media="screen, projection" />
+	    <link rel="stylesheet" href="css/ie.css" type="text/css" media="screen, projection" />
+      <![endif]-->
+</head>
+<body>
+  <div id="header">
+    <div class="wrap">
+      <h2><a wicket:id="home" class="pngfix" href="#"><span wicket:id="label">GeoBatch</span></a></h2>
+      <div class="button-group selfclear">
+
+
+      </div>
+    </div><!-- /.wrap -->
+  </div><!-- /#header -->
+  <div id="main">
+    <div class="wrap selfclear">
+    <!--div id="sidebar">
+
+
+    </div--><!-- /#sidebar -->
+    <div id="page" class="selfclear">
+      <div class="page-header">
+
+        <div class="header-panel"></div>
+        <p><img src="img/manageFlows-small.png" /></p>
 		<table width="100%" border="0" cellpadding="2" cellspacing="1">
 			<thead>
 				<tr bgcolor="black" style="color: white;">
@@ -79,7 +103,17 @@
 					</td>
 				</tr>
 			</c:forEach>
+			
 			</tbody>
 		</table>
-	</P>
-</BODY>
+	</div>
+      <div class="page-pane selfclear">
+
+      </div>
+    </div><!-- /#page -->
+    </div><!-- /.wrap> -->
+  </div><!-- /#main -->
+  <center><p><img src="img/geoSolutions-logo.png" /></p>
+  <p>Copyright &copy; 2005 - 2009 GeoSolutions.</p></center>
+</body>
+</html>
