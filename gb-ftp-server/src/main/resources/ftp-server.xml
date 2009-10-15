@@ -33,7 +33,6 @@
 				<beans:property name="ftpServer" ref="server" />
 			</beans:bean>
 		</user-manager>
-
 	</server>
 
 </beans:beans>

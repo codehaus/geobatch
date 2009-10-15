@@ -38,6 +38,7 @@ import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpReply;
 import org.apache.ftpserver.ftplet.FtpRequest;
 import org.apache.ftpserver.ftplet.FtpSession;
+import org.apache.ftpserver.ftplet.FtpStatistics;
 import org.apache.ftpserver.ftplet.Ftplet;
 import org.apache.ftpserver.ftplet.FtpletContext;
 import org.apache.ftpserver.ftplet.FtpletResult;
@@ -49,6 +50,8 @@ import org.apache.ftpserver.ftplet.FtpletResult;
 public class GeoBatchFtplet implements Ftplet {
 
 	private Logger logger = Logger.getLogger(GeoBatchFtplet.class.getName());
+
+	private FtpStatistics ftpStatisticts;
 
 	/*
 	 * (non-Javadoc)
@@ -70,7 +73,7 @@ public class GeoBatchFtplet implements Ftplet {
 	 * org.apache.ftpserver.ftplet.Ftplet#beforeCommand(org.apache.ftpserver
 	 * .ftplet.FtpSession, org.apache.ftpserver.ftplet.FtpRequest)
 	 */
-	public FtpletResult beforeCommand(FtpSession arg0, FtpRequest arg1)
+	public FtpletResult beforeCommand(FtpSession ftpSession, FtpRequest ftpRequest)
 			throws FtpException, IOException {
 		// TODO Auto-generated method stub
 		return null;
@@ -92,13 +95,16 @@ public class GeoBatchFtplet implements Ftplet {
 	 * @seeorg.apache.ftpserver.ftplet.Ftplet#init(org.apache.ftpserver.ftplet.
 	 * FtpletContext)
 	 */
-	public void init(FtpletContext arg0) throws FtpException {
+	public void init(FtpletContext ftpletContext) throws FtpException {
+
+		this.ftpStatisticts = ftpletContext.getFtpStatistics();
+
 		FtpUser ftpUser = new FtpUser();
 		ftpUser.setUserId("admin");
 		ftpUser.setUserPassword("admin");
 		ftpUser.setWritePermission(true);
 
-		arg0.getUserManager().save(ftpUser);
+		ftpletContext.getUserManager().save(ftpUser);
 	}
 
 	/*
@@ -108,8 +114,11 @@ public class GeoBatchFtplet implements Ftplet {
 	 * org.apache.ftpserver.ftplet.Ftplet#onConnect(org.apache.ftpserver.ftplet
 	 * .FtpSession)
 	 */
-	public FtpletResult onConnect(FtpSession arg0) throws FtpException,
+	public FtpletResult onConnect(FtpSession ftpSession) throws FtpException,
 			IOException {
+		logger.info("#######################TOTAL CONNECT##############"
+				+ this.ftpStatisticts.getTotalConnectionNumber());
+
 		return FtpletResult.DEFAULT;
 	}
 
@@ -120,7 +129,7 @@ public class GeoBatchFtplet implements Ftplet {
 	 * org.apache.ftpserver.ftplet.Ftplet#onDisconnect(org.apache.ftpserver.
 	 * ftplet.FtpSession)
 	 */
-	public FtpletResult onDisconnect(FtpSession arg0) throws FtpException,
+	public FtpletResult onDisconnect(FtpSession ftpSession) throws FtpException,
 			IOException {
 		// TODO Auto-generated method stub
 		return null;

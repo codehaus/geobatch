@@ -51,7 +51,6 @@ import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication;
 import org.apache.ftpserver.usermanager.impl.ConcurrentLoginPermission;
 import org.apache.ftpserver.usermanager.impl.TransferRatePermission;
 import org.apache.ftpserver.usermanager.impl.WritePermission;
-import org.springframework.context.ApplicationContext;
 
 /**
  * @author giuseppe
@@ -61,8 +60,6 @@ public class GeoBatchUserManager implements UserManager {
 
 	private Logger logger = Logger.getLogger(GeoBatchUserManager.class
 			.getName());
-
-	ApplicationContext context;
 
 	private File ftpRootDir;
 
