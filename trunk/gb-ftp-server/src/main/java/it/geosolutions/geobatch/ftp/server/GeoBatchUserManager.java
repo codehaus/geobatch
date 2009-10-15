@@ -66,12 +66,13 @@ public class GeoBatchUserManager implements UserManager {
 	private File ftpRootDir;
 
 	private FtpUserDAO ftpUserDAO;
+
 	private DefaultFtpServer ftpServer;
 
 	public GeoBatchUserManager() {
-		String baseDir = ((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory();
-		ftpRootDir = new File(baseDir + File.separator + "FTP"
-					+ File.separator);
+		String baseDir = ((FileBaseCatalog) CatalogHolder.getCatalog())
+				.getBaseDirectory();
+		ftpRootDir = new File(baseDir + File.separator + "FTP" + File.separator);
 	}
 
 	/**
