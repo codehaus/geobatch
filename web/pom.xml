@@ -123,6 +123,10 @@
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-flowmanagers-ascii</artifactId>
         </dependency>
+        <dependency>
+	    <groupId>it.geosolutions</groupId>
+	    <artifactId>gb-ftp-server</artifactId>
+        </dependency>
     </dependencies>
 
     <organization>

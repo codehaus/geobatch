@@ -34,6 +34,9 @@
 	<bean id="flowManagerDisposeController" class="it.geosolutions.geobatch.ui.mvc.FlowManagerDisposeController">
     	<property name="cacheSeconds" value="-1"/>
 	</bean>
+	<bean id="ftpManagerController" class="it.geosolutions.geobatch.ui.mvc.FTPManagerController">
+    	<property name="cacheSeconds" value="-1"/>
+	</bean>
 	
 	<bean id="flowManagerFormValidator" class="it.geosolutions.geobatch.ui.mvc.FlowManagerFormValidator"/>
 	<bean id="flowManagerFormController" class="it.geosolutions.geobatch.ui.mvc.FlowManagerFormController">
@@ -45,15 +48,25 @@
       	<property name="successView"><value>flowManagerNewSuccess</value></property>
 	</bean>
 	
+	<bean id="ftpUserFormController" class="it.geosolutions.geobatch.ui.mvc.FTPUserFormController">
+    	<property name="sessionForm"><value>false</value></property>       		<!-- Keep command object throughout session? -->
+      	<property name="commandName"><value>ftpUserDataBean</value></property> 	<!-- How it’s referenced in the JSP -->
+      	<property name="commandClass"><value>it.geosolutions.geobatch.ui.mvc.data.FtpUserDataBean</value></property>   <!-- Its class -->
+      	<property name="formView"><value>ftpAddUser</value></property>
+      	<property name="successView"><value>ftp</value></property>
+	</bean>
+	
 	<!-- Mappings -->
 	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
         <property name="mappings">
             <value>
-                /index.do=flowManagerController
+                /flows.do=flowManagerController
                 /pause.do=flowManagerPauseController
                 /resume.do=flowManagerResumeController
                 /dispose.do=flowManagerDisposeController
                 /newFlowManager.form=flowManagerFormController
+                /ftpUsers.do=ftpManagerController
+                /newFtpUser.form=ftpUserFormController
             </value>
         </property>
     </bean>

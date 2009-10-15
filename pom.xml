@@ -975,12 +975,13 @@
   <!--     Modules for the build in approximate dependency order   -->
   <!-- =========================================================== -->
     <modules>
-		<module>gb-fsm</module>
+	<module>gb-fsm</module>
         <module>core</module>
         <module>file-catalog</module>
         <module>dao</module>
         <module>flowmanagers</module>
         <module>web</module>
+        <module>gb-ftp-server</module>
     </modules>
 
 </project>
