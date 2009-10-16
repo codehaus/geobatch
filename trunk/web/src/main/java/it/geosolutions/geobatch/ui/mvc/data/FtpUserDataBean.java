@@ -30,9 +30,9 @@ public class FtpUserDataBean {
 
 	private String userId;
 
-	private String userPassword;
+	private String password;
 
-	private String writePermission;
+	private boolean writePermission;
 
 	private String uploadRate;
 
@@ -56,22 +56,22 @@ public class FtpUserDataBean {
 	/**
 	 * @return the userPassword
 	 */
-	public synchronized String getUserPassword() {
-		return userPassword;
+	public synchronized String getPassword() {
+		return password;
 	}
 
 	/**
 	 * @param userPassword
 	 *            the userPassword to set
 	 */
-	public synchronized void setUserPassword(String userPassword) {
-		this.userPassword = userPassword;
+	public synchronized void setPassword(String password) {
+		this.password = password;
 	}
 
 	/**
 	 * @return the writePermission
 	 */
-	public synchronized String getWritePermission() {
+	public synchronized boolean getWritePermission() {
 		return writePermission;
 	}
 
@@ -79,7 +79,7 @@ public class FtpUserDataBean {
 	 * @param writePermission
 	 *            the writePermission to set
 	 */
-	public synchronized void setWritePermission(String writePermission) {
+	public synchronized void setWritePermission(boolean writePermission) {
 		this.writePermission = writePermission;
 	}
 
@@ -111,6 +111,16 @@ public class FtpUserDataBean {
 	 */
 	public synchronized void setDownloadRate(String downloadRate) {
 		this.downloadRate = downloadRate;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "FtpUserDataBean [downloadRate=" + downloadRate + ", password="
+				+ password + ", uploadRate=" + uploadRate + ", userId="
+				+ userId + ", writePermission=" + writePermission + "]";
 	}
 
 }
