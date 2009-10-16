@@ -55,7 +55,9 @@ public class DAOFtpUserHibernate extends DAOAbstractSpring<FtpUser, Long>
 	public FtpUser findByUserName(String userName) throws DAOException {
 		List<FtpUser> users = super.findByCriteria(Restrictions.eq("userId",
 				userName));
-		return users.get(0);
+		if (users.size() > 0)
+			return users.get(0);
+		return null;
 	}
 
 }

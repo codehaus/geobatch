@@ -31,6 +31,8 @@ public class FtpUserDataBean {
 	private String userId;
 
 	private String password;
+	
+	private String repeatPassword;
 
 	private boolean writePermission;
 
@@ -66,6 +68,20 @@ public class FtpUserDataBean {
 	 */
 	public synchronized void setPassword(String password) {
 		this.password = password;
+	}
+
+	/**
+	 * @param repeatPassword the repeatPassword to set
+	 */
+	public void setRepeatPassword(String repeatPassword) {
+		this.repeatPassword = repeatPassword;
+	}
+
+	/**
+	 * @return the repeatPassword
+	 */
+	public String getRepeatPassword() {
+		return repeatPassword;
 	}
 
 	/**

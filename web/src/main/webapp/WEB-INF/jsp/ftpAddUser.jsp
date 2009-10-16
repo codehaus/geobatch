@@ -82,6 +82,14 @@
 		    </td>
 		  </tr>
 		  <tr>
+		    <td>REPEAT_USER_PASSWORD</td>
+		    <td>
+		    	<spring:bind path="ftpUserDataBean.repeatPassword">
+					<input type="password" name="repeatPassword" value="${status.value}" />
+	      		</spring:bind>
+		    </td>
+		  </tr>
+		  <tr>
 		    <td>WRITE_PERMISSION</td>
 		    <td>
 		    	<spring:bind path="ftpUserDataBean.writePermission">
@@ -100,7 +108,7 @@
 		    </td>
 		  </tr>
 		  <tr>
-		    <td>UPLOAD_RATE</td>
+		    <td>DOWNLOAD_RATE</td>
 		    <td>
 		    	<spring:bind path="ftpUserDataBean.downloadRate">
 					<input type="text" name="downloadRate" value="${status.value}" />
@@ -108,11 +116,26 @@
 		    </td>
 		  </tr>
 		</table>
+		
+		
+		<font style="font-style: italic; font-size: 13px; color: red">
+      <spring:hasBindErrors name="ftpUserDataBean">
+         <p>There were ${errors.errorCount} error(s) in total:</p>
+         <ul>
+            <c:forEach var="errMsgObj" items="${errors.allErrors}">
+               <li>
+                  <spring:message code="${errMsgObj.code}" text="${errMsgObj.defaultMessage}"/>
+               </li>
+            </c:forEach>
+         </ul>
+      </spring:hasBindErrors>
+     </font>    
 
 		<div class="button-group selfclear">
       		<input type="submit" value="Save" id="btnTxt"/><input type="button" value="Cancel" onclick="javascript:window.location.href=('ftpUsers.do')">
       	</div>
    </form>
+   
 
 	</div>
       <div class="page-pane selfclear">

@@ -24,12 +24,12 @@
  */
 package it.geosolutions.geobatch.ui.mvc;
 
-import java.util.List;
-
 import it.geosolutions.geobatch.ftp.server.GeoBatchServer;
 import it.geosolutions.geobatch.ftp.server.GeoBatchUserManager;
 import it.geosolutions.geobatch.ftp.server.model.FtpUser;
 import it.geosolutions.geobatch.ui.mvc.data.FtpUserDataBean;
+
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,7 +40,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.SimpleFormController;
 
 /**
- * @author Alessio Fabiani
+ * @author giuseppe
  * 
  */
 public class FTPUserFormController extends SimpleFormController {
@@ -55,7 +55,7 @@ public class FTPUserFormController extends SimpleFormController {
 	protected Object formBackingObject(HttpServletRequest request)
 			throws Exception {
 		FtpUserDataBean backingObject = new FtpUserDataBean();
-
+		this.setValidator(new FtpUserFormValidator(getApplicationContext()));
 		/*
 		 * The backing object should be set up here, with data for the initial
 		 * values of the form�s fields. This could either be hard-coded, or
@@ -75,38 +75,39 @@ public class FTPUserFormController extends SimpleFormController {
 	 * org.springframework.web.servlet.mvc.SimpleFormController#onSubmit(java
 	 * .lang.Object, org.springframework.validation.BindException)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected ModelAndView onSubmit(HttpServletRequest request,
 			HttpServletResponse response, Object command, BindException errors)
 			throws Exception {
 		FtpUserDataBean givenData = (FtpUserDataBean) command;
-		System.out.println(givenData.toString());
+
 		GeoBatchServer server = (GeoBatchServer) getApplicationContext()
 				.getBean("geoBatchServer");
 
-		FtpUser user = new FtpUser();
+		logger.info(givenData.toString());
 
+		FtpUser user = new FtpUser();
 		user.setUserId(givenData.getUserId());
 		user.setUserPassword(givenData.getPassword());
 		user.setWritePermission(givenData.getWritePermission());
-		user.setUploadRate(Integer.parseInt(givenData.getUploadRate()));
-		user.setDownloadRate(Integer.parseInt(givenData.getDownloadRate()));
-
-		// add control here
+		if (!givenData.getUploadRate().equals(""))
+			user.setUploadRate(Integer.parseInt(givenData.getUploadRate()));
+		if (!givenData.getDownloadRate().equals(""))
+			user.setDownloadRate(Integer.parseInt(givenData.getDownloadRate()));
 
 		((GeoBatchUserManager) ((DefaultFtpServer) server.getFtpServer())
 				.getUserManager()).save(user);
 
-		List<FtpUser> ftpUsers = (List<FtpUser>)request.getSession().getAttribute("ftpUsers");
-		
+		List<FtpUser> ftpUsers = (List<FtpUser>) request.getSession()
+				.getAttribute("ftpUsers");
+
 		ftpUsers.add(user);
-		
+
 		request.getSession().setAttribute("ftpUsers", ftpUsers);
-		
+
 		logger.info("Form data successfully submitted");
 
 		return new ModelAndView(getSuccessView());
 	}
-	
-	
 }
