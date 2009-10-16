@@ -21,4 +21,11 @@ public class GeoBatchServer implements InitializingBean {
 	public void setFtpServer(FtpServer ftpServer) {
 		this.ftpServer = ftpServer;
 	}
+	
+	/**
+	 * @return the ftpServer
+	 */
+	public synchronized FtpServer getFtpServer() {
+		return ftpServer;
+	}
 }

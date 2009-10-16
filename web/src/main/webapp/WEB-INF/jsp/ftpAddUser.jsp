@@ -61,33 +61,59 @@
       <div class="page-header">
 
         <div class="header-panel"></div>
+        <h1>Add new FTP User</h1>
         
         <form method="post" action="newFtpUser.form">
-   	      <spring:bind path="ftpUserDataBean.userId">
-				<input type="text" name="userId" value="${status.value}" />
-	      </spring:bind>
-	      <spring:bind path="ftpUserDataBean.userPassword">
-				<input type="text" name="userPassword" value="${status.value}" />
-	      </spring:bind>
-	      <spring:bind path="ftpUserDataBean.writePermission">
-				<input type="text" name="writePermission" value="${status.value}" />
-	      </spring:bind>
-	      <spring:bind path="ftpUserDataBean.uploadRate">
-				<input type="text" name="uploadRate" value="${status.value}" />
-	      </spring:bind>
-	       <spring:bind path="ftpUserDataBean.downloadRate">
-				<input type="text" name="downloadRate" value="${status.value}" />
-	      </spring:bind>
-					
-      
-      <input type="submit" value="Submit"/><input type="button" value="Cancel" onclick="javascript:window.location.href=('ftpUsers.do')">
+        <table>
+		  <tr>
+		    <td>USER_ID</td>
+		    <td>
+		    	<spring:bind path="ftpUserDataBean.userId">
+					<input type="text" name="userId" value="${status.value}" />
+	      		</spring:bind>
+	      	</td>
+		  </tr>
+		  <tr>
+		    <td>USER_PASSWORD</td>
+		    <td>
+		    	<spring:bind path="ftpUserDataBean.password">
+					<input type="password" name="password" value="${status.value}" />
+	      		</spring:bind>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td>WRITE_PERMISSION</td>
+		    <td>
+		    	<spring:bind path="ftpUserDataBean.writePermission">
+					<input type="checkbox" name="writePermission" value="true" <c:if test="${status.value}">checked</c:if>>
+
+	      		</spring:bind>
+		    
+		    </td>
+		  </tr>
+		  <tr>
+		    <td>UPLOAD_RATE</td>
+		    <td>
+		    	<spring:bind path="ftpUserDataBean.uploadRate">
+					<input type="text" name="uploadRate" value="${status.value}" />
+	      		</spring:bind>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td>UPLOAD_RATE</td>
+		    <td>
+		    	<spring:bind path="ftpUserDataBean.downloadRate">
+					<input type="text" name="downloadRate" value="${status.value}" />
+	      		</spring:bind>
+		    </td>
+		  </tr>
+		</table>
+
+		<div class="button-group selfclear">
+      		<input type="submit" value="Save" id="btnTxt"/><input type="button" value="Cancel" onclick="javascript:window.location.href=('ftpUsers.do')">
+      	</div>
    </form>
-        
-        
-        
-        
-        
-        
+
 	</div>
       <div class="page-pane selfclear">
 

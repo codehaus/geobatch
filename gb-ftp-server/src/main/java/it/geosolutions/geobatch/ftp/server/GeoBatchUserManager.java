@@ -201,11 +201,12 @@ public class GeoBatchUserManager implements UserManager {
 	 */
 	public void save(User arg0) throws FtpException {
 
+		logger.info(arg0.toString());
 		try {
 			ftpUserDAO.makePersistent((FtpUser) arg0);
 		} catch (DAOException e) {
 			// TODO Auto-generated catch block
-			logger.log(Level.SEVERE, "Error :" + e.getMessage());
+			logger.log(Level.INFO, "Error :" + e.getMessage());
 		}
 
 	}

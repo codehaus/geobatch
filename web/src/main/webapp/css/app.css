@@ -430,6 +430,7 @@ margin: 0;
 Button  Styles
 -----------------------*/
 .button-group a,
+.button-group input,
 .button-group button,
 input.btnTxt {
 /*background: orange url(../img/button-gradient.png) top left repeat-x;*/

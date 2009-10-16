@@ -25,6 +25,9 @@
 package it.geosolutions.geobatch.ui.mvc;
 
 import it.geosolutions.geobatch.ftp.server.dao.FtpUserDAO;
+import it.geosolutions.geobatch.ftp.server.model.FtpUser;
+
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,8 +53,10 @@ public class FTPManagerController extends AbstractController {
         FtpUserDAO ftpUserDAO = (FtpUserDAO) getApplicationContext().getBean("ftpUserDAO");
 
         ModelAndView mav = new ModelAndView("ftp");
-        mav.addObject("ftpUsers", ftpUserDAO.findAll());
-
+        List<FtpUser> ftpUsers = ftpUserDAO.findAll();
+        mav.addObject("ftpUsers", ftpUsers);
+        
+        request.getSession().setAttribute("ftpUsers", ftpUsers);
         return mav;
     }
 }
