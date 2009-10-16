@@ -200,10 +200,9 @@ public class GeoBatchUserManager implements UserManager {
 	 * .User)
 	 */
 	public void save(User arg0) throws FtpException {
-
-		logger.info(arg0.toString());
 		try {
-			ftpUserDAO.makePersistent((FtpUser) arg0);
+			if (!checkUser(((FtpUser) arg0).getUserId()))
+				ftpUserDAO.makePersistent((FtpUser) arg0);
 		} catch (DAOException e) {
 			// TODO Auto-generated catch block
 			logger.log(Level.INFO, "Error :" + e.getMessage());
@@ -241,5 +240,17 @@ public class GeoBatchUserManager implements UserManager {
 
 		user.setAuthorities(auths);
 		return user;
+	}
+
+	public boolean checkUser(String userId) {
+		try {
+			FtpUser ftpUserToSearch = ftpUserDAO.findByUserName(userId);
+			if (ftpUserToSearch != null)
+				return true;
+		} catch (DAOException e) {
+			// TODO Auto-generated catch block
+			logger.info("ERROR : " + e.getMessage());
+		}
+		return false;
 	}
 }
