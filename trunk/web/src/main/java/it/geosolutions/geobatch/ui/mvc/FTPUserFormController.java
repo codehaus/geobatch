@@ -44,6 +44,7 @@ import org.springframework.web.servlet.mvc.SimpleFormController;
  * 
  */
 public class FTPUserFormController extends SimpleFormController {
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -55,16 +56,8 @@ public class FTPUserFormController extends SimpleFormController {
 	protected Object formBackingObject(HttpServletRequest request)
 			throws Exception {
 		FtpUserDataBean backingObject = new FtpUserDataBean();
-		this.setValidator(new FtpUserFormValidator(getApplicationContext()));
-		/*
-		 * The backing object should be set up here, with data for the initial
-		 * values of the form�s fields. This could either be hard-coded, or
-		 * retrieved from a database, perhaps by a parameter, eg.
-		 * request.getParameter(�primaryKey�)
-		 */
-		// backingObject.setAvailableDescriptors(catalog.getFlowManagers(FileBasedCatalogConfiguration.class));
+		// this.setValidator(new FtpUserFormValidator(getApplicationContext()));
 		logger.info("Returning backing object");
-
 		return backingObject;
 	}
 
@@ -101,13 +94,99 @@ public class FTPUserFormController extends SimpleFormController {
 
 		List<FtpUser> ftpUsers = (List<FtpUser>) request.getSession()
 				.getAttribute("ftpUsers");
-
 		ftpUsers.add(user);
-
 		request.getSession().setAttribute("ftpUsers", ftpUsers);
-
 		logger.info("Form data successfully submitted");
-
 		return new ModelAndView(getSuccessView());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.web.servlet.mvc.BaseCommandController#onBindAndValidate
+	 * (javax.servlet.http.HttpServletRequest, java.lang.Object,
+	 * org.springframework.validation.BindException)
+	 */
+	@Override
+	protected void onBindAndValidate(HttpServletRequest request,
+			Object command, BindException errors) throws Exception {
+		GeoBatchServer server = (GeoBatchServer) getApplicationContext()
+				.getBean("geoBatchServer");
+
+		boolean present = false;
+		FtpUserDataBean givenData = (FtpUserDataBean) command;
+		if (givenData == null) {
+			errors.reject("error.nullpointer", "Null data received");
+		} else {
+			/* VALIDATE ALL FIELDS */
+			if ((givenData.getUserId() == null)
+					|| (givenData.getUserId().trim().length() <= 0)) {
+				errors.rejectValue("userId", "error.code",
+						"Ftp User Id is mandatory.");
+			} else {
+				if (((GeoBatchUserManager) ((DefaultFtpServer) server
+						.getFtpServer()).getUserManager()).checkUser(givenData
+						.getUserId())) {
+					present = true;
+					errors.rejectValue("userId", "error.code", "Ftp User "
+							+ givenData.getUserId() + " has already entered.");
+				}
+			}
+
+			if (!present) {
+				if ((givenData.getPassword() == null)
+						|| (givenData.getPassword().trim().length() <= 0)) {
+					errors.rejectValue("password", "error.code",
+							"Ftp User Password is mandatory.");
+				}
+
+				if ((givenData.getRepeatPassword() == null)
+						|| (givenData.getRepeatPassword().trim().length() <= 0)) {
+					errors.rejectValue("repeatPassword", "error.code",
+							"Ftp User Repeat Password is mandatory.");
+				}
+
+				if ((!givenData.getPassword().equals(""))
+						&& (!givenData.getRepeatPassword().equals(""))) {
+					if (!givenData.getPassword().equals(
+							givenData.getRepeatPassword())) {
+						errors.rejectValue("password", "error.code",
+								"The password must be the same.");
+					}
+
+				}
+
+				if (!givenData.getDownloadRate().equals("")) {
+					try {
+						int downloadRate = Integer.parseInt(givenData
+								.getDownloadRate());
+						if (downloadRate < 0) {
+							errors
+									.rejectValue("downloadRate", "error.code",
+											"Ftp User Download Rate must be greater than 0.");
+						}
+					} catch (NumberFormatException e) {
+						errors.rejectValue("downloadRate", "error.code",
+								"Ftp User Download Rate must be an integer.");
+					}
+				}
+
+				if (!givenData.getUploadRate().equals("")) {
+					try {
+						int uploadRate = Integer.parseInt(givenData
+								.getUploadRate());
+						if (uploadRate < 0) {
+							errors
+									.rejectValue("uploadRate", "error.code",
+											"Ftp User Upload Rate must be greater than 0.");
+						}
+					} catch (NumberFormatException e) {
+						errors.rejectValue("uploadRate", "error.code",
+								"Ftp User Upload Rate must be an integer.");
+					}
+				}
+			}
+		}
 	}
 }
