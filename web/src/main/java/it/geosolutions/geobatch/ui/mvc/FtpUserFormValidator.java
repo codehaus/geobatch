@@ -28,14 +28,10 @@ import it.geosolutions.geobatch.ftp.server.GeoBatchServer;
 import it.geosolutions.geobatch.ftp.server.GeoBatchUserManager;
 import it.geosolutions.geobatch.ui.mvc.data.FtpUserDataBean;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.ftpserver.impl.DefaultFtpServer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.Errors;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.Validator;
-import org.springframework.web.servlet.ModelAndView;
 
 /**
  * @author giuseppe
