@@ -24,7 +24,8 @@
  */
 package it.geosolutions.geobatch.ui.mvc;
 
-import it.geosolutions.geobatch.ftp.server.dao.FtpUserDAO;
+import it.geosolutions.geobatch.ftp.server.GeoBatchServer;
+import it.geosolutions.geobatch.ftp.server.GeoBatchUserManager;
 import it.geosolutions.geobatch.ftp.server.model.FtpUser;
 
 import java.util.List;
@@ -32,31 +33,46 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.ftpserver.impl.DefaultFtpServer;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 
 /**
- * @author Alessio
+ * @author giuseppe
  * 
  */
 public class FTPManagerController extends AbstractController {
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.springframework.web.servlet.mvc.AbstractController#handleRequestInternal(javax.servlet
-     * .http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-     */
-    @Override
-    protected ModelAndView handleRequestInternal(HttpServletRequest request,
-            HttpServletResponse response) throws Exception {
-        FtpUserDAO ftpUserDAO = (FtpUserDAO) getApplicationContext().getBean("ftpUserDAO");
 
-        ModelAndView mav = new ModelAndView("ftp");
-        List<FtpUser> ftpUsers = ftpUserDAO.findAll();
-        mav.addObject("ftpUsers", ftpUsers);
-        
-        request.getSession().setAttribute("ftpUsers", ftpUsers);
-        return mav;
-    }
+	private GeoBatchServer server;
+
+	/**
+	 * @param server
+	 *            the server to set
+	 */
+	public void setServer(GeoBatchServer server) {
+		this.server = server;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.web.servlet.mvc.AbstractController#handleRequestInternal
+	 * (javax.servlet .http.HttpServletRequest,
+	 * javax.servlet.http.HttpServletResponse)
+	 */
+	@Override
+	protected ModelAndView handleRequestInternal(HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		// FtpUserDAO ftpUserDAO = (FtpUserDAO) getApplicationContext().getBean(
+		// "ftpUserDAO");
+
+		ModelAndView mav = new ModelAndView("ftp");
+		List<FtpUser> ftpUsers = ((GeoBatchUserManager) ((DefaultFtpServer) server
+				.getFtpServer()).getUserManager()).getAllUsers();// ftpUserDAO.findAll();
+		mav.addObject("ftpUsers", ftpUsers);
+
+		request.getSession().setAttribute("ftpUsers", ftpUsers);
+		return mav;
+	}
 }
