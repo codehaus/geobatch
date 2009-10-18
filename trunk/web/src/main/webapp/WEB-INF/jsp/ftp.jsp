@@ -44,7 +44,7 @@
 <body>
   <div id="header">
     <div class="wrap">
-      <h2><a wicket:id="home" class="pngfix" href="#"><span>GeoBatch</span></a></h2>
+     <h2><a class="pngfix" href="index.html"><span>GeoBatch</span></a></h2>
       <div class="button-group selfclear">
 
 
@@ -68,7 +68,6 @@
 			<thead>
 				<tr bgcolor="black" style="color: white;">
 					<th width="10%">USERID</th>
-					<th width="10%">PASSWORD</th>
 					<th width="20%">HOMEDIRECTORY</th>
 					<th width="5%">WRITE PERMISSION</th>
 					<th width="5%">UPLOAD RATE</th>
@@ -80,13 +79,12 @@
 			<c:forEach var="us" items="${ftpUsers}">
 				<tr >
 					<td><c:out value="${us.userId}"/></td>
-					<td><font style="font-style: italic; font-size: 12px"><c:out value="${us.userPassword}"/></font></td>
 					<td><c:out value="${us.userId}"/></td>
 					<td><c:out value="${us.writePermission}"/></td>
 					<td><c:out value="${us.uploadRate}"/></td>
 					<td><c:out value="${us.downloadRate}"/></td>
 					<td align="center">
-						<a href='delete.do?userId=${us.userId}'><image src='img/red.png' border='0' title='delete' alt='delete' width='16' height='16'/></a>
+						<a href='delete.do?userId=${us.userId}'><image src='img/dispose.png' border='0' title='delete' alt='delete' width='16' height='16'/></a>
 					</td>
 				</tr>
 			</c:forEach>

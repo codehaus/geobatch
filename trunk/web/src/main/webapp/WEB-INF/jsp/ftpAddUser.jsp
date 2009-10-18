@@ -44,7 +44,7 @@
 <body>
   <div id="header">
     <div class="wrap">
-      <h2><a wicket:id="home" class="pngfix" href="#"><span>GeoBatch</span></a></h2>
+      <h2><a class="pngfix" href="index.html"><span>GeoBatch</span></a></h2>
       <div class="button-group selfclear">
 
 
