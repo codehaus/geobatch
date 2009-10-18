@@ -33,9 +33,14 @@ import it.geosolutions.geobatch.ftp.server.dao.DAOException;
 import it.geosolutions.geobatch.ftp.server.dao.FtpUserDAO;
 import it.geosolutions.geobatch.ftp.server.model.FtpUser;
 
+import java.sql.SQLException;
 import java.util.List;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,13 +56,42 @@ public class DAOFtpUserHibernate extends DAOAbstractSpring<FtpUser, Long>
 		// TODO Auto-generated constructor stub
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public FtpUser findByUserName(String userName) throws DAOException {
 		List<FtpUser> users = super.findByCriteria(Restrictions.eq("userId",
 				userName));
 		if (users.size() > 0)
 			return users.get(0);
 		return null;
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void delete(final String userId) throws DAOException {
+		try {
+			getHibernateTemplate().execute(new HibernateCallback() {
+
+				public Object doInHibernate(Session session)
+						throws HibernateException, SQLException {
+					Query query = session
+							.createQuery("delete from FtpUser ftpUser where ftpUser.userId = ?");
+					query.setParameter(0, userId);
+					query.executeUpdate();
+					return null;
+				}
+			});
+		} catch (HibernateException e) {
+			throw new DAOException(e);
+		}
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void delete(FtpUser ftpUser) throws DAOException {
+		super.makeTransient(ftpUser);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public FtpUser save(FtpUser ftpUser) throws DAOException {
+		return super.makePersistent(ftpUser);
 	}
 
 }

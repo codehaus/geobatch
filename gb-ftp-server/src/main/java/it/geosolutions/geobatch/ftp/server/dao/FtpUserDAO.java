@@ -39,4 +39,10 @@ public interface FtpUserDAO extends GenericDAO<FtpUser, Long> {
 
 	public FtpUser findByUserName(String userName) throws DAOException;
 
+	public FtpUser save(FtpUser ftpUser) throws DAOException;
+
+	public void delete(String userId) throws DAOException;
+
+	public void delete(FtpUser ftpUser) throws DAOException;
+
 }

@@ -85,6 +85,9 @@
 					<td><c:out value="${us.writePermission}"/></td>
 					<td><c:out value="${us.uploadRate}"/></td>
 					<td><c:out value="${us.downloadRate}"/></td>
+					<td align="center">
+						<a href='delete.do?userId=${us.userId}'><image src='img/red.png' border='0' title='delete' alt='delete' width='16' height='16'/></a>
+					</td>
 				</tr>
 			</c:forEach>
 			

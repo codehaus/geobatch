@@ -45,6 +45,16 @@ import org.springframework.web.servlet.mvc.SimpleFormController;
  */
 public class FTPUserFormController extends SimpleFormController {
 
+	private GeoBatchServer server;
+
+	/**
+	 * @param server
+	 *            the server to set
+	 */
+	public void setServer(GeoBatchServer server) {
+		this.server = server;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -75,8 +85,8 @@ public class FTPUserFormController extends SimpleFormController {
 			throws Exception {
 		FtpUserDataBean givenData = (FtpUserDataBean) command;
 
-		GeoBatchServer server = (GeoBatchServer) getApplicationContext()
-				.getBean("geoBatchServer");
+//		GeoBatchServer server = (GeoBatchServer) getApplicationContext()
+//				.getBean("geoBatchServer");
 
 		logger.info(givenData.toString());
 
@@ -111,8 +121,8 @@ public class FTPUserFormController extends SimpleFormController {
 	@Override
 	protected void onBindAndValidate(HttpServletRequest request,
 			Object command, BindException errors) throws Exception {
-		GeoBatchServer server = (GeoBatchServer) getApplicationContext()
-				.getBean("geoBatchServer");
+//		GeoBatchServer server = (GeoBatchServer) getApplicationContext()
+//				.getBean("geoBatchServer");
 
 		boolean present = false;
 		FtpUserDataBean givenData = (FtpUserDataBean) command;

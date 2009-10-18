@@ -36,19 +36,34 @@
 	<bean id="flowManagerController" class="it.geosolutions.geobatch.ui.mvc.FlowManagerController">
 		<property name="cacheSeconds" value="-1" />
 	</bean>
+
 	<bean id="flowManagerPauseController"
 		class="it.geosolutions.geobatch.ui.mvc.FlowManagerPauseController">
 		<property name="cacheSeconds" value="-1" />
 	</bean>
+
 	<bean id="flowManagerResumeController"
 		class="it.geosolutions.geobatch.ui.mvc.FlowManagerResumeController">
 		<property name="cacheSeconds" value="-1" />
 	</bean>
+
 	<bean id="flowManagerDisposeController"
 		class="it.geosolutions.geobatch.ui.mvc.FlowManagerDisposeController">
 		<property name="cacheSeconds" value="-1" />
 	</bean>
+
+	<bean id="deleteFtpUserController"
+		class="it.geosolutions.geobatch.ui.mvc.DeleteFtpUserController">
+		<property name="cacheSeconds" value="-1" />
+		<property name="server">
+			<ref bean="geoBatchServer" />
+		</property>
+	</bean>
+
 	<bean id="ftpManagerController" class="it.geosolutions.geobatch.ui.mvc.FTPManagerController">
+		<property name="server">
+			<ref bean="geoBatchServer" />
+		</property>
 		<property name="cacheSeconds" value="-1" />
 	</bean>
 
@@ -92,6 +107,9 @@
 		<property name="successView">
 			<value>ftp</value>
 		</property>
+		<property name="server">
+			<ref bean="geoBatchServer" />
+		</property>
 	</bean>
 
 	<!-- Mappings -->
@@ -105,6 +123,7 @@
 				/newFlowManager.form=flowManagerFormController
 				/ftpUsers.do=ftpManagerController
 				/newFtpUser.form=ftpUserFormController
+				/delete.do=deleteFtpUserController
             </value>
 		</property>
 	</bean>

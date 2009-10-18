@@ -136,9 +136,42 @@ public class GeoBatchUserManager implements UserManager {
 	 * 
 	 * @see org.apache.ftpserver.ftplet.UserManager#delete(java.lang.String)
 	 */
-	public void delete(String arg0) throws FtpException {
-		// TODO Auto-generated method stub
+	public void delete(String userId) throws FtpException {
+		try {
+			ftpUserDAO.delete(userId);
+			this.deleteFtpUserDir(userId);
+		} catch (DAOException e) {
+			// TODO Auto-generated catch block
+			logger.info("ERROR :" + e.getMessage());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			logger.info("ERROR :" + e.getMessage());
+		}
+	}
 
+	private void deleteFtpUserDir(String userId) throws Exception {
+		File homeDirectory = new File(ftpRootDir, userId);
+		if (homeDirectory.exists()) {
+			if (!deleteDir(homeDirectory))
+				throw new Exception("Error to delete "
+						+ homeDirectory.getAbsolutePath());
+		}
+	}
+
+	private boolean deleteDir(File dir) {
+		// First delete all files and subdirectories
+		if (dir.isDirectory()) {
+			String[] children = dir.list();
+			for (int i = 0; i < children.length; i++) {
+				boolean success = deleteDir(new File(dir, children[i]));
+				if (!success) {
+					return false;
+				}
+			}
+		}
+
+		// The directory is now empty so delete it
+		return dir.delete();
 	}
 
 	/*
@@ -202,7 +235,7 @@ public class GeoBatchUserManager implements UserManager {
 	public void save(User arg0) throws FtpException {
 		try {
 			if (!checkUser(((FtpUser) arg0).getUserId()))
-				ftpUserDAO.makePersistent((FtpUser) arg0);
+				ftpUserDAO.save((FtpUser) arg0);
 		} catch (DAOException e) {
 			// TODO Auto-generated catch block
 			logger.log(Level.INFO, "Error :" + e.getMessage());
@@ -252,5 +285,9 @@ public class GeoBatchUserManager implements UserManager {
 			logger.info("ERROR : " + e.getMessage());
 		}
 		return false;
+	}
+
+	public List<FtpUser> getAllUsers() throws DAOException {
+		return ftpUserDAO.findAll();
 	}
 }
