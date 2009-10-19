@@ -84,6 +84,8 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
     private final static FileCleaner FILE_CLEANER = new FileCleaner();
 
     private final static Set<String> FILES_PATH = Collections.synchronizedSet(new HashSet<String>());
+    
+    public final static String FILE_SEPARATOR = System.getProperty("file.separator");
 
     private final static Map<String, Integer> FILE_ATTEMPTS_COUNTS = Collections.synchronizedMap(new HashMap<String, Integer>());
 
