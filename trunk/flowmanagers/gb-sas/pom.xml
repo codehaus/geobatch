@@ -24,9 +24,9 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>it.geosolutions</groupId>
-  <artifactId>gb-flowmanagers-composer</artifactId>
+  <artifactId>gb-flowmanagers-sas</artifactId>
   <packaging>jar</packaging>
-  <name>GeoSolutions GeoBatch flow managers - Mat Tiles composer flow</name>
+  <name>GeoSolutions GeoBatch flow managers - SAS Tiles composer flow</name>
   <url>http://www.geo-solutions.it/maven_reports/gb/flowmanagers/</url>
   
   <scm>

@@ -55,7 +55,6 @@
    
     <modules>
       <module>geotiff</module>
-      <module>mat5-mosaic</module>
       <module>shapefile</module>
       <module>ascii-grids</module>
     </modules>
@@ -80,20 +79,28 @@
 			</modules>
 		</profile>
 		<profile>
-			<id>all</id>
+			<id>sas</id>
 			<modules>
-			   <module>geowebcache</module>
-			   <module>ais</module>
-			   <module>gb-gliders</module>
-			   <module>JGSFLoDeSS</module>
+			   <module>gb-sas</module>
 			</modules>
-		</profile>		
-	<profile>
+		</profile>
+		<profile>
         <id>JGSFLoDeSS</id>
         <modules>
            <module>JGSFLoDeSS</module>
         </modules>
     </profile>
+		<profile>
+			<id>all</id>
+			<modules>
+			   <module>geowebcache</module>
+			   <module>ais</module>
+			   <module>gb-gliders</module>
+			   <module>gb-sas</module>
+			   <module>JGSFLoDeSS</module>
+			</modules>
+		</profile>		
+	
 
     </profiles>
     
