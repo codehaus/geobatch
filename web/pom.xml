@@ -218,6 +218,15 @@
 			</dependencies>
 		</profile>
 		<profile>
+			<id>sas</id>
+			<dependencies>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-sas</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
 			<id>geowebcache</id>
 			<dependencies>
 				<dependency>

@@ -642,7 +642,7 @@
         </dependency>
          <dependency>
             <groupId>it.geosolutions</groupId>
-            <artifactId>gb-flowmanagers-composer</artifactId>
+            <artifactId>gb-flowmanagers-sas</artifactId>
             <version>${gb.version}</version>
         </dependency>
         <dependency>
