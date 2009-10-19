@@ -38,7 +38,7 @@ public class GeoServerActionConfiguration extends ActionConfiguration implements
 	}
 
 	private String workingDirectory;
-
+	
     private String crs;
 
     private String envelope;

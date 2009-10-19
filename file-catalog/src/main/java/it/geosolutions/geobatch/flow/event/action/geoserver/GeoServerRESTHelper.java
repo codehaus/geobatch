@@ -91,8 +91,9 @@ public class GeoServerRESTHelper {
                 String response = readIs(is);
                 is.close();
                 final String name = extractName(response);
-                if (returnedLayerName!=null && returnedLayerName.length>0)
-                	returnedLayerName[0]=name;
+                extractContent(response, returnedLayerName);
+//              if (returnedLayerName!=null && returnedLayerName.length>0)
+//              	returnedLayerName[0]=name;
                 if (LOGGER.isLoggable(Level.FINE))
                     LOGGER.log(Level.FINE,"HTTP CREATED: " + response);
                 else{
@@ -173,9 +174,10 @@ public class GeoServerRESTHelper {
                 InputStreamReader is = new InputStreamReader(con.getInputStream());
                 String response = readIs(is);
                 is.close();
-                final String name = extractName(response);
-                if (returnedLayerName!=null && returnedLayerName.length>0)
-                	returnedLayerName[0]=name;
+                final String name = extractName(response);  
+                extractContent(response, returnedLayerName);
+//              if (returnedLayerName!=null && returnedLayerName.length>0)
+//            		returnedLayerName[0]=name;
                 if (LOGGER.isLoggable(Level.FINE))
                     LOGGER.log(Level.FINE,"HTTP CREATED: " + response);
                 else
@@ -248,8 +250,9 @@ public class GeoServerRESTHelper {
                 String response = readIs(is);
                 is.close();
                 final String name = extractName(response);
-                if (returnedLayerName!=null && returnedLayerName.length>0)
-                	returnedLayerName[0]=name;
+                extractContent(response, returnedLayerName);
+//                if (returnedLayerName!=null && returnedLayerName.length>0)
+//                	returnedLayerName[0]=name;
                 if (LOGGER.isLoggable(Level.FINE))
                     LOGGER.log(Level.FINE,"HTTP CREATED: " + response);
                 else
@@ -292,6 +295,36 @@ public class GeoServerRESTHelper {
             }
         }
         return name;
+    }
+    /**
+     * 
+     * @param response
+     * @param result will contain the following elements:
+     * 	result[0]: the store name
+     *  result[1]: the namespace
+     *  result[2]: the layername
+     */
+    private static void extractContent(final String response, final String[] result) {
+        if (response!=null && response.trim().length()>0){
+            final int indexOfName1Start = response.indexOf("<name>");
+            final int indexOfName1End = response.indexOf("</name>");
+            final int indexOfName2Start = response.indexOf("<name>",indexOfName1Start+1);
+            final int indexOfName2End = response.indexOf("</name>",indexOfName2Start+1);
+            final int indexOfWorkspaceStart = response.indexOf("<workspace>");
+            try{
+	            if (indexOfName1Start < indexOfWorkspaceStart){
+	            	result[2]= response.substring(indexOfName1Start+6, indexOfName1End);
+	            	result[1]= response.substring(indexOfName2Start+6, indexOfName2End);
+	            }
+	            else {
+	            	result[1]= response.substring(indexOfName1Start+6, indexOfName1End);
+	            	result[2]= response.substring(indexOfName2Start+6, indexOfName2End);
+	            }
+            
+            } catch (StringIndexOutOfBoundsException e) {
+            	
+            }
+        }
     }
 
     /**
