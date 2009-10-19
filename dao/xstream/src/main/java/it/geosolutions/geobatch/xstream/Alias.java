@@ -54,12 +54,12 @@ public class Alias {
 							it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class,
 							"eventConsumerConfiguration");
         
-        xstream.alias("ComposerConfiguration",
-							it.geosolutions.geobatch.compose.ComposerConfiguration.class);
-        xstream.alias("MosaicerConfiguration",
-						it.geosolutions.geobatch.mosaic.MosaicerConfiguration.class);
-        xstream.alias("FormatConverterConfiguration",
-						it.geosolutions.geobatch.convert.FormatConverterConfiguration.class);
+//        xstream.alias("ComposerConfiguration",
+//							it.geosolutions.geobatch.compose.ComposerConfiguration.class);
+//        xstream.alias("MosaicerConfiguration",
+//						it.geosolutions.geobatch.mosaic.MosaicerConfiguration.class);
+//        xstream.alias("FormatConverterConfiguration",
+//						it.geosolutions.geobatch.convert.FormatConverterConfiguration.class);
         
         xstream.alias("FsEventGeneratorConfiguration",
 //                        it.geosolutions.geobatch.configuration.event.generator.EventGeneratorConfiguration.class,
