@@ -52,7 +52,8 @@ public class Utils {
          String missionName = missionF.getName();
          final int missionIndex = missionName.lastIndexOf("_");
          if (missionIndex!=-1){
-             missionName = new StringBuilder("mission").append(missionName.substring(missionIndex+1)).toString();
+        	 final String missionCollapsed = missionName.substring(0,missionIndex).replace("_", "-");
+             missionName = new StringBuilder("mission").append(missionCollapsed).append(missionName.substring(missionIndex+1)).toString();
          }
          
          dirName = new StringBuilder(location).append(File.separatorChar).append(prefix)

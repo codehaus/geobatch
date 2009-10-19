@@ -424,7 +424,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
                 .getOrdinate(1));
         final MathTransform mosaicTransform = ProjectiveTransform
                 .create(gm);
-        final MathTransform tempTransform = PixelTranslation.translate(mosaicTransform, PixelInCell.CELL_CORNER, PixelInCell.CELL_CENTER);
+        final MathTransform tempTransform = PixelTranslation.translate(mosaicTransform, PixelInCell.CELL_CENTER, PixelInCell.CELL_CORNER);
         
        return tempTransform.inverse();
 	}
@@ -482,7 +482,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
         if (LOGGER.isLoggable(Level.INFO))
         	LOGGER.info(new StringBuffer("Found ").append(nCov).append(" tiles").toString());
         
-        // aplplying an affine transform to the single granules
+        // applying an affine transform to the single granules
         for (int i = 0; i < nCov; i++) {
             final GridCoverage2D coverage = coverages.get(i);
             final ParameterBlockJAI pbAffine = new ParameterBlockJAI("Affine");

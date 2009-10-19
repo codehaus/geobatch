@@ -191,7 +191,9 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 	                        final String wmsPath = SasMosaicGeoServerGenerator.buildWmsPath(filePath);
 	                        SasMosaicGeoServerGenerator.ingest(outputFileName, wmsPath, configuration.getGeoserverURL(), 
 	                        		configuration.getGeoserverUID(), configuration.getGeoserverPWD(), 
-	                        		configuration.getGeoserverUploadMethod(), SasMosaicGeoServerGenerator.SAS_RAW_STYLE, "geotiff");
+	                        		configuration.getGeoserverUploadMethod(), SasMosaicGeoServerGenerator.SAS_RAW_STYLE, "geotiff", configuration.getGeowebcacheWatchingDir());
+	                        
+                            //TODO: Add geowebcache ingestion
                         } else {
                         	if (LOGGER.isLoggable(Level.WARNING))
                         		LOGGER.warning("The following file hasn't been converted: " + outputFileName);

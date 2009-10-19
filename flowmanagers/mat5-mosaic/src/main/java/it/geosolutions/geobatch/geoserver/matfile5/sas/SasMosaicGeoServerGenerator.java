@@ -29,6 +29,7 @@ import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerAc
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorAction;
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerRESTHelper;
 import it.geosolutions.geobatch.global.CatalogHolder;
+import it.geosolutions.geobatch.mosaic.Mosaicer;
 import it.geosolutions.geobatch.utils.IOUtils;
 
 import java.io.File;
@@ -45,6 +46,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.logging.Level;
+
+import javax.imageio.stream.FileImageOutputStream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.gce.geotiff.GeoTiffFormat;
@@ -67,6 +70,10 @@ public class SasMosaicGeoServerGenerator
     public final static String DEFAULT_STYLE = "raster";
     
     public final static String GEOSERVER_VERSION = "1.7.X";
+    
+    private final static String NAMESPACE = "namespace";
+    private final static String STORE = "store";
+    private final static String LAYERNAME = "layername";
        
     public SasMosaicGeoServerGenerator(GeoServerActionConfiguration configuration)
             throws IOException {
@@ -106,9 +113,10 @@ public class SasMosaicGeoServerGenerator
             
             final String inputFileName = workingDir.getAbsolutePath();
             String baseFileName = null;
-            final String coverageStoreId = FilenameUtils.getBaseName(inputFileName);
+            final String coverageStoreId; 
 
             if (dataType.equalsIgnoreCase("imagemosaic")){
+                coverageStoreId = FilenameUtils.getName(inputFileName);
                 final ImageMosaicFormat format = new ImageMosaicFormat();
                 ImageMosaicReader coverageReader = null;
     
@@ -134,11 +142,12 @@ public class SasMosaicGeoServerGenerator
                     }
                 }
             } else if (dataType.equalsIgnoreCase("geotiff")){
+            	coverageStoreId = FilenameUtils.getBaseName(inputFileName);
                 final GeoTiffFormat format = new GeoTiffFormat ();
                 GeoTiffReader coverageReader = null;
     
                 // //
-                // Trying to read the mosaic
+                // Trying to read the geotiff
                 // //
                 try {
                     coverageReader = (GeoTiffReader) format.getReader(workingDir);
@@ -171,7 +180,7 @@ public class SasMosaicGeoServerGenerator
             queryParams.put("namespace",	getConfiguration().getDefaultNamespace());
             queryParams.put("path",		getConfiguration().getWmsPath());
             queryParams.put("style", getConfiguration().getDefaultStyle());
-            send(workingDir, 
+            final String[] returnedLayer = send(workingDir, 
                     workingDir, 
                     getConfiguration().getGeoserverURL(),
                     new Long(System.currentTimeMillis()).toString(),
@@ -180,34 +189,45 @@ public class SasMosaicGeoServerGenerator
                     configId,
                     queryParams,
                     getConfiguration().getDatatype());
-
+            if (returnedLayer!=null && returnedLayer.length==3){
+//            	StringBuilder sb = new StringBuilder(NAMESPACE).append("=").append(returnedLayer[1])
+//            	.append("&").append(STORE).append("=").append(returnedLayer[0])
+//            	.append("&").append(LAYERNAME).append("=").append(returnedLayer[2]);
+//            	final File tempFile = File.createTempFile("gwc", ".gwc");
+//            	
+//            	
+//            	final File outputFile = new File(new StringBuilder(((SasMosaicGeoServerConfiguration)configuration).getGeowebcacheWatchingDir())
+//            	.append(IOUtils.FILE_SEPARATOR).append(FilenameUtils.getName(tempFile.getAbsolutePath())).toString());
+//            	IOUtils.copyFile(tempFile, outputFile);
+//            	IOUtils.deleteFile(tempFile);
+            	
+            }
             return events;
         } catch (Throwable t) {
             LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
             return null;
         }
-
     }
-
-
+    
     /**
      * Sending data to geoserver via REST protocol
      * @throws UnsupportedEncodingException 
      *
      * 
      */
-    public void send(final File inputDataDir, final File data, final String geoserverBaseURL,
+    public String[] send(final File inputDataDir, final File data, final String geoserverBaseURL,
             final String timeStamp, final String originalCoverageStoreId, final String storeFilePrefix,
             final String configId, final Map<String, String> queryParams, final String type) 
 			throws MalformedURLException, FileNotFoundException, UnsupportedEncodingException {
         URL geoserverREST_URL = null;
         boolean sent = false;
         final String coverageStoreId = URLEncoder.encode(originalCoverageStoreId,"UTF-8"); 
-        String layerName = storeFilePrefix != null ? storeFilePrefix : coverageStoreId;
+        final String[] layer = new String[3];
+        layer[0] = storeFilePrefix != null ? storeFilePrefix : coverageStoreId;
         if (GEOSERVER_VERSION.equalsIgnoreCase("1.7.2")){
             if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
                 geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/folders/")
-                		.append(coverageStoreId).append("/layers/").append(layerName).append("/file.")
+                		.append(coverageStoreId).append("/layers/").append(layer[0]).append("/file.")
                 		.append(type).append( "?" ).append(getQueryString(queryParams)).toString());
                 sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
                         new FileInputStream(data), 
@@ -215,7 +235,7 @@ public class SasMosaicGeoServerGenerator
     					getConfiguration().getGeoserverPWD());
             } else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
                 geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL ).append("/rest/folders/")
-                		.append(coverageStoreId).append("/layers/").append(layerName).append("/url.")
+                		.append(coverageStoreId).append("/layers/").append(layer[0]).append("/url.")
                 		.append(type).append("?").append(getQueryString(queryParams)).toString()); 
                 sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
     					data.toURL().toExternalForm(),
@@ -223,7 +243,7 @@ public class SasMosaicGeoServerGenerator
     					getConfiguration().getGeoserverPWD());
             }else if ("EXTERNAL".equals(getConfiguration().getDataTransferMethod())) {
                 geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/folders/")
-                		.append(coverageStoreId).append("/layers/").append(layerName).append("/external.")
+                		.append(coverageStoreId).append("/layers/").append(layer[0]).append("/external.")
                 		.append(type).append("?").append(getQueryString(queryParams)).toString());
                 sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
                                             data.toURL().toExternalForm(),
@@ -238,7 +258,7 @@ public class SasMosaicGeoServerGenerator
 	            sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
 	                    new FileInputStream(data), 
 	                                        getConfiguration().getGeoserverUID(),
-	                                        getConfiguration().getGeoserverPWD());
+	                                        getConfiguration().getGeoserverPWD(),layer);
 	        } else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
 	            geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/workspaces/")
 	            		.append(queryParams.get("namespace")).append("/coveragestores/").append(coverageStoreId)
@@ -246,7 +266,7 @@ public class SasMosaicGeoServerGenerator
 	            sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
 	                                        data.toURL().toExternalForm(),
 	                                        getConfiguration().getGeoserverUID(),
-	                                        getConfiguration().getGeoserverPWD());
+	                                        getConfiguration().getGeoserverPWD(),layer);
 	        } else if ("EXTERNAL".equals(getConfiguration().getDataTransferMethod())) {
 	            geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/workspaces/")
 	            		.append(queryParams.get("namespace")).append("/coveragestores/").append(coverageStoreId)
@@ -254,16 +274,18 @@ public class SasMosaicGeoServerGenerator
 	            sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
 	                                        data.toURL().toExternalForm(),
 	                                        getConfiguration().getGeoserverUID(),
-	                                        getConfiguration().getGeoserverPWD());
+	                                        getConfiguration().getGeoserverPWD(),layer);
 	        }
         }
 
         if (sent) {
         	if (LOGGER.isLoggable(Level.INFO))
         		LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
+        	return layer;
         } else {
         	if (LOGGER.isLoggable(Level.INFO))
         		LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
+        	return null;
         }
     }
 
@@ -275,13 +297,14 @@ public class SasMosaicGeoServerGenerator
      */
     public static void ingest(final String dataToBeIngested, final String wmsPath,
     		final String geoserverURL, final String geoserverUID, final String geoserverPWD,
-    		final String geoserverUploadMethod, final String style, final String datatype) throws Exception{
+    		final String geoserverUploadMethod, final String style, final String datatype, 
+    		final String geowebcacheWatchingDir) throws Exception{
       // //
       //
       // Setting up the GeoserverActionConfiguration properties
       //
       // //
-      final GeoServerActionConfiguration geoserverConfig = new GeoServerActionConfiguration();
+      final SasMosaicGeoServerConfiguration geoserverConfig = new SasMosaicGeoServerConfiguration();
       geoserverConfig.setGeoserverURL(geoserverURL);
       geoserverConfig.setGeoserverUID(geoserverUID);
       geoserverConfig.setGeoserverPWD(geoserverPWD);
@@ -290,6 +313,7 @@ public class SasMosaicGeoServerGenerator
       geoserverConfig.setDefaultNamespace("it.geosolutions");
       geoserverConfig.setWmsPath(wmsPath);
       geoserverConfig.setDatatype(datatype);
+      geoserverConfig.setGeowebcacheWatchingDir(geowebcacheWatchingDir);
       
       //Setting styles
       

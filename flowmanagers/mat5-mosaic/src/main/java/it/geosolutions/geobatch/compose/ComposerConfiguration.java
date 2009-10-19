@@ -61,8 +61,10 @@ public class ComposerConfiguration extends BaseImageProcessingConfiguration impl
     private String geoserverPWD;
 
     private String geoserverUploadMethod;
+    
+    private String geowebcacheWatchingDir;
 
-    private int chunkW = 10240;
+	private int chunkW = 10240;
     
     private int chunkH = 10240;
     
@@ -118,6 +120,13 @@ public class ComposerConfiguration extends BaseImageProcessingConfiguration impl
         this.geoserverUploadMethod = geoserverUploadMethod;
     }
 
+    public String getGeowebcacheWatchingDir() {
+		return geowebcacheWatchingDir;
+	}
+
+	public void setGeowebcacheWatchingDir(String geowebcacheWatchingDir) {
+		this.geowebcacheWatchingDir = geowebcacheWatchingDir;
+	}
     
 
     public ComposerConfiguration() {
