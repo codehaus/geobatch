@@ -52,8 +52,18 @@ public class FormatConverterConfiguration extends BaseImageProcessingConfigurati
     private String geoserverPWD;
 
     private String geoserverUploadMethod;
+    
+    private String geowebcacheWatchingDir;
 
-    public String getGeoserverURL() {
+    public String getGeowebcacheWatchingDir() {
+		return geowebcacheWatchingDir;
+	}
+
+	public void setGeowebcacheWatchingDir(String geowebcacheWatchingDir) {
+		this.geowebcacheWatchingDir = geowebcacheWatchingDir;
+	}
+
+	public String getGeoserverURL() {
         return geoserverURL;
     }
 

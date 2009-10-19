@@ -232,7 +232,9 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 		                                      
 		                                      SasMosaicGeoServerGenerator.ingest(mosaicTobeIngested, wmsPath,configuration.getGeoserverURL(),configuration.getGeoserverUID()
 		                                    		  ,configuration.getGeoserverPWD(),configuration.getGeoserverUploadMethod(), style, "imagemosaic"
-		                                    		  );
+		                                    		  ,configuration.getGeowebcacheWatchingDir());
+		                                      
+		                                      //TODO: Add geowebcache ingestion
 	                                      	}
 	                                      	else{
 	                                      		if (LOGGER.isLoggable(Level.WARNING))
