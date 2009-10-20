@@ -69,7 +69,7 @@
         <src.output>${basedir}/target</src.output>
         <gt.version>2.5-SNAPSHOT</gt.version>
         <gb.version>0.9-SNAPSHOT</gb.version>
-	    <imageio-ext.version>1.0.3</imageio-ext.version>
+	    <imageio-ext.version>1.0.4</imageio-ext.version>
         <spring.version>2.5.6.SEC01</spring.version>
         <dao.type>xstream</dao.type> <!-- the default dao type -->
     </properties>
