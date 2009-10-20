@@ -48,7 +48,7 @@
 		<property name="show_sql">false</property>
 
 		<!-- Drop and re-create the database schema on startup -->
-		<property name="hbm2ddl.auto">none</property>
+		<property name="hbm2ddl.auto">update</property>
 
 		<mapping class="it.geosolutions.geobatch.ftp.server.model.FtpUser" />
 
