@@ -200,6 +200,32 @@
 			</dependencies>
 		</profile>
 		<profile>
+			<id>all</id>
+			<dependencies>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-gliders</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-ais</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-sas</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-geowebcache</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-JGSFLoDeSS</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+		
+		<profile>
 			<id>gliders</id>
 			<dependencies>
 				<dependency>
