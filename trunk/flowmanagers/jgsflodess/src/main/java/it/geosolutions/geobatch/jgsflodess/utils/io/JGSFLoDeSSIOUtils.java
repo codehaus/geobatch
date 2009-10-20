@@ -260,7 +260,9 @@ public class JGSFLoDeSSIOUtils {
 					saveCompressedStream(buf, fos, buf.length);
 				} catch (IOException e) {
 					stream.close();
-					throw new IOException("Not valid COAMPS archive file type.", e);
+					IOException ioe = new IOException("Not valid COAMPS archive file type.");
+					ioe.initCause(e);
+					throw ioe;
 				} finally {
 					fos.flush();
 					fos.close();
@@ -294,7 +296,9 @@ public class JGSFLoDeSSIOUtils {
 
 				} catch (IOException e) {
 					zipFile.close();
-					throw new IOException("Not valid COAMPS archive file type.", e);
+					IOException ioe = new IOException("Not valid COAMPS archive file type.");
+					ioe.initCause(e);
+					throw ioe;
 				} finally {
 					fos.flush();
 					fos.close();
@@ -366,7 +370,9 @@ public class JGSFLoDeSSIOUtils {
 		} catch (Exception e) {
 			out.flush();
 			out.close();
-			throw new IOException("Not valid COAMPS archive file type.", e);
+			IOException ioe = new IOException("Not valid COAMPS archive file type.");
+			ioe.initCause(e);
+			throw ioe;
 		}
 	}
 	
