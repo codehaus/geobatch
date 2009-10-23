@@ -32,9 +32,12 @@ import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.mosaic.Mosaicer;
 import it.geosolutions.geobatch.utils.IOUtils;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -190,17 +193,7 @@ public class SasMosaicGeoServerGenerator
                     queryParams,
                     getConfiguration().getDatatype());
             if (returnedLayer!=null && returnedLayer.length==3){
-//            	StringBuilder sb = new StringBuilder(NAMESPACE).append("=").append(returnedLayer[1])
-//            	.append("&").append(STORE).append("=").append(returnedLayer[0])
-//            	.append("&").append(LAYERNAME).append("=").append(returnedLayer[2]);
-//            	final File tempFile = File.createTempFile("gwc", ".gwc");
-//            	
-//            	
-//            	final File outputFile = new File(new StringBuilder(((SasMosaicGeoServerConfiguration)configuration).getGeowebcacheWatchingDir())
-//            	.append(IOUtils.FILE_SEPARATOR).append(FilenameUtils.getName(tempFile.getAbsolutePath())).toString());
-//            	IOUtils.copyFile(tempFile, outputFile);
-//            	IOUtils.deleteFile(tempFile);
-            	
+            	writeGeowebcacheConfigurationFile(returnedLayer);
             }
             return events;
         } catch (Throwable t) {
@@ -209,7 +202,36 @@ public class SasMosaicGeoServerGenerator
         }
     }
     
-    /**
+    private void writeGeowebcacheConfigurationFile(final String[] returnedLayer) throws IOException {
+    	StringBuilder sb = new StringBuilder(NAMESPACE).append("=").append(returnedLayer[1])
+    	.append("&").append(STORE).append("=").append(returnedLayer[0])
+    	.append("&").append(LAYERNAME).append("=").append(returnedLayer[2]);
+    	final File tempFile = File.createTempFile("gwc", ".txt");
+    	final BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+    	try{
+    		writer.write(sb.toString());
+    	}catch (Throwable th){
+    		if (LOGGER.isLoggable(Level.FINE))
+    			LOGGER.fine("Error while writing geowebcache configuration file "+th.getLocalizedMessage());
+    	}finally{
+    		if (writer != null){
+    			try{
+    				writer.close();
+    			}catch (Throwable th){
+    				if (LOGGER.isLoggable(Level.FINE))
+    	    			LOGGER.log(Level.FINE, "Error while closing the writer"+th.getLocalizedMessage(),th);
+    	    				
+    			}
+    		}
+    	}
+    	
+    	final File outputFile = new File(new StringBuilder(((SasMosaicGeoServerConfiguration)configuration).getGeowebcacheWatchingDir())
+    	.append(IOUtils.FILE_SEPARATOR).append(FilenameUtils.getName(tempFile.getAbsolutePath())).toString());
+    	IOUtils.copyFile(tempFile, outputFile);
+    	IOUtils.deleteFile(tempFile);
+	}
+
+	/**
      * Sending data to geoserver via REST protocol
      * @throws UnsupportedEncodingException 
      *

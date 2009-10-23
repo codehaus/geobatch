@@ -242,6 +242,7 @@ public class ComposerConfiguration extends BaseImageProcessingConfiguration impl
         configuration.setCorePoolSize(getCorePoolSize());
         configuration.setMaxPoolSize(getMaxPoolSize());
         configuration.setMaxWaitingTime(getMaxWaitingTime());
+        configuration.setGeowebcacheWatchingDir(geowebcacheWatchingDir);
         return configuration;
     }
 
