@@ -213,7 +213,8 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 	                                      final String mosaicTobeIngested = composeMosaic(events,leafPath,outputDir.toString(), compressionRatio, compressionScheme,
 	                                              inputFormats, outputFormat, tileW, tileH, numSteps, downsampleStep, rawScaleAlgorithm, mosaicScaleAlgorithm,
 	                                              chunkW, chunkH, initTime, configuration.getGeoserverURL(),configuration.getGeoserverUID(),configuration.getGeoserverPWD(),
-	                                              configuration.getGeoserverUploadMethod(), configuration.getCorePoolSize(), configuration.getMaxPoolSize(), configuration.getMaxWaitingTime());
+	                                              configuration.getGeoserverUploadMethod(), configuration.getCorePoolSize(), configuration.getMaxPoolSize(), 
+	                                              configuration.getMaxWaitingTime(), configuration.getGeowebcacheWatchingDir());
 	                                      
 	                                      // //
 	                                      //
@@ -337,7 +338,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             final int numSteps, final int downsampleStep, final String rawScaleAlgorithm, final String mosaicScaleAlgorithm,
             final int chunkW, final int chunkH, final String time, 
             final String geoserverURL, final String geoserverUID, final String geoserverPWD, final String geoserverUploadMethod, 
-            final int corePoolSize, final int maxPoolSize, final long maxWaitingTime) throws Exception {
+            final int corePoolSize, final int maxPoolSize, final long maxWaitingTime, final String geowebcacheWatchingDir) throws Exception {
         
         // //
         //
@@ -363,6 +364,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         converterConfig.setGeoserverUID(geoserverUID);
         converterConfig.setGeoserverPWD(geoserverPWD);
         converterConfig.setGeoserverUploadMethod(geoserverUploadMethod);
+        converterConfig.setGeowebcacheWatchingDir(geowebcacheWatchingDir);
         
         if (LOGGER.isLoggable(Level.INFO))
         	LOGGER.log(Level.INFO, "Ingesting MatFiles in the mosaic composer");
