@@ -132,7 +132,7 @@ public class JGSFLoDeSSIOUtils {
 	/**
 	 * Static DateFormat Converter
 	 */
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_hhhmmss");
 	
 	public static final long startTime;
 
@@ -379,7 +379,6 @@ public class JGSFLoDeSSIOUtils {
 	/**
 	 * 
 	 * @param userRaster
-	 * @param varName
 	 * @param var
 	 * @param originalVarData
 	 * @param findNewRange
@@ -391,7 +390,7 @@ public class JGSFLoDeSSIOUtils {
 	 */
 	public static void write2DData(
 			WritableRaster userRaster,
-			final String varName, Variable var, final Array originalVarData, 
+			Variable var, final Array originalVarData, 
 	        final boolean findNewRange, final boolean updateFillValue, 
 	        final int[] loopLengths,
 	        final boolean flipY) throws IOException, InvalidRangeException {

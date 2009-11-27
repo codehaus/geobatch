@@ -88,6 +88,45 @@
 		<structure map-as="it.geosolutions.geobatch.catalog.impl.BaseConfiguration" />
 	</mapping>
 
+	<mapping name="RegistryActionConfiguration"
+		class="it.geosolutions.geobatch.configuration.event.action.geoserver.RegistryActionConfiguration"
+		extends="it.geosolutions.geobatch.configuration.event.action.ActionConfiguration">
+		<value name="workingDirectory" field="workingDirectory" usage="optional" />
+		<value name="crs" field="crs" />
+		<value name="envelope" field="envelope" />
+		<value name="dataTransferMethod" field="dataTransferMethod" />
+		<value name="geoserverPWD" field="geoserverPWD" />
+		<value name="geoserverUID" field="geoserverUID" />
+		<value name="geoserverURL" field="geoserverURL" />
+		<value name="metocDictionaryPath" field="metocDictionaryPath" />
+		<value name="metocHarvesterXMLTemplatePath" field="metocHarvesterXMLTemplatePath" />
+		<value name="storeFilePrefix" field="storeFilePrefix" usage="optional" />
+		<value name="wmsPath" field="wmsPath" usage="optional" />
+		<value name="defaultStyle" field="defaultStyle" usage="optional" />
+		<value name="defaultNamespaceUri" field="defaultNamespaceUri" usage="optional" />
+		<value name="defaultNamespace" field="defaultNamespace" usage="optional" />
+		<value name="datatype" field="datatype" usage="optional" />
+		<value name="configId" field="configId" usage="optional" />
+		<collection name="styles" field="styles" type="java.util.ArrayList">
+			<value name="style" type="java.lang.String" />
+		</collection>
+		<structure map-as="it.geosolutions.geobatch.catalog.impl.BaseConfiguration" />
+	</mapping>
+
+	<mapping name="MetocActionConfiguration"
+		class="it.geosolutions.geobatch.configuration.event.action.metoc.MetocActionConfiguration"
+		extends="it.geosolutions.geobatch.configuration.event.action.ActionConfiguration">
+		<value name="workingDirectory" field="workingDirectory" usage="optional" />
+		<value name="crs" field="crs" />
+		<value name="envelope" field="envelope" />
+		<value name="metocDictionaryPath" field="metocDictionaryPath" />
+		<value name="metocHarvesterXMLTemplatePath" field="metocHarvesterXMLTemplatePath" />
+		<value name="storeFilePrefix" field="storeFilePrefix" usage="optional" />
+		<value name="wmsPath" field="wmsPath" usage="optional" />
+		<value name="configId" field="configId" usage="optional" />
+		<structure map-as="it.geosolutions.geobatch.catalog.impl.BaseConfiguration" />
+	</mapping>
+	
     <mapping name="FlowConfiguration"
 		class="it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration"
 		extends="it.geosolutions.geobatch.configuration.flow.BaseFlowConfiguration">

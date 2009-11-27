@@ -22,7 +22,7 @@
 package it.geosolutions.geobatch.jgsflodess;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
+import it.geosolutions.geobatch.configuration.event.action.geoserver.RegistryActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorService;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  * 
  */
 public class NetCDFCFGeodetic2GeoTIFFsGeneratorService extends
-		GeoServerConfiguratorService<FileSystemMonitorEvent, GeoServerActionConfiguration> {
+		GeoServerConfiguratorService<FileSystemMonitorEvent, RegistryActionConfiguration> {
 	
     private final static Logger LOGGER = Logger.getLogger(NetCDFCFGeodetic2GeoTIFFsGeneratorService.class.toString());
 
@@ -44,7 +44,7 @@ public class NetCDFCFGeodetic2GeoTIFFsGeneratorService extends
      *  @param configuration The data base action configuration 
      *  @return new JGSFLoDeSSSWANFileConfigurator()
      */
-    public NetCDFCFGeodetic2GeoTIFFsFileConfigurator createAction(GeoServerActionConfiguration configuration) {
+    public NetCDFCFGeodetic2GeoTIFFsFileConfigurator createAction(RegistryActionConfiguration configuration) {
         try {
             return new NetCDFCFGeodetic2GeoTIFFsFileConfigurator(configuration);
         } catch (IOException e) {
@@ -55,7 +55,7 @@ public class NetCDFCFGeodetic2GeoTIFFsGeneratorService extends
     }
 
     @Override
-    public boolean canCreateAction(GeoServerActionConfiguration configuration) {
+    public boolean canCreateAction(RegistryActionConfiguration configuration) {
         final boolean superRetVal = super.canCreateAction(configuration);
         return superRetVal;
     }

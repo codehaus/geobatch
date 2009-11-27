@@ -102,8 +102,7 @@ public class FTPUserFormController extends SimpleFormController {
 		((GeoBatchUserManager) ((DefaultFtpServer) server.getFtpServer())
 				.getUserManager()).save(user);
 
-		List<FtpUser> ftpUsers = (List<FtpUser>) request.getSession()
-				.getAttribute("ftpUsers");
+		List<FtpUser> ftpUsers = (List<FtpUser>) request.getSession().getAttribute("ftpUsers");
 		ftpUsers.add(user);
 		request.getSession().setAttribute("ftpUsers", ftpUsers);
 		logger.info("Form data successfully submitted");
