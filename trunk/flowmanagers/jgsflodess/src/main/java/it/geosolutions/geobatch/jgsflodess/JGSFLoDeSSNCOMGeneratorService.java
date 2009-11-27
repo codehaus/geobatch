@@ -42,7 +42,7 @@ public class JGSFLoDeSSNCOMGeneratorService extends
      *  Action creator
      * 
      *  @param configuration The data base action configuration 
-     *  @return new JGSFLoDeSSNCOMFileConfigurator()
+     *  @return new NRLNCOMFileConfigurator()
      */
     public JGSFLoDeSSNCOMFileConfigurator createAction(GeoServerActionConfiguration configuration) {
         try {

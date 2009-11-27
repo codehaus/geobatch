@@ -391,7 +391,7 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 										
 										WritableRaster userRaster = Raster.createWritableRaster(outSampleModel, null);
 
-										JGSFLoDeSSIOUtils.write2DData(userRaster, varName, var, originalVarArray, false, false, new int[] {z, Y_Index.getLength(), X_Index.getLength()}, false);
+										JGSFLoDeSSIOUtils.write2DData(userRaster, var, originalVarArray, false, false, new int[] {z, Y_Index.getLength(), X_Index.getLength()}, false);
 
 										// Resampling to a Regular Grid ...
 										if (LOGGER.isLoggable(Level.INFO))

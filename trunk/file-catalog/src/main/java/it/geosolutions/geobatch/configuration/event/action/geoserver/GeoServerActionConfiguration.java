@@ -218,7 +218,6 @@ public class GeoServerActionConfiguration extends ActionConfiguration implements
 		configuration.setWmsPath(wmsPath);
 		configuration.setWorkingDirectory(workingDirectory);
 		
-		
 		return configuration;
 	}
 

@@ -45,14 +45,18 @@ public class Alias {
 						it.geosolutions.geobatch.geotiff.retile.GeoTiffRetilerConfiguration.class);
         xstream.alias("GeoServerActionConfiguration",
                         it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration.class);
+        xstream.alias("RegistryActionConfiguration",
+                it.geosolutions.geobatch.configuration.event.action.geoserver.RegistryActionConfiguration.class);
+        xstream.alias("MetocActionConfiguration",
+                		it.geosolutions.geobatch.configuration.event.action.metoc.MetocActionConfiguration.class);
 
         xstream.alias("EventConsumerConfiguration",
                         it.geosolutions.geobatch.configuration.event.consumer.EventConsumerConfiguration.class,
                         it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration.class);
 
         xstream.aliasField("EventConsumerConfiguration",
-							it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class,
-							"eventConsumerConfiguration");
+						it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class,
+						"eventConsumerConfiguration");
         
 //        xstream.alias("ComposerConfiguration",
 //							it.geosolutions.geobatch.compose.ComposerConfiguration.class);
