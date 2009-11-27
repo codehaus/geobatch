@@ -40,7 +40,7 @@
     	</property>	
 	</bean>
 	
-	<bean id="JGSFLoDeSSNCOMGeneratorService" class="it.geosolutions.geobatch.jgsflodess.JGSFLoDeSSNCOMGeneratorService">
+	<bean id="NRLNCOMGeneratorService" class="it.geosolutions.geobatch.lscv08.INGVGeneratorService">
 		<property  name="id">
     		<value>JGSFLoDeSSNCOMGeneratorService</value>
     	</property>
