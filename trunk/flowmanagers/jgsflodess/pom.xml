@@ -54,6 +54,14 @@
 		<imageio-ext.version>1.1-SNAPSHOT</imageio-ext.version>
 	</properties>
 
+  <repositories>
+    <repository>
+      <id>ulisse</id>
+      <name>Ulisse libraries repository</name>
+      <url>http://ulisse.pin.unifi.it:8080/archiva/repository/ext.public.rel/</url>
+    </repository>
+  </repositories>
+
 	<dependencies>	
 		<dependency>
 			<groupId>it.geosolutions.imageio-ext</groupId>
@@ -105,6 +113,12 @@
 	    	<artifactId>gt-coveragetools</artifactId>
 	    	<version>${gt.version}</version>
 	    </dependency>
+	    
+	    <!--dependency>
+	      <groupId>org.geotools</groupId>
+	      <artifactId>gt-hdf4</artifactId>
+	      <version>2.6-SNAPSHOT</version>
+	    </dependency-->
 	    
 	    <dependency>
 	      	<groupId>commons-cli</groupId>
@@ -174,11 +188,12 @@
 		</dependency>
 
     	<!-- Grid data formats -->
-    	<dependency>
+    	<!--<dependency>
       		<groupId>edu.ucar</groupId>
       		<artifactId>netcdf</artifactId>
       		<version>2.2.20</version>
     	</dependency>
+    	-->
     	<dependency>
       		<groupId>org.slf4j</groupId>
       		<artifactId>slf4j-jdk14</artifactId>
