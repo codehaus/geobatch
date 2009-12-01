@@ -24,16 +24,23 @@
 
 package it.geosolutions.geobatch.flow.event.action.geoserver;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -365,4 +372,147 @@ public class GeoServerRESTHelper {
 
         return input.toString();
     }
+    
+    /**
+	 * Send to GeoServer
+	 * 
+	 * @param inputDataDir
+	 * @param data
+	 * @param geoserverBaseURL
+	 * @param timeStamp
+	 * @param coverageStoreId
+	 * @param storeFilePrefix
+	 * @param dataStyles
+	 * @param defaultStyle
+	 * @param queryParams
+	 * @throws MalformedURLException
+	 * @throws FileNotFoundException
+	 */
+	public static String[] send(
+			final File inputDataDir, final File data,
+			final String geoserverBaseURL, final String geoserverUID, 
+			final String geoserverPWD,
+			final String originalCoverageStoreId, final String storeFilePrefix,
+			final Map<String, String> queryParams,
+			final String queryString,
+			final String dataTransferMethod, final String type, final String geoserverVersion, 
+			final List<String> dataStyles, final String defaultStyle )
+			throws MalformedURLException, FileNotFoundException, UnsupportedEncodingException {
+		URL geoserverREST_URL = null;
+		boolean sent = false;
+        final String coverageStoreId = URLEncoder.encode(originalCoverageStoreId,"UTF-8"); 
+        final String[] layer = new String[3];
+        layer[0] = storeFilePrefix != null ? storeFilePrefix : coverageStoreId;
+		String layerName = storeFilePrefix != null ? storeFilePrefix : coverageStoreId;
+		final String suffix = (queryString != null && queryString.trim().length()>0) ? "?"+queryString : "";
+
+		if (geoserverVersion.equalsIgnoreCase("1.7.x")) {
+			if ("DIRECT".equals(dataTransferMethod)) {
+				geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL)
+					.append( "/rest/folders/").append( coverageStoreId )
+					.append( "/layers/" ).append(layerName).append( "/file.").append(type)
+					.append( queryString).toString());
+				sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
+						new FileInputStream(data), geoserverUID, geoserverPWD);
+			} else if ("URL".equals(dataTransferMethod)) {
+				geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL) 
+					.append( "/rest/folders/").append( coverageStoreId ).append( "/layers/" )
+					.append( layerName ).append( "/url.").append(type).append( queryString).toString());
+				sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
+						.toURL().toExternalForm(), geoserverUID, geoserverPWD);
+			} else if ("EXTERNAL".equals(dataTransferMethod)) {
+				geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL)
+					.append( "/rest/folders/").append( coverageStoreId ).append( "/layers/" )
+					.append( layerName).append( "/external.").append(type).append( queryString).toString());
+				sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
+						.toURL().toExternalForm(), geoserverUID, geoserverPWD);
+			}
+		} else {
+			if ("DIRECT".equals(dataTransferMethod)) {
+				geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL)
+					.append( "/rest/workspaces/" ).append( queryParams.get("namespace"))
+					.append( "/coveragestores/" ).append( coverageStoreId)
+					.append( "/file.").append(type).append(suffix).toString());
+				sent = GeoServerRESTHelper.putBinaryFileTo(
+						geoserverREST_URL,
+						new FileInputStream(data), 
+						geoserverUID, geoserverPWD, layer);
+			} else if ("URL".equals(dataTransferMethod)) {
+				geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL)
+					.append( "/rest/workspaces/" ).append( queryParams.get("namespace"))
+					.append( "/coveragestores/" ).append( coverageStoreId ).append( "/url.")
+					.append(type).append(suffix).toString());
+				sent = GeoServerRESTHelper.putContent(
+						geoserverREST_URL, 
+						data.toURL().toExternalForm(), 
+						geoserverUID, geoserverPWD, layer);
+			} else if ("EXTERNAL".equals(dataTransferMethod)) {
+				geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL)
+					.append( "/rest/workspaces/" ).append( queryParams.get("namespace"))
+					.append( "/coveragestores/" ).append( coverageStoreId)
+					.append( "/external.").append(type).append(type).append(suffix).toString());
+				sent = GeoServerRESTHelper.putContent(
+						geoserverREST_URL, 
+						data.toURL().toExternalForm(), 
+						geoserverUID, geoserverPWD, layer);
+			}
+
+		}
+
+		if (sent) {
+			if (LOGGER.isLoggable(Level.INFO))
+				LOGGER.info("GeoTIFF GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
+			if (defaultStyle != null && defaultStyle.trim().length()>0)
+				configureStyles(layerName, defaultStyle, dataStyles, geoserverBaseURL, geoserverUID, geoserverPWD);
+			return layer;
+		} else {
+			if (LOGGER.isLoggable(Level.INFO))
+				LOGGER.info("GeoTIFF GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
+			return null;
+		}
+	}
+	
+	/**
+	 * Set the default style and the associable styles for the layer.
+	 *
+	 * @param layerName
+	 * @param defaultStyle the name of the style to configure as default style to the layer.
+	 * @param dataStyles the names of the styles to associate to the layer.
+	 * @param gsUrl Geoserver base URL
+	 * @param gsUser Geoserver admin username
+	 * @param gsPw Geoserver admin password
+	 * @return true if there were no errors in setting the styles.
+	 * @throws java.net.MalformedURLException
+	 * @throws java.io.FileNotFoundException
+	 */
+	private static boolean configureStyles(String layerName,
+			String defaultStyle, List<String> stylesList,
+			String gsUrl, String gsUsername, String gsPassword)
+		throws MalformedURLException, FileNotFoundException	{
+
+		boolean ret = true;
+		URL restUrl = new URL(gsUrl + "/rest/sldservice/updateLayer/" + layerName);
+
+		for (String styleName : stylesList) {
+			if(GeoServerRESTHelper.putContent(restUrl,
+												"<LayerConfig><Style>" +
+													styleName +
+												"</Style></LayerConfig>",
+												gsUsername, gsPassword)) {
+
+				LOGGER.info("added style " + styleName + " for layer " + layerName);
+			} else {
+				LOGGER.warning("error adding style " + styleName + " for layer " + layerName);
+				ret = false;
+			}
+		}
+
+		ret &= GeoServerRESTHelper.putContent(restUrl,
+												"<LayerConfig><DefaultStyle>" +
+													defaultStyle +
+												"</DefaultStyle></LayerConfig>",
+												gsUsername,
+												gsPassword);
+		return ret;
+	}
 }
