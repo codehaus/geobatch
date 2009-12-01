@@ -125,7 +125,7 @@ public abstract class GeoServerConfiguratorAction<T extends EventObject>
 	 * @throws java.net.MalformedURLException
 	 * @throws java.io.FileNotFoundException
 	 */
-	private boolean configureStyles(String layerName,
+	public static boolean configureStyles(String layerName,
 			String defaultStyle, List<String> stylesList,
 			String gsUrl, String gsUsername, String gsPassword)
 		throws MalformedURLException, FileNotFoundException	{
@@ -141,9 +141,9 @@ public abstract class GeoServerConfiguratorAction<T extends EventObject>
 												"</Style></LayerConfig>",
 												gsUsername, gsPassword)) {
 
-				LOGGER.info(getClass().getSimpleName()+": added style " + styleName + " for layer " + layerName);
+				LOGGER.info("added style " + styleName + " for layer " + layerName);
 			} else {
-				LOGGER.warning(getClass().getSimpleName()+": error adding style " + styleName + " for layer " + layerName);
+				LOGGER.warning("error adding style " + styleName + " for layer " + layerName);
 				ret = false;
 			}
 		}
