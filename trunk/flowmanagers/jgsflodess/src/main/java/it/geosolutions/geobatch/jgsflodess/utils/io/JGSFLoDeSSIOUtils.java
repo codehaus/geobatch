@@ -1,5 +1,23 @@
-/**
- * 
+/*
+ *  GeoBatch - Open Source geospatial batch processing system
+ *  http://code.google.com/p/geobatch/
+ *  Copyright (C) 2007-2008-2009 GeoSolutions S.A.S.
+ *  http://www.geo-solutions.it
+ *
+ *  GPLv3 + Classpath exception
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package it.geosolutions.geobatch.jgsflodess.utils.io;
 
@@ -34,6 +52,7 @@ import javax.vecmath.GMatrix;
 
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.coverage.CoverageFactoryFinder;
+import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.io.AbstractGridCoverageWriter;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
@@ -70,6 +89,10 @@ import com.ice.tar.TarInputStream;
  *
  */
 public class JGSFLoDeSSIOUtils {
+	
+	private JGSFLoDeSSIOUtils(){
+		
+	}
 
 	protected final static Logger LOGGER = Logger.getLogger(JGSFLoDeSSIOUtils.class.toString());
 	
@@ -85,6 +108,11 @@ public class JGSFLoDeSSIOUtils {
     public final static String LAT_DIM = "lat";
 
     public final static String LON_DIM = "lon";
+
+    public final static String LAT_DIM_LONG = "latitude";
+
+    public final static String LON_DIM_LONG = "longitude";
+
 
 
     public final static String LATITUDE = "Latitude";
@@ -132,250 +160,17 @@ public class JGSFLoDeSSIOUtils {
 	/**
 	 * Static DateFormat Converter
 	 */
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_hhhmmss");
+	private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyyMMdd_hhhmmss");
 	
 	public static final long startTime;
 
 	static {
 		GregorianCalendar calendar = new GregorianCalendar(1980, 00, 01, 00, 00, 00);
 		calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		SDF.setTimeZone(TimeZone.getTimeZone("GMT"));
 		startTime = calendar.getTimeInMillis();
 	}
 
-	/**
-	 * 
-	 * @param outDir 
-	 * @param fileName 
-	 * @param varName 
-	 * @param userRaster
-	 * @param envelope 
-	 * @param compressionType 
-	 * @param compressionRatio 
-	 * @param tileSize 
-	 * @return 
-	 * @throws IOException 
-	 * @throws IllegalArgumentException 
-	 */
-	public static File storeCoverageAsGeoTIFF(
-			final File outDir, 
-			final String fileName, 
-			final CharSequence varName, 
-			WritableRaster userRaster, 
-			Envelope envelope, 
-			final String compressionType, final double compressionRatio, final int tileSize) 
-	throws IllegalArgumentException, IOException {
-		// /////////////////////////////////////////////////////////////////////
-		//
-		// PREPARING A WRITE
-		//
-		// /////////////////////////////////////////////////////////////////////
-		if (LOGGER.isLoggable(Level.INFO))
-			LOGGER.info("Writing down the file in the decoded directory...");
-		final GeoTiffFormat wformat = new GeoTiffFormat();
-		final GeoTiffWriteParams wp = new GeoTiffWriteParams();
-		if (!Double.isNaN(compressionRatio)) {
-			wp.setCompressionMode(GeoTiffWriteParams.MODE_EXPLICIT);
-			wp.setCompressionType(compressionType);
-			wp.setCompressionQuality((float) compressionRatio);
-		}
-		wp.setTilingMode(GeoToolsWriteParams.MODE_EXPLICIT);
-		wp.setTiling(tileSize, tileSize);
-		final ParameterValueGroup wparams = wformat.getWriteParameters();
-		wparams.parameter(AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName().toString()).setValue(wp);
-
-		// keep original name
-		final File outFile = new File(outDir, fileName.toString() + ".tiff");
-
-		// /////////////////////////////////////////////////////////////////////
-		//
-		// ACQUIRING A WRITER AND PERFORMING A WRITE
-		//
-		// /////////////////////////////////////////////////////////////////////
-		final Hints hints = new Hints(Hints.TILE_ENCODING, "raw");
-        final GridCoverageFactory factory = CoverageFactoryFinder.getGridCoverageFactory(hints);
-        
-        final SampleModel iSampleModel = userRaster.getSampleModel();
-		final ColorModel iColorModel = PlanarImage.createColorModel(iSampleModel);
-		TiledImage image = new TiledImage(0, 0, userRaster.getWidth(), userRaster.getHeight(), 0, 0, 
-        		iSampleModel, iColorModel);
-		image.setData(userRaster);
-		
-        GridCoverage coverage = null;
-        if (iColorModel != null)
-        	coverage = factory.create(varName, image, envelope);
-        else
-        	coverage = factory.create(varName, userRaster, envelope);
-        
-		final AbstractGridCoverageWriter writer = (AbstractGridCoverageWriter) new GeoTiffWriter(outFile);
-		writer.write(coverage, (GeneralParameterValue[]) wparams.values().toArray(new GeneralParameterValue[1]));
-
-		// /////////////////////////////////////////////////////////////////////
-		//
-		// PERFORMING FINAL CLEAN UP AFTER THE WRITE PROCESS
-		//
-		// /////////////////////////////////////////////////////////////////////
-		writer.dispose();
-		
-		return outFile;
-	}
-	
-	/**
-	 * 
-	 * @param tempFile
-	 * @return
-	 * @throws IOException
-	 */
-	public static File decompress(final String prefix, final File inputFile, final File tempFile)
-			throws IOException {
-		final File tmpDestDir = createTodayPrefixedDirectory(prefix, new File(tempFile.getParent()));
-
-		String ext = FilenameUtils.getExtension(inputFile.getName());
-
-		if (ext.equalsIgnoreCase("tar")) {
-			final TarInputStream stream = new TarInputStream(new FileInputStream(inputFile));
-			final TarEntryEnumerator entryEnum = new TarEntryEnumerator(stream);
-
-			if (stream == null) {
-				throw new IOException("Not valid COAMPS archive file type.");
-			}
-
-			TarEntry entry;
-			while (entryEnum.hasMoreElements()) {
-				entry = (TarEntry) entryEnum.nextElement();
-				final String entryName = entry.getName();
-
-				if(entry.isDirectory()) {
-					// Assume directories are stored parents first then children.
-					(new File(tmpDestDir, entry.getName())).mkdir();
-					continue;
-				}
-				
-				byte[] buf = new byte[(int) entry.getSize()];
-				stream.read(buf);
-
-				File newFile = new File(tmpDestDir.getAbsolutePath(), entryName);
-				FileOutputStream fos = new FileOutputStream(newFile);
-				try {
-					saveCompressedStream(buf, fos, buf.length);
-				} catch (IOException e) {
-					stream.close();
-					IOException ioe = new IOException("Not valid COAMPS archive file type.");
-					ioe.initCause(e);
-					throw ioe;
-				} finally {
-					fos.flush();
-					fos.close();
-				}
-			}
-			stream.close();
-
-		} else if (ext.equalsIgnoreCase("zip")) {
-			ZipFile zipFile = new ZipFile(inputFile);
-
-			Enumeration<? extends ZipEntry> entries = zipFile.entries();
-
-			while(entries.hasMoreElements()) {
-				ZipEntry entry = (ZipEntry)entries.nextElement();
-				InputStream stream = zipFile.getInputStream(entry);
-
-				if(entry.isDirectory()) {
-					// Assume directories are stored parents first then children.
-					(new File(tmpDestDir, entry.getName())).mkdir();
-					continue;
-				}
-
-				File newFile = new File(tmpDestDir, entry.getName());
-				FileOutputStream fos = new FileOutputStream(newFile);
-				try {
-					byte[] buf = new byte[1024];
-					int len;
-
-				    while((len = stream.read(buf)) >= 0)
-						saveCompressedStream(buf, fos, len);
-
-				} catch (IOException e) {
-					zipFile.close();
-					IOException ioe = new IOException("Not valid COAMPS archive file type.");
-					ioe.initCause(e);
-					throw ioe;
-				} finally {
-					fos.flush();
-					fos.close();
-					
-					stream.close();
-				}
-			}
-			zipFile.close();
-		}
-
-		return tmpDestDir;
-	}
-
-	/**
-	 * Create a subDirectory having the actual date as name, within a specified
-	 * destination directory.
-	 * 
-	 * @param destDir
-	 *            the destination directory where to build the "today"
-	 *            directory.
-	 * @return the created directory.
-	 */
-	public final static File createTodayDirectory(File destDir) {
-		final SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd");
-		final String newPath = (new StringBuffer(destDir.getAbsolutePath()
-				.trim()).append(File.separatorChar).append(sdf
-				.format(new Date()))).toString();
-		File dir = new File(newPath);
-		if (!dir.exists())
-			dir.mkdir();
-		return dir;
-	}
-	
-	/**
-	 * Create a subDirectory having the actual date as name, within a specified
-	 * destination directory.
-	 *
-	 * @param prefix
-	 * @param parent
-	 *            the destination directory where to build the "today"
-	 *            directory.
-	 * @return the created directory.
-	 */
-	public static File createTodayPrefixedDirectory(final String prefix, final File parent) {
-		final SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_hhmmsss");
-		final String newPath = (new StringBuffer(parent.getAbsolutePath().trim())
-				.append(File.separatorChar)
-				.append(prefix)
-				.append(File.separatorChar)
-				.append(sdf.format(new Date())))
-				.toString();
-		File dir = new File(newPath);
-		if (!dir.exists())
-			dir.mkdirs();
-		return dir;
-	}
-
-	/**
-	 * @param len 
-	 * @param stream
-	 * @param fos
-	 * @return 
-	 * @throws IOException
-	 */
-	public static void saveCompressedStream(final byte[] buffer, final OutputStream out, final int len) throws IOException {
-		try {
-			out.write(buffer, 0, len);
-			
-		} catch (Exception e) {
-			out.flush();
-			out.close();
-			IOException ioe = new IOException("Not valid COAMPS archive file type.");
-			ioe.initCause(e);
-			throw ioe;
-		}
-	}
-	
 	/**
 	 * 
 	 * @param userRaster
@@ -401,8 +196,8 @@ public class JGSFLoDeSSIOUtils {
 		int lonPositions = -1;
 		
 		if (loopLengths.length == 2) {
-			latPositions = loopLengths[1];
-			lonPositions = loopLengths[2];
+			latPositions = loopLengths[0];
+			lonPositions = loopLengths[1];
 		} else if (loopLengths.length == 3) {
 			zPos         = loopLengths[0];
 			latPositions = loopLengths[1];

@@ -31,6 +31,7 @@ import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
 import it.geosolutions.geobatch.metocs.jaxb.model.MetocElementType;
 import it.geosolutions.geobatch.metocs.jaxb.model.Metocs;
 import it.geosolutions.geobatch.utils.IOUtils;
+import it.geosolutions.geobatch.utils.io.Utilities;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFConverterUtilities;
 
 import java.io.File;
@@ -174,15 +175,15 @@ public class INGVFileConfigurator extends
 				throw new IllegalStateException("Unexpected file '" + inputFileName + "'");
 			}
 
-			final File outDir = JGSFLoDeSSIOUtils.createTodayDirectory(workingDir);
+			final File outDir = Utilities.createTodayDirectory(workingDir);
 			
 			inputFileName = FilenameUtils.getName(inputFileName);
 			// decompress input file into a temp directory
 			final File tempFile = File.createTempFile(inputFileName, ".tmp");
 			final File ncomsDatasetDirectory = 
 				("zip".equalsIgnoreCase(fileSuffix) || "tar".equalsIgnoreCase(fileSuffix)) ? 
-						JGSFLoDeSSIOUtils.decompress("INGV-MFS", event.getSource(), tempFile) :
-						JGSFLoDeSSIOUtils.createTodayPrefixedDirectory("INGV-MFS", new File(tempFile.getParent()));
+						Utilities.decompress("INGV-MFS", event.getSource(), tempFile) :
+							Utilities.createTodayPrefixedDirectory("INGV-MFS", new File(tempFile.getParent()));
 			
 			// move the file if it's not an archive
 			if (!("zip".equalsIgnoreCase(fileSuffix) || "tar".equalsIgnoreCase(fileSuffix)))

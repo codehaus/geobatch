@@ -29,6 +29,7 @@ import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfigurato
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
 import it.geosolutions.geobatch.utils.IOUtils;
+import it.geosolutions.geobatch.utils.io.Utilities;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFConverterUtilities;
 
 import java.awt.image.DataBuffer;
@@ -152,12 +153,12 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 				throw new IllegalStateException("Unexpected file '" + inputFileName + "'");
 			}
 
-			final File outDir = JGSFLoDeSSIOUtils.createTodayDirectory(workingDir);
+			final File outDir = Utilities.createTodayDirectory(workingDir);
 			
 			inputFileName = FilenameUtils.getName(inputFileName);
 			// decompress input file into a temp directory
 			final File tempFile = File.createTempFile(inputFileName, ".tmp");
-			final File ncomsDatasetDirectory = JGSFLoDeSSIOUtils.decompress("NCOM", event.getSource(), tempFile);
+			final File ncomsDatasetDirectory = Utilities.decompress("NCOM", event.getSource(), tempFile);
 			
 			// ////
 			// STEP 1: Looking for grid area definition NetCDF file

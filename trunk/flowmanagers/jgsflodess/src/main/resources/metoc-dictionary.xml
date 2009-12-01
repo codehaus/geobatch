@@ -10,6 +10,10 @@
 		<name>land or sea</name>
 		<brief>mask</brief>
 	</metoc>
+	<metoc defaultUom="dimensionless" type="meteo">
+		<name>lowcloud</name>
+		<brief>lowcloud</brief>
+	</metoc>
 	<metoc defaultUom="urn:ogc:def:uom:UCUM::W.m2" type="meteo">
 		<name>longwave (ir) radiation</name>
 		<brief>longwavrad</brief>
@@ -140,5 +144,4 @@
 		<name>water temperature</name>
 		<brief>wattemp</brief>
 	</metoc>
-	
 </metocs>

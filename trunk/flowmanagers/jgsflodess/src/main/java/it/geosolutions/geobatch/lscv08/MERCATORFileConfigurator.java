@@ -31,6 +31,7 @@ import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
 import it.geosolutions.geobatch.metocs.jaxb.model.MetocElementType;
 import it.geosolutions.geobatch.metocs.jaxb.model.Metocs;
 import it.geosolutions.geobatch.utils.IOUtils;
+import it.geosolutions.geobatch.utils.io.Utilities;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFConverterUtilities;
 
 import java.awt.image.DataBuffer;
@@ -171,15 +172,15 @@ public class MERCATORFileConfigurator extends
 				throw new IllegalStateException("Unexpected file '" + inputFileName + "'");
 			}
 
-			final File outDir = JGSFLoDeSSIOUtils.createTodayDirectory(workingDir);
+			final File outDir = Utilities.createTodayDirectory(workingDir);
 			
 			inputFileName = FilenameUtils.getName(inputFileName);
 			// decompress input file into a temp directory
 			final File tempFile = File.createTempFile(inputFileName, ".tmp");
 			final File ncomsDatasetDirectory = 
 				("zip".equalsIgnoreCase(fileSuffix) || "tar".equalsIgnoreCase(fileSuffix)) ? 
-						JGSFLoDeSSIOUtils.decompress("MERCATOR", event.getSource(), tempFile) :
-						JGSFLoDeSSIOUtils.createTodayPrefixedDirectory("MERCATOR", new File(tempFile.getParent()));
+						Utilities.decompress("MERCATOR", event.getSource(), tempFile) :
+							Utilities.createTodayPrefixedDirectory("MERCATOR", new File(tempFile.getParent()));
 			
 			// move the file if it's not an archive
 			if (!("zip".equalsIgnoreCase(fileSuffix) || "tar".equalsIgnoreCase(fileSuffix)))
@@ -358,26 +359,8 @@ public class MERCATORFileConfigurator extends
 				// //
 				// defining the SampleModel data type
 				// //
-				final int dataType;
-				final DataType varDataType = var.getDataType();
-				if (varDataType == DataType.FLOAT)
-					dataType = DataBuffer.TYPE_FLOAT;
-				else if (varDataType == DataType.DOUBLE)
-					dataType = DataBuffer.TYPE_DOUBLE;
-				else if (varDataType == DataType.BYTE)
-					dataType = DataBuffer.TYPE_BYTE;
-				else if (varDataType == DataType.SHORT)
-					dataType = DataBuffer.TYPE_SHORT;
-				else if (varDataType == DataType.INT)
-					dataType = DataBuffer.TYPE_INT;
-				else
-					dataType = DataBuffer.TYPE_UNDEFINED;
-				
-				SampleModel outSampleModel = RasterFactory.createBandedSampleModel(
-						dataType, //data type
-						lon_dim.getLength(), //width
-						lat_dim.getLength(), //height
-						1); //num bands
+				final SampleModel outSampleModel = Utilities.getSampleModel(var.getDataType(), 
+						lon_dim.getLength(), lat_dim.getLength(),1); 
 
 				Array originalVarArray = var.read();
 				
