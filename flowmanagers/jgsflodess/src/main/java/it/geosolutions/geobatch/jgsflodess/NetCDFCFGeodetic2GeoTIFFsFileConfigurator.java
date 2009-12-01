@@ -31,6 +31,7 @@ import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
 import it.geosolutions.geobatch.metocs.jaxb.model.MetocElementType;
 import it.geosolutions.geobatch.metocs.jaxb.model.Metocs;
 import it.geosolutions.geobatch.utils.IOUtils;
+import it.geosolutions.geobatch.utils.io.Utilities;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFConverterUtilities;
 
 import java.awt.image.DataBuffer;
@@ -39,14 +40,10 @@ import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -67,8 +64,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.io.FilenameUtils;
-import org.geotools.coverage.grid.GeneralGridRange;
-import org.geotools.gce.geotiff.GeoTiffFormat;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.gce.geotiff.GeoTiffReader;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.CRS;
@@ -126,22 +122,12 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 	 */
 	public final static String GEOSERVER_VERSION = "2.x";
 	
-	private final static GeoTiffFormat format = new GeoTiffFormat();
-
 	private static final int DEFAULT_TILE_SIZE = 256;
-
-	private static final int DEFAULT_TILE_CACHE_SIZE = 16;
-
-	private static final int MINIMUM_TILE_SIZE = 50;
 
 	private static final double DEFAULT_COMPRESSION_RATIO = 0.75;
 
 	private static final String DEFAULT_COMPRESSION_TYPE = "LZW";
 
-	private static final int DEFAULT_OVERVIEWS_NUMBER = 0;
-
-//	private static final int DEFAULT_OVERVIEWS_ALGORITHM = 0;
-	
 	/**
 	 * Static DateFormat Converter
 	 */
@@ -170,7 +156,6 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 			if (events.size() != 1)
 				throw new IllegalArgumentException("Wrong number of elements for this action: " + events.size());
 			FileSystemMonitorEvent event = events.remove();
-			final String configId = configuration.getName();
 
 			// //
 			// data flow configuration and dataStore name must not be null.
@@ -223,7 +208,7 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 
 			inputFileName = FilenameUtils.getBaseName(inputFileName);
 			ncFileIn = NetcdfFile.open(event.getSource().getAbsolutePath());
-			final File outDir = JGSFLoDeSSIOUtils.createTodayDirectory(workingDir);
+			final File outDir = Utilities.createTodayDirectory(workingDir);
 
 			// input DIMENSIONS
 			final Dimension timeDim = ncFileIn.findDimension(JGSFLoDeSSIOUtils.TIME_DIM);
@@ -262,13 +247,10 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 			final Variable timeOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.TIME_DIM);
 			final Array timeOriginalData = timeOriginalVar.read();
 			final Index timeOriginalIndex = timeOriginalData.getIndex();
-			final DataType timeDataType = timeOriginalVar.getDataType();
 
 			final Variable lonOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.LON_DIM);
-			final DataType lonDataType = lonOriginalVar.getDataType();
 
 			final Variable latOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.LAT_DIM);
-			final DataType latDataType = latOriginalVar.getDataType();
 
 			final Array latOriginalData = latOriginalVar.read();
 			final Array lonOriginalData = lonOriginalVar.read();
@@ -279,13 +261,11 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 			//
 			// //
 			Variable zetaOriginalVar = null;
-			DataType zetaDataType = null;
 			Array zetaOriginalData = null;
 			
 			if (hasZeta) {
 				zetaOriginalVar = ncFileIn.findVariable(depthDimExists ? JGSFLoDeSSIOUtils.DEPTH_DIM : JGSFLoDeSSIOUtils.HEIGHT_DIM);
 				if (zetaOriginalVar != null) {
-					zetaDataType = zetaOriginalVar.getDataType();
 					nZeta = depthDimExists ? depthDim.getLength() : heightDim.getLength();
 					zetaOriginalData = zetaOriginalVar.read();
 				}
@@ -317,26 +297,8 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 					// //
 					// defining the SampleModel data type
 					// //
-					final int dataType;
-					final DataType varDataType = var.getDataType();
-					if (varDataType == DataType.FLOAT)
-						dataType = DataBuffer.TYPE_FLOAT;
-					else if (varDataType == DataType.DOUBLE)
-						dataType = DataBuffer.TYPE_DOUBLE;
-					else if (varDataType == DataType.BYTE)
-						dataType = DataBuffer.TYPE_BYTE;
-					else if (varDataType == DataType.SHORT)
-						dataType = DataBuffer.TYPE_SHORT;
-					else if (varDataType == DataType.INT)
-						dataType = DataBuffer.TYPE_INT;
-					else
-						dataType = DataBuffer.TYPE_UNDEFINED;
-					
-					SampleModel outSampleModel = RasterFactory.createBandedSampleModel(
-							dataType, //data type
-							nLon, //width
-							nLat, //height
-							1); //num bands
+					final SampleModel outSampleModel = Utilities.getSampleModel(var.getDataType(), 
+							nLon, nLat,1); 
 
 					Array originalVarArray = var.read();
 					final boolean hasLocalZLevel = NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.DEPTH_DIM)
@@ -351,16 +313,16 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 							// ////
 							// producing the Coverage here...
 							// ////
-							final StringBuilder coverageName = new StringBuilder(inputFileName);
-							              coverageName.append("_").append(varName.replaceAll("_", ""));
-							              coverageName.append("_").append(hasLocalZLevel ? zetaOriginalData.getLong(zetaOriginalData.getIndex().set(z)) : 0);
-							              coverageName.append("_").append(baseTime);
-										  coverageName.append("_").append(timeDimExists ? sdf.format(JGSFLoDeSSIOUtils.startTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*1000) : "00000000_0000000");
-										  coverageName.append("_").append(TAU);
+							final StringBuilder coverageName = new StringBuilder(inputFileName)
+							              .append("_").append(varName.replaceAll("_", ""))
+							              .append("_").append(hasLocalZLevel ? zetaOriginalData.getLong(zetaOriginalData.getIndex().set(z)) : 0)
+							              .append("_").append(baseTime)
+										  .append("_").append(timeDimExists ? sdf.format(JGSFLoDeSSIOUtils.startTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*1000) : "00000000_0000000")
+										  .append("_").append(TAU);
 
 							final String coverageStoreId = coverageName.toString();
 
-							File gtiffFile = JGSFLoDeSSIOUtils.storeCoverageAsGeoTIFF(outDir, coverageName.toString(), varName, userRaster, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
+							File gtiffFile = Utilities.storeCoverageAsGeoTIFF(outDir, coverageName.toString(), varName, userRaster, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
 
 							// ////////////////////////////////////////////////////////////////////
 							//
@@ -370,32 +332,39 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 							Map<String, String> queryParams = new HashMap<String, String>();
 							queryParams.put("namespace", getConfiguration().getDefaultNamespace());
 							queryParams.put("wmspath", getConfiguration().getWmsPath());
-							send(outDir, 
-								gtiffFile, 
-								getConfiguration().getGeoserverURL(), 
-								new Long(event.getTimestamp()).toString(), 
-								coverageStoreId, 
-								coverageName.toString(),
-								getConfiguration().getStyles(), 
-								configId,
-								getConfiguration().getDefaultStyle(), 
-								queryParams
-							);
+							GeoServerRESTHelper.send(outDir, 
+									gtiffFile, 
+									getConfiguration().getGeoserverURL(), 
+									getConfiguration().getGeoserverUID(), 
+									getConfiguration().getGeoserverPWD(),
+									coverageStoreId, 
+									coverageName.toString(),
+									queryParams, "", getConfiguration().getDataTransferMethod(),
+									"geotiff",
+									GEOSERVER_VERSION, getConfiguration().getStyles(), 
+									getConfiguration().getDefaultStyle());
 
 							// ////////////////////////////////////////////////////////////////////
 							//
 							// HARVESTING metadata to the Registry.
 							//
 							// ////////////////////////////////////////////////////////////////////
-							harvest(outDir, 
-									gtiffFile, 
-									getConfiguration().getGeoserverURL(), 
-									event.getTimestamp(), 
-									getConfiguration().getDefaultNamespace(),
-									coverageStoreId, 
-									coverageName.toString(),
-									NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.DEPTH_DIM) ? "DOWN" : "UP"
-							);
+							final String xmlTemplate = getConfiguration().getMetocHarvesterXMLTemplatePath();
+							if (xmlTemplate != null && xmlTemplate.trim().length()>0){
+								final File metadataTemplate = new File(xmlTemplate);
+								if (metadataTemplate != null && metadataTemplate.exists()){
+									harvest(outDir, 
+										gtiffFile,
+										metadataTemplate,
+										getConfiguration().getGeoserverURL(), 
+										event.getTimestamp(), 
+										getConfiguration().getDefaultNamespace(),
+										coverageStoreId, 
+										coverageName.toString(),
+										NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.DEPTH_DIM) ? "DOWN" : "UP"
+									);
+								}
+							}
 						}
 					}
 
@@ -421,109 +390,7 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 		}
 	}
 
-	/**
-	 * Send to GeoServer
-	 * 
-	 * @param inputDataDir
-	 * @param data
-	 * @param geoserverBaseURL
-	 * @param timeStamp
-	 * @param coverageStoreId
-	 * @param storeFilePrefix
-	 * @param dataStyles
-	 * @param configId
-	 * @param defaultStyle
-	 * @param queryParams
-	 * @throws MalformedURLException
-	 * @throws FileNotFoundException
-	 */
-	public void send(
-			final File inputDataDir, final File data,
-			final String geoserverBaseURL, final String timeStamp,
-			final String coverageStoreId, final String storeFilePrefix,
-			final List<String> dataStyles, final String configId,
-			final String defaultStyle, final Map<String, String> queryParams)
-			throws MalformedURLException, FileNotFoundException {
-		URL geoserverREST_URL = null;
-		boolean sent = false;
-
-		String layerName = storeFilePrefix != null ? storeFilePrefix : coverageStoreId;
-
-		if (GEOSERVER_VERSION.equalsIgnoreCase("1.7.x")) {
-			if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
-				geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/"
-						+ coverageStoreId + "/layers/" + layerName + "/file.geotiff"
-						+ getQueryString(queryParams));
-				sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
-						new FileInputStream(data), getConfiguration()
-								.getGeoserverUID(), getConfiguration()
-								.getGeoserverPWD());
-			} else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
-				geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/"
-						+ coverageStoreId + "/layers/" + layerName + "/url.geotiff"
-						+ getQueryString(queryParams));
-				sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
-						.toURL().toExternalForm(), getConfiguration()
-						.getGeoserverUID(), getConfiguration()
-						.getGeoserverPWD());
-			} else if ("EXTERNAL".equals(getConfiguration()
-					.getDataTransferMethod())) {
-				geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/"
-						+ coverageStoreId + "/layers/" + layerName
-						+ "/external.geotiff" 
-						+ getQueryString(queryParams));
-				sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
-						.toURL().toExternalForm(), getConfiguration()
-						.getGeoserverUID(), getConfiguration()
-						.getGeoserverPWD());
-			}
-		} else {
-			if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
-				final String[] results = new String[4];
-				geoserverREST_URL = new URL(geoserverBaseURL
-						+ "/rest/workspaces/" + queryParams.get("namespace")
-						+ "/coveragestores/" + coverageStoreId
-						+ "/file.geotiff");
-				sent = GeoServerRESTHelper.putBinaryFileTo(
-						geoserverREST_URL,
-						new FileInputStream(data), 
-						getConfiguration().getGeoserverUID(), 
-						getConfiguration().getGeoserverPWD(),
-						results);
-			} else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
-				geoserverREST_URL = new URL(geoserverBaseURL
-						+ "/rest/workspaces/" + queryParams.get("namespace")
-						+ "/coveragestores/" + coverageStoreId + "/url.geotiff");
-				sent = GeoServerRESTHelper.putContent(
-						geoserverREST_URL, 
-						data.toURL().toExternalForm(), 
-						getConfiguration().getGeoserverUID(), 
-						getConfiguration().getGeoserverPWD()
-				);
-			} else if ("EXTERNAL".equals(getConfiguration().getDataTransferMethod())) {
-				geoserverREST_URL = new URL(geoserverBaseURL
-						+ "/rest/workspaces/" + queryParams.get("namespace")
-						+ "/coveragestores/" + coverageStoreId
-						+ "/external.geotiff");
-				sent = GeoServerRESTHelper.putContent(
-						geoserverREST_URL, 
-						data.toURL().toExternalForm(), 
-						getConfiguration().getGeoserverUID(), 
-						getConfiguration().getGeoserverPWD()
-				);
-			}
-
-		}
-
-		if (sent) {
-			if (LOGGER.isLoggable(Level.INFO))
-				LOGGER.info("GeoTIFF GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
-			boolean sldSent = configureStyles(layerName);
-		} else {
-			if (LOGGER.isLoggable(Level.INFO))
-				LOGGER.info("GeoTIFF GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
-		}
-	}
+	
 	
 	/**
 	 * Harvest: Metadata Creator
@@ -544,6 +411,7 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 	public void harvest(
 			final File outDir, 
 			final File gtiffFile, 
+			final File metadataTemplate,
 			final String geoserverURL,
 			final long timestamp, 
 			final String namespace, 
@@ -559,9 +427,6 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 		Unmarshaller um = context.createUnmarshaller();
 		Metocs metocDictionary = (Metocs) um.unmarshal(new FileReader(new File(getConfiguration().getMetocDictionaryPath())));
 		
-		// get harvester XML template
-		final File metadataTemplate = new File(getConfiguration().getMetocHarvesterXMLTemplatePath());
-		
 		// keep original name
 		final File outFile = new File(outDir, coverageName + ".xml");
 		
@@ -570,7 +435,7 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 		final CoordinateReferenceSystem crs = reader.getCrs();
 		final String srsId = CRS.lookupIdentifier(crs, false);
 		final GeneralEnvelope envelope = reader.getOriginalEnvelope();
-		final GeneralGridRange range = reader.getOriginalGridRange();
+		final GridEnvelope2D range = (GridEnvelope2D) reader.getOriginalGridRange();
 
 		final String[] metocFields = coverageName.split("_");
 		
@@ -646,8 +511,8 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 												 .append(envelope.getUpperCorner().getOrdinate(1));
 										wcsGetCoverage.append("&amp;FORMAT=geotiff");
 										wcsGetCoverage.append("&amp;COVERAGE=").append(namespace + ":" + coverageName);
-										wcsGetCoverage.append("&amp;WIDTH=").append(range.getLength(0));
-										wcsGetCoverage.append("&amp;HEIGHT=").append(range.getLength(1));
+										wcsGetCoverage.append("&amp;WIDTH=").append(range.getWidth());
+										wcsGetCoverage.append("&amp;HEIGHT=").append(range.getHeight());
 										wcsGetCoverage.append("&amp;CRS=").append(srsId);
             		inLine = inLine.replaceAll("#WCS_GETCOVERAGE#", wcsGetCoverage.toString());
             	}
@@ -663,8 +528,8 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
             							wmsGetMap.append("&amp;STYLES=");
             							wmsGetMap.append("&amp;FORMAT=image/png");
             							wmsGetMap.append("&amp;LAYERS=").append(namespace + ":" + coverageName);
-            							wmsGetMap.append("&amp;WIDTH=").append(range.getLength(0));
-            							wmsGetMap.append("&amp;HEIGHT=").append(range.getLength(1));
+            							wmsGetMap.append("&amp;WIDTH=").append(range.getWidth());
+            							wmsGetMap.append("&amp;HEIGHT=").append(range.getHeight());
             							wmsGetMap.append("&amp;SRS=").append(srsId);
             		inLine = inLine.replaceAll("#WMS_GETMAP#", wmsGetMap.toString());
             	}
@@ -787,20 +652,20 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
             	
             	if (inLine.contains("#RESX#")) {
             		double lon = envelope.getUpperCorner().getOrdinate(0) - envelope.getLowerCorner().getOrdinate(0);
-            		inLine = inLine.replaceAll("#RESX#", String.valueOf(lon / range.getLength(0)));
+            		inLine = inLine.replaceAll("#RESX#", String.valueOf(lon / range.getWidth()));
             	}
             	
             	if (inLine.contains("#RESY#")) {
             		double lat = envelope.getUpperCorner().getOrdinate(1) - envelope.getLowerCorner().getOrdinate(1);
-            		inLine = inLine.replaceAll("#RESY#", String.valueOf(lat / range.getLength(1)));
+            		inLine = inLine.replaceAll("#RESY#", String.valueOf(lat / range.getHeight()));
             	}
             	
             	if (inLine.contains("#WIDTH#")) {
-            		inLine = inLine.replaceAll("#WIDTH#", String.valueOf(range.getLength(0)));
+            		inLine = inLine.replaceAll("#WIDTH#", String.valueOf(range.getWidth()));
             	}
             	
             	if (inLine.contains("#HEIGHT#")) {
-            		inLine = inLine.replaceAll("#HEIGHT#", String.valueOf(range.getLength(1)));
+            		inLine = inLine.replaceAll("#HEIGHT#", String.valueOf(range.getHeight()));
             	}
             	
             	if (inLine.contains("#GRID_ORIGIN#")) {
@@ -810,8 +675,8 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
             	if (inLine.contains("#GRID_OFFSETS#")) {
             		double lon = envelope.getUpperCorner().getOrdinate(0) - envelope.getLowerCorner().getOrdinate(0);
             		double lat = envelope.getUpperCorner().getOrdinate(1) - envelope.getLowerCorner().getOrdinate(1);
-            		double resX = lon / range.getLength(0);
-            		double resY = lat / range.getLength(1);
+            		double resX = lon / range.getWidth();
+            		double resY = lat / range.getHeight();
             		inLine = inLine.replaceAll("#GRID_OFFSETS#", resX + " 0 0  0 " + resY + " 0  0 0 0");
             	}
             	

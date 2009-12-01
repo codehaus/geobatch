@@ -29,6 +29,7 @@ import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfigurato
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
 import it.geosolutions.geobatch.utils.IOUtils;
+import it.geosolutions.geobatch.utils.io.Utilities;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFConverterUtilities;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFUtilities;
 
@@ -134,7 +135,7 @@ public class JGSFLoDeSSSWANFileConfigurator extends
 
 			inputFileName = FilenameUtils.getBaseName(inputFileName);
 			ncFileIn = NetcdfFile.open(event.getSource().getAbsolutePath());
-			final File outDir = JGSFLoDeSSIOUtils.createTodayDirectory(workingDir);
+			final File outDir = Utilities.createTodayDirectory(workingDir);
             
 			boolean hasZeta = false;
 			
