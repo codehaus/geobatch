@@ -32,7 +32,6 @@ import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.mosaic.Mosaicer;
 import it.geosolutions.geobatch.utils.IOUtils;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,8 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.logging.Level;
-
-import javax.imageio.stream.FileImageOutputStream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.gce.geotiff.GeoTiffFormat;
@@ -72,7 +69,7 @@ public class SasMosaicGeoServerGenerator
     
     public final static String DEFAULT_STYLE = "raster";
     
-    public final static String GEOSERVER_VERSION = "1.7.X";
+    public final static String GEOSERVER_VERSION = "2.X";
     
     private final static String NAMESPACE = "namespace";
     private final static String STORE = "store";
@@ -179,19 +176,22 @@ public class SasMosaicGeoServerGenerator
             // SENDING data to GeoServer via REST protocol.
             //
             // ////////////////////////////////////////////////////////////////////
+            
             final Map<String, String> queryParams = new HashMap<String, String>();
             queryParams.put("namespace",	getConfiguration().getDefaultNamespace());
             queryParams.put("path",		getConfiguration().getWmsPath());
             queryParams.put("style", getConfiguration().getDefaultStyle());
-            final String[] returnedLayer = send(workingDir, 
+            final String[] returnedLayer = GeoServerRESTHelper.send(workingDir, 
                     workingDir, 
-                    getConfiguration().getGeoserverURL(),
-                    new Long(System.currentTimeMillis()).toString(),
+                    configuration.getGeoserverURL(),
+                    configuration.getGeoserverUID(),
+                    configuration.getGeoserverPWD(),
                     coverageStoreId,
                     baseFileName,
-                    configId,
                     queryParams,
-                    getConfiguration().getDatatype());
+                    getQueryString(queryParams),
+                    configuration.getDataTransferMethod(),
+                    dataType, GEOSERVER_VERSION, null, null);
             if (returnedLayer!=null && returnedLayer.length==3){
             	writeGeowebcacheConfigurationFile(returnedLayer);
             }
@@ -231,85 +231,85 @@ public class SasMosaicGeoServerGenerator
     	IOUtils.deleteFile(tempFile);
 	}
 
-	/**
-     * Sending data to geoserver via REST protocol
-     * @throws UnsupportedEncodingException 
-     *
-     * 
-     */
-    public String[] send(final File inputDataDir, final File data, final String geoserverBaseURL,
-            final String timeStamp, final String originalCoverageStoreId, final String storeFilePrefix,
-            final String configId, final Map<String, String> queryParams, final String type) 
-			throws MalformedURLException, FileNotFoundException, UnsupportedEncodingException {
-        URL geoserverREST_URL = null;
-        boolean sent = false;
-        final String coverageStoreId = URLEncoder.encode(originalCoverageStoreId,"UTF-8"); 
-        final String[] layer = new String[3];
-        layer[0] = storeFilePrefix != null ? storeFilePrefix : coverageStoreId;
-        if (GEOSERVER_VERSION.equalsIgnoreCase("1.7.2")){
-            if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
-                geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/folders/")
-                		.append(coverageStoreId).append("/layers/").append(layer[0]).append("/file.")
-                		.append(type).append( "?" ).append(getQueryString(queryParams)).toString());
-                sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
-                        new FileInputStream(data), 
-    					getConfiguration().getGeoserverUID(),
-    					getConfiguration().getGeoserverPWD());
-            } else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
-                geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL ).append("/rest/folders/")
-                		.append(coverageStoreId).append("/layers/").append(layer[0]).append("/url.")
-                		.append(type).append("?").append(getQueryString(queryParams)).toString()); 
-                sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
-    					data.toURL().toExternalForm(),
-    					getConfiguration().getGeoserverUID(),
-    					getConfiguration().getGeoserverPWD());
-            }else if ("EXTERNAL".equals(getConfiguration().getDataTransferMethod())) {
-                geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/folders/")
-                		.append(coverageStoreId).append("/layers/").append(layer[0]).append("/external.")
-                		.append(type).append("?").append(getQueryString(queryParams)).toString());
-                sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
-                                            data.toURL().toExternalForm(),
-                                            getConfiguration().getGeoserverUID(),
-                                            getConfiguration().getGeoserverPWD());
-            }
-        }else{
-        	if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
-	            geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/workspaces/")
-	            		.append(queryParams.get("namespace")).append("/coveragestores/").append(coverageStoreId)
-	            		.append("/file.").append(type).append("?").append(getQueryString(queryParams)).toString());
-	            sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
-	                    new FileInputStream(data), 
-	                                        getConfiguration().getGeoserverUID(),
-	                                        getConfiguration().getGeoserverPWD(),layer);
-	        } else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
-	            geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/workspaces/")
-	            		.append(queryParams.get("namespace")).append("/coveragestores/").append(coverageStoreId)
-	            		.append("/url.").append(type).append("?").append(getQueryString(queryParams)).toString()); 
-	            sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
-	                                        data.toURL().toExternalForm(),
-	                                        getConfiguration().getGeoserverUID(),
-	                                        getConfiguration().getGeoserverPWD(),layer);
-	        } else if ("EXTERNAL".equals(getConfiguration().getDataTransferMethod())) {
-	            geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/workspaces/")
-	            		.append(queryParams.get("namespace")).append("/coveragestores/").append(coverageStoreId)
-	            		.append("/external.").append(type).append("?").append(getQueryString(queryParams)).toString());
-	            sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
-	                                        data.toURL().toExternalForm(),
-	                                        getConfiguration().getGeoserverUID(),
-	                                        getConfiguration().getGeoserverPWD(),layer);
-	        }
-        }
-
-        if (sent) {
-        	if (LOGGER.isLoggable(Level.INFO))
-        		LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
-        	return layer;
-        } else {
-        	if (LOGGER.isLoggable(Level.INFO))
-        		LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
-        	return null;
-        }
-    }
+//	/**
+//     * Sending data to geoserver via REST protocol
+//     * @throws UnsupportedEncodingException 
+//     *
+//     * 
+//     */
+//    public String[] send(final File inputDataDir, final File data, final String geoserverBaseURL,
+//            final String timeStamp, final String originalCoverageStoreId, final String storeFilePrefix,
+//            final Map<String, String> queryParams, final String type) 
+//			throws MalformedURLException, FileNotFoundException, UnsupportedEncodingException {
+//        URL geoserverREST_URL = null;
+//        boolean sent = false;
+//        final String coverageStoreId = URLEncoder.encode(originalCoverageStoreId,"UTF-8"); 
+//        final String[] layer = new String[3];
+//        layer[0] = storeFilePrefix != null ? storeFilePrefix : coverageStoreId;
+//        if (GEOSERVER_VERSION.equalsIgnoreCase("1.7.2")){
+//            if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
+//                geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/folders/")
+//                		.append(coverageStoreId).append("/layers/").append(layer[0]).append("/file.")
+//                		.append(type).append( "?" ).append(getQueryString(queryParams)).toString());
+//                sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
+//                        new FileInputStream(data), 
+//    					getConfiguration().getGeoserverUID(),
+//    					getConfiguration().getGeoserverPWD());
+//            } else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
+//                geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL ).append("/rest/folders/")
+//                		.append(coverageStoreId).append("/layers/").append(layer[0]).append("/url.")
+//                		.append(type).append("?").append(getQueryString(queryParams)).toString()); 
+//                sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
+//    					data.toURL().toExternalForm(),
+//    					getConfiguration().getGeoserverUID(),
+//    					getConfiguration().getGeoserverPWD());
+//            }else if ("EXTERNAL".equals(getConfiguration().getDataTransferMethod())) {
+//                geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/folders/")
+//                		.append(coverageStoreId).append("/layers/").append(layer[0]).append("/external.")
+//                		.append(type).append("?").append(getQueryString(queryParams)).toString());
+//                sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
+//                                            data.toURL().toExternalForm(),
+//                                            getConfiguration().getGeoserverUID(),
+//                                            getConfiguration().getGeoserverPWD());
+//            }
+//        }else{
+//        	if ("DIRECT".equals(getConfiguration().getDataTransferMethod())) {
+//	            geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/workspaces/")
+//	            		.append(queryParams.get("namespace")).append("/coveragestores/").append(coverageStoreId)
+//	            		.append("/file.").append(type).append("?").append(getQueryString(queryParams)).toString());
+//	            sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
+//	                    new FileInputStream(data), 
+//	                                        getConfiguration().getGeoserverUID(),
+//	                                        getConfiguration().getGeoserverPWD(),layer);
+//	        } else if ("URL".equals(getConfiguration().getDataTransferMethod())) {
+//	            geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/workspaces/")
+//	            		.append(queryParams.get("namespace")).append("/coveragestores/").append(coverageStoreId)
+//	            		.append("/url.").append(type).append("?").append(getQueryString(queryParams)).toString()); 
+//	            sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
+//	                                        data.toURL().toExternalForm(),
+//	                                        getConfiguration().getGeoserverUID(),
+//	                                        getConfiguration().getGeoserverPWD(),layer);
+//	        } else if ("EXTERNAL".equals(getConfiguration().getDataTransferMethod())) {
+//	            geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL).append("/rest/workspaces/")
+//	            		.append(queryParams.get("namespace")).append("/coveragestores/").append(coverageStoreId)
+//	            		.append("/external.").append(type).append("?").append(getQueryString(queryParams)).toString());
+//	            sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
+//	                                        data.toURL().toExternalForm(),
+//	                                        getConfiguration().getGeoserverUID(),
+//	                                        getConfiguration().getGeoserverPWD(),layer);
+//	        }
+//        }
+//
+//        if (sent) {
+//        	if (LOGGER.isLoggable(Level.INFO))
+//        		LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
+//        	return layer;
+//        } else {
+//        	if (LOGGER.isLoggable(Level.INFO))
+//        		LOGGER.info("MOSAIC GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
+//        	return null;
+//        }
+//    }
 
     /**
      * Setup a Geoserver Ingestion action to send data to Geoserver via REST 
