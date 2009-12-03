@@ -248,10 +248,11 @@ public class ContactGeoServerGenerator extends
 	         		coordinate[0] = new Coordinate (point.getCoordinate());
 	         		coordinate[1] = new Coordinate (point.getCoordinate());
 
-	            	coordinate = DouglasPeuckerLineSimplifier.simplify(coordinate, 0.025);
-
+	            	coordinate = DouglasPeuckerLineSimplifier.simplify(coordinate, 0.0025);
 	            	CoordinateSequence sequence = geometryFactory.getCoordinateSequenceFactory().create(coordinate);
+	            	
 	            	LineString course = new LineString(sequence, geometryFactory);   
+	            	course.setSRID(4326);
 	            	
 	            	currentContact.setCourse(course);
 	            	
