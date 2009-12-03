@@ -34,7 +34,6 @@ import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.geobatch.utils.io.Utilities;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFConverterUtilities;
 
-import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
@@ -55,7 +54,6 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 
 import javax.media.jai.JAI;
-import javax.media.jai.RasterFactory;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
@@ -81,14 +79,7 @@ import ucar.nc2.Variable;
 public class MERCATORFileConfigurator extends
 			MetocConfigurationAction<FileSystemMonitorEvent> {
 
-	/**
-	 * Static DateFormat Converter
-	 */
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddmm_HHH");
-	
-	static {
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-	}
+	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddmm_HHH");
 	
 	public static final long startTime;
 
@@ -102,6 +93,7 @@ public class MERCATORFileConfigurator extends
 	protected MERCATORFileConfigurator(
 			MetocActionConfiguration configuration) throws IOException {
 		super(configuration);
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
 
 	/**
