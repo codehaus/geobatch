@@ -27,9 +27,26 @@ import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.utils.IOUtils;
+import it.geosolutions.geobatch.wmc.model.GeneralWMCConfiguration;
+import it.geosolutions.geobatch.wmc.model.OLIsBaseLayer;
+import it.geosolutions.geobatch.wmc.model.OLLayerID;
+import it.geosolutions.geobatch.wmc.model.OLMaxExtent;
+import it.geosolutions.geobatch.wmc.model.OLSingleTile;
+import it.geosolutions.geobatch.wmc.model.OLTransparent;
+import it.geosolutions.geobatch.wmc.model.ViewContext;
+import it.geosolutions.geobatch.wmc.model.WMCBoundingBox;
+import it.geosolutions.geobatch.wmc.model.WMCExtension;
+import it.geosolutions.geobatch.wmc.model.WMCFormat;
+import it.geosolutions.geobatch.wmc.model.WMCLayer;
+import it.geosolutions.geobatch.wmc.model.WMCOnlineResource;
+import it.geosolutions.geobatch.wmc.model.WMCSLD;
+import it.geosolutions.geobatch.wmc.model.WMCServer;
+import it.geosolutions.geobatch.wmc.model.WMCStyle;
+import it.geosolutions.geobatch.wmc.model.WMCWindow;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.logging.Level;
@@ -94,31 +111,63 @@ Action<FileSystemMonitorEvent> {
 			
 			final String geoserverUrl = configuration.getGeoserverURL();
 
-			final List<WMCEntry> layerList = configuration.getLayerList();
+			final List<WMCEntry> entryList = configuration.getLayerList();
 			
 			// //
 			//
 			// Write header 
 			//
 			// // 
-			
+			ViewContext viewContext = new ViewContext("tstWMC", "1.0.0");
+	    	WMCWindow window = new WMCWindow(331, 560);
+	    	GeneralWMCConfiguration generalConfig = new GeneralWMCConfiguration(window, "Prova", "prova");
+	    	WMCBoundingBox bbox = new WMCBoundingBox("EPSG:4326", -180.0, -90.0, 180.0, 90.0);
+	    	
 			// //
 			//
 			// Write layers pages
 			//
 			// //
-			
-			for (WMCEntry entry : layerList){
+	    	List<WMCLayer> layerList = new ArrayList<WMCLayer>();
+			for (WMCEntry entry : entryList){
 				final String nameSpace = entry.getNameSpace();
 				final String layerName = entry.getLayerName();
+				
+				WMCLayer testLayer = new WMCLayer("0", "0", nameSpace+":"+layerName, layerName, "EPSG:4326");
+		    	WMCServer server = new WMCServer("wms", "1.1.1", "wms");
+		    	List<WMCFormat> formatList = new ArrayList<WMCFormat>();
+		    	List<WMCStyle> styleList = new ArrayList<WMCStyle>();
+		    	WMCExtension extension = new WMCExtension();
+		    	extension.setId(new OLLayerID(layerName));
+		    	extension.setMaxExtent(new OLMaxExtent(null));
+		    	extension.setIsBaseLayer(new OLIsBaseLayer("FALSE"));
+		    	extension.setSingleTile(new OLSingleTile("FALSE"));
+		    	extension.setTransparent(new OLTransparent("TRUE"));
+		    	
+		    	formatList.add(new WMCFormat("1", "image/png"));
+		    	//styleList.add(new WMCStyle("1", new WMCSLD(new WMCOnlineResource("simple", "http://localhost:8081/NurcCruises/resources/xml/SLDDefault.xml"))));
+		    	
+		    	server.setOnlineResource(new WMCOnlineResource("simple", geoserverUrl));
+				testLayer.setServer(server);
+		    	testLayer.setFormatList(formatList);
+		    	//testLayer.setStyleList(styleList);
+		    	testLayer.setExtension(extension);
+		    	
+		    	layerList.add(testLayer);
 			}
 			
 			// //
 			//
-			// Write footer
+			// Finalize
 			//
 			// //
-
+			window.setBbox(bbox);
+			viewContext.setGeneral(generalConfig);
+			viewContext.setLayerList(layerList);
+	    	
+			/** TODO: Write out **/
+			new WMCStream().toXML(viewContext, System.out);
+			
 			return events;
 		} catch (Throwable t) {
 			return null;
