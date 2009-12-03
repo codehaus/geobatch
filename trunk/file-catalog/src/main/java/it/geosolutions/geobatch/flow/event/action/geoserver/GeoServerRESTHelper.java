@@ -450,7 +450,7 @@ public class GeoServerRESTHelper {
 				geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL)
 					.append( "/rest/workspaces/" ).append( queryParams.get("namespace"))
 					.append( "/coveragestores/" ).append( coverageStoreId)
-					.append( "/external.").append(type).append(type).append(suffix).toString());
+					.append( "/external.").append(type).append(suffix).toString());
 				sent = GeoServerRESTHelper.putContent(
 						geoserverREST_URL, 
 						data.toURL().toExternalForm(), 
