@@ -34,7 +34,6 @@ import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.geobatch.utils.io.Utilities;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFConverterUtilities;
 
-import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
@@ -58,7 +57,6 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 import javax.media.jai.JAI;
-import javax.media.jai.RasterFactory;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -72,7 +70,6 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import ucar.ma2.Array;
-import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
@@ -131,15 +128,12 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 	/**
 	 * Static DateFormat Converter
 	 */
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
-	
-	static {
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-	}
+	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
 	
 	protected NetCDFCFGeodetic2GeoTIFFsFileConfigurator(
 			RegistryActionConfiguration configuration) throws IOException {
 		super(configuration);
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
 
 	/**

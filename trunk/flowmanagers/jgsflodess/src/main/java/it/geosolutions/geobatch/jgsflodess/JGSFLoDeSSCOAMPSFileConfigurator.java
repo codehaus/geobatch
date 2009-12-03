@@ -72,15 +72,12 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends
 	/**
 	 * Static DateFormat Converter
 	 */
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
-	
-	static {
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-	}
+	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
 	
 	protected JGSFLoDeSSCOAMPSFileConfigurator(
 			GeoServerActionConfiguration configuration) throws IOException {
 		super(configuration);
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
 
 	/**

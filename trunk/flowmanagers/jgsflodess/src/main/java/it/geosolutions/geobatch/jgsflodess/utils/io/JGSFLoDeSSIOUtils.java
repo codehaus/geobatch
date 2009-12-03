@@ -24,49 +24,20 @@ package it.geosolutions.geobatch.jgsflodess.utils.io;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFUtilities;
 import it.geosolutions.utils.coamps.data.FlatFileGrid;
 
-import java.awt.image.ColorModel;
-import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
-import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
-import javax.media.jai.TiledImage;
 import javax.vecmath.GMatrix;
 
-import org.apache.commons.io.FilenameUtils;
-import org.geotools.coverage.CoverageFactoryFinder;
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.GridCoverageFactory;
-import org.geotools.coverage.grid.io.AbstractGridCoverageWriter;
-import org.geotools.coverage.grid.io.AbstractGridFormat;
-import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
-import org.geotools.factory.Hints;
-import org.geotools.gce.geotiff.GeoTiffFormat;
-import org.geotools.gce.geotiff.GeoTiffWriteParams;
-import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.coverage.grid.GridCoverage;
-import org.opengis.geometry.Envelope;
-import org.opengis.parameter.GeneralParameterValue;
-import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -79,10 +50,6 @@ import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
-
-import com.ice.tar.TarEntry;
-import com.ice.tar.TarEntryEnumerator;
-import com.ice.tar.TarInputStream;
 
 /**
  * @author Alessio
@@ -157,17 +124,11 @@ public class JGSFLoDeSSIOUtils {
 		WGS_84 = crs;
 	}
 
-	/**
-	 * Static DateFormat Converter
-	 */
-	private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyyMMdd_hhhmmss");
-	
 	public static final long startTime;
 
 	static {
 		GregorianCalendar calendar = new GregorianCalendar(1980, 00, 01, 00, 00, 00);
 		calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-		SDF.setTimeZone(TimeZone.getTimeZone("GMT"));
 		startTime = calendar.getTimeInMillis();
 	}
 

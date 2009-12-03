@@ -71,18 +71,12 @@ import ucar.nc2.Variable;
 public class JGSFLoDeSSNCOMFileConfigurator extends
 		GeoServerConfiguratorAction<FileSystemMonitorEvent> {
 
-	/**
-	 * Static DateFormat Converter
-	 */
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddmm_HHH");
-	
-	static {
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-	}
+	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddmm_HHH");
 	
 	protected JGSFLoDeSSNCOMFileConfigurator(
 			GeoServerActionConfiguration configuration) throws IOException {
 		super(configuration);
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
 
 	/**
