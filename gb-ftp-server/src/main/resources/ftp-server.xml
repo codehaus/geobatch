@@ -27,7 +27,7 @@
 		</ftplets>
 
 		<user-manager>
-			<beans:bean id="geoBatchUserManager" class="it.geosolutions.geobatch.ftp.server.GeoBatchUserManager">
+			<beans:bean id="geoBatchUserManager" class="it.geosolutions.geobatch.ftp.server.GeoBatchUserManager" depends-on="globalConfig">
 				<beans:property name="ftpUserDAO" ref="ftpUserDAO" />
 			</beans:bean>
 		</user-manager>
