@@ -117,14 +117,14 @@ public class HDF42GeoTIFFsFileConfigurator extends
 	/**
 	 * Static DateFormat Converter
 	 */
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
+//	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
 	
-	private static final SimpleDateFormat sdfISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+//	private static final SimpleDateFormat sdfISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 	
-	static {
-		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-		sdfISO8601.setTimeZone(TimeZone.getTimeZone("UTC"));
-	}
+//	static {
+//		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+//		sdfISO8601.setTimeZone(TimeZone.getTimeZone("UTC"));
+//	}
 	
 	protected HDF42GeoTIFFsFileConfigurator(final RegistryActionConfiguration configuration) throws IOException {
 		super(configuration);
@@ -221,6 +221,9 @@ public class HDF42GeoTIFFsFileConfigurator extends
 	                if(temporalDomain == null)
 	                	throw new IllegalStateException("Temporal domain is null");
 
+	                final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
+	                sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+	                
                 	// get the temporal domain elements
                 	for(TemporalGeometricPrimitive tg:temporalDomain.getTemporalElements(null)){
                          baseTime = sdf.format(((Period)tg).getBeginning().getPosition().getDate());
@@ -303,8 +306,8 @@ public class HDF42GeoTIFFsFileConfigurator extends
 									coverageName.toString(),
 									queryParams, "", getConfiguration().getDataTransferMethod(),
 									"geotiff",
-									GEOSERVER_VERSION, getConfiguration().getStyles(), 
-									getConfiguration().getDefaultStyle());
+									GEOSERVER_VERSION, null,null /*getConfiguration().getStyles(), 
+									getConfiguration().getDefaultStyle()*/);
 
 							// ////////////////////////////////////////////////////////////////////
 							//
@@ -346,9 +349,11 @@ public class HDF42GeoTIFFsFileConfigurator extends
 
 	private final static String getUom(final FieldType ft) {
 		final String uom = ft.getUnitOfMeasure().toString();
-		if (ft != null && ft.getName().getLocalPart().toString().contains("sst")){
+		if (ft != null)
+			if(ft.getName().getLocalPart().toString().contains("sst"))
 				return "cel";
-		}
+			else if(ft.getName().getLocalPart().toString().contains("lowcloud"))
+				return "dimensionless";
 		return uom;
 	}
 	
@@ -450,7 +455,11 @@ public class HDF42GeoTIFFsFileConfigurator extends
             
             final String satelliteName = metocFields[1].substring(0, metocFields[1].indexOf("-"));
            	final String sensorName = metocFields[1].substring(metocFields[1].indexOf("-")+1);
-    		final String acquisitionTime = sdfISO8601.format(sdf.parse(metocFields[3] + "_" + metocFields[4]));
+           	final SimpleDateFormat sdfISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        	sdfISO8601.setTimeZone(TimeZone.getTimeZone("UTC"));
+            final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        	final String acquisitionTime = sdfISO8601.format(sdf.parse(metocFields[3] + "_" + metocFields[4]));
             final double ucx = envelope.getUpperCorner().getOrdinate(0);
             final double ucy = envelope.getUpperCorner().getOrdinate(1);
             final double lcy = envelope.getLowerCorner().getOrdinate(1);
