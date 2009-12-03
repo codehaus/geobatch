@@ -39,9 +39,7 @@ import it.geosolutions.geobatch.wmc.model.WMCExtension;
 import it.geosolutions.geobatch.wmc.model.WMCFormat;
 import it.geosolutions.geobatch.wmc.model.WMCLayer;
 import it.geosolutions.geobatch.wmc.model.WMCOnlineResource;
-import it.geosolutions.geobatch.wmc.model.WMCSLD;
 import it.geosolutions.geobatch.wmc.model.WMCServer;
-import it.geosolutions.geobatch.wmc.model.WMCStyle;
 import it.geosolutions.geobatch.wmc.model.WMCWindow;
 
 import java.io.File;
@@ -91,19 +89,19 @@ Action<FileSystemMonitorEvent> {
 			// Initializing input variables
 			//
 			// ////////////////////////////////////////////////////////////////////
-			final File workingDir = IOUtils.findLocation(configuration.getWorkingDirectory(), new File(
-					((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
+//			final File workingDir = IOUtils.findLocation(configuration.getWorkingDirectory(), new File(
+//					((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
 
 			// ////////////////////////////////////////////////////////////////////
 			//
 			// Checking input files.
 			//
 			// ////////////////////////////////////////////////////////////////////
-			if ((workingDir == null) || !workingDir.exists()
-					|| !workingDir.isDirectory()) {
-				LOGGER.log(Level.SEVERE, "WorkingDirectory is null or does not exist.");
-				throw new IllegalStateException("WorkingDirectory is null or does not exist.");
-			}
+//			if ((workingDir == null) || !workingDir.exists()
+//					|| !workingDir.isDirectory()) {
+//				LOGGER.log(Level.SEVERE, "WorkingDirectory is null or does not exist.");
+//				throw new IllegalStateException("WorkingDirectory is null or does not exist.");
+//			}
 
 			final String crs = configuration.getCrs();
 			
@@ -118,10 +116,11 @@ Action<FileSystemMonitorEvent> {
 			// Write header 
 			//
 			// // 
-			ViewContext viewContext = new ViewContext("tstWMC", "1.0.0");
+			ViewContext viewContext = new ViewContext("GeoBatchWMC", "1.0.0");
 	    	WMCWindow window = new WMCWindow(331, 560);
-	    	GeneralWMCConfiguration generalConfig = new GeneralWMCConfiguration(window, "Prova", "prova");
-	    	WMCBoundingBox bbox = new WMCBoundingBox("EPSG:4326", -180.0, -90.0, 180.0, 90.0);
+	    	GeneralWMCConfiguration generalConfig = new GeneralWMCConfiguration(window, "GeoBatchWMC", "GeoBatchWMC");
+	    	String[] cfgbbox = boundingBox.split(",");
+	    	WMCBoundingBox bbox = new WMCBoundingBox(crs, Double.valueOf(cfgbbox[0]), Double.valueOf(cfgbbox[1]), Double.valueOf(cfgbbox[2]), Double.valueOf(cfgbbox[3]));
 	    	
 			// //
 			//
@@ -133,10 +132,10 @@ Action<FileSystemMonitorEvent> {
 				final String nameSpace = entry.getNameSpace();
 				final String layerName = entry.getLayerName();
 				
-				WMCLayer testLayer = new WMCLayer("0", "0", nameSpace+":"+layerName, layerName, "EPSG:4326");
+				WMCLayer testLayer = new WMCLayer("0", "0", nameSpace+":"+layerName, layerName, crs);
 		    	WMCServer server = new WMCServer("wms", "1.1.1", "wms");
 		    	List<WMCFormat> formatList = new ArrayList<WMCFormat>();
-		    	List<WMCStyle> styleList = new ArrayList<WMCStyle>();
+		    	//List<WMCStyle> styleList = new ArrayList<WMCStyle>();
 		    	WMCExtension extension = new WMCExtension();
 		    	extension.setId(new OLLayerID(layerName));
 		    	extension.setMaxExtent(new OLMaxExtent(null));

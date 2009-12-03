@@ -39,7 +39,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -110,18 +109,20 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 
 	private static final String DEFAULT_COMPRESSION_TYPE = "LZW";
 
-	/**
-	 * Static DateFormat Converter
-	 */
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
+	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
+
+	public static final long matLabStartTime;
 	
 	static {
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		GregorianCalendar calendar = new GregorianCalendar(0000, 00, 01, 00, 00, 00);
+		calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+		matLabStartTime = calendar.getTimeInMillis();
 	}
 	
 	protected NURCWPSOutput2WMCFileConfigurator(
 			GeoServerActionConfiguration configuration) throws IOException {
 		super(configuration);
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
 
 	/**
@@ -249,12 +250,12 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 				baseTime = sdf.format(dateTime);
 			}
 			else{
-				
+				baseTime = sdf.format(matLabStartTime + timeOriginalData.getLong(timeOriginalIndex.set(0))*86400000L);
 			}
 
-			Variable lonOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.LON_DIM_LONG);
+			Variable lonOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.LON_DIM);
 			if (lonOriginalVar == null)
-				lonOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.LONGITUDE);
+				lonOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.LON_DIM_LONG);
 
 			Variable latOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.LAT_DIM);
 			if (latOriginalVar == null)
@@ -343,10 +344,12 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 							if (!hasTime)
 								coverageName.append(baseTime);
 							else{
-								//TODO: Update time
-								coverageName.append(baseTime);
-								coverageName.append("_").append(timeDimExists ? sdf.format(JGSFLoDeSSIOUtils.startTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*1000) : "00000000_0000000");
+								coverageName.append(baseTime)
+											.append("_");
+								// Days since 01-01-0000 (Matlab time)	
+								coverageName.append(timeDimExists ? sdf.format(matLabStartTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*86400000L) : "00000000_0000000");
 							}
+							coverageName.append("-T").append(System.currentTimeMillis());
 
 							final String coverageStoreId = coverageName.toString();
 
@@ -373,8 +376,10 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 								getConfiguration().getStyles(), 
 								getConfiguration().getDefaultStyle());
 							
-							final WMCEntry entry = new WMCEntry(returnedLayer[1],returnedLayer[2]);
-							layerList.add(entry);
+							if (returnedLayer != null) {
+								final WMCEntry entry = new WMCEntry(returnedLayer[1],returnedLayer[2]);
+								layerList.add(entry);
+							}
 						}
 					}
 
@@ -383,7 +388,7 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 			}
 			
 	        final WMCConfiguration wmcConfig = new WMCConfiguration();
-	        wmcConfig.setBoundingBox("180.0,90.0,-180.0,-90.0");
+	        wmcConfig.setBoundingBox("-180.0,-90.0,180.0,90.0");
 	        wmcConfig.setCrs("EPSG:4326"); //TODO Check real CRS ID
 	        wmcConfig.setGeoserverURL(getConfiguration().getGeoserverURL());
 	        wmcConfig.setLayerList(layerList);
