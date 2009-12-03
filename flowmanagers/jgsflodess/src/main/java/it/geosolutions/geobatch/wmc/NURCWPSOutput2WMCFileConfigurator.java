@@ -39,6 +39,9 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -192,8 +195,6 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 			final Dimension timeDim = ncFileIn.findDimension(JGSFLoDeSSIOUtils.TIME_DIM);
 			final boolean timeDimExists = timeDim != null;
 			
-			final String baseTime = "00000";
-			
 			final Dimension depthDim = ncFileIn.findDimension(JGSFLoDeSSIOUtils.DEPTH_DIM);
 			final boolean depthDimExists = depthDim != null;
 
@@ -240,6 +241,15 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 				timeOriginalData = null;
 				timeOriginalIndex = null;
 				hasTime = false;
+			}
+			
+			String baseTime = null;
+			if (!hasTime){
+				Date dateTime = new Date(System.currentTimeMillis());
+				baseTime = sdf.format(dateTime);
+			}
+			else{
+				
 			}
 
 			Variable lonOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.LON_DIM_LONG);
@@ -329,8 +339,14 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 							final StringBuilder coverageName = new StringBuilder(inputFileName)
 							              .append("_").append(variableName)
 							              .append("_").append(hasLocalZLevel ? zetaOriginalData.getLong(zetaOriginalData.getIndex().set(z)) : 0)
-							              .append("_").append(baseTime)
-										  .append("_").append(timeDimExists ? sdf.format(JGSFLoDeSSIOUtils.startTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*1000) : "00000000_0000000");
+							              .append("_");
+							if (!hasTime)
+								coverageName.append(baseTime);
+							else{
+								//TODO: Update time
+								coverageName.append(baseTime);
+								coverageName.append("_").append(timeDimExists ? sdf.format(JGSFLoDeSSIOUtils.startTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*1000) : "00000000_0000000");
+							}
 
 							final String coverageStoreId = coverageName.toString();
 
