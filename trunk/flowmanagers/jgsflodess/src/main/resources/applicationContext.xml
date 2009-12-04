@@ -22,7 +22,16 @@
 	    <property name="period" value="60000" />
 	    <property name="timerTask" ref="dumpStorageCleaner" />
 	  </bean>
-	  
+	   <!-- And finally the class that instantiates the scheduled tasks and makes them run -->
+	  <bean id="dumpStorageCleanerTimerFactory" class="org.springframework.scheduling.timer.TimerFactoryBean"
+	    lazy-init="false">
+	    <property name="scheduledTimerTasks">
+	      <list>
+	        <ref bean="dumpStorageCleanerTask" />
+	      </list>
+	    </property>
+	  </bean>
+		 
 	<!-- Environment Initialization -->
 	<bean id="NetCDFCFGeodetic2GeoTIFFsGeneratorService" class="it.geosolutions.geobatch.jgsflodess.NetCDFCFGeodetic2GeoTIFFsGeneratorService">
 		<property  name="id">
