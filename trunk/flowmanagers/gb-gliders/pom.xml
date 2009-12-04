@@ -122,10 +122,10 @@
     	</dependency>
 
     		<!-- Grid data formats -->
-    	<dependency>
-      		<groupId>edu.ucar</groupId>
-      		<artifactId>netcdf</artifactId>
-      		<version>2.2.20</version>
+    	 <dependency>
+      		<groupId>essi-unidata</groupId>
+      		<artifactId>netcdf-java</artifactId>
+      		<version>4.0.41</version>
     	</dependency>
     	<dependency>
       		<groupId>org.slf4j</groupId>
