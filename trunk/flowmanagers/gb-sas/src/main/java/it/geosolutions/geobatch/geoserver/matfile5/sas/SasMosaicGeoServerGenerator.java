@@ -192,9 +192,9 @@ public class SasMosaicGeoServerGenerator
                     getQueryString(queryParams),
                     configuration.getDataTransferMethod(),
                     dataType, GEOSERVER_VERSION, null, null);
-            if (returnedLayer!=null && returnedLayer.length==3){
-            	writeGeowebcacheConfigurationFile(returnedLayer);
-            }
+//            if (returnedLayer!=null && returnedLayer.length==3){
+//            	writeGeowebcacheConfigurationFile(returnedLayer);
+//            }
             return events;
         } catch (Throwable t) {
             LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
