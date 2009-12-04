@@ -27,12 +27,8 @@ package it.geosolutions.geobatch.flow.event.action.geoserver;
 import it.geosolutions.geobatch.configuration.event.action.geoserver.RegistryActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.EventObject;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;

@@ -27,6 +27,7 @@ import it.geosolutions.geobatch.configuration.event.action.geoserver.RegistryAct
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerRESTHelper;
 import it.geosolutions.geobatch.flow.event.action.geoserver.RegistryConfiguratorAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
+import it.geosolutions.geobatch.jgsflodess.config.global.JGSFLoDeSSGlobalConfig;
 import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
 import it.geosolutions.geobatch.metocs.jaxb.model.MetocElementType;
 import it.geosolutions.geobatch.metocs.jaxb.model.Metocs;
@@ -343,11 +344,12 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 							// HARVESTING metadata to the Registry.
 							//
 							// ////////////////////////////////////////////////////////////////////
+							
 							final String xmlTemplate = getConfiguration().getMetocHarvesterXMLTemplatePath();
 							if (xmlTemplate != null && xmlTemplate.trim().length()>0){
 								final File metadataTemplate = new File(xmlTemplate);
 								if (metadataTemplate != null && metadataTemplate.exists()){
-									harvest(outDir, 
+									harvest(new File(JGSFLoDeSSGlobalConfig.getJGSFLoDeSSDirectory()), 
 										gtiffFile,
 										metadataTemplate,
 										getConfiguration().getGeoserverURL(), 
@@ -687,7 +689,6 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
         	inputFileReader.close();
         	outputFileWriter.close();
         }
-		
 		
 		reader.dispose();
 	}

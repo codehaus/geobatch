@@ -23,6 +23,20 @@
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+	
+	<!-- Restlet adapter -->
+    <servlet>
+        <servlet-name>rservlet</servlet-name>
+        <servlet-class>
+             com.noelios.restlet.ext.spring.RestletFrameworkServlet
+        </servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath*:/rservlet-servlet.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+	
 	<!--  context-param>
 		<param-name>GEOBATCH_DATA_DIR</param-name>
 		<param-value>G:/work/IngestionEngine/trunk/web/src/main/webapp/WEB-INF/data</param-value>
@@ -36,6 +50,12 @@
 		<url-pattern>*.form</url-pattern>
 	</servlet-mapping>
 
+    <!-- Catch all request URIs starting with  prefix /rest-->
+    <servlet-mapping>
+        <servlet-name>rservlet</servlet-name>
+        <url-pattern>/rest/*</url-pattern>
+    </servlet-mapping>
+    
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
