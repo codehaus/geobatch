@@ -60,12 +60,12 @@
 	    <dependency>
 	      <groupId>org.geotools</groupId>
 	      <artifactId>gt-geotiff</artifactId>
-	      <version>2.5-SNAPSHOT</version>
+	      <version>2.6-SNAPSHOT</version>
 	    </dependency>
         <dependency>
 	      <groupId>org.geotools</groupId>
 	      <artifactId>gt-sas</artifactId>
-	      <version>2.5-SNAPSHOT</version>
+	      <version>2.6-SNAPSHOT</version>
 	    </dependency>
 	    <dependency>
 	    	<groupId>it.geosolutions</groupId>
@@ -74,7 +74,7 @@
 	    <dependency>
 	    	<groupId>org.geotools</groupId>
 	    	<artifactId>gt-coveragetools</artifactId>
-	    	<version>2.5-SNAPSHOT</version>
+	    	<version>2.6-SNAPSHOT</version>
 	    </dependency>
   </dependencies>
 	    
