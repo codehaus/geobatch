@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+ 
+    <!-- File Server Harvester Configuration -->
+	<bean id="root" class="org.restlet.ext.spring.SpringRouter">
+        <property name="attachments">
+            <map>
+                <entry key="/dump/{file}">
+                    <bean class="org.restlet.ext.spring.SpringFinder">
+                        <lookup-method name="createResource" bean="dumpResource" />
+                    </bean>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <!-- restlet resources -->    
+    <bean id="dumpResource" class="it.geosolutions.geobatch.jgsflodess.utils.io.rest.DumpRestletResource"></bean>
+    
+</beans>

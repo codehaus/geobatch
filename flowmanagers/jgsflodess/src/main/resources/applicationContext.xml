@@ -3,6 +3,26 @@
 
 <beans>
 
+	<!-- Global Config -->
+	<bean id="JGSFLoDeSSGlobalConfig" class="it.geosolutions.geobatch.jgsflodess.config.global.JGSFLoDeSSGlobalConfig">
+		<constructor-arg><value>C:/tmp/rest</value></constructor-arg>
+	</bean>
+	
+	<!-- Temp storage cleanup -->
+	<!-- The actual scheduled task -->
+	<bean id="dumpStorageCleaner" class="it.geosolutions.geobatch.jgsflodess.utils.io.rest.DumpStorageCleaner">
+	    <property name="expirationDelay" value="300" /><!-- 300 seconds, 5 minutes -->
+	</bean>
+	 <!-- Definition of how often the scheduled task runs -->
+	  <bean id="dumpStorageCleanerTask"
+	    class="org.springframework.scheduling.timer.ScheduledTimerTask">
+	    <!-- wait 10 seconds before starting repeated execution -->
+	    <property name="delay" value="10000" />
+	    <!-- run every 60 seconds -->
+	    <property name="period" value="60000" />
+	    <property name="timerTask" ref="dumpStorageCleaner" />
+	  </bean>
+	  
 	<!-- Environment Initialization -->
 	<bean id="NetCDFCFGeodetic2GeoTIFFsGeneratorService" class="it.geosolutions.geobatch.jgsflodess.NetCDFCFGeodetic2GeoTIFFsGeneratorService">
 		<property  name="id">
