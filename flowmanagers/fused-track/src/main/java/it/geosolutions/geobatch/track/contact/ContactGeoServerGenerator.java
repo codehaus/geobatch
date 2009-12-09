@@ -40,7 +40,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Queue;
 import java.util.logging.Level;
 
@@ -53,7 +56,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.WKTReader;
-import com.vividsolutions.jts.simplify.DouglasPeuckerLineSimplifier;
 
 
 /**
@@ -67,6 +69,8 @@ public class ContactGeoServerGenerator extends
 	private ContactDAO contactDAO;
 	private PastContactPositionDAO pastContactPositionDAO;
 	private ContactTypeDAO contactTypeDAO;	
+	
+	private GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
 
 	
 	public ContactGeoServerGenerator(GeoServerActionConfiguration configuration) throws IOException {
@@ -153,7 +157,9 @@ public class ContactGeoServerGenerator extends
 	    	    
 	    	    long contactId = Long.parseLong(fields[0]);
 	    	    long linkCode = Long.parseLong(fields[6]);
-	    	    double cog = 0.0;
+	    	    double velocyX = Double.parseDouble(fields[3]);
+	    	    double velocyY = Double.parseDouble(fields[4]);
+	    	    double cog = CalcBearing(velocyX, velocyY);
 	    	    
 	    	    // ///////////////////////////
 	    	    // Setting the ContactType
@@ -175,12 +181,15 @@ public class ContactGeoServerGenerator extends
 
 	    	    	PastContactPosition pastContactPosition = new PastContactPosition();
 	    	    	pastContactPosition.setCog(cnt.getContactPosition().getCog());
-	    	    	pastContactPosition.setContact(cnt);
 	    	    	pastContactPosition.setCourse(cnt.getContactPosition().getCourse());
 	    	    	pastContactPosition.setPosition(cnt.getContactPosition().getPosition());
 	    	    	pastContactPosition.setTime(cnt.getContactPosition().getTime());
+	    	    	pastContactPosition.setContact(cnt);
 	    	    	
 	    	    	pastContactPositionDAO.save(pastContactPosition);
+	    	    	
+	    	    	Date contactTimestamp = new Date(timestamp*1000);
+	    	    	List<PastContactPosition> pastContacts = pastContactPositionDAO.findByPeriod(timestamp, 3600, cnt.getContactId());
 	    	    	
 	    	    	if(type.compareTo(ContactType.NONESSENTIAL) != 0){
 	    	    		cnt.setContactType(type);
@@ -188,10 +197,8 @@ public class ContactGeoServerGenerator extends
 	    	    	}
 	    	    	
 	    	    	ContactPosition contactPos = cnt.getContactPosition();
-	    	    	contactPos.setTime(new Date(timestamp*1000));
-	    	    	contactPos.setCog(cog);
-	    	    	
-			    	GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
+	    	    	contactPos.setTime(contactTimestamp);
+
 	            	WKTReader wkt_reader = new WKTReader(geometryFactory);
 	            	
 	            	double longitude = Double.parseDouble(fields[1]);
@@ -200,27 +207,20 @@ public class ContactGeoServerGenerator extends
 	            	Point point = (Point)wkt_reader.read("POINT("+ longitude + " " + latitude + " 0)");
 	                point.setSRID(4326);   
 	                
-	    	    	contactPos.setPosition(point);	    	    	
+	    	    	contactPos.setPosition(point);	 
+
+	    	    	LineString lineSimplified = null;
+	    	    	if(pastContacts != null && pastContacts.size() > 2){
+	    	    		lineSimplified = buildHistoryLineString(pastContacts, point, cog);
+	    	    	}else{
+    	    	    	lineSimplified = lineSimplifier(contactPos.getCourse(), 
+    	    	    			point, contactPos.getCog(), cog); 
+	    	    	}        	    	    			
+
+	    	    	contactPos.setCourse(lineSimplified);	     
+	    	    	contactPos.setCog(cog);	    
 	    	    	
-	    	    	LineString lineStr = contactPos.getCourse();
-		 			int numPoints = contactPos.getCourse().getNumPoints();					 		
-			 		Coordinate[] coordinate = new Coordinate[numPoints+1];
-			 		
-			 		for (int k=0; k<numPoints; k++)
-			 			coordinate[k] = lineStr.getPointN(k).getCoordinate();
-			 			
-			 		coordinate[numPoints] = new Coordinate (point.getCoordinate());
-					
-					coordinate = DouglasPeuckerLineSimplifier.simplify(coordinate, 0.0025);
-					CoordinateSequence sequence = geometryFactory.getCoordinateSequenceFactory().create(coordinate);
-			 		
-			 		LineString course = new LineString(sequence, geometryFactory);
-			 		course.setSRID(4326);
-			 		
-	    	    	contactPos.setCourse(course);
-	    	    	
-	    	    	cnt.setContactPosition(contactPos);	    	    	
-	            	
+	    	    	cnt.setContactPosition(contactPos);	    
 	            	contactDAO.merge(cnt);
 
 	    	    }else{	    	
@@ -232,8 +232,7 @@ public class ContactGeoServerGenerator extends
 		    	    ContactPosition currentContact = new ContactPosition();
 		    	    currentContact.setTime(new Date(timestamp*1000));
 		    	    currentContact.setCog(cog);
-		    	    
-			    	GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
+
 	            	WKTReader wkt_reader = new WKTReader(geometryFactory);
 	            	
 	            	double longitude = Double.parseDouble(fields[1]);
@@ -248,12 +247,10 @@ public class ContactGeoServerGenerator extends
 	         		coordinate[0] = new Coordinate (point.getCoordinate());
 	         		coordinate[1] = new Coordinate (point.getCoordinate());
 
-	            	coordinate = DouglasPeuckerLineSimplifier.simplify(coordinate, 0.0025);
 	            	CoordinateSequence sequence = geometryFactory.getCoordinateSequenceFactory().create(coordinate);
-	            	
 	            	LineString course = new LineString(sequence, geometryFactory);   
 	            	course.setSRID(4326);
-	            	
+
 	            	currentContact.setCourse(course);
 	            	
 		    	    // ///////////////////////////////
@@ -270,7 +267,7 @@ public class ContactGeoServerGenerator extends
 	    	    }
 
 		        line = reader.readLine();
-		    }    
+		    }  
 			
 			return events; 
 			
@@ -278,6 +275,115 @@ public class ContactGeoServerGenerator extends
 			LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
 			return null;
 		} 
+	}
+
+	private LineString buildHistoryLineString(final List<PastContactPosition> pastContacts,
+			final Point newPoint, final double newCog){
+
+		ListIterator<PastContactPosition> iterator = pastContacts.listIterator(); 
+		List<Coordinate> coordinateList = new ArrayList<Coordinate>();
+
+		double oldCog = 0.0;
+		int i = 0;
+		
+		while(iterator.hasNext()){
+			PastContactPosition pastCnt = (PastContactPosition)iterator.next();	
+		
+			if(i < 2){
+				coordinateList.add(pastCnt.getPosition().getCoordinate());
+				oldCog = pastCnt.getCog();
+			}else{
+				double mCheck = Math.abs(pastCnt.getCog() - oldCog);
+				if(mCheck > 5){	
+					coordinateList.add(pastCnt.getPosition().getCoordinate());
+					oldCog = pastCnt.getCog();
+				}
+			}
+			
+			i++;
+		}
+		
+		Coordinate[] coordinate = new Coordinate[coordinateList.size()];
+		for(int j=0; j<coordinateList.size(); j++){
+			coordinate[j] = coordinateList.get(j);
+		}
+		
+    	CoordinateSequence sequence = geometryFactory.getCoordinateSequenceFactory().create(coordinate);
+    	LineString course = new LineString(sequence, geometryFactory);   
+    	course.setSRID(4326);
+
+    	return lineSimplifier(course, newPoint, oldCog, newCog);
+	}
+	
+	private LineString lineSimplifier(final LineString line, final Point newPoint, 
+			final double oldCog, final double newCog){
+
+		int numPoints = line.getNumPoints();
+
+		double mCheck = Math.abs(newCog - oldCog);
+
+		LineString course = null;
+		if(mCheck > 5){		
+
+			// ////////////////////////////////////////
+			// Adding a new point to linestring course 
+			// ////////////////////////////////////////
+			
+	 		Coordinate[] coordinate = new Coordinate[numPoints+1];
+
+	 		for (int k=0; k<numPoints; k++)
+	 			coordinate[k] = line.getPointN(k).getCoordinate();
+
+	 		coordinate[numPoints] = newPoint.getCoordinate();
+
+			CoordinateSequence sequence = geometryFactory.getCoordinateSequenceFactory().create(coordinate);
+	 		course = new LineString(sequence, geometryFactory);
+	 		course.setSRID(4326);
+
+		}else{
+
+			// ////////////////////////////////////////////////////////
+			// Semplifying the linestring course removing the end point  
+			// and adding the new point
+			// ////////////////////////////////////////////////////////
+			
+	 		Coordinate[] coordinate = new Coordinate[numPoints];
+
+	 		for (int l=0; l<numPoints; l++){
+	 			if(l == (numPoints - 1))
+	 				coordinate[l] = newPoint.getCoordinate();
+	 			else
+	 				coordinate[l] = line.getPointN(l).getCoordinate();
+	 		}
+	 		
+			CoordinateSequence sequence = geometryFactory.getCoordinateSequenceFactory().create(coordinate);
+	 		course = new LineString(sequence, geometryFactory);
+	 		course.setSRID(4326);
+		}
+		
+		return course;
+	}
+	
+	public static double CalcBearing(double vx, double vy){
+
+		double bearing = 0;
+	
+		// ////////////////////
+		// determine angle (x, y) instead of (y,x)
+		// because the 0 is at north (y axis) and not on the x axis
+		// ////////////////////
+	
+		bearing = Math.atan2(vx, vy); 
+	
+		// /////////////////////
+		// convert to degrees
+		// /////////////////////
+		
+		return toDegree(bearing);
+	}
+	
+	public static double toDegree(double val){ 
+		return val * (180 / Math.PI);
 	}
 	
 	/**
@@ -295,4 +401,5 @@ public class ContactGeoServerGenerator extends
 		}
 		return ret;
 	}
+
 }

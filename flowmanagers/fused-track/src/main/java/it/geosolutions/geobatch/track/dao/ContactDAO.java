@@ -37,6 +37,8 @@ public interface ContactDAO extends GenericDAO<Contact,Long> {
 	
 	public void merge(final Contact contact) throws DAOException;
 	
+	public void update(final Contact contact) throws DAOException;
+	
 	public Contact isExist(final long id) throws DAOException;
 
 }

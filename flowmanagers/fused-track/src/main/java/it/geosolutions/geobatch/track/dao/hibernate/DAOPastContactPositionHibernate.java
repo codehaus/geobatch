@@ -22,9 +22,12 @@
 
 package it.geosolutions.geobatch.track.dao.hibernate;
 
-import it.geosolutions.geobatch.track.dao.PastContactPositionDAO;
 import it.geosolutions.geobatch.track.dao.DAOException;
+import it.geosolutions.geobatch.track.dao.PastContactPositionDAO;
 import it.geosolutions.geobatch.track.model.PastContactPosition;
+
+import java.sql.Timestamp;
+import java.util.List;
 
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,5 +54,16 @@ public class DAOPastContactPositionHibernate extends DAOAbstractSpring<PastConta
 	public void delete(final String type) throws DAOException {
 
 	}
+	
+	@Transactional(propagation = Propagation.REQUIRED)
+	@SuppressWarnings("unchecked")
+	public List<PastContactPosition> findByPeriod(final long timestamp, 
+			final long step, final long contactId) throws DAOException {
+		
+		Timestamp time = new Timestamp((timestamp-step)*1000);
 
+		return (List<PastContactPosition>)super.getHibernateTemplate().find(
+				"select sp from PastContactPosition as sp where sp.contact.contactId="
+				+ contactId + " and sp.time>='" + time + "' order by sp.pastContactId asc");
+	}
 }
