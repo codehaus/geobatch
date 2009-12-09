@@ -57,6 +57,11 @@ public class DAOContactHibernate extends DAOAbstractSpring<Contact,Long>
 	}
 	
 	@Transactional(propagation = Propagation.REQUIRED)
+	public void update(final Contact contact) throws DAOException {
+		super.getHibernateTemplate().update(contact);
+	}
+	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public Contact isExist(final long id) throws DAOException {
 		return (Contact)super.getHibernateTemplate().get(Contact.class, id);
 	}

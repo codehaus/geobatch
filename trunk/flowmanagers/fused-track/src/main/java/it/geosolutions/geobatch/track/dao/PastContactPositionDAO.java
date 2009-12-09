@@ -24,6 +24,8 @@ package it.geosolutions.geobatch.track.dao;
 
 import it.geosolutions.geobatch.track.model.PastContactPosition;
 
+import java.util.List;
+
 /**
  * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
  * 
@@ -34,5 +36,8 @@ public interface PastContactPositionDAO extends GenericDAO<PastContactPosition,L
 	public PastContactPosition save(PastContactPosition contact) throws DAOException;
 	
 	public void delete(final String type) throws DAOException;
+
+	public List<PastContactPosition> findByPeriod(final long timestamp, 
+			final long step, final long contactId) throws DAOException;
 
 }
