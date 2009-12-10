@@ -293,6 +293,17 @@
 				</dependency>
 			</dependencies>
 		</profile>
+		
+		<profile>
+			<id>fused-track</id>
+			<dependencies>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-fused-track</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+		
 		<!--
 			<profile> <id>gb-ftp-server</id> <dependencies> <dependency>
 			<groupId>it.geosolutions</groupId>
