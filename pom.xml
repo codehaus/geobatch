@@ -996,7 +996,7 @@
                 <enabled>false</enabled>
             </releases>
         </pluginRepository>
-        <pluginRepository>
+        <!-- pluginRepository>
             <id>refractions</id>
             <name>Refractions Research Maven 2 Repository</name>
             <url>http://lists.refractions.net/m2</url>
@@ -1006,7 +1006,7 @@
             <releases>
                 <enabled>true</enabled>
             </releases>
-        </pluginRepository>
+        </pluginRepository -->
     </pluginRepositories>
 
   <!-- =========================================================== -->

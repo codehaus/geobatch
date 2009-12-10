@@ -91,9 +91,9 @@
 			</modules>
 		</profile>
 		<profile>
-        <id>JGSFLoDeSS</id>
+        <id>jgsflodess</id>
         <modules>
-           <module>JGSFLoDeSS</module>
+           <module>jgsflodess</module>
         </modules>
     </profile>
 		<profile>
@@ -104,7 +104,7 @@
 			   <module>fused-track</module> 
 			   <module>gb-gliders</module>
 			   <module>gb-sas</module>
-			   <module>JGSFLoDeSS</module>
+			   <module>jgsflodess</module>
 			</modules>
 		</profile>		
    </profiles>
