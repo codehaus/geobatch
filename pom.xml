@@ -687,6 +687,11 @@
             <version>${gb.version}</version>
         </dependency>
         <dependency>
+	    <groupId>it.geosolutions</groupId>
+	    <artifactId>gb-flowmanagers-fused-track</artifactId>
+	    <version>${gb.version}</version>
+        </dependency>
+        <dependency>
 			<groupId>it.geosolutions</groupId>
 			<artifactId>gb-flowmanagers-ais</artifactId>
 			<version>${gb.version}</version>
