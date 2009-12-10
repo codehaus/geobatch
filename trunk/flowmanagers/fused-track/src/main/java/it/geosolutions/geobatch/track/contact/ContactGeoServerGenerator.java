@@ -28,7 +28,6 @@ import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerAc
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.track.dao.ContactDAO;
-import it.geosolutions.geobatch.track.dao.ContactTypeDAO;
 import it.geosolutions.geobatch.track.dao.PastContactPositionDAO;
 import it.geosolutions.geobatch.track.model.Contact;
 import it.geosolutions.geobatch.track.model.ContactPosition;
@@ -49,6 +48,7 @@ import java.util.logging.Level;
 
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.geometry.jts.JTSFactoryFinder;
+import org.hibernate.SessionFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
@@ -68,7 +68,8 @@ public class ContactGeoServerGenerator extends
 
 	private ContactDAO contactDAO;
 	private PastContactPositionDAO pastContactPositionDAO;
-	private ContactTypeDAO contactTypeDAO;	
+	
+	private SessionFactory sessionFactory;
 	
 	private GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
 
@@ -78,13 +79,13 @@ public class ContactGeoServerGenerator extends
 	}
 
 	public ContactGeoServerGenerator(GeoServerActionConfiguration configuration,
-			ContactDAO contactDAO, 
-			PastContactPositionDAO pastContactPositionDAO, ContactTypeDAO contactTypeDAO) throws IOException {
+			ContactDAO contactDAO, PastContactPositionDAO pastContactPositionDAO,
+			SessionFactory sessionFactory) throws IOException {
 		
 		super(configuration);
 		this.contactDAO = contactDAO;
 		this.pastContactPositionDAO = pastContactPositionDAO;
-		this.contactTypeDAO = contactTypeDAO;
+		this.sessionFactory = sessionFactory;
 	}
 
 	public Queue<FileSystemMonitorEvent> execute(
@@ -190,7 +191,7 @@ public class ContactGeoServerGenerator extends
 	    	    	
 	    	    	Date contactTimestamp = new Date(timestamp*1000);
 	    	    	List<PastContactPosition> pastContacts = pastContactPositionDAO.findByPeriod(timestamp, 3600, cnt.getContactId());
-	    	    	
+	    	  
 	    	    	if(type.compareTo(ContactType.NONESSENTIAL) != 0){
 	    	    		cnt.setContactType(type);
 	    	    		cnt.setLink(linkCode);
@@ -268,7 +269,7 @@ public class ContactGeoServerGenerator extends
 
 		        line = reader.readLine();
 		    }  
-			
+			System.out.println("::::::::::::::::::::  " + this.sessionFactory.getStatistics());
 			return events; 
 			
 		} catch (Throwable t) {

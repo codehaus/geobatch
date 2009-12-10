@@ -25,6 +25,7 @@
 		<property name="contactDAO" ref="contactDAO"/>
 		<property name="pastContactPositionDAO" ref="pastContactPositionDAO"/>
 		<property name="contactTypeDAO" ref="contactTypeDAO"/>
+	    <property name="sessionFactory" ref="sessionFactory"/>
 	</bean>	
 
 </beans>

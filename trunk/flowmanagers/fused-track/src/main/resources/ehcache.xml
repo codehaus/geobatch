@@ -8,23 +8,40 @@
 		diskPersistent="false" diskExpiryThreadIntervalSeconds="120"
 		memoryStoreEvictionPolicy="LRU" />
 
-
-	<cache name="SpatialCache" maxElementsInMemory="10000" eternal="false"
+	<cache name="contact" maxElementsInMemory="10000" eternal="false"
 		timeToIdleSeconds="240" timeToLiveSeconds="240" overflowToDisk="true"
 		diskPersistent="false" diskExpiryThreadIntervalSeconds="240"
 		memoryStoreEvictionPolicy="LRU" />
-
-	<cache name="query.MultiPolygonEntity" maxElementsInMemory="10"
+		
+	<cache name="past_contact" maxElementsInMemory="10000" eternal="false"
+		timeToIdleSeconds="240" timeToLiveSeconds="240" overflowToDisk="true"
+		diskPersistent="false" diskExpiryThreadIntervalSeconds="240"
+		memoryStoreEvictionPolicy="LRU" />
+		
+	<cache name="query.PastContactPosition" maxElementsInMemory="10"
 		eternal="false" timeToLiveSeconds="120" diskPersistent="false"
 		overflowToDisk="true" />
+		
+		<cache
+			name="org.hibernate.cache.StandardQueryCache"
+			maxElementsInMemory="200"
+			eternal="false"
+			timeToLiveSeconds="120"
+			diskPersistent="true"
+			overflowToDisk="true"/>
+		
+		<cache
+			name="org.hibernate.cache.UpdateTimestampsCache"
+			maxElementsInMemory="5000"
+			eternal="true"
+			overflowToDisk="true"/>
 
-
-	<cache name="org.hibernate.cache.StandardQueryCache"
+	<!-- cache name="org.hibernate.cache.StandardQueryCache"
 		maxElementsInMemory="10" eternal="false" timeToLiveSeconds="120"
 		diskPersistent="true" overflowToDisk="true" />
 
 	<cache name="org.hibernate.cache.UpdateTimestampsCache"
-		maxElementsInMemory="5000" eternal="true" overflowToDisk="true" />
+		maxElementsInMemory="5000" eternal="true" overflowToDisk="true" /-->
 
 
 </ehcache>
