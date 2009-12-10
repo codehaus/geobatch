@@ -60,6 +60,9 @@ public class DAOPastContactPositionHibernate extends DAOAbstractSpring<PastConta
 	public List<PastContactPosition> findByPeriod(final long timestamp, 
 			final long step, final long contactId) throws DAOException {
 		
+		super.getHibernateTemplate().setCacheQueries(true);
+		super.getHibernateTemplate().setQueryCacheRegion("query.PastContactPosition");
+		
 		Timestamp time = new Timestamp((timestamp-step)*1000);
 
 		return (List<PastContactPosition>)super.getHibernateTemplate().find(

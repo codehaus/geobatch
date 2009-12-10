@@ -34,6 +34,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
 import com.vividsolutions.jts.geom.LineString;
@@ -47,6 +49,7 @@ import com.vividsolutions.jts.geom.Point;
 
 @Entity(name = "PastContactPosition")
 @Table(name = "PAST_CONTACT_POSITION", schema = "public")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "past_contact")
 public class PastContactPosition implements Serializable {
 
 	private static final long serialVersionUID = -1595692090863316356L;

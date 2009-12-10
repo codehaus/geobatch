@@ -26,12 +26,14 @@ import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorService;
 import it.geosolutions.geobatch.track.dao.ContactDAO;
-import it.geosolutions.geobatch.track.dao.PastContactPositionDAO;
 import it.geosolutions.geobatch.track.dao.ContactTypeDAO;
+import it.geosolutions.geobatch.track.dao.PastContactPositionDAO;
 
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.hibernate.SessionFactory;
 
 
 /**
@@ -47,7 +49,9 @@ public class ContactGeoServerGeneratorService
 
 	private ContactDAO contactDAO;
 	private PastContactPositionDAO pastContactPositionDAO;
-	private ContactTypeDAO contactTypeDAO;	
+	private ContactTypeDAO contactTypeDAO;
+
+	private SessionFactory sessionFactory;
 	
 
 	public void setContactDAO(ContactDAO contactDAO) {
@@ -75,9 +79,17 @@ public class ContactGeoServerGeneratorService
 		return contactTypeDAO;
 	}
 	
+	public void setSessionFactory(SessionFactory factory){
+		this.sessionFactory = factory;
+	}
+	
+	public SessionFactory getSessionFactory(){
+		return this.sessionFactory;
+	}
+	
 	public ContactGeoServerGenerator createAction(GeoServerActionConfiguration configuration) {
 		try {
-			return new ContactGeoServerGenerator(configuration, this.contactDAO, this.pastContactPositionDAO, this.contactTypeDAO);
+			return new ContactGeoServerGenerator(configuration, this.contactDAO, this.pastContactPositionDAO, this.sessionFactory);
 		} catch (IOException e) {
 			if (LOGGER.isLoggable(Level.WARNING))
 				LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);

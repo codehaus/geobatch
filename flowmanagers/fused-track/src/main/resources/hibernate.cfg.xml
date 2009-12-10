@@ -32,9 +32,9 @@
 		<!-- Enable Hibernate's automatic session context management -->
 		<property name="current_session_context_class">thread</property>
 
-		<property name="hibernate.cache.use_structured_entries">false</property>
+		<property name="hibernate.cache.use_structured_entries">true</property>
 
-		<property name="hibernate.generate_statistics">false</property>
+		<property name="hibernate.generate_statistics">true</property>
 
 		<!--Enabled the query_cache-->
 		<property name="cache.use_query_cache">true</property>

@@ -35,6 +35,9 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 
 /**
  * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
@@ -43,6 +46,7 @@ import javax.persistence.Table;
 
 @Entity(name = "Contact")
 @Table(name = "CONTACT", schema = "public")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "contact")
 public class Contact implements Serializable {
 
 	private static final long serialVersionUID = 4856492695709986718L;
