@@ -402,6 +402,7 @@ public class INGVFileConfigurator extends
             // Setting up global Attributes ...
         	ncFileOut.addGlobalAttribute("base_time", fromSdf.format(timeOriginDate));
         	ncFileOut.addGlobalAttribute("tau", TAU);
+        	ncFileOut.addGlobalAttribute("nodata", -9999.0);
 
             // writing bin data ...
             ncFileOut.create();

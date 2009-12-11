@@ -52,8 +52,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class FileBasedFlowManagerTestCase {
 
-    private final static Logger LOGGER = Logger.getLogger(FileBasedFlowManagerTestCase.class
-            .toString());
+    private final static Logger LOGGER = Logger.getLogger(FileBasedFlowManagerTestCase.class.toString());
 
     private ClassPathXmlApplicationContext context;
 

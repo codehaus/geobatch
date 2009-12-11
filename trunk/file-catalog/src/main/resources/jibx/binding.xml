@@ -98,6 +98,8 @@
 		<value name="geoserverPWD" field="geoserverPWD" />
 		<value name="geoserverUID" field="geoserverUID" />
 		<value name="geoserverURL" field="geoserverURL" />
+		<value name="registryURL" field="registryURL" />
+		<value name="providerURL" field="providerURL" />
 		<value name="metocDictionaryPath" field="metocDictionaryPath" />
 		<value name="metocHarvesterXMLTemplatePath" field="metocHarvesterXMLTemplatePath" />
 		<value name="storeFilePrefix" field="storeFilePrefix" usage="optional" />

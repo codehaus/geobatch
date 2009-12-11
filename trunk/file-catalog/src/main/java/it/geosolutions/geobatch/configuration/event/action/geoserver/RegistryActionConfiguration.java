@@ -34,7 +34,6 @@ public class RegistryActionConfiguration extends ActionConfiguration implements 
     protected RegistryActionConfiguration(String id, String name,
 			String description, boolean dirty) {
 		super(id, name, description, dirty);
-		// TODO Auto-generated constructor stub
 	}
 
 	private String workingDirectory;
@@ -48,6 +47,10 @@ public class RegistryActionConfiguration extends ActionConfiguration implements 
     private String geoserverUID;
 
     private String geoserverURL;
+    
+    private String registryURL;
+    
+    private String providerURL;
 
     private String storeFilePrefix;
 
@@ -231,6 +234,34 @@ public class RegistryActionConfiguration extends ActionConfiguration implements 
 		return metocHarvesterXMLTemplatePath;
 	}
 	
+	/**
+	 * @param registryURL the registryURL to set
+	 */
+	public void setRegistryURL(String registryURL) {
+		this.registryURL = registryURL;
+	}
+
+	/**
+	 * @return the registryURL
+	 */
+	public String getRegistryURL() {
+		return registryURL;
+	}
+
+	/**
+	 * @param providerURL the providerURL to set
+	 */
+	public void setProviderURL(String providerURL) {
+		this.providerURL = providerURL;
+	}
+
+	/**
+	 * @return the providerURL
+	 */
+	public String getProviderURL() {
+		return providerURL;
+	}
+
 	@Override
 	public RegistryActionConfiguration clone() throws CloneNotSupportedException {
 		final RegistryActionConfiguration configuration = 
@@ -245,6 +276,8 @@ public class RegistryActionConfiguration extends ActionConfiguration implements 
 		configuration.setGeoserverPWD(geoserverPWD);
 		configuration.setGeoserverUID(geoserverUID);
 		configuration.setGeoserverURL(geoserverURL);
+		configuration.setRegistryURL(registryURL);
+		configuration.setProviderURL(providerURL);
 		configuration.setServiceID(getServiceID());
 		configuration.setStoreFilePrefix(storeFilePrefix);
 		configuration.setStyles(styles);

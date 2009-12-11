@@ -27,6 +27,7 @@ import it.geosolutions.geobatch.configuration.event.action.geoserver.RegistryAct
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerRESTHelper;
 import it.geosolutions.geobatch.flow.event.action.geoserver.RegistryConfiguratorAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
+import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
 import it.geosolutions.geobatch.metocs.jaxb.model.Metocs;
 import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.geobatch.utils.io.Utilities;
@@ -297,7 +298,7 @@ public class HDF42GeoTIFFsFileConfigurator extends
 							Map<String, String> queryParams = new HashMap<String, String>();
 							queryParams.put("namespace", getConfiguration().getDefaultNamespace());
 							queryParams.put("wmspath", getConfiguration().getWmsPath());
-							GeoServerRESTHelper.send(outDir, 
+							final String[] layer = GeoServerRESTHelper.send(outDir, 
 									gtiffFile, 
 									getConfiguration().getGeoserverURL(), 
 									getConfiguration().getGeoserverUID(), 
@@ -314,16 +315,19 @@ public class HDF42GeoTIFFsFileConfigurator extends
 							// HARVESTING metadata to the Registry.
 							//
 							// ////////////////////////////////////////////////////////////////////
-							harvest(outDir, 
-									crs, envelope, gridRange,
-									getConfiguration().getGeoserverURL(), 
-									event.getTimestamp(), 
-									getConfiguration().getDefaultNamespace(),
-									coverageStoreId, 
-									coverageName, varLongName, varBrief, uom, noData);
-
-			
-			                }
+							if (layer != null && layer.length > 0)
+								harvest(outDir, 
+										crs, envelope, gridRange,
+										getConfiguration().getGeoserverURL(),
+										getConfiguration().getRegistryURL(),
+										getConfiguration().getProviderURL(),
+										event.getTimestamp(), 
+										getConfiguration().getDefaultNamespace(),
+										coverageStoreId, 
+										coverageName, varLongName, varBrief, uom, noData);
+	
+				
+				                }
 		                }
 		            }
 		        } else
@@ -398,23 +402,28 @@ public class HDF42GeoTIFFsFileConfigurator extends
 	 * @param crs 
 	 * @param gtiffFile
 	 * @param geoserverURL
+	 * @param string2 
+	 * @param string 
 	 * @param string
 	 * @param defaultNamespace
 	 * @param coverageStoreId
 	 * @param noData 
 	 * @param string2
 	 * @param string3
+	 * @return 
 	 * @throws JAXBException 
 	 * @throws IOException 
 	 * @throws FactoryException 
 	 * @throws ParseException 
 	 */
-	public void harvest(
+	public boolean harvest(
 			final File outDir, 
 			final CoordinateReferenceSystem crs, 
 			final Envelope envelope, 
 			final GridEnvelope2D range,  
 			final String geoserverURL,
+			final String registryURL,
+			final String providerURL, 
 			final long timestamp, 
 			final String namespace, 
 			final String coverageStoreId,
@@ -520,8 +529,8 @@ public class HDF42GeoTIFFsFileConfigurator extends
 						.append(ucy)
 						.append("&amp;FORMAT=geotiff")
 						.append("&amp;COVERAGE=").append(namespace + ":" + coverageName)
-						.append("&amp;WIDTH=").append(range.getWidth())
-						.append("&amp;HEIGHT=").append(range.getHeight())
+						.append("&amp;WIDTH=").append((int)range.getWidth())
+						.append("&amp;HEIGHT=").append((int)range.getHeight())
 						.append("&amp;CRS=").append(srsId);
             		inLine = inLine.replaceAll("#WCS_GETCOVERAGE#", wcsGetCoverage.toString());
             	}
@@ -535,8 +544,8 @@ public class HDF42GeoTIFFsFileConfigurator extends
             			.append(ucy).append("&amp;STYLES=")
             			.append("&amp;FORMAT=image/png")
             			.append("&amp;LAYERS=").append(namespace + ":" + coverageName)
-            			.append("&amp;WIDTH=").append(range.getWidth())
-            			.append("&amp;HEIGHT=").append(range.getHeight())
+            			.append("&amp;WIDTH=").append((int)range.getWidth())
+            			.append("&amp;HEIGHT=").append((int)range.getHeight())
             			.append("&amp;SRS=").append(srsId);
             		inLine = inLine.replaceAll("#WMS_GETMAP#", wmsGetMap.toString());
             	}
@@ -646,11 +655,11 @@ public class HDF42GeoTIFFsFileConfigurator extends
             	}
             	
             	if (inLine.contains("#WIDTH#")) {
-            		inLine = inLine.replaceAll("#WIDTH#", String.valueOf(range.getWidth()));
+            		inLine = inLine.replaceAll("#WIDTH#", String.valueOf((int)range.getWidth()));
             	}
             	
             	if (inLine.contains("#HEIGHT#")) {
-            		inLine = inLine.replaceAll("#HEIGHT#", String.valueOf(range.getHeight()));
+            		inLine = inLine.replaceAll("#HEIGHT#", String.valueOf((int)range.getHeight()));
             	}
             	
             	if (inLine.contains("#GRID_ORIGIN#")) {
@@ -677,6 +686,8 @@ public class HDF42GeoTIFFsFileConfigurator extends
         	inputFileReader.close();
         	outputFileWriter.close();
         }
+        
+        return JGSFLoDeSSIOUtils.sendHarvestRequest(registryURL, providerURL, coverageName);
 	}
 	
 }

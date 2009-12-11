@@ -26,6 +26,11 @@ import it.geosolutions.utils.coamps.data.FlatFileGrid;
 
 import java.awt.image.WritableRaster;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -818,4 +823,48 @@ public class JGSFLoDeSSIOUtils {
 		return dimensions;
 	}
 	
+	/**
+	 * @param registryURL
+	 * @param providerURL
+	 * @param coverageName
+	 * @return
+	 * @throws MalformedURLException
+	 * @throws IOException
+	 * @throws ProtocolException
+	 */
+	public static boolean sendHarvestRequest(final String registryURL,
+			final String providerURL, final String coverageName)
+			throws MalformedURLException, IOException, ProtocolException {
+		boolean res = false;
+		
+		final String content = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" >" +
+				"<soapenv:Header/>" +
+				"<soapenv:Body>" +
+				"<csw:Harvest xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" service=\"CSW\" version=\"2.0.2\">" +
+				"<csw:Source>"+providerURL+"/" + coverageName + ".xml" + "</csw:Source>" +
+				"</csw:Harvest>" +
+				"</soapenv:Body>" +
+				"</soapenv:Envelope>";
+		
+		URL registryWS_URL = new URL(registryURL);
+		HttpURLConnection con = (HttpURLConnection) registryWS_URL.openConnection();
+        con.setDoOutput(true);
+        con.setDoInput(true);
+        con.setRequestProperty("Content-Type", "text/xml; charset=UTF-8");
+        con.setRequestProperty("SOAPAction", "\"http://www.opengis.net/cat/csw/2.0.2/requests#Harvest\"");
+        con.setRequestMethod("POST");
+
+        OutputStreamWriter outReq = new OutputStreamWriter(con.getOutputStream());
+		outReq.write(content);
+        outReq.flush();
+        outReq.close();
+
+        final int responseCode = con.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            LOGGER.info("Registry - HTTP OK: " + responseCode);
+            res = true;
+        }
+        
+        return res;
+	}
 }
