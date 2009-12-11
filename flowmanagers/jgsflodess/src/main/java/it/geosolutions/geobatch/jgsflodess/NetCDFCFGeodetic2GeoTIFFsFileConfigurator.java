@@ -211,6 +211,7 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 
 			final String baseTime = ncFileIn.findGlobalAttribute("base_time").getStringValue();
 			final String TAU = String.valueOf(ncFileIn.findGlobalAttribute("tau").getNumericValue().intValue());
+			final double noData = ncFileIn.findGlobalAttribute("nodata").getNumericValue().doubleValue();
 			
 			final Dimension depthDim = ncFileIn.findDimension(JGSFLoDeSSIOUtils.DEPTH_DIM);
 			final boolean depthDimExists = depthDim != null;
@@ -327,7 +328,7 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 							Map<String, String> queryParams = new HashMap<String, String>();
 							queryParams.put("namespace", getConfiguration().getDefaultNamespace());
 							queryParams.put("wmspath", getConfiguration().getWmsPath());
-							GeoServerRESTHelper.send(outDir, 
+							final String[] layer = GeoServerRESTHelper.send(outDir, 
 									gtiffFile, 
 									getConfiguration().getGeoserverURL(), 
 									getConfiguration().getGeoserverUID(), 
@@ -346,18 +347,22 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 							// ////////////////////////////////////////////////////////////////////
 							
 							final String xmlTemplate = getConfiguration().getMetocHarvesterXMLTemplatePath();
-							if (xmlTemplate != null && xmlTemplate.trim().length()>0){
+							if (layer != null && layer.length > 0 && xmlTemplate != null && xmlTemplate.trim().length()>0){
 								final File metadataTemplate = new File(xmlTemplate);
 								if (metadataTemplate != null && metadataTemplate.exists()){
-									harvest(new File(JGSFLoDeSSGlobalConfig.getJGSFLoDeSSDirectory()), 
+									harvest(
+										new File(JGSFLoDeSSGlobalConfig.getJGSFLoDeSSDirectory()), 
 										gtiffFile,
 										metadataTemplate,
-										getConfiguration().getGeoserverURL(), 
+										getConfiguration().getGeoserverURL(),
+										getConfiguration().getRegistryURL(),
+										getConfiguration().getProviderURL(),
 										event.getTimestamp(), 
 										getConfiguration().getDefaultNamespace(),
 										coverageStoreId, 
 										coverageName.toString(),
-										NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.DEPTH_DIM) ? "DOWN" : "UP"
+										(NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.DEPTH_DIM) ? "DOWN" : "UP"),
+										noData
 									);
 								}
 							}
@@ -399,21 +404,25 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 	 * @param coverageStoreId
 	 * @param string2
 	 * @param string3
+	 * @return 
 	 * @throws JAXBException 
 	 * @throws IOException 
 	 * @throws FactoryException 
 	 * @throws ParseException 
 	 */
-	public void harvest(
+	public boolean harvest(
 			final File outDir, 
 			final File gtiffFile, 
 			final File metadataTemplate,
 			final String geoserverURL,
+			final String registryURL,
+			final String providerURL,
 			final long timestamp, 
 			final String namespace, 
 			final String coverageStoreId,
 			final String coverageName, 
-			final String zOrder
+			final String zOrder,
+			final double noData
 	) throws JAXBException, IOException, FactoryException, ParseException {
 		// CoverageName Format:
 		//  CRUISEEXP_MODELNAME-MODELTYPE_VARNAME(-u/v/mag/dir)_ZLEV_BASETIMEYYYYMMDD_BASETIMEHHHMMSS_FCSTTIMEYYYYMMDD_FCSTTIMEHHHMMSS_TAU
@@ -507,8 +516,8 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 												 .append(envelope.getUpperCorner().getOrdinate(1));
 										wcsGetCoverage.append("&amp;FORMAT=geotiff");
 										wcsGetCoverage.append("&amp;COVERAGE=").append(namespace + ":" + coverageName);
-										wcsGetCoverage.append("&amp;WIDTH=").append(range.getWidth());
-										wcsGetCoverage.append("&amp;HEIGHT=").append(range.getHeight());
+										wcsGetCoverage.append("&amp;WIDTH=").append((int)range.getWidth());
+										wcsGetCoverage.append("&amp;HEIGHT=").append((int)range.getHeight());
 										wcsGetCoverage.append("&amp;CRS=").append(srsId);
             		inLine = inLine.replaceAll("#WCS_GETCOVERAGE#", wcsGetCoverage.toString());
             	}
@@ -524,8 +533,8 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
             							wmsGetMap.append("&amp;STYLES=");
             							wmsGetMap.append("&amp;FORMAT=image/png");
             							wmsGetMap.append("&amp;LAYERS=").append(namespace + ":" + coverageName);
-            							wmsGetMap.append("&amp;WIDTH=").append(range.getWidth());
-            							wmsGetMap.append("&amp;HEIGHT=").append(range.getHeight());
+            							wmsGetMap.append("&amp;WIDTH=").append((int)range.getWidth());
+            							wmsGetMap.append("&amp;HEIGHT=").append((int)range.getHeight());
             							wmsGetMap.append("&amp;SRS=").append(srsId);
             		inLine = inLine.replaceAll("#WMS_GETMAP#", wmsGetMap.toString());
             	}
@@ -657,11 +666,11 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
             	}
             	
             	if (inLine.contains("#WIDTH#")) {
-            		inLine = inLine.replaceAll("#WIDTH#", String.valueOf(range.getWidth()));
+            		inLine = inLine.replaceAll("#WIDTH#", String.valueOf((int)range.getWidth()));
             	}
             	
             	if (inLine.contains("#HEIGHT#")) {
-            		inLine = inLine.replaceAll("#HEIGHT#", String.valueOf(range.getHeight()));
+            		inLine = inLine.replaceAll("#HEIGHT#", String.valueOf((int)range.getHeight()));
             	}
             	
             	if (inLine.contains("#GRID_ORIGIN#")) {
@@ -677,8 +686,7 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
             	}
             	
             	if (inLine.contains("#NODATA#")) {
-            		// TODO: FIX THIS
-            		inLine = inLine.replaceAll("#NODATA#", "-9999.0");
+            		inLine = inLine.replaceAll("#NODATA#",  Double.toString(noData));
             	}
             	
                 outputStream.println(inLine);
@@ -691,6 +699,8 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
         }
 		
 		reader.dispose();
+
+		return JGSFLoDeSSIOUtils.sendHarvestRequest(registryURL, providerURL, coverageName);
 	}
-	
+
 }
