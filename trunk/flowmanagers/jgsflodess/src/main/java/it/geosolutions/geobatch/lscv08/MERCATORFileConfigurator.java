@@ -297,12 +297,21 @@ public class MERCATORFileConfigurator extends
             	}
             }
 
+            double noData = Double.NaN;
+            
 			// defining output variable
             for (String varName : foundVariables.keySet()) {
                 ncFileOut.addVariable(foundVariableBriefNames.get(varName), foundVariables.get(varName).getDataType(), outDimensions);
                 NetCDFConverterUtilities.setVariableAttributes(foundVariables.get(varName), ncFileOut, foundVariableBriefNames.get(varName), new String[] { "positions" });
                 ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "long_name", foundVariableLongNames.get(varName));
                 ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "units", foundVariableUoM.get(varName));
+                
+                if (Double.isNaN(noData)) {
+                	Attribute missingValue = foundVariables.get(varName).findAttribute("_FillValue");
+                	if (missingValue != null) {
+                		noData = missingValue.getNumericValue().doubleValue();
+                	}
+                }
             }
             
             // MERCATOR OCEAN MODEL Global Attributes
@@ -329,7 +338,7 @@ public class MERCATORFileConfigurator extends
         	// Setting up global Attributes ...
         	ncFileOut.addGlobalAttribute("base_time", fromSdf.format(timeOriginDate));
         	ncFileOut.addGlobalAttribute("tau", TAU);
-        	ncFileOut.addGlobalAttribute("nodata", -9999.0);
+        	ncFileOut.addGlobalAttribute("nodata", noData);
 
             // writing bin data ...
             ncFileOut.create();

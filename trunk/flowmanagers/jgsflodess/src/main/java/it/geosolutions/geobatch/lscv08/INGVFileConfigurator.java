@@ -352,6 +352,8 @@ public class INGVFileConfigurator extends
             		true, nLon
             );
             
+            double noData = Double.NaN;
+            
 			// defining output variables
             for (String varName : foundVariables.keySet()) {
             	boolean hasLocalDepth = NetCDFConverterUtilities.hasThisDimension(foundVariables.get(varName), depthName);
@@ -369,6 +371,13 @@ public class INGVFileConfigurator extends
                 NetCDFConverterUtilities.setVariableAttributes(foundVariables.get(varName), ncFileOut, foundVariableBriefNames.get(varName), new String[] { "positions" });
                 ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "long_name", foundVariableLongNames.get(varName));
                 ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "units", foundVariableUoM.get(varName));
+                
+                if (Double.isNaN(noData)) {
+                	Attribute missingValue = foundVariables.get(varName).findAttribute("missing_value");
+                	if (missingValue != null) {
+                		noData = missingValue.getNumericValue().doubleValue();
+                	}
+                }
             }
 
             // time Variable data
@@ -402,7 +411,7 @@ public class INGVFileConfigurator extends
             // Setting up global Attributes ...
         	ncFileOut.addGlobalAttribute("base_time", fromSdf.format(timeOriginDate));
         	ncFileOut.addGlobalAttribute("tau", TAU);
-        	ncFileOut.addGlobalAttribute("nodata", -9999.0);
+        	ncFileOut.addGlobalAttribute("nodata", noData);
 
             // writing bin data ...
             ncFileOut.create();

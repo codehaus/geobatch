@@ -69,7 +69,7 @@
     	</property>	
 	</bean>
 	
-	<bean id="NRLNCOMGeneratorService" class="it.geosolutions.geobatch.lscv08.INGVGeneratorService">
+	<bean id="NRLNCOMGeneratorService" class="it.geosolutions.geobatch.lscv08.MERCATORGeneratorService">
 		<property  name="id">
     		<value>JGSFLoDeSSNCOMGeneratorService</value>
     	</property>

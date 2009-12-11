@@ -58,6 +58,7 @@ import org.geotools.geometry.GeneralEnvelope;
 
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriteable;
@@ -308,12 +309,21 @@ public class NRLNCOMFileConfigurator extends
             	}
             }
 
+            double noData = Double.NaN;
+            
 			// defining output variable
             for (String varName : foundVariables.keySet()) {
             	ncFileOut.addVariable(foundVariableBriefNames.get(varName), foundVariables.get(varName).getDataType(), outDimensions);
                 NetCDFConverterUtilities.setVariableAttributes(foundVariables.get(varName), ncFileOut, foundVariableBriefNames.get(varName), new String[] { "positions" });
                 ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "long_name", foundVariableLongNames.get(varName));
                 ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "units", foundVariableUoM.get(varName));
+                
+                if (Double.isNaN(noData)) {
+                	Attribute missingValue = foundVariables.get(varName).findAttribute("missing_value");
+                	if (missingValue != null) {
+                		noData = missingValue.getNumericValue().doubleValue();
+                	}
+                }
             }
             
             // time Variable data
@@ -345,7 +355,7 @@ public class NRLNCOMFileConfigurator extends
         	// Setting up global Attributes ...
         	ncFileOut.addGlobalAttribute("base_time", fromSdf.format(timeOriginDate));
         	ncFileOut.addGlobalAttribute("tau", TAU);
-        	ncFileOut.addGlobalAttribute("nodata", -9999.0);
+        	ncFileOut.addGlobalAttribute("nodata", noData);
         	
             // writing bin data ...
             ncFileOut.create();
