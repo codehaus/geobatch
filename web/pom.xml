@@ -275,6 +275,24 @@
 			</dependencies>
 		</profile>
 		<profile>
+			<id>ascii</id>
+			<dependencies>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-ascii</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>shapefile</id>
+			<dependencies>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-shapefile</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
 			<id>geowebcache</id>
 			<dependencies>
 				<dependency>
