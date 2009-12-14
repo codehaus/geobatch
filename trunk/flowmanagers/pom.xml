@@ -55,8 +55,6 @@
    
     <modules>
       <module>geotiff</module>
-      <module>shapefile</module>
-      <module>ascii-grids</module>
     </modules>
     
     <profiles>
@@ -96,6 +94,18 @@
            <module>jgsflodess</module>
         </modules>
     </profile>
+    <profile>
+        <id>ascii-grids</id>
+        <modules>
+           <module>ascii-grids</module>
+        </modules>
+    </profile>
+    <profile>
+        <id>shapefile</id>
+        <modules>
+           <module>shapefile</module>
+        </modules>
+    </profile>
 		<profile>
 			<id>all</id>
 			<modules>
@@ -105,6 +115,8 @@
 			   <module>gb-gliders</module>
 			   <module>gb-sas</module>
 			   <module>jgsflodess</module>
+			   <module>shapefile</module>
+         <module>ascii-grids</module>
 			</modules>
 		</profile>		
    </profiles>
