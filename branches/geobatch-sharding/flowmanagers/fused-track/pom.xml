@@ -16,6 +16,7 @@
 		<artifactId>gb-flowmanagers</artifactId>
 		<version>0.9-SNAPSHOT</version>
 	</parent>
+	
 
 
 	<!-- =========================================================== -->
@@ -114,6 +115,16 @@
 		<dependency>
 			<groupId>org.geotools</groupId>
 			<artifactId>gt-arcgrid</artifactId>
+			<version>${gt.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-cql</artifactId>
+			<version>${gt.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.geotools.jdbc</groupId>
+			<artifactId>gt-jdbc-postgis</artifactId>
 			<version>${gt.version}</version>
 		</dependency>
 
