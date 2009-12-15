@@ -42,8 +42,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Queue;
 import java.util.logging.Level;
 
@@ -106,7 +108,8 @@ public class ContactGeoServerGenerator extends GeoServerConfiguratorAction<FileS
         this.postgisDataStore = postgisDataStore;
     }
 
-    public Queue<FileSystemMonitorEvent> execute(Queue<FileSystemMonitorEvent> events)
+    @SuppressWarnings("unchecked")
+	public Queue<FileSystemMonitorEvent> execute(Queue<FileSystemMonitorEvent> events)
             throws Exception {
 
         // ////////////////////////////////////////////////////////////////////
@@ -221,7 +224,6 @@ public class ContactGeoServerGenerator extends GeoServerConfiguratorAction<FileS
                         FeatureCollection<SimpleFeatureType, SimpleFeature> features = fs
                                 .getFeatures(shardingFilter);
                         
-                        System.out.println(features.size());
                         iterator = features.features();
 
                         FeatureCollection<SimpleFeatureType, SimpleFeature> collection = FeatureCollections

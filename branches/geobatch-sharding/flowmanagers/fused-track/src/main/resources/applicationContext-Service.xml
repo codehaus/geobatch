@@ -30,7 +30,7 @@
 				<entry key="user">
 					<value>postgres</value>
 				</entry>
-				<entry key="password">
+				<entry key="passwd">
 					<value>postgres</value>
 				</entry>
 			</map>
