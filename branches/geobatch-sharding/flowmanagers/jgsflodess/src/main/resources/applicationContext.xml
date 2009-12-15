@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- Global Config -->
+	<bean id="JGSFLoDeSSGlobalConfig" class="it.geosolutions.geobatch.jgsflodess.config.global.JGSFLoDeSSGlobalConfig">
+		<constructor-arg><value>C:/tmp/rest</value></constructor-arg>
+	</bean>
+	
+	<!-- Temp storage cleanup -->
+	<!-- The actual scheduled task -->
+	<bean id="dumpStorageCleaner" class="it.geosolutions.geobatch.jgsflodess.utils.io.rest.DumpStorageCleaner">
+	    <property name="expirationDelay" value="300" /><!-- 300 seconds, 5 minutes -->
+	</bean>
+	 <!-- Definition of how often the scheduled task runs -->
+	  <bean id="dumpStorageCleanerTask"
+	    class="org.springframework.scheduling.timer.ScheduledTimerTask">
+	    <!-- wait 10 seconds before starting repeated execution -->
+	    <property name="delay" value="10000" />
+	    <!-- run every 60 seconds -->
+	    <property name="period" value="60000" />
+	    <property name="timerTask" ref="dumpStorageCleaner" />
+	  </bean>
+	  <!-- And finally the class that instantiates the scheduled tasks and makes them run -->
+	  <bean id="dumpStorageCleanerTimerFactory" class="org.springframework.scheduling.timer.TimerFactoryBean"
+	    lazy-init="false">
+	    <property name="scheduledTimerTasks">
+	      <list>
+	        <ref bean="dumpStorageCleanerTask" />
+	      </list>
+	    </property>
+	  </bean>
+		 
+	<!-- Environment Initialization -->
+	<bean id="NetCDFCFGeodetic2GeoTIFFsGeneratorService" class="it.geosolutions.geobatch.jgsflodess.NetCDFCFGeodetic2GeoTIFFsGeneratorService">
+		<property  name="id">
+    		<value>NetCDFCFGeodetic2GeoTIFFsGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>NetCDFCFGeodetic2GeoTIFFsGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>NetCDFCFGeodetic2GeoTIFFsGeneratorService</value>
+    	</property>	
+	</bean>
+	
+	<bean id="JGSFLoDeSSSWANGeneratorService" class="it.geosolutions.geobatch.jgsflodess.JGSFLoDeSSSWANGeneratorService">
+		<property  name="id">
+    		<value>JGSFLoDeSSSWANGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>JGSFLoDeSSSWANGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>JGSFLoDeSSSWANGeneratorService</value>
+    	</property>	
+	</bean>
+	
+	<bean id="JGSFLoDeSSCOAMPSGeneratorService" class="it.geosolutions.geobatch.jgsflodess.JGSFLoDeSSCOAMPSGeneratorService">
+		<property  name="id">
+    		<value>JGSFLoDeSSCOAMPSGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>JGSFLoDeSSCOAMPSGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>JGSFLoDeSSCOAMPSGeneratorService</value>
+    	</property>	
+	</bean>
+	
+	<bean id="NRLNCOMGeneratorService" class="it.geosolutions.geobatch.lscv08.MERCATORGeneratorService">
+		<property  name="id">
+    		<value>JGSFLoDeSSNCOMGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>JGSFLoDeSSNCOMGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>JGSFLoDeSSNCOMGeneratorService</value>
+    	</property>	
+	</bean>
+	
+	<bean id="HDF42GeoTIFFsGeneratorService" class="it.geosolutions.geobatch.remsens.HDF42GeoTIFFsGeneratorService">
+		<property  name="id">
+    		<value>HDF42GeoTIFFsGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>HDF42GeoTIFFsGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>HDF42GeoTIFFsGeneratorService</value>
+    	</property>	
+	</bean>
+	
+	<bean id="NURCWPSOutput2WMCGeneratorService" class="it.geosolutions.geobatch.wmc.NURCWPSOutput2WMCGeneratorService">
+		<property  name="id">
+    		<value>NURCWPSOutput2WMCGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>NURCWPSOutput2WMCGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>NURCWPSOutput2WMCGeneratorService</value>
+    	</property>	
+	</bean>
+
+</beans>

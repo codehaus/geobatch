@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlowConfiguration>
+	<workingDirectory>FusedTracksContacts</workingDirectory>
+    <autorun>true</autorun>
+	<EventConsumerConfiguration>
+		<workingDirectory>FusedTracksContacts</workingDirectory>
+		<performBackup>true</performBackup>
+		<FileEventRule>
+			<optional>false</optional>
+			<originalOccurrencies>1</originalOccurrencies>
+			<regex>.*\.txt</regex>
+			<id>fd</id>
+			<description>description</description>
+			<name>test</name>
+		</FileEventRule>
+		<GeoServerActionConfiguration>
+			<workingDirectory>FusedTracksContacts</workingDirectory>
+			<crs>EPSG:4326</crs>
+			<envelope/>
+			<dataTransferMethod>URL</dataTransferMethod>
+			<geoserverPWD>geoserver</geoserverPWD>
+			<geoserverUID>admin</geoserverUID>
+			<geoserverURL>http://localhost:8080/geoserver</geoserverURL>
+			<!-- storeFilePrefix>c41078a</storeFilePrefix -->
+			<wmsPath>/</wmsPath>
+			<defaultStyle>line</defaultStyle>
+			<styles/>
+			<!-- styles>
+				<style>raster.sld</style>
+			</styles -->
+			<serviceID>contactGeoServerGeneratorService</serviceID>
+			<id>a1</id>
+			<description>description</description>
+			<name>test</name>
+		</GeoServerActionConfiguration>
+		<id>ftId</id>
+		<description>description</description>
+		<name>test</name>
+	</EventConsumerConfiguration>
+	<eventGeneratorConfiguration class="FsEventGeneratorConfiguration">
+		<wildCard>*.*</wildCard>
+		<watchDirectory>FusedTracksContacts/in</watchDirectory>
+        <keepFiles>true</keepFiles>
+		<osType>OS_UNDEFINED</osType>
+		<eventType>FILE_ADDED</eventType>
+		<id>tfId</id>
+        <serviceID>fsEventGeneratorService</serviceID>
+		<description>description</description>
+		<name>test</name>
+	</eventGeneratorConfiguration>
+	<id>flowFusedTracks</id>
+	<description>flowFusedTracks: testing injection of flowFusedTracks through Hibernate Spatial</description>
+	<name>flowFusedTracks</name>
+</FlowConfiguration>

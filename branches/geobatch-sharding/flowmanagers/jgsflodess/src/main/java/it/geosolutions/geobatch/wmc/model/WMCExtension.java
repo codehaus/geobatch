@@ -1,0 +1,156 @@
+/*
+ * $Header: it.geosolutions.geobatch.wmc.model.WMCExtension,v. 0.1 02/dic/2009 18:08:21 created by Fabiani $
+ * $Revision: 0.1 $
+ * $Date: 02/dic/2009 18:08:21 $
+ *
+ * ====================================================================
+ *
+ * Copyright (C) 2007-2008 GeoSolutions S.A.S.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. 
+ *
+ * ====================================================================
+ *
+ * This software consists of voluntary contributions made by developers
+ * of GeoSolutions.  For more information on GeoSolutions, please see
+ * <http://www.geo-solutions.it/>.
+ *
+ */
+package it.geosolutions.geobatch.wmc.model;
+
+/**
+ * @author Fabiani
+ *
+ */
+public class WMCExtension {
+	private OLLayerID id;
+	private OLTransparent transparent;
+	private OLIsBaseLayer isBaseLayer;
+	private OLOpacity opacity;
+	private OLDisplayInLayerSwitcher displayInLayerSwitcher;
+	private OLSingleTile singleTile;
+	private OLNumZoomLevels numZoomLevels;
+	private OLUnits units;
+	private OLMaxExtent maxExtent;
+	/**
+	 * @return the id
+	 */
+	public OLLayerID getId() {
+		return id;
+	}
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(OLLayerID id) {
+		this.id = id;
+	}
+	/**
+	 * @return the transparent
+	 */
+	public OLTransparent getTransparent() {
+		return transparent;
+	}
+	/**
+	 * @param transparent the transparent to set
+	 */
+	public void setTransparent(OLTransparent transparent) {
+		this.transparent = transparent;
+	}
+	/**
+	 * @return the isBaseLayer
+	 */
+	public OLIsBaseLayer getIsBaseLayer() {
+		return isBaseLayer;
+	}
+	/**
+	 * @param isBaseLayer the isBaseLayer to set
+	 */
+	public void setIsBaseLayer(OLIsBaseLayer isBaseLayer) {
+		this.isBaseLayer = isBaseLayer;
+	}
+	/**
+	 * @return the opacity
+	 */
+	public OLOpacity getOpacity() {
+		return opacity;
+	}
+	/**
+	 * @param opacity the opacity to set
+	 */
+	public void setOpacity(OLOpacity opacity) {
+		this.opacity = opacity;
+	}
+	/**
+	 * @return the displayInLayerSwitcher
+	 */
+	public OLDisplayInLayerSwitcher getDisplayInLayerSwitcher() {
+		return displayInLayerSwitcher;
+	}
+	/**
+	 * @param displayInLayerSwitcher the displayInLayerSwitcher to set
+	 */
+	public void setDisplayInLayerSwitcher(
+			OLDisplayInLayerSwitcher displayInLayerSwitcher) {
+		this.displayInLayerSwitcher = displayInLayerSwitcher;
+	}
+	/**
+	 * @return the singleTile
+	 */
+	public OLSingleTile getSingleTile() {
+		return singleTile;
+	}
+	/**
+	 * @param singleTile the singleTile to set
+	 */
+	public void setSingleTile(OLSingleTile singleTile) {
+		this.singleTile = singleTile;
+	}
+	/**
+	 * @return the numZoomLevels
+	 */
+	public OLNumZoomLevels getNumZoomLevels() {
+		return numZoomLevels;
+	}
+	/**
+	 * @param numZoomLevels the numZoomLevels to set
+	 */
+	public void setNumZoomLevels(OLNumZoomLevels numZoomLevels) {
+		this.numZoomLevels = numZoomLevels;
+	}
+	/**
+	 * @return the units
+	 */
+	public OLUnits getUnits() {
+		return units;
+	}
+	/**
+	 * @param units the units to set
+	 */
+	public void setUnits(OLUnits units) {
+		this.units = units;
+	}
+	/**
+	 * @return the maxExtent
+	 */
+	public OLMaxExtent getMaxExtent() {
+		return maxExtent;
+	}
+	/**
+	 * @param maxExtent the maxExtent to set
+	 */
+	public void setMaxExtent(OLMaxExtent maxExtent) {
+		this.maxExtent = maxExtent;
+	}
+
+}
