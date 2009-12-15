@@ -210,10 +210,10 @@ public class ContactGeoServerGenerator extends GeoServerConfiguratorAction<FileS
                     // /////////////////////////
                     // Shard PastContactPosition
                     // /////////////////////////
-                    
+                    DataStore dataStore = null;
                     Transaction transaction = new DefaultTransaction("create");
                     try {
-                        DataStore dataStore = (DataStore) DataStoreFinder
+                        dataStore = (DataStore) DataStoreFinder
                                 .getDataStore(this.postgisDataStore.getParams());
                         FeatureSource fs = dataStore.getFeatureSource(this.postgisDataStore.getShardingSystemTable());
 
@@ -259,6 +259,8 @@ public class ContactGeoServerGenerator extends GeoServerConfiguratorAction<FileS
                     } finally {
                         transaction.close();
                         iterator.close(); // IMPORTANT
+                        dataStore.dispose();
+                        dataStore = null;
                     }
 
                     pastContactPositionDAO.save(pastContactPosition);
