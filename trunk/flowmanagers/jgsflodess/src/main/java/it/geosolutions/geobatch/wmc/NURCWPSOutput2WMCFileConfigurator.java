@@ -353,7 +353,7 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 
 							final String coverageStoreId = coverageName.toString();
 
-							File gtiffFile = Utilities.storeCoverageAsGeoTIFF(outDir, coverageName.toString(), variableName, userRaster, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
+							File gtiffFile = Utilities.storeCoverageAsGeoTIFF(outDir, coverageName.toString(), variableName, userRaster, Double.NaN, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
 
 							// ////////////////////////////////////////////////////////////////////
 							//

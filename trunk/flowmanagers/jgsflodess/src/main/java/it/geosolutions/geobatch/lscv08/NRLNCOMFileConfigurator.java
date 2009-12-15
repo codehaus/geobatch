@@ -374,7 +374,26 @@ public class NRLNCOMFileConfigurator extends
 			ncFileOut.write(JGSFLoDeSSIOUtils.LON_DIM, lonOriginalData);
             
 			for (String varName : foundVariables.keySet()) {
-				Array originalVarArray = foundVariables.get(varName).read();
+				Variable var = foundVariables.get(varName);
+				double offset = 0.0;
+				double scale = 1.0;
+				
+				Attribute offsetAtt = var.findAttribute("add_offset");
+				Attribute scaleAtt = var.findAttribute("scale_factor");
+				
+				offset = (offsetAtt != null ? offsetAtt.getNumericValue().doubleValue() : offset);
+				scale  = (scaleAtt != null ? scaleAtt.getNumericValue().doubleValue() : scale); 
+				
+				Array originalVarArray = var.read();
+				
+				for (int t = 0; t < time_dim.getLength(); t++)
+					for (int z = 0; z < depth_dim.getLength(); z++)
+						for (int y = 0; y < lat_dim.getLength(); y++)
+							for (int x = 0; x < lon_dim.getLength(); x++) {
+								double originalValue = originalVarArray.getDouble(originalVarArray.getIndex().set(t, z, y, x));
+								originalVarArray.setDouble(originalVarArray.getIndex().set(t, z, y, x), (originalValue != noData ? (originalValue * scale) + offset : noData));
+							}
+				
 				ncFileOut.write(foundVariableBriefNames.get(varName), originalVarArray);
 			}
 
