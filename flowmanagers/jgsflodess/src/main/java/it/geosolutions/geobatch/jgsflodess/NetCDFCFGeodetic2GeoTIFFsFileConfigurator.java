@@ -318,7 +318,7 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 
 							final String coverageStoreId = coverageName.toString();
 
-							File gtiffFile = Utilities.storeCoverageAsGeoTIFF(outDir, coverageName.toString(), varName, userRaster, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
+							File gtiffFile = Utilities.storeCoverageAsGeoTIFF(outDir, coverageName.toString(), varName, userRaster, noData, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
 
 							// ////////////////////////////////////////////////////////////////////
 							//
@@ -391,8 +391,6 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 		}
 	}
 
-	
-	
 	/**
 	 * Harvest: Metadata Creator
 	 * 

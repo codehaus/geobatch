@@ -21,39 +21,36 @@
  */
 package it.geosolutions.geobatch.utils.io;
 
-import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerRESTHelper;
-
+import java.awt.Color;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.measure.unit.Unit;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
 import javax.media.jai.TiledImage;
 
 import org.apache.commons.io.FilenameUtils;
+import org.geotools.coverage.Category;
 import org.geotools.coverage.CoverageFactoryFinder;
+import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.io.AbstractGridCoverageWriter;
@@ -63,6 +60,9 @@ import org.geotools.factory.Hints;
 import org.geotools.gce.geotiff.GeoTiffFormat;
 import org.geotools.gce.geotiff.GeoTiffWriteParams;
 import org.geotools.gce.geotiff.GeoTiffWriter;
+import org.geotools.resources.i18n.Vocabulary;
+import org.geotools.resources.i18n.VocabularyKeys;
+import org.geotools.util.NumberRange;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.geometry.Envelope;
 import org.opengis.parameter.GeneralParameterValue;
@@ -110,9 +110,10 @@ public class Utilities {
 	 */
 	public static File storeCoverageAsGeoTIFF(
 			final File outDir, 
-			final String fileName, 
+			final String coverageName, 
 			final CharSequence varName, 
-			WritableRaster userRaster, 
+			WritableRaster userRaster,
+			final double inNoData,
 			Envelope envelope, 
 			final String compressionType, final double compressionRatio, final int tileSize) 
 	throws IllegalArgumentException, IOException {
@@ -136,7 +137,7 @@ public class Utilities {
 		wparams.parameter(AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName().toString()).setValue(wp);
 
 		// keep original name
-		final File outFile = new File(outDir, fileName.toString() + ".tiff");
+		final File outFile = new File(outDir, coverageName.toString() + ".tiff");
 
 		// /////////////////////////////////////////////////////////////////////
 		//
@@ -148,15 +149,54 @@ public class Utilities {
         
         final SampleModel iSampleModel = userRaster.getSampleModel();
 		final ColorModel iColorModel = PlanarImage.createColorModel(iSampleModel);
-		TiledImage image = new TiledImage(0, 0, userRaster.getWidth(), userRaster.getHeight(), 0, 0, 
-        		iSampleModel, iColorModel);
+		TiledImage image = new TiledImage(0, 0, userRaster.getWidth(), userRaster.getHeight(), 0, 0, iSampleModel, iColorModel);
 		image.setData(userRaster);
 		
+		Unit<?> uom = null;
+		final Category nan;
+		final Category values;
+		if (Double.isNaN(inNoData)) {
+			nan = new Category(
+					Vocabulary.formatInternational(VocabularyKeys.NODATA), 
+					new Color(0, 0, 0, 0), 0);
+			values = new Category("values", new Color[] { new Color(255, 0, 0, 0) }, NumberRange.create(1,255), NumberRange.create(0, 9000));
+
+		} else {
+			nan = new Category(
+					Vocabulary.formatInternational(VocabularyKeys.NODATA),
+					new Color[] { new Color(0, 0, 0, 0) }, 
+					NumberRange.create(0, 0),
+					NumberRange.create(inNoData, inNoData));
+			values = new Category(
+					"values", 
+					new Color[] { new Color(255, 0, 0, 0) },
+					NumberRange.create(1, 255), 
+					NumberRange.create(inNoData + Math.abs(inNoData) * 0.1, inNoData + Math.abs(inNoData) * 10)
+			);
+
+		}
+		
+		// ///////////////////////////////////////////////////////////////////
+		//
+		// Sample dimension
+		//
+		//
+		// ///////////////////////////////////////////////////////////////////
+		final GridSampleDimension band = new GridSampleDimension(coverageName, new Category[] { nan, values }, uom)
+				.geophysics(true);
+		final Map<String, Double> properties = new HashMap<String, Double>();
+		properties.put("GC_NODATA", new Double(inNoData));
+		
+		// /////////////////////////////////////////////////////////////////////
+		//
+		// Coverage
+		//
+		// /////////////////////////////////////////////////////////////////////
         GridCoverage coverage = null;
         if (iColorModel != null)
-        	coverage = factory.create(varName, image, envelope);
+        	coverage = factory.create(varName, image, envelope, new GridSampleDimension[] { band }, null, properties);
         else
-        	coverage = factory.create(varName, userRaster, envelope);
+        	coverage = factory.create(varName, userRaster, envelope, new GridSampleDimension[] { band });
         
 		final AbstractGridCoverageWriter writer = (AbstractGridCoverageWriter) new GeoTiffWriter(outFile);
 		writer.write(coverage, (GeneralParameterValue[]) wparams.values().toArray(new GeneralParameterValue[1]));

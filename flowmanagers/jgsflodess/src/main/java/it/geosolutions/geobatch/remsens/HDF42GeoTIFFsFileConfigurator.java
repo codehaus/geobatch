@@ -325,8 +325,6 @@ public class HDF42GeoTIFFsFileConfigurator extends
 										getConfiguration().getDefaultNamespace(),
 										coverageStoreId, 
 										coverageName, varLongName, varBrief, uom, noData);
-	
-				
 				                }
 		                }
 		            }
