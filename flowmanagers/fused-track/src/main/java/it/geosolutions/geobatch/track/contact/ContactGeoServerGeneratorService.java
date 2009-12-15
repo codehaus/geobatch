@@ -28,6 +28,7 @@ import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfigurato
 import it.geosolutions.geobatch.track.dao.ContactDAO;
 import it.geosolutions.geobatch.track.dao.ContactTypeDAO;
 import it.geosolutions.geobatch.track.dao.PastContactPositionDAO;
+import it.geosolutions.geobatch.track.datastore.Postgis;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -53,6 +54,22 @@ public class ContactGeoServerGeneratorService
 
 	private SessionFactory sessionFactory;
 	
+	private Postgis postgisDataStore;
+	
+
+	/**
+	 * @return the postgisDataStore
+	 */
+	public Postgis getPostgisDataStore() {
+		return postgisDataStore;
+	}
+
+	/**
+	 * @param postgisDataStore the postgisDataStore to set
+	 */
+	public void setPostgisDataStore(Postgis postgisDataStore) {
+		this.postgisDataStore = postgisDataStore;
+	}
 
 	public void setContactDAO(ContactDAO contactDAO) {
 		this.contactDAO = contactDAO;
@@ -89,7 +106,7 @@ public class ContactGeoServerGeneratorService
 	
 	public ContactGeoServerGenerator createAction(GeoServerActionConfiguration configuration) {
 		try {
-			return new ContactGeoServerGenerator(configuration, this.contactDAO, this.pastContactPositionDAO, this.sessionFactory);
+			return new ContactGeoServerGenerator(configuration, this.contactDAO, this.pastContactPositionDAO, this.sessionFactory, this.postgisDataStore);
 		} catch (IOException e) {
 			if (LOGGER.isLoggable(Level.WARNING))
 				LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
