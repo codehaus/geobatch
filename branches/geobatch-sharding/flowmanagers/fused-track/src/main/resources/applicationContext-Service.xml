@@ -7,6 +7,38 @@
            http://www.springframework.org/schema/context/spring-context-2.5.xsd"
 	default-autowire="byName">
 
+	<bean id="postgisDataStore" class="it.geosolutions.geobatch.track.datastore.Postgis">
+		<property name="factoryClass"
+			value="org.geotools.data.postgis.PostgisNGDataStoreFactory" />
+		<property name="params">
+			<map>
+				<entry key="dbtype">
+					<value>postgis</value>
+				</entry>
+				<entry key="host">
+					<value>localhost</value>
+				</entry>
+				<entry key="port">
+					<value>5432</value>
+				</entry>
+				<entry key="schema">
+					<value>public</value>
+				</entry>
+				<entry key="database">
+					<value>track</value>
+				</entry>
+				<entry key="user">
+					<value>postgres</value>
+				</entry>
+				<entry key="password">
+					<value>postgres</value>
+				</entry>
+			</map>
+		</property>
+		<property name="shardingSystemTable" value="shard_system" />
+
+	</bean>
+
 
 	<context:annotation-config />
 
@@ -22,10 +54,12 @@
 		<property name="name">
 			<value>contactGeoServerGeneratorService</value>
 		</property>
-		<property name="contactDAO" ref="contactDAO"/>
-		<property name="pastContactPositionDAO" ref="pastContactPositionDAO"/>
-		<property name="contactTypeDAO" ref="contactTypeDAO"/>
-	    <property name="sessionFactory" ref="sessionFactory"/>
-	</bean>	
+		<property name="contactDAO" ref="contactDAO" />
+		<property name="pastContactPositionDAO" ref="pastContactPositionDAO" />
+		<property name="contactTypeDAO" ref="contactTypeDAO" />
+		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="postgisDataStore" ref="postgisDataStore" />
+
+	</bean>
 
 </beans>
