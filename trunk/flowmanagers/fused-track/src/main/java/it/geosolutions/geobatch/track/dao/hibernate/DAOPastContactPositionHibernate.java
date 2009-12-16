@@ -55,7 +55,7 @@ public class DAOPastContactPositionHibernate extends DAOAbstractSpring<PastConta
 
 	}
 	
-	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.REQUIRED,readOnly=true)
 	@SuppressWarnings("unchecked")
 	public List<PastContactPosition> findByPeriod(final long timestamp, 
 			final long step, final long contactId) throws DAOException {
