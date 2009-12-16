@@ -78,6 +78,8 @@ public class Alias {
         
 //        xstream.alias("GeoWebCacheActionConfiguration",
 //        		it.geosolutions.geobatch.gwc.GeoWebCacheActionConfiguration.class);
+        //xstream.alias("FusedTrackActionConfiguration",
+        //		it.geosolutions.geobatch.track.configuration.FusedTrackActionConfiguration.class);
 
         xstream.addImplicitCollection(
                         it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration.class,
