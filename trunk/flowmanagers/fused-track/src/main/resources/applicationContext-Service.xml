@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd"
+	default-autowire="byName">
+
+
+	<context:annotation-config />
+
+	<!-- Environment Initialization -->
+	<bean id="fusedTrackGeneratorService"
+		class="it.geosolutions.geobatch.track.contact.FusedTrackGeneratorService">
+		<property name="id">
+			<value>fusedTrackGeneratorService</value>
+		</property>
+		<property name="description">
+			<value>fusedTrackGeneratorService</value>
+		</property>
+		<property name="name">
+			<value>fusedTrackGeneratorService</value>
+		</property>
+		<property name="contactDAO" ref="contactDAO"/>
+		<property name="pastContactPositionDAO" ref="pastContactPositionDAO"/>
+		<property name="contactTypeDAO" ref="contactTypeDAO"/>
+	    <property name="sessionFactory" ref="sessionFactory"/>
+	</bean>	
+
+</beans>
