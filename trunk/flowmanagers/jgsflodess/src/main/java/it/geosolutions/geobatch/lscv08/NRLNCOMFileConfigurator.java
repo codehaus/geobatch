@@ -32,7 +32,6 @@ import it.geosolutions.geobatch.metocs.jaxb.model.MetocElementType;
 import it.geosolutions.geobatch.metocs.jaxb.model.Metocs;
 import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.geobatch.utils.io.Utilities;
-import it.geosolutions.imageio.plugins.netcdf.NetCDFConverterUtilities;
 
 import java.io.File;
 import java.io.FileReader;
@@ -314,7 +313,7 @@ public class NRLNCOMFileConfigurator extends
 			// defining output variable
             for (String varName : foundVariables.keySet()) {
             	ncFileOut.addVariable(foundVariableBriefNames.get(varName), foundVariables.get(varName).getDataType(), outDimensions);
-                NetCDFConverterUtilities.setVariableAttributes(foundVariables.get(varName), ncFileOut, foundVariableBriefNames.get(varName), new String[] { "positions" });
+                //NetCDFConverterUtilities.setVariableAttributes(foundVariables.get(varName), ncFileOut, foundVariableBriefNames.get(varName), new String[] { "positions" });
                 ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "long_name", foundVariableLongNames.get(varName));
                 ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "units", foundVariableUoM.get(varName));
                 
@@ -322,6 +321,7 @@ public class NRLNCOMFileConfigurator extends
                 	Attribute missingValue = foundVariables.get(varName).findAttribute("missing_value");
                 	if (missingValue != null) {
                 		noData = missingValue.getNumericValue().doubleValue();
+                		ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "missing_value", noData);
                 	}
                 }
             }

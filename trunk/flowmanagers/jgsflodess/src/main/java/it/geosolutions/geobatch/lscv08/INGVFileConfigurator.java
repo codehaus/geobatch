@@ -368,7 +368,7 @@ public class INGVFileConfigurator extends
             	}
             	
             	ncFileOut.addVariable(foundVariableBriefNames.get(varName), foundVariables.get(varName).getDataType(), localOutDimensions);
-                NetCDFConverterUtilities.setVariableAttributes(foundVariables.get(varName), ncFileOut, foundVariableBriefNames.get(varName), new String[] { "positions" });
+                //NetCDFConverterUtilities.setVariableAttributes(foundVariables.get(varName), ncFileOut, foundVariableBriefNames.get(varName), new String[] { "positions" });
                 ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "long_name", foundVariableLongNames.get(varName));
                 ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "units", foundVariableUoM.get(varName));
                 
@@ -376,6 +376,7 @@ public class INGVFileConfigurator extends
                 	Attribute missingValue = foundVariables.get(varName).findAttribute("missing_value");
                 	if (missingValue != null) {
                 		noData = missingValue.getNumericValue().doubleValue();
+                		ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "missing_value", noData);
                 	}
                 }
             }
