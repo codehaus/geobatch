@@ -312,7 +312,8 @@ public class NRLNCOMFileConfigurator extends
             
 			// defining output variable
             for (String varName : foundVariables.keySet()) {
-            	ncFileOut.addVariable(foundVariableBriefNames.get(varName), foundVariables.get(varName).getDataType(), outDimensions);
+            	// SIMONE: replaced foundVariables.get(varName).getDataType() with DataType.DOUBLE
+            	ncFileOut.addVariable(foundVariableBriefNames.get(varName),DataType.DOUBLE, outDimensions);
                 //NetCDFConverterUtilities.setVariableAttributes(foundVariables.get(varName), ncFileOut, foundVariableBriefNames.get(varName), new String[] { "positions" });
                 ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "long_name", foundVariableLongNames.get(varName));
                 ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "units", foundVariableUoM.get(varName));
