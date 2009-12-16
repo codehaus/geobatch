@@ -23,8 +23,8 @@
 package it.geosolutions.geobatch.track.contact;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
-import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorService;
+import it.geosolutions.geobatch.track.configuration.FusedTrackActionConfiguration;
+import it.geosolutions.geobatch.track.configuration.FusedTrackConfiguratorService;
 import it.geosolutions.geobatch.track.dao.ContactDAO;
 import it.geosolutions.geobatch.track.dao.ContactTypeDAO;
 import it.geosolutions.geobatch.track.dao.PastContactPositionDAO;
@@ -41,11 +41,11 @@ import org.hibernate.SessionFactory;
  * 
  */
 
-public class ContactGeoServerGeneratorService
-		extends GeoServerConfiguratorService<FileSystemMonitorEvent, GeoServerActionConfiguration> {
+public class FusedTrackGeneratorService
+		extends FusedTrackConfiguratorService<FileSystemMonitorEvent, FusedTrackActionConfiguration> {
 
 	private final static Logger LOGGER = Logger
-			.getLogger(ContactGeoServerGeneratorService.class.toString());
+			.getLogger(FusedTrackGeneratorService.class.toString());
 
 	private ContactDAO contactDAO;
 	private PastContactPositionDAO pastContactPositionDAO;
@@ -87,9 +87,9 @@ public class ContactGeoServerGeneratorService
 		return this.sessionFactory;
 	}
 	
-	public ContactGeoServerGenerator createAction(GeoServerActionConfiguration configuration) {
+	public FusedTrackGenerator createAction(FusedTrackActionConfiguration configuration) {
 		try {
-			return new ContactGeoServerGenerator(configuration, this.contactDAO, this.pastContactPositionDAO, this.sessionFactory);
+			return new FusedTrackGenerator(configuration, this.contactDAO, this.pastContactPositionDAO, this.sessionFactory);
 		} catch (IOException e) {
 			if (LOGGER.isLoggable(Level.WARNING))
 				LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
@@ -98,7 +98,7 @@ public class ContactGeoServerGeneratorService
 	}
 
 	@Override
-	public boolean canCreateAction(GeoServerActionConfiguration configuration) {
+	public boolean canCreateAction(FusedTrackActionConfiguration configuration) {
 		final boolean superRetVal = super.canCreateAction(configuration);
 		return superRetVal;
 	}

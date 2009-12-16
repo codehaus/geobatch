@@ -67,6 +67,6 @@ public class DAOPastContactPositionHibernate extends DAOAbstractSpring<PastConta
 
 		return (List<PastContactPosition>)super.getHibernateTemplate().find(
 				"select sp from PastContactPosition as sp where sp.contact.contactId="
-				+ contactId + " and sp.time>='" + time + "' order by sp.pastContactId asc");
+				+ contactId + " and sp.time>='" + time + "' order by sp.time asc");
 	}
 }

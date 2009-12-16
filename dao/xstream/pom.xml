@@ -49,6 +49,10 @@
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-flowmanagers-gliders</artifactId>
         </dependency-->
+        <!--dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-flowmanagers-fused-track</artifactId>
+        </dependency-->
         
 
         <dependency>
