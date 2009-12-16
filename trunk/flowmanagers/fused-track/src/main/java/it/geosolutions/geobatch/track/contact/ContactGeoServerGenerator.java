@@ -42,7 +42,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Queue;
 import java.util.logging.Level;
 
@@ -71,7 +70,9 @@ public class ContactGeoServerGenerator extends
 	
 	private SessionFactory sessionFactory;
 	
-	private GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
+	private static final GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
+
+	private static final WKTReader wkt_reader = new WKTReader(geometryFactory);
 
 	
 	public ContactGeoServerGenerator(GeoServerActionConfiguration configuration) throws IOException {
@@ -180,7 +181,8 @@ public class ContactGeoServerGenerator extends
 
 	    	    if(cnt != null){	    
 
-	    	    	PastContactPosition pastContactPosition = new PastContactPosition();
+	    	    	    	    	
+	    	    	final PastContactPosition pastContactPosition = new PastContactPosition();
 	    	    	pastContactPosition.setCog(cnt.getContactPosition().getCog());
 	    	    	pastContactPosition.setCourse(cnt.getContactPosition().getCourse());
 	    	    	pastContactPosition.setPosition(cnt.getContactPosition().getPosition());
@@ -189,9 +191,11 @@ public class ContactGeoServerGenerator extends
 	    	    	
 	    	    	pastContactPositionDAO.save(pastContactPosition);
 	    	    	
-	    	    	Date contactTimestamp = new Date(timestamp*1000);
+	    	    	//
+	    	    	// load the positions in the last hour
+	    	    	// 
+	    	    	final Date contactTimestamp = new Date(timestamp*1000);
 	    	    	List<PastContactPosition> pastContacts = pastContactPositionDAO.findByPeriod(timestamp, 3600, cnt.getContactId());
-	    	  
 	    	    	if(type.compareTo(ContactType.NONESSENTIAL) != 0){
 	    	    		cnt.setContactType(type);
 	    	    		cnt.setLink(linkCode);
@@ -200,11 +204,12 @@ public class ContactGeoServerGenerator extends
 	    	    	ContactPosition contactPos = cnt.getContactPosition();
 	    	    	contactPos.setTime(contactTimestamp);
 
-	            	WKTReader wkt_reader = new WKTReader(geometryFactory);
-	            	
+
+	    	    	//
+	    	    	// create current position
+	    	    	//
 	            	double longitude = Double.parseDouble(fields[1]);
 	            	double latitude = Double.parseDouble(fields[2]);
-	            	
 	            	Point point = (Point)wkt_reader.read("POINT("+ longitude + " " + latitude + " 0)");
 	                point.setSRID(4326);   
 	                
@@ -214,8 +219,7 @@ public class ContactGeoServerGenerator extends
 	    	    	if(pastContacts != null && pastContacts.size() > 2){
 	    	    		lineSimplified = buildHistoryLineString(pastContacts, point, cog);
 	    	    	}else{
-    	    	    	lineSimplified = lineSimplifier(contactPos.getCourse(), 
-    	    	    			point, contactPos.getCog(), cog); 
+    	    	    	lineSimplified = lineSimplifier(contactPos.getCourse(), point, contactPos.getCog(), cog); 
 	    	    	}        	    	    			
 
 	    	    	contactPos.setCourse(lineSimplified);	     
@@ -269,7 +273,7 @@ public class ContactGeoServerGenerator extends
 
 		        line = reader.readLine();
 		    }  
-			System.out.println("::::::::::::::::::::  " + this.sessionFactory.getStatistics());
+			//System.out.println("::::::::::::::::::::  " + this.sessionFactory.getStatistics());
 			return events; 
 			
 		} catch (Throwable t) {
@@ -278,34 +282,53 @@ public class ContactGeoServerGenerator extends
 		} 
 	}
 
-	private LineString buildHistoryLineString(final List<PastContactPosition> pastContacts,
-			final Point newPoint, final double newCog){
+	private static LineString buildHistoryLineString(
+			final List<PastContactPosition> pastContacts,
+			final Point newPoint, 
+			final double newCog){
 
-		ListIterator<PastContactPosition> iterator = pastContacts.listIterator(); 
-		List<Coordinate> coordinateList = new ArrayList<Coordinate>();
+		// create the new coordinate list
+		final List<Coordinate> coordinateList = new ArrayList<Coordinate>();
 
+		// simplify the points as we add them
 		double oldCog = 0.0;
-		int i = 0;
 		
-		while(iterator.hasNext()){
-			PastContactPosition pastCnt = (PastContactPosition)iterator.next();	
-		
-			if(i < 2){
-				coordinateList.add(pastCnt.getPosition().getCoordinate());
-				oldCog = pastCnt.getCog();
-			}else{
-				double mCheck = Math.abs(pastCnt.getCog() - oldCog);
-				if(mCheck > 5){	
-					coordinateList.add(pastCnt.getPosition().getCoordinate());
-					oldCog = pastCnt.getCog();
+		// parse the past contacts plus the new one
+		final int size=pastContacts.size();
+		for(int i = 0; i<size+1;i++){
+			if(i<size)
+			{
+				// current past contact
+				final PastContactPosition contact=pastContacts.get(i);
+				if(i < 2){
+					coordinateList.add(contact.getPosition().getCoordinate());
+					oldCog = contact.getCog();
+				}else{
+					final double mCheck = Math.abs(contact.getCog() - oldCog);
+					// check for exclusion based on COG
+					if(mCheck > 5){	
+						coordinateList.add(contact.getPosition().getCoordinate());
+						oldCog = contact.getCog();
+					}
 				}
 			}
-			
-			i++;
+			else
+			{
+				// new point
+				final double mCheck = Math.abs(newCog - oldCog);
+				// check for exclusion based on COG
+				if(mCheck > 5){	
+					coordinateList.add(newPoint.getCoordinate());
+					oldCog = newCog;
+				}				
+			}
 		}
+	
 		
-		Coordinate[] coordinate = new Coordinate[coordinateList.size()];
-		for(int j=0; j<coordinateList.size(); j++){
+		// create a sequence with the current coordinates
+		final int newSize=coordinateList.size();
+		final Coordinate[] coordinate = new Coordinate[newSize];
+		for(int j=0; j<newSize; j++){
 			coordinate[j] = coordinateList.get(j);
 		}
 		
@@ -313,56 +336,65 @@ public class ContactGeoServerGenerator extends
     	LineString course = new LineString(sequence, geometryFactory);   
     	course.setSRID(4326);
 
-    	return lineSimplifier(course, newPoint, oldCog, newCog);
+    	return course;
 	}
 	
-	private LineString lineSimplifier(final LineString line, final Point newPoint, 
+	private static LineString lineSimplifier(final LineString line, final Point newPoint, 
 			final double oldCog, final double newCog){
 
 		int numPoints = line.getNumPoints();
-
 		double mCheck = Math.abs(newCog - oldCog);
 
-		LineString course = null;
 		if(mCheck > 5){		
 
 			// ////////////////////////////////////////
 			// Adding a new point to linestring course 
 			// ////////////////////////////////////////
+			// simone this can be optimized, we need to use System.arraycopy !!!!
 			
-	 		Coordinate[] coordinate = new Coordinate[numPoints+1];
+	 		final Coordinate[] newCoordinateSequence = new Coordinate[numPoints+1];
+	 		final Coordinate[] oldCoordinateSequence = line.getCoordinates();
+//
+//	 		for (int k=0; k<numPoints; k++)
+//	 			newCoordinateSequence[k] = line.getPointN(k).getCoordinate();
+	 		
+	 		// copy over the coordinates
+	 		System.arraycopy(oldCoordinateSequence, 0, newCoordinateSequence, 0, numPoints);
+	 		newCoordinateSequence[numPoints] = newPoint.getCoordinate();
 
-	 		for (int k=0; k<numPoints; k++)
-	 			coordinate[k] = line.getPointN(k).getCoordinate();
-
-	 		coordinate[numPoints] = newPoint.getCoordinate();
-
-			CoordinateSequence sequence = geometryFactory.getCoordinateSequenceFactory().create(coordinate);
-	 		course = new LineString(sequence, geometryFactory);
+			final CoordinateSequence sequence = geometryFactory.getCoordinateSequenceFactory().create(newCoordinateSequence);
+			final LineString course = new LineString(sequence, geometryFactory);
 	 		course.setSRID(4326);
+			return course;
 
 		}else{
 
 			// ////////////////////////////////////////////////////////
-			// Semplifying the linestring course removing the end point  
-			// and adding the new point
+			// Simplifying the linestring course replacing the end point  
+			// with the new point
 			// ////////////////////////////////////////////////////////
+			// simone, we do not need to do this, we just need to replace the last point
+//			
+//	 		Coordinate[] coordinate = new Coordinate[numPoints];
+//
+//	 		for (int l=0; l<numPoints; l++){
+//	 			if(l == (numPoints - 1))
+//	 				coordinate[l] = newPoint.getCoordinate();
+//	 			else
+//	 				coordinate[l] = line.getPointN(l).getCoordinate();
+//	 		}
+//	 		
+//			CoordinateSequence sequence = geometryFactory.getCoordinateSequenceFactory().create(coordinate);
+//	 		course = new LineString(sequence, geometryFactory);
+//	 		course.setSRID(4326);
 			
-	 		Coordinate[] coordinate = new Coordinate[numPoints];
-
-	 		for (int l=0; l<numPoints; l++){
-	 			if(l == (numPoints - 1))
-	 				coordinate[l] = newPoint.getCoordinate();
-	 			else
-	 				coordinate[l] = line.getPointN(l).getCoordinate();
-	 		}
-	 		
-			CoordinateSequence sequence = geometryFactory.getCoordinateSequenceFactory().create(coordinate);
-	 		course = new LineString(sequence, geometryFactory);
-	 		course.setSRID(4326);
+			// replace last point on existing string
+			final CoordinateSequence sequence = line.getCoordinateSequence();
+			sequence.setOrdinate(numPoints - 1, 0, newPoint.getX());
+			sequence.setOrdinate(numPoints - 1, 1, newPoint.getY());
+			return line;			
 		}
 		
-		return course;
 	}
 	
 	public static double CalcBearing(double vx, double vy){
@@ -394,7 +426,7 @@ public class ContactGeoServerGenerator extends
 	 * @param events The received event queue
 	 * @return
 	 */
-	private File[] handleDataFile(Queue<FileSystemMonitorEvent> events) {
+	private static File[] handleDataFile(Queue<FileSystemMonitorEvent> events) {
 		File ret[] = new File[events.size()];
 		int idx = 0;
 		for (FileSystemMonitorEvent event : events) {
