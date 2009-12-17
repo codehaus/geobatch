@@ -36,9 +36,12 @@ import it.geosolutions.geobatch.track.model.PastContactPosition;
 import it.geosolutions.geobatch.utils.IOUtils;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -75,9 +78,7 @@ public class FusedTrackGenerator extends
 	
 	private SessionFactory sessionFactory;
 	
-	private static GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
-
-	private static WKTReader wkt_reader = new WKTReader(geometryFactory);
+	private GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);	
 	
 	
 	public FusedTrackGenerator(FusedTrackActionConfiguration configuration) throws IOException {
@@ -133,6 +134,10 @@ public class FusedTrackGenerator extends
 			if(dataList == null)
 				throw new Exception("Error while processing the layer data file set");
 			
+			// ////////////////////////////////
+			// Getting the received .txt file 
+			// ////////////////////////////////
+			
 			File dataFile = null;
 			for (File file : dataList) {
 				if(FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("txt")) {
@@ -145,6 +150,11 @@ public class FusedTrackGenerator extends
                 LOGGER.log(Level.SEVERE, "layer data file not found in fileset.");
                 throw new IllegalStateException("layer data file not found in fileset.");
 			}
+			
+			// //////////////////////////////////////////////////////
+			//	Switch the ingestion type in baste to configuration 
+			//  log type parameter.
+			// //////////////////////////////////////////////////////
 			
 			if(this.configuration.getLogType().indexOf("fused") != -1)
 				ingestFusedTrackFile(dataFile);
@@ -170,11 +180,26 @@ public class FusedTrackGenerator extends
 	 * @return void
 	 */	
 	private void ingestAisFile(final File dataFile)throws Exception{
-		FileReader fileReader = new FileReader(dataFile);
-		BufferedReader reader = new BufferedReader(fileReader);
 		
-		String line = reader.readLine();      
+		// ///////////////
+	    // Open the file
+		// ///////////////
 		
+		FileInputStream fstream = new FileInputStream(dataFile);
+	    
+		// ///////////////////////////////////
+	    // Get the object of DataInputStream
+		// ///////////////////////////////////
+	    
+		DataInputStream dataInputStream = new DataInputStream(fstream);
+	    
+	    BufferedReader reader = new BufferedReader(new InputStreamReader(dataInputStream));
+	    
+	    String line = reader.readLine();
+	    
+	    // ///////////////////////
+	    // Read File Line By Line
+	    // ///////////////////////
 	    while(line != null) {				      
 
 	       if(line.indexOf("kinematic") != -1){
@@ -184,6 +209,10 @@ public class FusedTrackGenerator extends
 
 	    	    String[] fields = line.split("&");   
 	    	   
+	    	    // ////////////////////////////////
+	    	    // Setting the fields to ingest
+	    	    // ////////////////////////////////
+	    	    
 	    	    long contactId = Long.parseLong(fields[2]);
 	    	    long linkCode = Long.parseLong(fields[2]);
 	    	    double cog = Double.parseDouble(fields[7]);
@@ -201,7 +230,13 @@ public class FusedTrackGenerator extends
 	       } 
 	      
 	       line = reader.readLine();
-	    } 
+	    } 	    
+	    
+    	// ////////////////////////
+	    // Close the input stream
+    	// ////////////////////////	    
+	    
+	    dataInputStream.close();
 	}
 	
 	/**
@@ -214,50 +249,84 @@ public class FusedTrackGenerator extends
 	 */	
 	private void ingestFusedTrackFile(final File dataFile)throws Exception{
 		
-		FileReader fileReader = new FileReader(dataFile);
-		BufferedReader reader = new BufferedReader(fileReader);
+		// ///////////////
+	    // Open the file
+		// ///////////////
 		
-		String line = reader.readLine().trim();	
-
-		long timestamp = Long.parseLong(line);
-		line = reader.readLine();
-	
-	    while(line != null) {	
-	    	if(line.indexOf(" ") != -1)
-	    		line = line.replaceAll(" ", "&"); 
+		FileInputStream fstream = new FileInputStream(dataFile);
+	    
+		// ///////////////////////////////////
+	    // Get the object of DataInputStream
+		// ///////////////////////////////////
+	    
+		DataInputStream dataInputStream = new DataInputStream(fstream);
+	    
+	    BufferedReader reader = new BufferedReader(new InputStreamReader(dataInputStream));
+	    
+	    String line = reader.readLine();
+	    
+	    // ///////////////////////
+	    // Read File Line By Line
+	    // ///////////////////////
+	    if (line == null){	   
 	    	
-	    	String[] fields = null;
-    	    if(line.indexOf("&") != -1){
-    		    fields = line.split("&");
-    	    }
-    	    
-    	    long contactId = Long.parseLong(fields[0]);
-    	    long linkCode = Long.parseLong(fields[6]);
-    	    double velocyX = Double.parseDouble(fields[3]);
-    	    double velocyY = Double.parseDouble(fields[4]);
-    	    double cog = CalcCOG(velocyX, velocyY);
-    	    
-    	    // ///////////////////////////
-    	    // Setting the ContactType
-    	    // ///////////////////////////
-    	    
-    	    ContactType type = ContactType.NONESSENTIAL;
-    	    if(fields[5].indexOf("9999") != -1)
-    	    	type = ContactType.MMSI;
-    	    else if(fields[5].indexOf("3333") != -1)
-    	    	type = ContactType.RADAR;	    	    
-    	    
-        	double longitude = Double.parseDouble(fields[1]);
-        	double latitude = Double.parseDouble(fields[2]);
-        	
-        	// //////////////////
-        	// Insert the data 
-        	// //////////////////
-        	
-    	    insertData(contactId, linkCode, cog, type, longitude, latitude, timestamp);
+	    	// ////////////////////////
+		    // Close the input stream
+	    	// ////////////////////////	    	
+	    	dataInputStream.close();	   
+	    	
+	    	throw new Exception();	    	
+	    }else{
+			long timestamp = Long.parseLong(line);		
+			line = reader.readLine();
+		
+		    while(line != null) {	
+		    	if(line.indexOf(" ") != -1)
+		    		line = line.replaceAll(" ", "&"); 
+		    	
+		    	String[] fields = null;
+	    	    if(line.indexOf("&") != -1){
+	    		    fields = line.split("&");
+	    	    }
+	    	    
+	    	    // ////////////////////////////////
+	    	    // Setting the fields to ingest
+	    	    // ////////////////////////////////
+	    	    
+	    	    long contactId = Long.parseLong(fields[0]);
+	    	    long linkCode = Long.parseLong(fields[6]);
+	    	    double velocyX = Double.parseDouble(fields[3]);
+	    	    double velocyY = Double.parseDouble(fields[4]);
+	    	    double cog = CalcCOG(velocyX, velocyY);
+	    	    
+	    	    // ///////////////////////////
+	    	    // Setting the ContactType
+	    	    // ///////////////////////////
+	    	    
+	    	    ContactType type = ContactType.NONESSENTIAL;
+	    	    if(fields[5].indexOf("9999") != -1)
+	    	    	type = ContactType.MMSI;
+	    	    else if(fields[5].indexOf("3333") != -1)
+	    	    	type = ContactType.RADAR;	    	    
+	    	    
+	        	double longitude = Double.parseDouble(fields[1]);
+	        	double latitude = Double.parseDouble(fields[2]);
+	        	
+	        	// //////////////////
+	        	// Insert the data 
+	        	// //////////////////
+	        	
+	    	    insertData(contactId, linkCode, cog, type, longitude, latitude, timestamp);
 
-	        line = reader.readLine();
-	    }  
+		        line = reader.readLine();
+		    }  	  
+		    
+	    	// ////////////////////////
+		    // Close the input stream
+	    	// ////////////////////////	    
+		    
+		    dataInputStream.close();
+	    }
 	}
 	
 	/**
@@ -296,6 +365,11 @@ public class FusedTrackGenerator extends
 	    	pastContactPositionDAO.save(pastContactPosition);
 	    	
 	    	Date contactTimestamp = new Date(timestamp*1000);
+	    	
+	    	// ///////////////////////////////////////////////////////////
+	    	// Find the past contact positions received in the last time 
+	    	// ///////////////////////////////////////////////////////////
+	    	
 	    	List<PastContactPosition> pastContacts = pastContactPositionDAO.findByPeriod(timestamp, 
 	    			this.configuration.getStepTimeSecond(), cnt.getContactId());
 	    	
@@ -309,6 +383,8 @@ public class FusedTrackGenerator extends
 	    	ContactPosition contactPos = cnt.getContactPosition();
 	    	contactPos.setTime(contactTimestamp);
 
+	    	WKTReader wkt_reader = new WKTReader(geometryFactory);
+	    	
         	Point point = (Point)wkt_reader.read("POINT("+ longitude + " " + latitude + " 0)");
             point.setSRID(4326);   
             
@@ -339,7 +415,9 @@ public class FusedTrackGenerator extends
     	    currentContact.setTime(new Date(timestamp*1000));
     	    currentContact.setCog(cog);
         	
-        	Point point = (Point)wkt_reader.read("POINT("+ longitude + " " + latitude + " 0)");
+    	    WKTReader wkt_reader = new WKTReader(geometryFactory);
+        	
+    	    Point point = (Point)wkt_reader.read("POINT("+ longitude + " " + latitude + " 0)");
             point.setSRID(4326);   
               
     	    currentContact.setPosition(point);
@@ -378,7 +456,7 @@ public class FusedTrackGenerator extends
 	 * 
 	 * @return course the temporal LineString of the ship course
 	 */
-	private static LineString buildHistoryLineString(
+	private LineString buildHistoryLineString(
 			final List<PastContactPosition> pastContacts,
 			final Point newPoint, 
 			final double newCog, final double cogDegreeThreshold){
@@ -474,7 +552,7 @@ public class FusedTrackGenerator extends
 	 * @return course the LineString simplified.
 	 */
 	
-	private static LineString lineSimplifier(final LineString line, final Point newPoint, 
+	private LineString lineSimplifier(final LineString line, final Point newPoint, 
 			final double oldCog, final double newCog, final double cogDegreeThreshold){
 
 		int numPoints = line.getNumPoints();
