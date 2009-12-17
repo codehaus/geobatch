@@ -46,7 +46,7 @@ public class ComposerService extends BaseService implements
     }
 
     private final static Logger LOGGER = Logger
-            .getLogger(Composer.class.toString());
+            .getLogger(ComposerService.class.toString());
 
     public boolean canCreateAction(ComposerConfiguration configuration) {
         return true;
