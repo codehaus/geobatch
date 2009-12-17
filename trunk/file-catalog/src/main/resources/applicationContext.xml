@@ -2,13 +2,6 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans default-init-method="init" default-destroy-method="dispose">
-    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  
-         <!-- property name="locations">  
-             <list>  
-                 <value>classpath:gb.properties</value>   
-             </list>  
-         </property-->  
-     </bean>  
 
 
 	<!-- Environment Initialization -->
