@@ -19,42 +19,42 @@
     
 
 	<!-- Environment Initialization -->
-	<bean id="formatConverterService" class="it.geosolutions.geobatch.convert.FormatConverterService">
+	<bean id="FormatConverterService" class="it.geosolutions.geobatch.convert.FormatConverterService">
 		<property  name="id">
-    		<value>formatConverterService</value>
+    		<value>FormatConverterService</value>
     	</property>
     	<property name="description">
-    		<value>formatConverterService</value>
+    		<value>FormatConverterService</value>
     	</property>
     	<property name="name">
-    		<value>formatConverterService</value>
+    		<value>FormatConverterService</value>
     	</property>
     </bean>	    
     
     
 	<!-- Environment Initialization -->
-	<bean id="mosaicerService" class="it.geosolutions.geobatch.mosaic.MosaicerService">
+	<bean id="MosaicerService" class="it.geosolutions.geobatch.mosaic.MosaicerService">
 		<property  name="id">
-    		<value>mosaicerService</value>
+    		<value>MosaicerService</value>
     	</property>
     	<property name="description">
-    		<value>mosaicerService</value>
+    		<value>MosaicerService</value>
     	</property>
     	<property name="name">
-    		<value>mosaicerService</value>
+    		<value>MosaicerService</value>
     	</property>
     </bean>	      
     
     <!-- Environment Initialization -->
 	<bean id="composerService" class="it.geosolutions.geobatch.compose.ComposerService">
 		<property  name="id">
-    		<value>composerService</value>
+    		<value>ComposerService</value>
     	</property>
     	<property name="description">
-    		<value>composerService</value>
+    		<value>ComposerService</value>
     	</property>
     	<property name="name">
-    		<value>composerService</value>
+    		<value>ComposerService</value>
     	</property>
     </bean>	     
 
