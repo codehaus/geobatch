@@ -39,7 +39,6 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -51,6 +50,8 @@ import java.util.logging.Level;
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.hibernate.SessionFactory;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
@@ -179,6 +180,7 @@ public class FusedTrackGenerator extends
 	 * 
 	 * @return void
 	 */	
+	@Transactional(propagation = Propagation.REQUIRED)
 	private void ingestAisFile(final File dataFile)throws Exception{
 		
 		// ///////////////
@@ -247,6 +249,7 @@ public class FusedTrackGenerator extends
 	 * 
 	 * @return void
 	 */	
+	@Transactional(propagation = Propagation.REQUIRED)
 	private void ingestFusedTrackFile(final File dataFile)throws Exception{
 		
 		// ///////////////
