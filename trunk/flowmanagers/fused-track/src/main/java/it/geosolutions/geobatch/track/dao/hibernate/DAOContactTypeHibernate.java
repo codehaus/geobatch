@@ -41,12 +41,14 @@ public class DAOContactTypeHibernate extends DAOAbstractSpring<ContactType,Long>
 		super(ContactType.class);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+//	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.MANDATORY)
 	public ContactType save(ContactType contact) throws DAOException {
 		return null;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+//	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.MANDATORY)
 	public void delete(final String type) throws DAOException {
 
 	}
