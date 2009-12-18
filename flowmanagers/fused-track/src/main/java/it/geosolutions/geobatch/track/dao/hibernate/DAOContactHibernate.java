@@ -41,27 +41,32 @@ public class DAOContactHibernate extends DAOAbstractSpring<Contact,Long>
 		super(Contact.class);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+//	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.MANDATORY)
 	public Contact save(Contact contact) throws DAOException {
 		return super.makePersistent(contact);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+//	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.MANDATORY)
 	public void delete(final Contact contact) throws DAOException {
 		
 	}
 	
-	@Transactional(propagation = Propagation.REQUIRED)
+//	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.MANDATORY)
 	public void merge(final Contact contact) throws DAOException {
 		super.getHibernateTemplate().merge(contact);
 	}
 	
-	@Transactional(propagation = Propagation.REQUIRED)
+//@Transactional(propagation = Propagation..REQUIRED)
+	@Transactional(propagation = Propagation.MANDATORY)
 	public void update(final Contact contact) throws DAOException {
 		super.getHibernateTemplate().update(contact);
 	}
 	
-	@Transactional(propagation = Propagation.REQUIRED,readOnly=false)
+//	@Transactional(propagation = Propagation.REQUIRED,readOnly=false)
+	@Transactional(propagation = Propagation.MANDATORY)
 	public Contact isExist(final long id) throws DAOException {
 		return (Contact)super.getHibernateTemplate().get(Contact.class, id);
 	}

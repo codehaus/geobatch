@@ -46,17 +46,20 @@ public class DAOPastContactPositionHibernate extends DAOAbstractSpring<PastConta
 		super(PastContactPosition.class);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+//	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.MANDATORY)
 	public PastContactPosition save(PastContactPosition contact) throws DAOException {
 		return super.makePersistent(contact);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+//	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.MANDATORY)
 	public void delete(final String type) throws DAOException {
 
 	}
 	
-	@Transactional(propagation = Propagation.REQUIRED, readOnly=true)
+//	@Transactional(propagation = Propagation.REQUIRED, readOnly=true)
+	@Transactional(propagation = Propagation.MANDATORY)
 	@SuppressWarnings("unchecked")
 	public List<PastContactPosition> findByPeriod(final long timestamp, 
 			final long step, final long contactId) throws DAOException {

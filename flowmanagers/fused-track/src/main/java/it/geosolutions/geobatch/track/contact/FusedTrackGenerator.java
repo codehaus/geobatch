@@ -96,6 +96,7 @@ public class FusedTrackGenerator extends
 		this.sessionFactory = sessionFactory;
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public Queue<FileSystemMonitorEvent> execute(
 			Queue<FileSystemMonitorEvent> events) throws Exception {
 		
@@ -180,7 +181,7 @@ public class FusedTrackGenerator extends
 	 * 
 	 * @return void
 	 */	
-	@Transactional(propagation = Propagation.REQUIRED)
+//	@Transactional(propagation = Propagation.REQUIRED)
 	private void ingestAisFile(final File dataFile)throws Exception{
 		
 		// ///////////////
@@ -249,7 +250,7 @@ public class FusedTrackGenerator extends
 	 * 
 	 * @return void
 	 */	
-	@Transactional(propagation = Propagation.REQUIRED)
+//	@Transactional(propagation = Propagation.REQUIRED)
 	private void ingestFusedTrackFile(final File dataFile)throws Exception{
 		
 		// ///////////////
