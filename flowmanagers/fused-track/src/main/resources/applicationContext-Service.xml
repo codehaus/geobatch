@@ -25,7 +25,7 @@
 					<value>public</value>
 				</entry>
 				<entry key="database">
-					<value>track</value>
+					<value>shard_track</value>
 				</entry>
 				<entry key="user">
 					<value>postgres</value>
@@ -39,27 +39,24 @@
 
 	</bean>
 
-
 	<context:annotation-config />
 
 	<!-- Environment Initialization -->
-	<bean id="contactGeoServerGeneratorService"
-		class="it.geosolutions.geobatch.track.contact.ContactGeoServerGeneratorService">
+	<bean id="fusedTrackGeneratorService"
+		class="it.geosolutions.geobatch.track.contact.FusedTrackGeneratorService">
 		<property name="id">
-			<value>contactGeoServerGeneratorService</value>
+			<value>fusedTrackGeneratorService</value>
 		</property>
 		<property name="description">
-			<value>contactGeoServerGeneratorService</value>
+			<value>fusedTrackGeneratorService</value>
 		</property>
 		<property name="name">
-			<value>contactGeoServerGeneratorService</value>
+			<value>fusedTrackGeneratorService</value>
 		</property>
-		<property name="contactDAO" ref="contactDAO" />
-		<property name="pastContactPositionDAO" ref="pastContactPositionDAO" />
-		<property name="contactTypeDAO" ref="contactTypeDAO" />
-		<property name="sessionFactory" ref="sessionFactory" />
-		<property name="postgisDataStore" ref="postgisDataStore" />
-
-	</bean>
+		<property name="contactDAO" ref="contactDAO"/>
+		<property name="pastContactPositionDAO" ref="pastContactPositionDAO"/>
+		<property name="contactTypeDAO" ref="contactTypeDAO"/>
+	    <property name="postgisDataStore" ref="postgisDataStore" />
+	</bean>	
 
 </beans>

@@ -26,6 +26,7 @@ import it.geosolutions.geobatch.track.dao.ContactTypeDAO;
 import it.geosolutions.geobatch.track.dao.DAOException;
 import it.geosolutions.geobatch.track.model.ContactType;
 
+import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,13 +43,12 @@ public class DAOContactTypeHibernate extends DAOAbstractSpring<ContactType,Long>
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	public ContactType save(ContactType contact) throws DAOException {
-		return null;
+	public ContactType save(ContactType type) throws DAOException {
+		return super.makePersistent(type);
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	public void delete(final String type) throws DAOException {
-
+	public void delete(final ContactType type) throws DAOException {
+		super.getHibernateTemplate().delete(type);
 	}
-
 }

@@ -26,6 +26,7 @@ import it.geosolutions.geobatch.track.dao.ContactDAO;
 import it.geosolutions.geobatch.track.dao.DAOException;
 import it.geosolutions.geobatch.track.model.Contact;
 
+import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +49,7 @@ public class DAOContactHibernate extends DAOAbstractSpring<Contact,Long>
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void delete(final Contact contact) throws DAOException {
-		
+		super.getHibernateTemplate().delete(contact);
 	}
 	
 	@Transactional(propagation = Propagation.REQUIRED)
@@ -61,7 +62,7 @@ public class DAOContactHibernate extends DAOAbstractSpring<Contact,Long>
 		super.getHibernateTemplate().update(contact);
 	}
 	
-	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.REQUIRED, readOnly=true)
 	public Contact isExist(final long id) throws DAOException {
 		return (Contact)super.getHibernateTemplate().get(Contact.class, id);
 	}

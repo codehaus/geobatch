@@ -8,23 +8,22 @@
 	default-autowire="byName">
 
 	<!-- File Config -->
-	<bean id="placeholderConfig"
+	<bean id="propertyConfigurer"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location">
-			<value>classpath:/postgis.properties</value>
+			<value>classpath:postgis.properties</value>
 		</property>
-
 	</bean>
 
 	<!--  Data source -->
-	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" >	
-		<property name="driverClass" value="org.postgresql.Driver" />
-		<property name="jdbcUrl" value="jdbc:postgresql:track" />
-		<property name="user" value="postgres" />
-		<property name="password" value="postgres" />
-		<property name="minPoolSize" value="10" />
-		<property name="maxPoolSize" value="20" />
-		<property name="maxStatements" value="100" />
+	<bean id="dataSource" class="${jdbc.dataSource}" >	
+		<property name="driverClass" value="${jdbc.driver}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.user}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="minPoolSize" value="${jdbc.minPoolSize}" />
+		<property name="maxPoolSize" value="${jdbc.maxPoolSize}" />
+		<property name="maxStatements" value="${jdbc.maxStatements}" />
 	</bean>
 
 	<!-- Hibernate SessionFactory -->
@@ -34,7 +33,7 @@
 			<ref local="dataSource" />
 		</property>
 		<property name="configLocation">
-			<value>classpath:/hibernate.cfg.xml</value>
+			<value>classpath:hibernate.cfg.xml</value>
 		</property>
 		<property name="configurationClass">
 			<value>org.hibernate.cfg.AnnotationConfiguration</value>

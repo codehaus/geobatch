@@ -22,6 +22,8 @@
 
 package it.geosolutions.geobatch.track.dao;
 
+import org.hibernate.SessionFactory;
+
 import it.geosolutions.geobatch.track.model.Contact;
 
 /**
@@ -40,5 +42,4 @@ public interface ContactDAO extends GenericDAO<Contact,Long> {
 	public void update(final Contact contact) throws DAOException;
 	
 	public Contact isExist(final long id) throws DAOException;
-
 }

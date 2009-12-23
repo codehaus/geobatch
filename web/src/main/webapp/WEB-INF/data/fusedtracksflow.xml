@@ -13,26 +13,16 @@
 			<description>description</description>
 			<name>test</name>
 		</FileEventRule>
-		<GeoServerActionConfiguration>
+		<FusedTrackActionConfiguration>
 			<workingDirectory>FusedTracksContacts</workingDirectory>
-			<crs>EPSG:4326</crs>
-			<envelope/>
-			<dataTransferMethod>URL</dataTransferMethod>
-			<geoserverPWD>geoserver</geoserverPWD>
-			<geoserverUID>admin</geoserverUID>
-			<geoserverURL>http://localhost:8080/geoserver</geoserverURL>
-			<!-- storeFilePrefix>c41078a</storeFilePrefix -->
-			<wmsPath>/</wmsPath>
-			<defaultStyle>line</defaultStyle>
-			<styles/>
-			<!-- styles>
-				<style>raster.sld</style>
-			</styles -->
-			<serviceID>contactGeoServerGeneratorService</serviceID>
-			<id>a1</id>
+			<logType>fused</logType>
+			<stepTimeSecond>3600</stepTimeSecond>
+			<cogDegreeThreshold>5.0</cogDegreeThreshold>
+			<serviceID>fusedTrackGeneratorService</serviceID>
+			<id>ft1</id>
 			<description>description</description>
 			<name>test</name>
-		</GeoServerActionConfiguration>
+		</FusedTrackActionConfiguration>
 		<id>ftId</id>
 		<description>description</description>
 		<name>test</name>
