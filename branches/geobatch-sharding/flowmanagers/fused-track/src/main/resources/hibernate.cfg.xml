@@ -6,19 +6,10 @@
 <hibernate-configuration>
 
 	<session-factory>
-
-		<!-- Database connection settings -->
-		<property name="connection.driver_class">org.postgresql.Driver</property>
-		<property name="connection.url">jdbc:postgresql://localhost/track</property>
-		<property name="connection.username">postgres</property>
-		<property name="connection.password">postgres</property>
-
-		<!-- SQL dialect -->
-		<property name="dialect">org.hibernatespatial.postgis.PostgisDialect</property>
-
+		
 		<!-- Enable Hibernate's automatic session context management -->
 		<property name="current_session_context_class">thread</property>
-
+		
 		<!-- Enabled the second-level cache-->
 		<property name="hibernate.cache.use_second_level_cache">true</property>
 		<property name="hibernate.cache.provider_class">net.sf.ehcache.hibernate.EhCacheProvider</property>
@@ -28,9 +19,6 @@
 		<property name="hibernate.c3p0.timeout">30</property>
 		<property name="hibernate.c3p0.max_statements">150</property>
 		<property name="hibernate.c3p0.idle_test_period">30</property>
-
-		<!-- Enable Hibernate's automatic session context management -->
-		<property name="current_session_context_class">thread</property>
 
 		<property name="hibernate.cache.use_structured_entries">true</property>
 

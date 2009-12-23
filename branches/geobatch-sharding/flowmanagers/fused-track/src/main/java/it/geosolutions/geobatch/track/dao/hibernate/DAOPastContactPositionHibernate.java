@@ -29,6 +29,7 @@ import it.geosolutions.geobatch.track.model.PastContactPosition;
 import java.sql.Timestamp;
 import java.util.List;
 
+import org.hibernate.Query;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,11 +52,11 @@ public class DAOPastContactPositionHibernate extends DAOAbstractSpring<PastConta
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	public void delete(final String type) throws DAOException {
-
+	public void delete(final PastContactPosition pastContact) throws DAOException {
+		super.getHibernateTemplate().delete(pastContact);
 	}
 	
-	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.REQUIRED, readOnly=true)
 	@SuppressWarnings("unchecked")
 	public List<PastContactPosition> findByPeriod(final long timestamp, 
 			final long step, final long contactId) throws DAOException {
@@ -65,8 +66,13 @@ public class DAOPastContactPositionHibernate extends DAOAbstractSpring<PastConta
 		
 		Timestamp time = new Timestamp((timestamp-step)*1000);
 
-		return (List<PastContactPosition>)super.getHibernateTemplate().find(
-				"select sp from PastContactPosition as sp where sp.contact.contactId="
-				+ contactId + " and sp.time>='" + time + "' order by sp.pastContactId asc");
+		Query query = super.getSession().getNamedQuery("findPastContactPositionByPeriod");
+		query.setLong("contactId", contactId);
+		query.setTimestamp("timeStamp", time);
+		
+		query.setCacheable(true);	
+		query.setCacheRegion("query.PastContactPosition");
+		
+		return (List<PastContactPosition>)query.list();
 	}
 }

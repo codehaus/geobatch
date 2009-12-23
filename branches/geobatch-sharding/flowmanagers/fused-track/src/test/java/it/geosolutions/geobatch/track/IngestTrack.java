@@ -1,5 +1,6 @@
 package it.geosolutions.geobatch.track;
 
+
 public class IngestTrack {
     /**
      * @param args

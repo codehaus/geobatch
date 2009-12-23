@@ -149,5 +149,4 @@ public abstract class DAOAbstractSpring<T, ID extends Serializable> extends
 			throw new DAOException(ex);
 		}
 	}
-
 }

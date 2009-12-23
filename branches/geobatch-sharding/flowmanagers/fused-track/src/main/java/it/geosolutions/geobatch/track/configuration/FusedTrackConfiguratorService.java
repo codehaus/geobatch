@@ -1,6 +1,6 @@
 /*
  *  GeoBatch - Open Source geospatial batch processing system
- *  http://geobatch.codehaus.org/
+ *  http://code.google.com/p/geobatch/
  *  Copyright (C) 2007-2008-2009 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
@@ -20,26 +20,26 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.geosolutions.geobatch.track.dao;
+package it.geosolutions.geobatch.track.configuration;
 
-import it.geosolutions.geobatch.track.model.PastContactPosition;
+import it.geosolutions.geobatch.catalog.impl.BaseService;
+import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
+import it.geosolutions.geobatch.flow.event.action.ActionService;
 
-import java.util.List;
+import java.util.EventObject;
 
-import org.hibernate.SessionFactory;
 
-/**
- * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
- * 
- */
 
-public interface PastContactPositionDAO extends GenericDAO<PastContactPosition,Long> {
+public abstract class FusedTrackConfiguratorService <T extends EventObject, C extends ActionConfiguration>
+        extends BaseService implements ActionService<T, C> {
 
-	public PastContactPosition save(PastContactPosition contact) throws DAOException;
-	
-	public void delete(final PastContactPosition pastContact) throws DAOException;
+    public FusedTrackConfiguratorService() {
+        super(true);
+    }
 
-	public List<PastContactPosition> findByPeriod(final long timestamp, 
-			final long step, final long contactId) throws DAOException;
+    public boolean canCreateAction(C configuration) {
+        // XXX ImPLEMENT ME
+        return true;
+    }
 
 }
