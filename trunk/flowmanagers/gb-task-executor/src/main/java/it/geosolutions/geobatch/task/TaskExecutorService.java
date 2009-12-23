@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 /**
  * Comments here ...
  * 
- * @author Daniele Romagnoli, GeoSolutions
+ * @author Daniele Romagnoli, GeoSolutions S.a.S.
  */
 public class TaskExecutorService extends BaseService implements
         ActionService<FileSystemMonitorEvent, TaskExecutorConfiguration> {
@@ -43,7 +43,7 @@ public class TaskExecutorService extends BaseService implements
     }
 
     private final static Logger LOGGER = Logger
-            .getLogger(TaskExecutorTest.class.toString());
+            .getLogger(TaskExecutorService.class.toString());
 
     public boolean canCreateAction(TaskExecutorConfiguration configuration) {
         return true;
