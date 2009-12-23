@@ -36,9 +36,9 @@ import org.apache.tools.ant.taskdefs.ExecTask;
 import org.apache.tools.ant.types.Environment.Variable;
 
 /**
- * Comments here ...
+ * Action to execute tasks.
  * 
- * @author Daniele Romagnoli, GeoSolutions
+ * @author Daniele Romagnoli, GeoSolutions S.a.S.
  */
 public class TaskExecutor extends BaseAction<FileSystemMonitorEvent> implements Action<FileSystemMonitorEvent> {
 
@@ -62,7 +62,18 @@ public class TaskExecutor extends BaseAction<FileSystemMonitorEvent> implements 
 			String keyValuePair[] = variable.split(" ");
 			Variable var = new Variable();
 			var.setKey(keyValuePair[0]);
-			var.setValue(keyValuePair[1]);
+			if (keyValuePair.length == 2)
+				var.setValue(keyValuePair[1]);
+			else{
+				//Handle environment variables with spaces in value
+				StringBuilder sb = new StringBuilder();
+				int i=1;
+				for (; i<keyValuePair.length-1; i++){
+					sb.append(keyValuePair[i]).append(" ");
+				}
+				sb.append(keyValuePair[i]);
+				var.setValue(sb.toString());
+			}
 			execTask.addEnv(var);
 		}
 		

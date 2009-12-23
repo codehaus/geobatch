@@ -85,6 +85,7 @@
 		<profile>
 			<id>sas</id>
 			<modules>
+         <module>gb-task-executor</module>
 			   <module>gb-sas</module>
 			</modules>
 		</profile>
@@ -113,6 +114,7 @@
 			   <module>ais</module>
 			   <module>fused-track</module> 
 			   <module>gb-gliders</module>
+			   <module>gb-task-executor</module>
 			   <module>gb-sas</module>
 			   <module>jgsflodess</module>
 			   <module>shapefile</module>
