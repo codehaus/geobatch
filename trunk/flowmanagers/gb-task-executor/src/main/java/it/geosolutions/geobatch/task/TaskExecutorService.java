@@ -38,12 +38,12 @@ import java.util.logging.Logger;
 public class TaskExecutorService extends BaseService implements
         ActionService<FileSystemMonitorEvent, TaskExecutorConfiguration> {
 
+    private final static Logger LOGGER = Logger.getLogger(TaskExecutorService.class.toString());
+
     private TaskExecutorService() {
         super(true);
     }
 
-    private final static Logger LOGGER = Logger
-            .getLogger(TaskExecutorService.class.toString());
 
     public boolean canCreateAction(TaskExecutorConfiguration configuration) {
         return true;

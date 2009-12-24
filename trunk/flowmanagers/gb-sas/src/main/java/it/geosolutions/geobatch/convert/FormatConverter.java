@@ -31,11 +31,14 @@ import it.geosolutions.geobatch.geoserver.matfile5.sas.SasMosaicGeoServerGenerat
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.tools.ant.taskdefs.condition.HasMethod;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridFormatFinder;
@@ -51,6 +54,7 @@ import org.opengis.parameter.ParameterValueGroup;
  * 
  * @author Daniele Romagnoli, GeoSolutions
  */
+@SuppressWarnings("deprecation")
 public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
         implements Action<FileSystemMonitorEvent> {
 
@@ -58,7 +62,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
     
     private final static Logger LOGGER = Logger.getLogger(FormatConverter.class.toString());
 
-    private final static Format[] formats;
+	private final static Map<String, Format> formats= new HashMap<String, Format>();
     
     public FormatConverter(FormatConverterConfiguration configuration)
             throws IOException {
@@ -67,7 +71,10 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
     
     static{
     	GridFormatFinder.scanForPlugins();
-        formats = GridFormatFinder.getFormatArray();
+        final Format[] formatsArray = GridFormatFinder.getFormatArray();
+        if(formatsArray!=null)
+        	for(Format f:formatsArray)
+        		formats.put(f.getName(), f);
     }
 
     public Queue<FileSystemMonitorEvent> execute(
@@ -118,8 +125,6 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
                 final File files[] = fileDir.listFiles();
 
                 if (files != null) {
-                	// TODO: Moved to static init on 3-07-2009. Check it
-                	//  GridFormatFinder.scanForPlugins();
                     final int numFiles = files.length;
 
                     if (LOGGER.isLoggable(Level.INFO))
@@ -247,7 +252,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
      * @throws IllegalArgumentException
      * @throws IOException
      */
-    private boolean convert(final File file, final File outputFile)
+	private boolean convert(final File file, final File outputFile)
             throws IllegalArgumentException, IOException {
 
     	boolean converted = false;
@@ -305,14 +310,26 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 	                // Write the converted coverage
 	                //
 	                // //
-	                writer.write(gc,
-	                        wparams != null ? (GeneralParameterValue[]) wparams
-	                                .values().toArray(new GeneralParameterValue[1])
-	                                : null);
-	                writer.dispose();
+	                try{
+	                	final GeneralParameterValue[] writeParams = wparams != null ? (GeneralParameterValue[]) wparams.values().toArray(new GeneralParameterValue[1]): null;
+		                writer.write(gc,writeParams);
+	                }finally{
+	                	try{
+	    	                writer.dispose();
+	                	}catch (Throwable e) {
+							// eat me
+						}
+	                	
+	                	gc.dispose(true);
+	                	
+	                	try{
+			                reader.dispose();
+	                	}catch (Throwable e) {
+							// eat me
+						}
+	                }
 	                converted = true;
-	                gc.dispose(true);
-	                reader.dispose();
+	                
 	            }
 	            else{
 	            	if (LOGGER.isLoggable(Level.WARNING))
@@ -349,17 +366,10 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
     public static Format acquireFormatByName(final String formatName) {
     	// TODO: formats are now statically initialized: Check it
     	
-    	Format format = null;
-        final int length = formats.length;
-
-        for (int i = 0; i < length; i++) {
-            format = formats[i];
-
-            if (format.getName().equals(formatName)) {
-                return format;
-            }
-        }
-
+        if(formats.containsKey(formatName))
+        	return formats.get(formatName);
+        
+        // we did not find it
         return new UnknownFormat();
     }
 }

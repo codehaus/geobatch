@@ -68,8 +68,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
     
     private ComposerConfiguration configuration;
 
-    private final static Logger LOGGER = Logger
-            .getLogger(Composer.class.toString());
+    private final static Logger LOGGER = Logger.getLogger(Composer.class.toString());
     
     protected Composer(ComposerConfiguration configuration)
             throws IOException {
