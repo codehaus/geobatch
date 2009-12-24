@@ -27,9 +27,19 @@ import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Queue;
+
+import javax.xml.transform.Source;
+import javax.xml.transform.Templates;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.ExecTask;
@@ -44,55 +54,105 @@ public class TaskExecutor extends BaseAction<FileSystemMonitorEvent> implements 
 
     private TaskExecutorConfiguration configuration;
 
-	public TaskExecutor(TaskExecutorConfiguration configuration) throws IOException {
+	public TaskExecutor(final TaskExecutorConfiguration configuration) throws IOException {
     	this.configuration = configuration;
     }
 
 	public Queue<FileSystemMonitorEvent> execute(
 			Queue<FileSystemMonitorEvent> events) throws Exception {
 		
-		final Project project = new Project();
-		project.init();
-
-		final ExecTask execTask = new ExecTask();
-		execTask.setProject(project);
+		 // looking for file
+        if (events.size() != 1)
+            throw new IllegalArgumentException("Wrong number of elements for this action: "+ events.size());
+        
+        if (configuration == null) {
+            throw new IllegalStateException("DataFlowConfig is null.");
+        }
+        
+        // get the first event
+        final FileSystemMonitorEvent event = events.remove();
+        final File inputFile = event.getSource();
+        
+        //Getting XSL file definition
+        final String xsl = configuration.getXsl();
+		if (xsl == null || xsl.trim().length()<1)
+			throw new IllegalArgumentException("Invalid XSL file");
+		final File xslFile = new File(xsl);
+		if (xslFile == null || !xslFile.exists())
+			throw new IllegalArgumentException("The specified XSL file hasn't been found: "+xsl);
 		
-		List<String> variables = configuration.getVariables();
-		for (String variable: variables){
-			String keyValuePair[] = variable.split(" ");
-			Variable var = new Variable();
-			var.setKey(keyValuePair[0]);
-			if (keyValuePair.length == 2)
-				var.setValue(keyValuePair[1]);
-			else{
-				//Handle environment variables with spaces in value
-				StringBuilder sb = new StringBuilder();
-				int i=1;
-				for (; i<keyValuePair.length-1; i++){
-					sb.append(keyValuePair[i]).append(" ");
+		//Setup an XML source from the input XML file
+		final Source xmlSource = new StreamSource(inputFile);
+		InputStream is = null;
+		try{
+			is = new FileInputStream(xslFile);
+	         if (is != null){
+	        	
+	        	//XML parsing to setup a command line
+				final TransformerFactory f = TransformerFactory.newInstance();
+				final StringWriter result = new StringWriter();
+				final Templates transformation = f.newTemplates(new StreamSource(is));
+				final Transformer transformer = transformation.newTransformer();
+				transformer.transform(xmlSource, new StreamResult(result));
+				final String argument = result.toString();
+				   
+				final Project project = new Project();
+				project.init();
+		
+				final ExecTask execTask = new ExecTask();
+				execTask.setProject(project);
+				
+				// Setting environment variables
+				List<String> variables = configuration.getVariables();
+				for (String variable: variables){
+					String keyValuePair[] = variable.split(" ");
+					Variable var = new Variable();
+					var.setKey(keyValuePair[0]);
+					if (keyValuePair.length == 2)
+						var.setValue(keyValuePair[1]);
+					else{
+						//Handle environment variables with spaces in value
+						StringBuilder sb = new StringBuilder();
+						int i=1;
+						for (; i<keyValuePair.length-1; i++){
+							sb.append(keyValuePair[i]).append(" ");
+						}
+						sb.append(keyValuePair[i]);
+						var.setValue(sb.toString());
+					}
+					execTask.addEnv(var);
 				}
-				sb.append(keyValuePair[i]);
-				var.setValue(sb.toString());
+				
+				//Setting executable
+				execTask.setExecutable(configuration.getExecutable());
+				
+				final String errorFile = configuration.getErrorFile();
+				if (errorFile!=null && errorFile.trim().length()>0){
+					execTask.setLogError(true);
+					execTask.setError(new File(errorFile));
+					execTask.setFailonerror(true);
+				}
+					
+				Long timeOut = configuration.getTimeOut();
+				if (timeOut!=null){
+					execTask.setTimeout(timeOut);
+				}
+				
+				//Setting argument
+				execTask.createArg().setLine(argument);
+				
+				//Executing
+				execTask.execute();
+	         }
+		}finally{
+			try{
+				if (is!=null)
+					is.close();
+			}catch (Throwable t){
+					//eat me
 			}
-			execTask.addEnv(var);
 		}
-		
-		execTask.setExecutable(configuration.getExecutable());
-		
-		final String errorFile = configuration.getErrorFile();
-		if (errorFile!=null && errorFile.trim().length()>0){
-			execTask.setLogError(true);
-			execTask.setError(new File(errorFile));
-			execTask.setFailonerror(true);
-		}
-			
-		Long timeOut = configuration.getTimeOut();
-		if (timeOut!=null){
-			execTask.setTimeout(timeOut);
-		}
-		execTask.createArg().setLine(configuration.getArgument());
-		execTask.execute();
 		return events;
 	}
-
+	
 }
