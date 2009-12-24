@@ -115,6 +115,15 @@
 		<structure map-as="it.geosolutions.geobatch.catalog.impl.BaseConfiguration" />
 	</mapping>
 
+	<mapping name="ImageMosaicActionConfiguration"
+		class="it.geosolutions.geobatch.configuration.event.action.geoserver.plugin.ImageMosaicActionConfiguration"
+		extends="it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration">
+		<value name="datastorePropertiesPath" field="datastorePropertiesPath" usage="optional" />
+		<value name="timeRegex" field="timeRegex" usage="optional" />
+		<value name="elevationRegex" field="elevationRegex" usage="optional" />
+		<structure map-as="it.geosolutions.geobatch.catalog.impl.BaseConfiguration" />
+	</mapping>
+	
 	<mapping name="MetocActionConfiguration"
 		class="it.geosolutions.geobatch.configuration.event.action.metoc.MetocActionConfiguration"
 		extends="it.geosolutions.geobatch.configuration.event.action.ActionConfiguration">

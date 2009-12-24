@@ -54,7 +54,7 @@
 			<name>test2</name>
 		</RegistryActionConfiguration>
 		
-		<GeoServerActionConfiguration>
+		<ImageMosaicActionConfiguration>
 			<workingDirectory>JGSFLoDeSSworkingdir/NCOM</workingDirectory>
 			<crs>EPSG:4326</crs>
 			<envelope/>
@@ -66,11 +66,13 @@
 			<defaultNamespace>nurc</defaultNamespace>
 			<defaultStyle>raster</defaultStyle>
 			<styles/>
+			<timeRegex>[0-9]{8}T[0-9]{7}Z(?!.*[0-9]{8}T[0-9]{7}Z.*)</timeRegex>
+			<elevationRegex>\\d{4}</elevationRegex>
 			<serviceID>ImageMosaicGeneratorService</serviceID>
 			<id>ImageMosaicService</id>
 			<description>ImageMosaicService</description>
 			<name>ImageMosaicService</name>
-		</GeoServerActionConfiguration>
+		</ImageMosaicActionConfiguration>
 		
 		<id>id</id>
 		<description>description</description>

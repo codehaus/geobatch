@@ -19,11 +19,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package it.geosolutions.geobatch.jgsflodess;
+package it.geosolutions.geobatch.imagemosaic;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
-import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorService;
+import it.geosolutions.geobatch.configuration.event.action.geoserver.plugin.ImageMosaicActionConfiguration;
+import it.geosolutions.geobatch.flow.event.action.geoserver.plugin.ImageMosaicConfiguratorService;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  * 
  */
 public class ImageMosaicGeneratorService extends
-		GeoServerConfiguratorService<FileSystemMonitorEvent, GeoServerActionConfiguration> {
+		ImageMosaicConfiguratorService<FileSystemMonitorEvent, ImageMosaicActionConfiguration> {
 	
     private final static Logger LOGGER = Logger.getLogger(ImageMosaicGeneratorService.class.toString());
 
@@ -44,7 +44,7 @@ public class ImageMosaicGeneratorService extends
      *  @param configuration The data base action configuration 
      *  @return new JGSFLoDeSSSWANFileConfigurator()
      */
-    public ImageMosaicConfigurator createAction(GeoServerActionConfiguration configuration) {
+    public ImageMosaicConfigurator createAction(ImageMosaicActionConfiguration configuration) {
         try {
             return new ImageMosaicConfigurator(configuration);
         } catch (IOException e) {
@@ -55,7 +55,7 @@ public class ImageMosaicGeneratorService extends
     }
 
     @Override
-    public boolean canCreateAction(GeoServerActionConfiguration configuration) {
+    public boolean canCreateAction(ImageMosaicActionConfiguration configuration) {
         final boolean superRetVal = super.canCreateAction(configuration);
         return superRetVal;
     }

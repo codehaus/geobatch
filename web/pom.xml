@@ -7,7 +7,7 @@
 		=======================================================================
 	-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                                 http://maven.apache.org/maven-v4_0_0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -235,6 +235,10 @@
 				</dependency>
 				<dependency>
 					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-ImageMosaic</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
 					<artifactId>gb-flowmanagers-JGSFLoDeSS</artifactId>
 				</dependency>
 			</dependencies>
@@ -295,12 +299,20 @@
 			</dependencies>
 		</profile>
 		<profile>
+			<id>imagemosaic</id>
+			<dependencies>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-ImageMosaic</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
 			<id>jgsflodess</id>
 			<dependencies>
 				<dependency>
 					<groupId>it.geosolutions</groupId>
 					<artifactId>gb-flowmanagers-JGSFLoDeSS</artifactId>
-					<version>${gb.version}</version>
 				</dependency>
 			</dependencies>
 		</profile>
