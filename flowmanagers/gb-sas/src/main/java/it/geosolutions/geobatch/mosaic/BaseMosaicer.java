@@ -410,20 +410,20 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
      * @return
      * @throws NoninvertibleTransformException
      */
-    private MathTransform computeWorldToGridTransform(final double xscale, final double yscale, 
+    private static MathTransform computeWorldToGridTransform(
+    		final double xscale, 
+    		final double yscale, 
     		final GeneralEnvelope globEnvelope) throws NoninvertibleTransformException {
+    	
     	final GeneralMatrix gm = new GeneralMatrix(3);
         
         gm.setElement(0, 0, xscale);
         gm.setElement(1, 1, -yscale);
         gm.setElement(0, 1, 0);
         gm.setElement(1, 0, 0);
-        gm.setElement(0, 2, globEnvelope.getLowerCorner()
-                .getOrdinate(0));
-        gm.setElement(1, 2, globEnvelope.getUpperCorner()
-                .getOrdinate(1));
-        final MathTransform mosaicTransform = ProjectiveTransform
-                .create(gm);
+        gm.setElement(0, 2, globEnvelope.getLowerCorner().getOrdinate(0));
+        gm.setElement(1, 2, globEnvelope.getUpperCorner().getOrdinate(1));
+        final MathTransform mosaicTransform = ProjectiveTransform.create(gm);
         final MathTransform tempTransform = PixelTranslation.translate(mosaicTransform, PixelInCell.CELL_CENTER, PixelInCell.CELL_CORNER);
         
        return tempTransform.inverse();
@@ -434,13 +434,12 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
      * @param files
      * @return
      */
-	private Map<String,File> sortFilesByPing(final File[] files) {
+	private static Map<String,File> sortFilesByPing(final File[] files) {
         final Map<String,File> treeMap = new TreeMap<String, File>(java.util.Collections.reverseOrder());
         final DecimalFormat nf = new DecimalFormat("0000000000");
         
         for (File file : files) {
-            final String path = file.getAbsolutePath()
-                    .toLowerCase();
+            final String path = file.getAbsolutePath().toLowerCase();
             if (!path.endsWith("tif"))
                 continue;
             
@@ -471,7 +470,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
      * @param world2GridTransform
      * @return the produced Mosaic
      */
-    private RenderedImage createMosaic(
+    private static RenderedImage createMosaic(
             final List<GridCoverage2D> coverages,
             final MathTransform world2GridTransform) {
         final int nCov = coverages.size();

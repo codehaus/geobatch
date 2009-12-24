@@ -22,7 +22,10 @@
 
 package it.geosolutions.geobatch.task;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+
+import org.apache.commons.beanutils.BeanUtils;
 
 import it.geosolutions.geobatch.catalog.Configuration;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
@@ -100,21 +103,38 @@ public class TaskExecutorConfiguration extends ActionConfiguration implements
         super();
     }
 
-    protected TaskExecutorConfiguration(String id, String name, String description,
-            boolean dirty) {
+    protected TaskExecutorConfiguration(String id, String name, String description,boolean dirty) {
         super(id, name, description, dirty);
     }
     
     public TaskExecutorConfiguration clone() throws CloneNotSupportedException {
-        final TaskExecutorConfiguration configuration = new TaskExecutorConfiguration(
-                getId(), getName(), getDescription(), isDirty());
-        configuration.setServiceID(getServiceID());
-        configuration.setArgument(getArgument());
-        configuration.setErrorFile(getErrorFile());
-        configuration.setExecutable(getExecutable());
-        configuration.setSpawn(isSpawn());
-        configuration.setTimeOut(getTimeOut());
-        return configuration;
+    	try {
+			return (TaskExecutorConfiguration) BeanUtils.cloneBean(this);
+		} catch (IllegalAccessException e) {
+			final CloneNotSupportedException cns= new CloneNotSupportedException();
+			cns.initCause(e);
+			throw cns;
+		} catch (InstantiationException e) {
+			final CloneNotSupportedException cns= new CloneNotSupportedException();
+			cns.initCause(e);
+			throw cns;
+		} catch (InvocationTargetException e) {
+			final CloneNotSupportedException cns= new CloneNotSupportedException();
+			cns.initCause(e);
+			throw cns;
+		} catch (NoSuchMethodException e) {
+			final CloneNotSupportedException cns= new CloneNotSupportedException();
+			cns.initCause(e);
+			throw cns;
+		}
+//        final TaskExecutorConfiguration configuration = new TaskExecutorConfiguration(getId(), getName(), getDescription(), isDirty());
+//        configuration.setServiceID(getServiceID());
+//        configuration.setArgument(getArgument());
+//        configuration.setErrorFile(getErrorFile());
+//        configuration.setExecutable(getExecutable());
+//        configuration.setSpawn(isSpawn());
+//        configuration.setTimeOut(getTimeOut());
+//        return configuration;
     }
 
 }
