@@ -38,7 +38,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.tools.ant.taskdefs.condition.HasMethod;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridFormatFinder;
@@ -251,7 +250,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
      * @param outputFile
      * @throws IllegalArgumentException
      * @throws IOException
-     */
+     */	
 	private boolean convert(final File file, final File outputFile)
             throws IllegalArgumentException, IOException {
 
