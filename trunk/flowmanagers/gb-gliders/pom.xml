@@ -48,6 +48,14 @@
     </license>
   </licenses>
 
+<repositories>
+    <repository>
+      <id>ulisse</id>
+      <name>Ulisse libraries repository</name>
+      <url>http://ulisse.pin.unifi.it:8080/archiva/repository/ext.public.rel/</url>
+    </repository>
+  </repositories>
+
   <!-- =========================================================== -->
   <!--     Dependency Management                                   -->
   <!-- =========================================================== -->
