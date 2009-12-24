@@ -56,7 +56,7 @@ public class GeoTiffOverviewsEmbedder extends BaseAction<FileSystemMonitorEvent>
     private final static Logger LOGGER = Logger
             .getLogger(GeoTiffOverviewsEmbedder.class.toString());
 
-    protected GeoTiffOverviewsEmbedder(GeoTiffOverviewsEmbedderConfiguration configuration)
+    public GeoTiffOverviewsEmbedder(GeoTiffOverviewsEmbedderConfiguration configuration)
             throws IOException {
         this.configuration = configuration;
     }
@@ -107,20 +107,21 @@ public class GeoTiffOverviewsEmbedder extends BaseAction<FileSystemMonitorEvent>
 //            oe.setTileCacheSize(configuration.getJAICapacity());
 
             // add logger/listener
-            oe.addProcessingEventListener(new ProcessingEventListener() {
-
-                public void exceptionOccurred(ExceptionEvent event) {
-                    if (LOGGER.isLoggable(Level.SEVERE))
-                        LOGGER.info(event.getMessage());
-
-                }
-
-                public void getNotification(ProcessingEvent event) {
-                    if (LOGGER.isLoggable(Level.SEVERE))
-                        LOGGER.info(event.getMessage());
-
-                }
-            });
+            if (configuration.isLogNotification())
+	            oe.addProcessingEventListener(new ProcessingEventListener() {
+	
+	                public void exceptionOccurred(ExceptionEvent event) {
+	                    if (LOGGER.isLoggable(Level.SEVERE))
+	                        LOGGER.info(event.getMessage());
+	
+	                }
+	
+	                public void getNotification(ProcessingEvent event) {
+	                    if (LOGGER.isLoggable(Level.SEVERE))
+	                        LOGGER.info(event.getMessage());
+	
+	                }
+	            });
             // run
             oe.run();
 
