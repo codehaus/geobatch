@@ -66,8 +66,7 @@ import ucar.nc2.Variable;
  * Public class to insert NetCDF data file (gliders measurements) into DB
  * 
  */
-public class JGSFLoDeSSCOAMPSFileConfigurator extends
-		GeoServerConfiguratorAction<FileSystemMonitorEvent> {
+public class JGSFLoDeSSCOAMPSFileConfigurator extends GeoServerConfiguratorAction<FileSystemMonitorEvent> {
 
 	/**
 	 * Static DateFormat Converter

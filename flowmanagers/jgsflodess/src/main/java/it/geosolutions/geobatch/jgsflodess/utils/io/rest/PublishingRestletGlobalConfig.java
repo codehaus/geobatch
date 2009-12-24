@@ -27,28 +27,29 @@
  * <http://www.geo-solutions.it/>.
  *
  */
-package it.geosolutions.geobatch.jgsflodess.config.global;
+package it.geosolutions.geobatch.jgsflodess.utils.io.rest;
 
 /**
  * @author Fabiani
  *
  */
-public final class JGSFLoDeSSGlobalConfig {
+public final class PublishingRestletGlobalConfig {
 
-	private static String JGSFLoDeSSDirectory;
-	
-	/**
-	 * 
-	 */
-	public JGSFLoDeSSGlobalConfig(String JGSFLoDeSSDirectory) {
-		this.JGSFLoDeSSDirectory = JGSFLoDeSSDirectory;
+	private String rootDirectory;
+
+	public PublishingRestletGlobalConfig() {
 	}
 
-	/**
-	 * @return the jGSFLoDeSSDirectory
-	 */
-	public static String getJGSFLoDeSSDirectory() {
-		return JGSFLoDeSSDirectory;
+	public PublishingRestletGlobalConfig(String rootDirectory) {
+		this.rootDirectory = rootDirectory;
+	}
+
+	public String getRootDirectory() {
+		return rootDirectory;
+	}
+
+	public void setRootDirectory(String rootDirectory) {
+		this.rootDirectory = rootDirectory;
 	}
 
 	
