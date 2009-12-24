@@ -115,14 +115,14 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 	
 	static {
 		GregorianCalendar calendar = new GregorianCalendar(0000, 00, 01, 00, 00, 00);
-		calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+		calendar.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 		matLabStartTime = calendar.getTimeInMillis();
 	}
 	
 	protected NURCWPSOutput2WMCFileConfigurator(
 			GeoServerActionConfiguration configuration) throws IOException {
 		super(configuration);
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 	}
 
 	/**

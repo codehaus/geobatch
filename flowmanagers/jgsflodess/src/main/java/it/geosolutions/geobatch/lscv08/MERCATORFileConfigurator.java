@@ -84,7 +84,7 @@ public class MERCATORFileConfigurator extends
 
 	static {
 		GregorianCalendar calendar = new GregorianCalendar(1980, 00, 01, 00, 00, 00);
-		calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+		calendar.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 		startTime = calendar.getTimeInMillis();
 	}
 
@@ -92,7 +92,7 @@ public class MERCATORFileConfigurator extends
 	protected MERCATORFileConfigurator(
 			MetocActionConfiguration configuration) throws IOException {
 		super(configuration);
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 	}
 
 	/**
@@ -319,9 +319,9 @@ public class MERCATORFileConfigurator extends
             Attribute forecastDate  = ncGridFile.findGlobalAttributeIgnoreCase("forecast_range");
 
             final SimpleDateFormat toSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
-        	toSdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        	fromSdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+            final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
+        	toSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+        	fromSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
         	
         	final Date timeOriginDate = toSdf.parse(referenceTime.getStringValue().trim().toLowerCase());
         	int TAU = 0;
@@ -427,7 +427,7 @@ public class MERCATORFileConfigurator extends
 	private static void setTime(NetcdfFileWriteable ncFileOut, final Attribute referenceTime, final Attribute forecastDate) {
         final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         //sdf.setDateFormatSymbols(new DateFormatSymbols(Locale.CANADA));
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
         
         long millisFromStartDate = 0;
         if (referenceTime != null && forecastDate != null) {
@@ -447,7 +447,7 @@ public class MERCATORFileConfigurator extends
                     int numDay = Integer.parseInt(forecastDays.substring(0, index));
                     
                     GregorianCalendar calendar = new GregorianCalendar();
-                    calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+                    calendar.setTimeZone(TimeZone.getTimeZone("GMT+0"));
                     calendar.setTime(startDate);
                     calendar.add(GregorianCalendar.DATE, numDay);
                     

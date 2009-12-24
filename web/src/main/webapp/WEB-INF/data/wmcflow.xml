@@ -9,7 +9,7 @@
 		<FileEventRule>
 			<optional>false</optional>
 			<originalOccurrencies>1</originalOccurrencies>
-			<regex>.*\.*</regex>
+			<regex>.*\.nc</regex>
 			<id>r1</id>
 			<description>description</description>
 			<name>test</name>

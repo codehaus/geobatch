@@ -84,7 +84,7 @@ public class INGVFileConfigurator extends
 
 	static {
 		GregorianCalendar calendar = new GregorianCalendar(1980, 00, 01, 00, 00, 00);
-		calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+		calendar.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 		startTime = calendar.getTimeInMillis();
 	}
 
@@ -98,7 +98,7 @@ public class INGVFileConfigurator extends
 	protected INGVFileConfigurator(
 			MetocActionConfiguration configuration) throws IOException {
 		super(configuration);
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 	}
 
 	/**
@@ -383,9 +383,9 @@ public class INGVFileConfigurator extends
 
             // time Variable data
             final SimpleDateFormat toSdf = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss", Locale.ENGLISH);
-        	final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
-        	toSdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        	fromSdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        	final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
+        	toSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+        	fromSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 
         	final Date timeOriginDate = toSdf.parse(timeOriginalVar.findAttribute("time_origin").getStringValue().trim().toLowerCase());
         	int TAU = 0;
@@ -503,7 +503,7 @@ public class INGVFileConfigurator extends
 	private static void setTime(NetcdfFileWriteable ncFileOut, final Attribute referenceTime, final Attribute forecastDate) {
         final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         //sdf.setDateFormatSymbols(new DateFormatSymbols(Locale.CANADA));
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
         
         long millisFromStartDate = 0;
         if (referenceTime != null && forecastDate != null) {
@@ -523,7 +523,7 @@ public class INGVFileConfigurator extends
                     int numDay = Integer.parseInt(forecastDays.substring(0, index));
                     
                     GregorianCalendar calendar = new GregorianCalendar();
-                    calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+                    calendar.setTimeZone(TimeZone.getTimeZone("GMT+0"));
                     calendar.setTime(startDate);
                     calendar.add(GregorianCalendar.DATE, numDay);
                     

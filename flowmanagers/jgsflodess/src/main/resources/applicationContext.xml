@@ -69,6 +69,19 @@
     	</property>	
 	</bean>
 	
+	<!-- lscv08 fluxes  -->	
+	<bean id="MERCATORGeneratorService" class="it.geosolutions.geobatch.lscv08.MERCATORGeneratorService">
+		<property  name="id">
+    		<value>JGSFLoDeSSMERCATORGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>JGSFLoDeSSMERCATORGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>JGSFLoDeSSMERCATORGeneratorService</value>
+    	</property>	
+	</bean>
+
 	<bean id="NRLNCOMGeneratorService" class="it.geosolutions.geobatch.lscv08.NRLNCOMGeneratorService">
 		<property  name="id">
     		<value>JGSFLoDeSSNCOMGeneratorService</value>
@@ -78,6 +91,18 @@
     	</property>
     	<property name="name">
     		<value>JGSFLoDeSSNCOMGeneratorService</value>
+    	</property>	
+	</bean>
+	
+	<bean id="INGVGeneratorService" class="it.geosolutions.geobatch.lscv08.INGVGeneratorService">
+		<property  name="id">
+    		<value>JGSFLoDeSSIGNVGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>JGSFLoDeSSINGVGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>JGSFLoDeSSINGVGeneratorService</value>
     	</property>	
 	</bean>
 	
@@ -93,6 +118,18 @@
     	</property>	
 	</bean>
 	
+	<bean id="ImageMosaicGeneratorService" class="it.geosolutions.geobatch.jgsflodess.ImageMosaicGeneratorService">
+		<property  name="id">
+    		<value>ImageMosaicGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>ImageMosaicGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>ImageMosaicGeneratorService</value>
+    	</property>	
+	</bean>
+
 	<bean id="NURCWPSOutput2WMCGeneratorService" class="it.geosolutions.geobatch.wmc.NURCWPSOutput2WMCGeneratorService">
 		<property  name="id">
     		<value>NURCWPSOutput2WMCGeneratorService</value>
