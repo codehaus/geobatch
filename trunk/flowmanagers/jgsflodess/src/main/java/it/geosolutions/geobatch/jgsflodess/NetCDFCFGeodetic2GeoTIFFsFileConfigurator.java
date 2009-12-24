@@ -25,10 +25,8 @@ import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.configuration.event.action.geoserver.RegistryActionConfiguration;
-import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerRESTHelper;
 import it.geosolutions.geobatch.flow.event.action.geoserver.RegistryConfiguratorAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
-import it.geosolutions.geobatch.jgsflodess.config.global.JGSFLoDeSSGlobalConfig;
 import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
 import it.geosolutions.geobatch.metocs.jaxb.model.MetocElementType;
 import it.geosolutions.geobatch.metocs.jaxb.model.Metocs;
@@ -50,9 +48,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -331,53 +327,6 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 
 								File gtiffFile = Utilities.storeCoverageAsGeoTIFF(gtiffOutputDir, coverageName.toString(), varName, userRaster, noData, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
 
-//								// ////////////////////////////////////////////////////////////////////
-//								//
-//								// SENDING data to GeoServer via REST protocol.
-//								//
-//								// ////////////////////////////////////////////////////////////////////
-//								Map<String, String> queryParams = new HashMap<String, String>();
-//								queryParams.put("namespace", getConfiguration().getDefaultNamespace());
-//								queryParams.put("wmspath", getConfiguration().getWmsPath());
-//								final String[] layer = GeoServerRESTHelper.send(
-//										gtiffOutputDir, 
-//										gtiffFile, 
-//										getConfiguration().getGeoserverURL(), 
-//										getConfiguration().getGeoserverUID(), 
-//										getConfiguration().getGeoserverPWD(),
-//										coverageStoreId, 
-//										coverageName.toString(),
-//										queryParams, "", getConfiguration().getDataTransferMethod(),
-//										"geotiff",
-//										GEOSERVER_VERSION, getConfiguration().getStyles(), 
-//										getConfiguration().getDefaultStyle());
-//
-//								// ////////////////////////////////////////////////////////////////////
-//								//
-//								// HARVESTING metadata to the Registry.
-//								//
-//								// ////////////////////////////////////////////////////////////////////
-//								
-//								final String xmlTemplate = getConfiguration().getMetocHarvesterXMLTemplatePath();
-//								if (layer != null && layer.length > 0 && xmlTemplate != null && xmlTemplate.trim().length()>0){
-//									final File metadataTemplate = new File(xmlTemplate);
-//									if (metadataTemplate != null && metadataTemplate.exists()){
-//										harvest(
-//											new File(JGSFLoDeSSGlobalConfig.getJGSFLoDeSSDirectory()), 
-//											gtiffFile,
-//											metadataTemplate,
-//											getConfiguration().getGeoserverURL(),
-//											getConfiguration().getRegistryURL(),
-//											getConfiguration().getProviderURL(),
-//											event.getTimestamp(), 
-//											getConfiguration().getDefaultNamespace(),
-//											coverageStoreId, 
-//											coverageName.toString(),
-//											(NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.DEPTH_DIM) ? "DOWN" : "UP"),
-//											noData
-//										);
-//									}
-//								}
 							}
 						}
 						

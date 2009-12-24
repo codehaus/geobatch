@@ -1,12 +1,17 @@
 package it.geosolutions.geobatch.jgsflodess.utils.io.rest;
 
-import it.geosolutions.geobatch.jgsflodess.config.global.JGSFLoDeSSGlobalConfig;
+import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
+import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.utils.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.apache.log4j.Logger;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Request;
@@ -21,11 +26,39 @@ import org.restlet.resource.StringRepresentation;
  *
  */
 public class PublishRestletResource extends Resource {
+
+	private final static Logger LOGGER = Logger.getLogger(PublishRestletResource.class.toString());
 	
-	private final static Logger log = Logger.getLogger(PublishRestletResource.class);
+	private PublishingRestletGlobalConfig config;
 	
+
 	
-	
+	public PublishingRestletGlobalConfig getConfig() {
+		return config;
+	}
+
+
+
+
+	public void setConfig(PublishingRestletGlobalConfig config) {
+		this.config = config;
+	}
+
+
+
+
+	public PublishRestletResource() {
+	}
+
+
+
+
+	public PublishRestletResource(PublishingRestletGlobalConfig config) {
+		this.config = config;
+	}
+
+
+
 	/* (non-Javadoc)
 	 * @see org.restlet.resource.Resource#allowDelete()
 	 */
@@ -75,7 +108,7 @@ public class PublishRestletResource extends Resource {
 		Response response = getResponse();
 		
      	if (request.getMethod().equals(Method.GET)) {             		
- 			log.info("Handling the call...");
+ 			LOGGER.info("Handling the call...");
      		    
  			String file = (String)request.getAttributes().get("file");
  			
@@ -85,26 +118,85 @@ public class PublishRestletResource extends Resource {
  	            return;
  	        } 	        
  	        
- 	        File inputFile = new File(JGSFLoDeSSGlobalConfig.getJGSFLoDeSSDirectory(), file);
+ 	        // search for the base directory
+            File workingDir=null;
+			try {
+				workingDir = IOUtils.findLocation(config.getRootDirectory(),
+				        new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
+			} catch (IOException e) {
+				response.setEntity(new StringRepresentation("Internal error "));
+ 	            response.setStatus(Status.SERVER_ERROR_INTERNAL);
+ 	            if(LOGGER.isLoggable(Level.SEVERE))
+ 	            	LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
+ 	            return;
+			}
+            if (workingDir == null || !workingDir.exists()||!workingDir.canRead()||!workingDir.isDirectory())
+           {
+				response.setEntity(new StringRepresentation("Internal error "));
+ 	            response.setStatus(Status.SERVER_ERROR_INTERNAL);
+ 	            if(LOGGER.isLoggable(Level.SEVERE))
+ 	            	LOGGER.severe("Unable to work with the provided working directory:"+(workingDir!=null?workingDir:""));            	
+            	return;
+           }
+            
+            // get the requested file, if it exists
+ 	        File inputFile = new File(workingDir, file);
  	        
  	        if (inputFile.exists() && inputFile.isFile()){
- 	        	try {
- 	        		if (IOUtils.acquireLock(this, inputFile)) {
- 	        			response.setEntity(IOUtils.toString(inputFile), MediaType.TEXT_XML);
- 	        		} else {
- 	        			log.error("Could not acquire file lock: " + inputFile.getAbsolutePath());
- 	        			response.setEntity(Status.SERVER_ERROR_INTERNAL);
- 	        		}
-				} catch (IOException e) {
-					log.error(e.getLocalizedMessage());
-					response.setEntity(Status.SERVER_ERROR_INTERNAL);
-				} catch (InterruptedException e) {
-					log.error(e.getLocalizedMessage());
-					response.setEntity(Status.SERVER_ERROR_INTERNAL);
-				} finally {
-				}
+// 	        	try {
+ 	        		
+ 	        	// lock the file
+                	RandomAccessFile raf= null;
+                	FileChannel channel = null;
+                	FileLock lock=null;
+                	try{
+                    	raf= new RandomAccessFile(inputFile,"r");
+                    	channel = raf.getChannel();
+	                	lock = channel.lock(0,Long.MAX_VALUE,true);
+	                	response.setEntity(IOUtils.toString(inputFile), MediaType.TEXT_XML);
+	                	return;
+                	}
+                	catch (Throwable e) {
+					}
+                	finally{
+                		try{
+	                		if(raf!=null)
+	                			raf.close();
+                		}catch (Throwable e) {
+							if(LOGGER.isLoggable(Level.FINE))
+								LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+						}      
+
+                   		try{
+	                		if(channel!=null)
+	                    		IOUtils.closeQuietly(channel);
+                		}catch (Throwable e) {
+							if(LOGGER.isLoggable(Level.FINE))
+								LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+						}    
+                		
+                		try{
+	                		if(lock!=null)
+	                			lock.release();
+                		}catch (Throwable e) {
+							if(LOGGER.isLoggable(Level.FINE))
+								LOGGER.log(Level.FINE,e.getLocalizedMessage(),e);
+						}            		
+                		
+                	} 	   
+                	
+                	LOGGER.severe("Could not acquire file lock: " + inputFile.getAbsolutePath());
+	        		response.setEntity(Status.SERVER_ERROR_INTERNAL);
+ 	        		
+// 	        		if (IOUtils.acquireLock(this, inputFile)) {
+// 	        			response.setEntity(IOUtils.toString(inputFile), MediaType.TEXT_XML);
+// 	        		} else {
+// 	        			LOGGER.severe("Could not acquire file lock: " + inputFile.getAbsolutePath());
+// 	        			response.setEntity(Status.SERVER_ERROR_INTERNAL);
+// 	        		}
+
  	        }else{
-				log.error("Could not find file: " + inputFile.getAbsolutePath());
+				LOGGER.severe("Could not find file: " + inputFile.getAbsolutePath());
  	        	response.setEntity(Status.CLIENT_ERROR_BAD_REQUEST); 
  	        }
         } 

@@ -45,13 +45,13 @@ public class HDF42GeoTIFFsGeneratorService extends
      *  @return new JGSFLoDeSSSWANFileConfigurator()
      */
     public HDF42GeoTIFFsFileConfigurator createAction(RegistryActionConfiguration configuration) {
-        try {
-            return new HDF42GeoTIFFsFileConfigurator(configuration);
-        } catch (IOException e) {
-            if (LOGGER.isLoggable(Level.INFO))
-                LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
+//        try {
+//            return new HDF42GeoTIFFsFileConfigurator(configuration);
+//        } catch (IOException e) {
+//            if (LOGGER.isLoggable(Level.INFO))
+//                LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
             return null;
-        }
+//        }
     }
 
     @Override
