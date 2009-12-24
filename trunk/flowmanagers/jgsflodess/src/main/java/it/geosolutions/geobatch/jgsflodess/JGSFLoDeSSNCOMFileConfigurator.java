@@ -76,7 +76,7 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 	protected JGSFLoDeSSNCOMFileConfigurator(
 			GeoServerActionConfiguration configuration) throws IOException {
 		super(configuration);
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 	}
 
 	/**

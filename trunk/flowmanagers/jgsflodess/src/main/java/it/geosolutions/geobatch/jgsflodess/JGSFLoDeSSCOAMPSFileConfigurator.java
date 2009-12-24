@@ -77,7 +77,7 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends
 	protected JGSFLoDeSSCOAMPSFileConfigurator(
 			GeoServerActionConfiguration configuration) throws IOException {
 		super(configuration);
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 	}
 
 	/**

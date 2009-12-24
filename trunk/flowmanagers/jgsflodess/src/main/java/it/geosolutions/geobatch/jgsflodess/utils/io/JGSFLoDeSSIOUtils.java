@@ -133,7 +133,7 @@ public class JGSFLoDeSSIOUtils {
 
 	static {
 		GregorianCalendar calendar = new GregorianCalendar(1980, 00, 01, 00, 00, 00);
-		calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+		calendar.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 		startTime = calendar.getTimeInMillis();
 	}
 

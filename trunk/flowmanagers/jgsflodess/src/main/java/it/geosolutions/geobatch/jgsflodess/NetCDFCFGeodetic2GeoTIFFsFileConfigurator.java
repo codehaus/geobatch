@@ -22,6 +22,7 @@
 package it.geosolutions.geobatch.jgsflodess;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
+import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.configuration.event.action.geoserver.RegistryActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerRESTHelper;
@@ -129,12 +130,12 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 	/**
 	 * Static DateFormat Converter
 	 */
-	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
+	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
 	
 	protected NetCDFCFGeodetic2GeoTIFFsFileConfigurator(
 			RegistryActionConfiguration configuration) throws IOException {
 		super(configuration);
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 	}
 
 	/**
@@ -290,83 +291,98 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 						continue;
 					variables.add(varName);
 					
-					// //
-					// defining the SampleModel data type
-					// //
-					final SampleModel outSampleModel = Utilities.getSampleModel(var.getDataType(), 
-							nLon, nLat,1); 
-
-					Array originalVarArray = var.read();
-					final boolean hasLocalZLevel = NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.DEPTH_DIM)
-							|| NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.HEIGHT_DIM);
+					boolean canProceed = false;
 					
-					for (int z = 0; z < (hasLocalZLevel ? nZeta : 1); z++) {
-						for (int t = 0; t < (timeDimExists ? nTime : 1); t++) {
-							WritableRaster userRaster = Raster.createWritableRaster(outSampleModel, null);
+					final File gtiffOutputDir = new File(outDir.getAbsolutePath() + File.separator + varName.replaceAll("_", ""));
+					
+					if (!gtiffOutputDir.exists())
+						canProceed = gtiffOutputDir.mkdirs();
+					
+					canProceed = gtiffOutputDir.isDirectory();
+					
+					if (canProceed) {
+						// //
+						// defining the SampleModel data type
+						// //
+						final SampleModel outSampleModel = Utilities.getSampleModel(var.getDataType(), 
+								nLon, nLat,1); 
 
-							JGSFLoDeSSIOUtils.write2DData(userRaster, var, originalVarArray, false, false, (hasLocalZLevel ? new int[] {t, z, nLat, nLon} : new int[] {t, nLat, nLon}), true);
-							
-							// ////
-							// producing the Coverage here...
-							// ////
-							final StringBuilder coverageName = new StringBuilder(inputFileName)
-							              .append("_").append(varName.replaceAll("_", ""))
-							              .append("_").append(hasLocalZLevel ? zetaOriginalData.getLong(zetaOriginalData.getIndex().set(z)) : 0)
-							              .append("_").append(baseTime)
-										  .append("_").append(timeDimExists ? sdf.format(JGSFLoDeSSIOUtils.startTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*1000) : "00000000_0000000")
-										  .append("_").append(TAU);
+						Array originalVarArray = var.read();
+						final boolean hasLocalZLevel = NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.DEPTH_DIM)
+								|| NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.HEIGHT_DIM);
+						
+						for (int z = 0; z < (hasLocalZLevel ? nZeta : 1); z++) {
+							for (int t = 0; t < (timeDimExists ? nTime : 1); t++) {
+								WritableRaster userRaster = Raster.createWritableRaster(outSampleModel, null);
 
-							final String coverageStoreId = coverageName.toString();
+								JGSFLoDeSSIOUtils.write2DData(userRaster, var, originalVarArray, false, false, (hasLocalZLevel ? new int[] {t, z, nLat, nLon} : new int[] {t, nLat, nLon}), true);
+								
+								// ////
+								// producing the Coverage here...
+								// ////
+								final StringBuilder coverageName = new StringBuilder(inputFileName)
+								              .append("_").append(varName.replaceAll("_", ""))
+								              .append("_").append(hasLocalZLevel ? elevLevelFormat(zetaOriginalData.getLong(zetaOriginalData.getIndex().set(z))) : "0000")
+								              .append("_").append(baseTime)
+											  .append("_").append(timeDimExists ? sdf.format(JGSFLoDeSSIOUtils.startTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*1000) : "00000000T0000000Z")
+											  .append("_").append(TAU);
 
-							File gtiffFile = Utilities.storeCoverageAsGeoTIFF(outDir, coverageName.toString(), varName, userRaster, noData, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
+								final String coverageStoreId = coverageName.toString();
 
-							// ////////////////////////////////////////////////////////////////////
-							//
-							// SENDING data to GeoServer via REST protocol.
-							//
-							// ////////////////////////////////////////////////////////////////////
-							Map<String, String> queryParams = new HashMap<String, String>();
-							queryParams.put("namespace", getConfiguration().getDefaultNamespace());
-							queryParams.put("wmspath", getConfiguration().getWmsPath());
-							final String[] layer = GeoServerRESTHelper.send(outDir, 
-									gtiffFile, 
-									getConfiguration().getGeoserverURL(), 
-									getConfiguration().getGeoserverUID(), 
-									getConfiguration().getGeoserverPWD(),
-									coverageStoreId, 
-									coverageName.toString(),
-									queryParams, "", getConfiguration().getDataTransferMethod(),
-									"geotiff",
-									GEOSERVER_VERSION, getConfiguration().getStyles(), 
-									getConfiguration().getDefaultStyle());
+								File gtiffFile = Utilities.storeCoverageAsGeoTIFF(gtiffOutputDir, coverageName.toString(), varName, userRaster, noData, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
 
-							// ////////////////////////////////////////////////////////////////////
-							//
-							// HARVESTING metadata to the Registry.
-							//
-							// ////////////////////////////////////////////////////////////////////
-							
-							final String xmlTemplate = getConfiguration().getMetocHarvesterXMLTemplatePath();
-							if (layer != null && layer.length > 0 && xmlTemplate != null && xmlTemplate.trim().length()>0){
-								final File metadataTemplate = new File(xmlTemplate);
-								if (metadataTemplate != null && metadataTemplate.exists()){
-									harvest(
-										new File(JGSFLoDeSSGlobalConfig.getJGSFLoDeSSDirectory()), 
-										gtiffFile,
-										metadataTemplate,
-										getConfiguration().getGeoserverURL(),
-										getConfiguration().getRegistryURL(),
-										getConfiguration().getProviderURL(),
-										event.getTimestamp(), 
-										getConfiguration().getDefaultNamespace(),
-										coverageStoreId, 
-										coverageName.toString(),
-										(NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.DEPTH_DIM) ? "DOWN" : "UP"),
-										noData
-									);
-								}
+//								// ////////////////////////////////////////////////////////////////////
+//								//
+//								// SENDING data to GeoServer via REST protocol.
+//								//
+//								// ////////////////////////////////////////////////////////////////////
+//								Map<String, String> queryParams = new HashMap<String, String>();
+//								queryParams.put("namespace", getConfiguration().getDefaultNamespace());
+//								queryParams.put("wmspath", getConfiguration().getWmsPath());
+//								final String[] layer = GeoServerRESTHelper.send(
+//										gtiffOutputDir, 
+//										gtiffFile, 
+//										getConfiguration().getGeoserverURL(), 
+//										getConfiguration().getGeoserverUID(), 
+//										getConfiguration().getGeoserverPWD(),
+//										coverageStoreId, 
+//										coverageName.toString(),
+//										queryParams, "", getConfiguration().getDataTransferMethod(),
+//										"geotiff",
+//										GEOSERVER_VERSION, getConfiguration().getStyles(), 
+//										getConfiguration().getDefaultStyle());
+//
+//								// ////////////////////////////////////////////////////////////////////
+//								//
+//								// HARVESTING metadata to the Registry.
+//								//
+//								// ////////////////////////////////////////////////////////////////////
+//								
+//								final String xmlTemplate = getConfiguration().getMetocHarvesterXMLTemplatePath();
+//								if (layer != null && layer.length > 0 && xmlTemplate != null && xmlTemplate.trim().length()>0){
+//									final File metadataTemplate = new File(xmlTemplate);
+//									if (metadataTemplate != null && metadataTemplate.exists()){
+//										harvest(
+//											new File(JGSFLoDeSSGlobalConfig.getJGSFLoDeSSDirectory()), 
+//											gtiffFile,
+//											metadataTemplate,
+//											getConfiguration().getGeoserverURL(),
+//											getConfiguration().getRegistryURL(),
+//											getConfiguration().getProviderURL(),
+//											event.getTimestamp(), 
+//											getConfiguration().getDefaultNamespace(),
+//											coverageStoreId, 
+//											coverageName.toString(),
+//											(NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.DEPTH_DIM) ? "DOWN" : "UP"),
+//											noData
+//										);
+//									}
+//								}
 							}
 						}
+						
+						// ... setting up the appropriate event for the next action
+						events.add(new FileSystemMonitorEvent(gtiffOutputDir, FileSystemMonitorNotifications.FILE_ADDED));
 					}
 
 					numVars++;
@@ -389,6 +405,20 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
 				JAI.getDefaultInstance().getTileCache().flush();
 			}
 		}
+	}
+
+	/**
+	 * 
+	 * @param zLevel
+	 * @return
+	 */
+	private static String elevLevelFormat(long zLevel) {
+		String res = String.valueOf(zLevel);
+		
+		while (res.length() % 4 != 0)
+			res = "0" + res;
+		
+		return res;
 	}
 
 	/**

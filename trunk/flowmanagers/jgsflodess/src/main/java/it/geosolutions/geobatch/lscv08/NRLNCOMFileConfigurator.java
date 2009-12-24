@@ -32,6 +32,7 @@ import it.geosolutions.geobatch.metocs.jaxb.model.MetocElementType;
 import it.geosolutions.geobatch.metocs.jaxb.model.Metocs;
 import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.geobatch.utils.io.Utilities;
+import it.geosolutions.imageio.plugins.netcdf.NetCDFConverterUtilities;
 
 import java.io.File;
 import java.io.FileReader;
@@ -78,9 +79,9 @@ public class NRLNCOMFileConfigurator extends
 
 	static {
 		GregorianCalendar calendar = new GregorianCalendar(1980, 00, 01, 00, 00, 00);
-		calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+		calendar.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 		GregorianCalendar NCOMcalendar = new GregorianCalendar(2000, 00, 01, 00, 00, 00);
-		NCOMcalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+		NCOMcalendar.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 		startTime = calendar.getTimeInMillis();
 		NCOMstartTime = NCOMcalendar.getTimeInMillis();
 	}
@@ -89,7 +90,7 @@ public class NRLNCOMFileConfigurator extends
 	protected NRLNCOMFileConfigurator(
 			MetocActionConfiguration configuration) throws IOException {
 		super(configuration);
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 	}
 
 	/**
@@ -313,7 +314,7 @@ public class NRLNCOMFileConfigurator extends
 			// defining output variable
             for (String varName : foundVariables.keySet()) {
             	// SIMONE: replaced foundVariables.get(varName).getDataType() with DataType.DOUBLE
-            	ncFileOut.addVariable(foundVariableBriefNames.get(varName),DataType.DOUBLE, outDimensions);
+            	ncFileOut.addVariable(foundVariableBriefNames.get(varName), DataType.DOUBLE, outDimensions);
                 //NetCDFConverterUtilities.setVariableAttributes(foundVariables.get(varName), ncFileOut, foundVariableBriefNames.get(varName), new String[] { "positions" });
                 ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "long_name", foundVariableLongNames.get(varName));
                 ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "units", foundVariableUoM.get(varName));
@@ -329,9 +330,9 @@ public class NRLNCOMFileConfigurator extends
             
             // time Variable data
             final SimpleDateFormat toSdf = new SimpleDateFormat("yyyyMMdd");
-            final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
-        	toSdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        	fromSdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+            final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
+        	toSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+        	fromSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
         	
         	final Date timeOriginDate = toSdf.parse(inputFileName.substring(inputFileName.lastIndexOf("_")+1));
         	int TAU = 0;
@@ -386,16 +387,22 @@ public class NRLNCOMFileConfigurator extends
 				scale  = (scaleAtt != null ? scaleAtt.getNumericValue().doubleValue() : scale); 
 				
 				Array originalVarArray = var.read();
+				Array destArray = NetCDFConverterUtilities.getArray(originalVarArray.getShape(), DataType.DOUBLE);
 				
 				for (int t = 0; t < time_dim.getLength(); t++)
-					for (int z = 0; z < depth_dim.getLength(); z++)
+					for (int z = 0; z < (hasDepth ? depth_dim.getLength() : 1); z++)
 						for (int y = 0; y < lat_dim.getLength(); y++)
 							for (int x = 0; x < lon_dim.getLength(); x++) {
-								double originalValue = originalVarArray.getDouble(originalVarArray.getIndex().set(t, z, y, x));
-								originalVarArray.setDouble(originalVarArray.getIndex().set(t, z, y, x), (originalValue != noData ? (originalValue * scale) + offset : noData));
+								if (!hasDepth) {
+									double originalValue = originalVarArray.getDouble(originalVarArray.getIndex().set(t, y, x));
+									destArray.setDouble(destArray.getIndex().set(t, y, x), (originalValue != noData ? (originalValue * scale) + offset : noData));
+								} else {
+									double originalValue = originalVarArray.getDouble(originalVarArray.getIndex().set(t, z, y, x));
+									destArray.setDouble(destArray.getIndex().set(t, z, y, x), (originalValue != noData ? (originalValue * scale) + offset : noData));
+								}
 							}
 				
-				ncFileOut.write(foundVariableBriefNames.get(varName), originalVarArray);
+				ncFileOut.write(foundVariableBriefNames.get(varName), destArray);
 			}
 
 			// ... setting up the appropriate event for the next action
