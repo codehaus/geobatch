@@ -53,7 +53,25 @@
 			<description>description2</description>
 			<name>test2</name>
 		</RegistryActionConfiguration>
-		
+
+		<GeoServerActionConfiguration>
+			<workingDirectory>JGSFLoDeSSworkingdir/NCOM</workingDirectory>
+			<crs>EPSG:4326</crs>
+			<envelope/>
+			<dataTransferMethod>EXTERNAL</dataTransferMethod>
+			<geoserverPWD>geoserver</geoserverPWD>
+			<geoserverUID>admin</geoserverUID>
+			<geoserverURL>http://localhost:8080/geoserver</geoserverURL>
+			<wmsPath>/</wmsPath>
+			<defaultNamespace>nurc</defaultNamespace>
+			<defaultStyle>raster</defaultStyle>
+			<styles/>
+			<serviceID>ImageMosaicGeneratorService</serviceID>
+			<id>ImageMosaicService</id>
+			<description>ImageMosaicService</description>
+			<name>ImageMosaicService</name>
+		</GeoServerActionConfiguration>
+				
 		<id>id</id>
 		<description>description</description>
 		<name>test</name>
