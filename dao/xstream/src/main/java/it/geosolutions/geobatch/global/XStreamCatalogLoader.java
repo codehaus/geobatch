@@ -56,12 +56,17 @@ import org.springframework.web.context.WebApplicationContext;
  */
 public class XStreamCatalogLoader extends CatalogHolder implements ApplicationContextAware {
 
+
+    public void setDataDir(File dataDir) {
+		this.dataDir = dataDir;
+	}
+
+	private static final Logger LOGGER = Logger.getLogger(XStreamCatalogLoader.class.toString());
+
     // enforcing singleton
     private XStreamCatalogLoader(Catalog catalog) {
         CatalogHolder.setCatalog(catalog);
     }
-
-    private static final Logger LOGGER = Logger.getLogger(XStreamCatalogLoader.class.toString());
 
     ApplicationContext context;
 
@@ -177,6 +182,13 @@ public class XStreamCatalogLoader extends CatalogHolder implements ApplicationCo
                 continue;
 
             try {
+            	
+
+                // loaded
+                if (LOGGER.isLoggable(Level.INFO))
+                    LOGGER.info(new StringBuilder("Loading flow from file ").append(
+                            o.getAbsolutePath()).toString());
+                
                 // try to load the flow and add it to the catalog
                 final FileBasedFlowManager flow = new FileBasedFlowManager();
                 flow.setId(FilenameUtils.getBaseName(o.getName()));
@@ -184,14 +196,15 @@ public class XStreamCatalogLoader extends CatalogHolder implements ApplicationCo
                 flow.setCatalog(catalog);
                 flow.load();
 
-                // loaded
-                if (LOGGER.isLoggable(Level.INFO))
-                    LOGGER.info(new StringBuilder("Loading flow from file ").append(
-                            o.getAbsolutePath()).toString());
 
                 // add to the catalog
                 catalog.add(flow);
 
+
+                // loaded
+                if (LOGGER.isLoggable(Level.INFO))
+                    LOGGER.info(new StringBuilder("Loaded flow from file ").append(
+                            o.getAbsolutePath()).toString());
             } catch (Throwable t) {
                 if (LOGGER.isLoggable(Level.WARNING))
                     LOGGER.log(Level.WARNING, "Skipping flow", t);

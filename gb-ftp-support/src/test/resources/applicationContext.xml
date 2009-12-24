@@ -4,7 +4,6 @@
 <beans default-init-method="init" default-destroy-method="dispose">
 
     
-    
     <!-- File based event generator service based on the filesystem monitor -->
     <bean id="fsEventGeneratorService" class="it.geosolutions.geobatch.flow.event.generator.file.FileBasedEventGeneratorService" >
     	<property  name="id">
@@ -33,19 +32,5 @@
     </bean>  
     
     
-    <!-- JIBX flow manager DAO-->
-<!--
-    <bean id="JIBXFlowConfigurationDAOService" class="it.geosolutions.geobatch.catalog.dao.file.jibx.JIBXDAOService" >
-    	<property  name="id">
-    		<value>JIBXFlowConfigurationDAOService</value>
-    	</property>
-    	<property name="description">
-    		<value>JIBX based FlowConfigurationDAOService</value>
-    	</property>
-    	<property name="name">
-    		<value>JIBXFlowConfigurationDAOService</value>
-    	</property>    	
-    </bean>
--->
 
 </beans>

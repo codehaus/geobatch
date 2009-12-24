@@ -29,12 +29,23 @@
  */
 package it.geosolutions.geobatch.jgsflodess.utils.io.rest;
 
+import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
+import it.geosolutions.geobatch.global.CatalogHolder;
+import it.geosolutions.geobatch.utils.IOUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * @author Fabiani
  *
  */
 public final class PublishingRestletGlobalConfig {
 
+    private static final Logger LOGGER = Logger.getLogger(PublishingRestletGlobalConfig.class.toString());
+    
 	private String rootDirectory;
 
 	public PublishingRestletGlobalConfig() {
@@ -51,6 +62,20 @@ public final class PublishingRestletGlobalConfig {
 	public void setRootDirectory(String rootDirectory) {
 		this.rootDirectory = rootDirectory;
 	}
-
+	
+	
+	public void init() throws Exception {
+		File workingDir=null;
+		try {
+			workingDir = IOUtils.findLocation(rootDirectory, new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
+		} catch (IOException e) {
+			if (LOGGER.isLoggable(Level.SEVERE))
+				LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
+			throw new IllegalArgumentException("Unable to work with the provided working directory:"+ (workingDir != null ? workingDir : ""));
+		}
+		if (workingDir == null || !workingDir.exists() || !workingDir.canRead()|| !workingDir.isDirectory()) 
+			throw new IllegalArgumentException("Unable to work with the provided working directory:"+ (workingDir != null ? workingDir : ""));
+		rootDirectory=workingDir.getAbsolutePath();
+	}
 	
 }

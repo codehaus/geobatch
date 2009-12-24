@@ -41,13 +41,14 @@ public class StorageCleaner extends TimerTask {
             //
             // getting base directory
             //
-            final File workingDir = IOUtils.findLocation(config.getRootDirectory(),new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
-            if (workingDir == null || !workingDir.exists()||!workingDir.canRead()||!workingDir.isDirectory())
-            {
- 	            if(LOGGER.isLoggable(Level.SEVERE))
- 	            	LOGGER.severe("Unable to work with the provided working directory:"+(workingDir!=null?workingDir:""));            	
-            	return;
-            }
+        	final File workingDir= new File(config.getRootDirectory());
+//            final File workingDir = IOUtils.findLocation(config.getRootDirectory(),new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
+//            if (workingDir == null || !workingDir.exists()||!workingDir.canRead()||!workingDir.isDirectory())
+//            {
+// 	            if(LOGGER.isLoggable(Level.SEVERE))
+// 	            	LOGGER.severe("Unable to work with the provided working directory:"+(workingDir!=null?workingDir:""));            	
+//            	return;
+//            }
 
             // ok, now scan for existing files there and clean up those 
             // that are too old

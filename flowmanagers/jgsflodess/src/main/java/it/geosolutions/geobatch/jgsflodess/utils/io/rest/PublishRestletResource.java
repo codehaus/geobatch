@@ -1,11 +1,8 @@
 package it.geosolutions.geobatch.jgsflodess.utils.io.rest;
 
-import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
-import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.utils.IOUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -119,28 +116,28 @@ public class PublishRestletResource extends Resource {
  	        } 	        
  	        
  	        // search for the base directory
-            File workingDir=null;
-			try {
-				workingDir = IOUtils.findLocation(config.getRootDirectory(),
-				        new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
-			} catch (IOException e) {
-				response.setEntity(new StringRepresentation("Internal error "));
- 	            response.setStatus(Status.SERVER_ERROR_INTERNAL);
- 	            if(LOGGER.isLoggable(Level.SEVERE))
- 	            	LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
- 	            return;
-			}
-            if (workingDir == null || !workingDir.exists()||!workingDir.canRead()||!workingDir.isDirectory())
-           {
-				response.setEntity(new StringRepresentation("Internal error "));
- 	            response.setStatus(Status.SERVER_ERROR_INTERNAL);
- 	            if(LOGGER.isLoggable(Level.SEVERE))
- 	            	LOGGER.severe("Unable to work with the provided working directory:"+(workingDir!=null?workingDir:""));            	
-            	return;
-           }
-            
+//            File workingDir=null;
+//			try {
+//				workingDir = IOUtils.findLocation(config.getRootDirectory(),
+//				        new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
+//			} catch (IOException e) {
+//				response.setEntity(new StringRepresentation("Internal error "));
+// 	            response.setStatus(Status.SERVER_ERROR_INTERNAL);
+// 	            if(LOGGER.isLoggable(Level.SEVERE))
+// 	            	LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
+// 	            return;
+//			}
+//            if (workingDir == null || !workingDir.exists()||!workingDir.canRead()||!workingDir.isDirectory())
+//           {
+//				response.setEntity(new StringRepresentation("Internal error "));
+// 	            response.setStatus(Status.SERVER_ERROR_INTERNAL);
+// 	            if(LOGGER.isLoggable(Level.SEVERE))
+// 	            	LOGGER.severe("Unable to work with the provided working directory:"+(workingDir!=null?workingDir:""));            	
+//            	return;
+//           }
+//            
             // get the requested file, if it exists
- 	        File inputFile = new File(workingDir, file);
+ 	        File inputFile = new File(config.getRootDirectory(), file);
  	        
  	        if (inputFile.exists() && inputFile.isFile()){
 // 	        	try {
