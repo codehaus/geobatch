@@ -85,10 +85,16 @@
 		<profile>
 			<id>sas</id>
 			<modules>
-         <module>gb-task-executor</module>
-			   <module>gb-sas</module>
+       	<module>gb-task-executor</module>
+		   	<module>gb-sas</module>
 			</modules>
 		</profile>
+		<profile>
+      <id>imagemosaic</id>
+      <modules>
+         <module>imagemosaic</module>
+      </modules>
+    </profile>
 		<profile>
         <id>jgsflodess</id>
         <modules>
@@ -116,6 +122,7 @@
 			   <module>gb-gliders</module>
 			   <module>gb-task-executor</module>
 			   <module>gb-sas</module>
+			   <module>imagemosaic</module>
 			   <module>jgsflodess</module>
 			   <module>shapefile</module>
          <module>ascii-grids</module>

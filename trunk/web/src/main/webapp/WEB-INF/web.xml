@@ -40,7 +40,7 @@
 	<!--  context-param>
 		<param-name>GEOBATCH_DATA_DIR</param-name>
 		<param-value>G:/work/IngestionEngine/trunk/web/src/main/webapp/WEB-INF/data</param-value>
-	</context-param-->
+	</context-param -->
 	<servlet-mapping>
 		<servlet-name>geobatch</servlet-name>
 		<url-pattern>*.do</url-pattern>

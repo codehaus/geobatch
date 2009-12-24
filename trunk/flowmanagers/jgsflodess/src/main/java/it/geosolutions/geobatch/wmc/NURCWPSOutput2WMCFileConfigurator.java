@@ -310,8 +310,7 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 					// //
 					// defining the SampleModel data type
 					// //
-					final SampleModel outSampleModel = Utilities.getSampleModel(var.getDataType(), 
-							nLon, nLat,1); 
+					final SampleModel outSampleModel = Utilities.getSampleModel(var.getDataType(), nLon, nLat,1);
 
 					Array originalVarArray = var.read();
 					final boolean hasLocalZLevel = NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.DEPTH_DIM)

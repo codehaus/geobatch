@@ -47,6 +47,10 @@ public class Alias {
                         it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration.class);
         xstream.alias("RegistryActionConfiguration",
                 it.geosolutions.geobatch.configuration.event.action.geoserver.RegistryActionConfiguration.class);
+        
+        xstream.alias("ImageMosaicActionConfiguration",
+                it.geosolutions.geobatch.configuration.event.action.geoserver.plugin.ImageMosaicActionConfiguration.class);
+
         xstream.alias("MetocActionConfiguration",
                 		it.geosolutions.geobatch.configuration.event.action.metoc.MetocActionConfiguration.class);
 
