@@ -34,10 +34,18 @@ import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 /**
  * Comments here ...
  * 
- * @author Daniele Romagnoli, GeoSolutions
+ * @author Daniele Romagnoli, GeoSolutions S.a.S.
  */
 public class TaskExecutorConfiguration extends ActionConfiguration implements
         Configuration {
+
+	public String getXsl() {
+		return xsl;
+	}
+
+	public void setXsl(String xsl) {
+		this.xsl = xsl;
+	}
 
 	public String getExecutable() {
 		return executable;
@@ -63,14 +71,6 @@ public class TaskExecutorConfiguration extends ActionConfiguration implements
 		this.timeOut = timeOut;
 	}
 
-	public boolean isSpawn() {
-		return spawn;
-	}
-
-	public void setSpawn(boolean spawn) {
-		this.spawn = spawn;
-	}
-
 	public List<String> getVariables() {
 		return variables;
 	}
@@ -79,25 +79,17 @@ public class TaskExecutorConfiguration extends ActionConfiguration implements
 		this.variables = variables;
 	}
 
-	public String getArgument() {
-		return argument;
-	}
-
-	public void setArgument(String argument) {
-		this.argument = argument;
-	}
-
 	private String executable;
 	
 	private String errorFile;
 	
 	private Long timeOut;
 	
-	private boolean spawn;
+//	private boolean spawn;
 	
     private List<String> variables;
     
-    private String argument;
+    private String xsl;
 	
     public TaskExecutorConfiguration() {
         super();
@@ -127,14 +119,6 @@ public class TaskExecutorConfiguration extends ActionConfiguration implements
 			cns.initCause(e);
 			throw cns;
 		}
-//        final TaskExecutorConfiguration configuration = new TaskExecutorConfiguration(getId(), getName(), getDescription(), isDirty());
-//        configuration.setServiceID(getServiceID());
-//        configuration.setArgument(getArgument());
-//        configuration.setErrorFile(getErrorFile());
-//        configuration.setExecutable(getExecutable());
-//        configuration.setSpawn(isSpawn());
-//        configuration.setTimeOut(getTimeOut());
-//        return configuration;
     }
 
 }

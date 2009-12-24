@@ -46,9 +46,9 @@ public class TaskExecutorTest {
 		 variables.add("GDAL_DATA C:\\Python26\\DLLs\\gdalwin32-1.6\\data");
 		 variables.add("PATH C:\\Python26");
 		 configuration.setVariables(variables);
-		 configuration.setArgument("c:\\shapegen.py c:\\MUSCLE_CAT2_091002_1_12_s_6506_6658_40_150_det029_r127_dt032.mat D:\\work\\data\\muscleshapes\\ c:\\prj");
-		 
 		 TaskExecutor executor = new TaskExecutor(configuration);
+		 
+		 
 		 executor.execute(null);
 	 }
 	 
