@@ -1,19 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans default-init-method="init" default-destroy-method="dispose">
-<!-- Ftp based event generator service based on the ftpserver
-    <bean id="ftpEventGeneratorService" class="it.geosolutions.geobatch.flow.event.generator.ftp.FtpBasedEventGeneratorService" >
-        <property  name="id">
-                <value>ftpEventGeneratorService</value>
-        </property>
-        <property name="description">
-                <value>Ftp based event generator service</value>
-        </property>
-        <property name="name">
-                <value>ftpEventGeneratorService</value>
-        </property>
-    </bean>
-     -->
+
 <!-- File based flow manager service-->
     <bean id="ftpUploadActionService" class="it.geosolutions.geobatch.flow.event.action.ftp.FTPUploadActionService">
         <property name="available">

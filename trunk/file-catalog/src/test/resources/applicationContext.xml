@@ -32,20 +32,5 @@
     	</property>    	
     </bean>  
     
-    
-    <!-- JIBX flow manager DAO-->
-<!--
-    <bean id="JIBXFlowConfigurationDAOService" class="it.geosolutions.geobatch.catalog.dao.file.jibx.JIBXDAOService" >
-    	<property  name="id">
-    		<value>JIBXFlowConfigurationDAOService</value>
-    	</property>
-    	<property name="description">
-    		<value>JIBX based FlowConfigurationDAOService</value>
-    	</property>
-    	<property name="name">
-    		<value>JIBXFlowConfigurationDAOService</value>
-    	</property>    	
-    </bean>
--->
 
 </beans>
