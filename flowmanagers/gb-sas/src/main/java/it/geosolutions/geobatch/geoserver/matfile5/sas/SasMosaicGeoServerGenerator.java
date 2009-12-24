@@ -78,12 +78,6 @@ public class SasMosaicGeoServerGenerator
             throws Exception {
         try {
 
-            // looking for file
-//            if (events.size() != 1)
-//                throw new IllegalArgumentException("Wrong number of elements for this action: "
-//                        + events.size());
-//            FileSystemMonitorEvent event = events.remove();
-            
             if (configuration == null) {
                 LOGGER.log(Level.SEVERE, "DataFlowConfig is null.");
                 throw new IllegalStateException("DataFlowConfig is null.");

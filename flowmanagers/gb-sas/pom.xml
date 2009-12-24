@@ -76,6 +76,11 @@
 	    	<artifactId>gb-task-executor</artifactId>
 	    </dependency>
 	    <dependency>
+	    	<groupId>it.geosolutions</groupId>
+	    	<artifactId>gb-flowmanagers-geotiff</artifactId>
+	    </dependency>
+	    
+	    <dependency>
 	    	<groupId>org.geotools</groupId>
 	    	<artifactId>gt-coveragetools</artifactId>
 	    	<version>2.6-SNAPSHOT</version>

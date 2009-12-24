@@ -24,6 +24,7 @@ package it.geosolutions.geobatch.compose;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.base.Utils;
+import it.geosolutions.geobatch.base.Utils.FolderContentType;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 import it.geosolutions.geobatch.convert.FormatConverter;
 import it.geosolutions.geobatch.convert.FormatConverterConfiguration;
@@ -34,13 +35,10 @@ import it.geosolutions.geobatch.mosaic.Mosaicer;
 import it.geosolutions.geobatch.mosaic.MosaicerConfiguration;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Queue;
@@ -49,7 +47,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
-import javax.imageio.stream.FileImageInputStream;
 import javax.media.jai.JAI;
 import javax.media.jai.TileCache;
 import javax.media.jai.TileScheduler;
@@ -62,10 +59,6 @@ import javax.media.jai.TileScheduler;
 public class Composer extends BaseAction<FileSystemMonitorEvent> implements
         Action<FileSystemMonitorEvent> {
 
-    //TODO: TEMP SOLUTION. LEVERAGES ON REAL XML PARSING
-    private String MISSION_LEGS_LOCATION = "<missionLegsLocation>";
-    private String MISSION_LEGS_LOCATION_END = "</missionLegsLocation>";
-    
     private ComposerConfiguration configuration;
 
     private final static Logger LOGGER = Logger.getLogger(Composer.class.toString());
@@ -103,7 +96,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
             // Get the directory containing the data from the specified
             // XML file
             // //
-            final List<String> missionDirs = getDataDirectories(inputFile);
+            final List<String> missionDirs = Utils.getDataDirectories(inputFile, FolderContentType.LEGS);
             
             if (missionDirs==null || missionDirs.isEmpty()){
             	LOGGER.warning("Unable to find LegData location from the specified file: "+inputFile.getAbsolutePath());
@@ -194,7 +187,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 	                                      
 	                                      // Initialize time
 	                                      if (initTime == null){
-	                                          initTime = setInitTime(leafPath);
+	                                          initTime = Utils.setInitTime(leafPath,7);
 	                                      }
 	                                      
 	                                      //Build the output directory path
@@ -258,51 +251,6 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 
     }
     
-    /**
-     * Set the time of this Mission
-     * 
-     * @param leafPath
-     */
-    private String setInitTime(String leafPath) {
-        //TODO: improve ME
-        //actually, get this time from the file name
-        //next step is acquiring it from the matlab file, when also producing XML files
-        String initTime = null;
-        final File fileDir = new File(leafPath);
-        boolean found = false;
-        if (fileDir != null && fileDir.isDirectory()) {
-            final File files[] = fileDir.listFiles();
-            List<File> filesArray = Arrays.asList(files);
-            Collections.sort(filesArray);
-            final File file = filesArray.get(0);
-           
-            if (file!=null){
-                final String fileName = file.getName();
-                String date = fileName;
-                int index=0;
-                
-                //Files are named like this:
-                //muscle_col2_090316_1_2_p_5790_5962_40_150.tif
-                
-                for (int i=0;i<7&&index!=-1;i++){
-                    index = date.lastIndexOf("_");
-                    date = date.substring(0,index);
-                }
-                if (index!=-1){
-                    final int indexOf = date.lastIndexOf("_");
-                    if (indexOf!=-1){
-                        initTime = date.substring(indexOf+1,index);
-                        found = true;
-                    }
-                }
-            }
-        }
-        if(!found)
-            initTime = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        //Current time in case it's unable to find it from the file
-        return initTime;
-    }
-
 
     /**
      * Compose a mosaic using the set of specified parameters.
@@ -414,63 +362,6 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
     public ActionConfiguration getConfiguration() {
         return configuration;
     }
-    
-    /**
-     * Find Data directories from the specified input file.
-     * @param xmlFile
-     * @return
-     */
-    private List<String> getDataDirectories(final File xmlFile){
-    	//TODO: Improve me, leveraging on real XML
-    	final List<String> directories = new ArrayList<String>();
-        String dataDir = null;
-        if (xmlFile!=null){
-            try {
-                final FileImageInputStream fis = new FileImageInputStream(xmlFile);
-                String location=null;
-                while ((location = fis.readLine()) != null){
-                    if (location.startsWith(MISSION_LEGS_LOCATION)){
-                    	if (location.endsWith(MISSION_LEGS_LOCATION_END)){
-                    		dataDir=location.substring(location.indexOf(MISSION_LEGS_LOCATION)+MISSION_LEGS_LOCATION.length(), location.length()-(MISSION_LEGS_LOCATION_END.length())).trim();
-                    	}
-                    	else{
-                    		String next = fis.readLine();
-                    		if (next!=null){
-                            	if (next.endsWith(MISSION_LEGS_LOCATION_END)){
-                            		dataDir=next.substring(0, next.length()-(MISSION_LEGS_LOCATION_END.length())).trim();
-                            	}
-                            	else{
-                            		String nextLine = fis.readLine();
-                            		if (nextLine!=null){
-                            			dataDir=next.trim();
-                            		}
-                            		else{
-	                           			 LOGGER.warning("Unable to find LEG missions");
-	                           			 return directories;
-                            		}
-                            	}
-                    		}
-                    		else{
-                    			 LOGGER.warning("Unable to find LEG missions");
-                    			 return directories;
-                    		}
-                    		
-                    	}
-                    	
-                        directories.add(dataDir);
-                    }
-                }
-                
-            } catch (FileNotFoundException e) {
-                LOGGER.warning("Unable to find the specified file: " + xmlFile);
-            } catch (IOException e) {
-                LOGGER.warning(new StringBuilder("Problems occurred while reading: ")
-                .append(xmlFile).append("due to ").append(e.getLocalizedMessage()).toString());
-            }
-        }
-        return directories;
-    }
-
     
     /**
      * Set JAI Hints from the current configuration

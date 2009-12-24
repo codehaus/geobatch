@@ -23,19 +23,25 @@
 package it.geosolutions.geobatch.convert;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
+import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.geobatch.base.Utils;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
 import it.geosolutions.geobatch.geoserver.matfile5.sas.SasMosaicGeoServerGenerator;
+import it.geosolutions.geobatch.geotiff.overview.GeoTiffOverviewsEmbedder;
+import it.geosolutions.geobatch.geotiff.overview.GeoTiffOverviewsEmbedderConfiguration;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.media.jai.Interpolation;
 
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.coverage.grid.GridCoverage2D;
@@ -111,7 +117,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
             // //
             final File outputDir = new File(outputDirectory);
             if (!outputDir.exists()) {
-                makeDirectories(outputDirectory);
+                Utils.makeDirectories(outputDirectory);
             }
             
             // //
@@ -129,6 +135,8 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
                     if (LOGGER.isLoggable(Level.INFO))
                         LOGGER.info(new StringBuilder("Found ")
                                 .append(numFiles).append(" files").toString());
+                    
+                    final GeoTiffOverviewsEmbedderConfiguration gtovConfiguration = initGeotiffOverviewsEmbedderConfiguration();
                     
                     // //
                     // Check files for conversion
@@ -171,7 +179,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 	                        // 2) Adding Overviews
 	                        //
 	                        // //
-	                        addOverviews(outputFileName);
+	                        Utils.addOverviews(outputFileName, gtovConfiguration);
 	                        
 	                        // //
 	                        //
@@ -214,34 +222,20 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 
     }
 
-    /**
-     * Add overviews to the specified file
-     * 
-     * @param fileOutputName
-     */
-    private void addOverviews(final String fileOutputName) {
-    	Utils.addOverviews(fileOutputName,
-				configuration.getDownsampleStep(),configuration.getNumSteps(),
-				configuration.getScaleAlgorithm(),configuration.getCompressionScheme(),
-				configuration.getCompressionRatio(),configuration.getTileW(),
-				configuration.getTileH());
+    private GeoTiffOverviewsEmbedderConfiguration initGeotiffOverviewsEmbedderConfiguration() {
+    	final GeoTiffOverviewsEmbedderConfiguration gtovConfiguration = new GeoTiffOverviewsEmbedderConfiguration();
+    	gtovConfiguration.setDownsampleStep(configuration.getDownsampleStep());
+    	gtovConfiguration.setNumSteps(configuration.getNumSteps());
+    	gtovConfiguration.setScaleAlgorithm(configuration.getScaleAlgorithm());
+    	gtovConfiguration.setCompressionScheme(configuration.getCompressionScheme());
+    	gtovConfiguration.setCompressionRatio(configuration.getCompressionRatio());
+    	gtovConfiguration.setInterp(Interpolation.INTERP_NEAREST);
+    	gtovConfiguration.setTileW(configuration.getTileW());
+    	gtovConfiguration.setTileH(configuration.getTileH());
+    	gtovConfiguration.setLogNotification(false);
+    	return gtovConfiguration;
+		
 	}
-
-	/**
-     * Build the proper directories hierarchy.
-     * 
-     * @param outputDirectory
-     *                the path of the output dir to be built
-     */
-    private synchronized void makeDirectories(final String outputDirectory) {
-        final File makeDir = new File(outputDirectory);
-        
-        // Recursive check. back to the parents until a folder already exists.
-        if (!makeDir.exists() || !makeDir.isDirectory()) {
-            makeDirectories(makeDir.getParent());
-            makeDir.mkdir();
-        }
-    }
 
     /**
      * Convert the specified file and write it to the specified output file name.
