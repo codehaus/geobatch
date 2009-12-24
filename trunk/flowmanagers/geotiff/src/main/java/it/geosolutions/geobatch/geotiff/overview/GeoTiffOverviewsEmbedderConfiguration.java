@@ -34,7 +34,7 @@ import org.geotools.utils.CoverageToolsConstants;
 public class GeoTiffOverviewsEmbedderConfiguration extends ActionConfiguration implements
         Configuration {
 
-	protected GeoTiffOverviewsEmbedderConfiguration(String id, String name,
+	public GeoTiffOverviewsEmbedderConfiguration(String id, String name,
 			String description, boolean dirty) {
 		super(id, name, description, dirty);
 		// TODO Auto-generated constructor stub
@@ -71,8 +71,10 @@ public class GeoTiffOverviewsEmbedderConfiguration extends ActionConfiguration i
     private int tileW = -1;
 
     private String wildcardString = "*.*";
+    
+    private boolean logNotification = true;
 
-    /**
+	/**
      * 
      * Interpolation method used througout all the program.
      * 
@@ -173,6 +175,14 @@ public class GeoTiffOverviewsEmbedderConfiguration extends ActionConfiguration i
     public void setInterp(int interp) {
         this.interp = interp;
     }
+    
+    public boolean isLogNotification() {
+		return logNotification;
+	}
+
+	public void setLogNotification(boolean logNotification) {
+		this.logNotification = logNotification;
+	}
 
     /**
      * @return the serviceID
@@ -215,6 +225,7 @@ public class GeoTiffOverviewsEmbedderConfiguration extends ActionConfiguration i
 		configuration.setWildcardString(wildcardString);
 		configuration.setWorkingDirectory(workingDirectory);
 		configuration.setServiceID(serviceID);
+		configuration.setLogNotification(logNotification);
 		
 		return configuration;
 	}
