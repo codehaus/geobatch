@@ -46,8 +46,8 @@
     </bean>	      
     
     <!-- Environment Initialization -->
-	<bean id="composerService" class="it.geosolutions.geobatch.compose.ComposerService">
-		<property  name="id">
+	<bean id="ComposerService" class="it.geosolutions.geobatch.compose.ComposerService">
+		<property name="id">
     		<value>ComposerService</value>
     	</property>
     	<property name="description">

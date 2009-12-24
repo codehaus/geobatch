@@ -27,6 +27,7 @@ import it.geosolutions.geobatch.base.Utils;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
+import it.geosolutions.geobatch.geotiff.overview.GeoTiffOverviewsEmbedderConfiguration;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -51,6 +52,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageWriteParam;
+import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.RenderedOp;
@@ -91,41 +93,24 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
      * @author Simone Giannecchini, GeoSolutions SAS
      *
      */
-    private  class OverviewsEmbedderTask implements Callable<String> {
+    private class OverviewsEmbedderTask implements Callable<String> {
 
     	private String fileName;
-    	private int downsampleStep;
-    	private int numSteps;
-    	private String scaleAlgorithm;
-    	private String compressionScheme;
-    	private double compressionRatio;
-    	private int tileW;
-    	private int tileH;
+    	private GeoTiffOverviewsEmbedderConfiguration gtovConfiguration;
     	
-    	public OverviewsEmbedderTask(final String fileName, final int downsampleStep, final int numSteps, 
-    			final String scaleAlgorithm, final String compressionScheme, double compressionRatio, 
-    			final int tileW, final int tileH) {
-    		this.fileName = fileName;
-    		this.downsampleStep = downsampleStep;
-    		this.numSteps = numSteps;
-    		this.scaleAlgorithm = scaleAlgorithm;
-    		this.compressionScheme = compressionScheme;
-    		this.compressionRatio = compressionRatio;
-    		this.tileW = tileW;
-    		this.tileH = tileH;
-    		
-    	}
-    	public String call() throws Exception {
+    	public OverviewsEmbedderTask(final String fileOverviews,
+				final GeoTiffOverviewsEmbedderConfiguration gtovConfiguration) {
+	    		this.fileName = fileOverviews;
+	    		try {
+					this.gtovConfiguration = gtovConfiguration.clone();
+				} catch (CloneNotSupportedException e) {
+					throw new RuntimeException("Unable to clone the provided configuration" , e);
+				}
+	    		
+		}
+		public String call() throws Exception {
     		try{
-	    		Utils.addOverviews(
-	    				fileName,
-	    				downsampleStep,
-	    				numSteps,
-	    				scaleAlgorithm,
-	    				compressionScheme,
-	    				compressionRatio,
-	    				tileW,
-	    				tileH);
+    			Utils.addOverviews(fileName, gtovConfiguration);
 	    		return fileName;
     		}finally{
 
@@ -249,8 +234,6 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
 		}
 	}	
 
-	
-	
 	private  CountDownLatch concurrentLatch;
 	
     protected MosaicerConfiguration configuration;
@@ -381,7 +364,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
                     if (LOGGER.isLoggable(Level.INFO))
                     	LOGGER.info("Retiling the balanced mosaic");
                     
-                    retileMosaic(balancedGc, chunkW, chunkH, tileW, tileH,compressionRatio, compressionType, outputDirectory);
+                    retileMosaic(balancedGc, chunkW, chunkH, tileW, tileH, compressionRatio, compressionType, outputDirectory);
                 }
             }
 
@@ -638,6 +621,8 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
 		
         int nOverviewsDone = 1;
         concurrentLatch= new CountDownLatch(numTiles);
+        final GeoTiffOverviewsEmbedderConfiguration gtovConfiguration = initGeotiffOverviewsEmbedderConfiguration();        
+        
         for (String fileOverviews: filesToAddOverviews){
             // TODO: Leverage on GeoTiffOverviewsEmbedder when involving
             // no more FileSystemEvent only
@@ -645,14 +630,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
             if (LOGGER.isLoggable(Level.INFO))
             	LOGGER.info( new StringBuilder("Adding overviews: File ").append(nOverviewsDone).append(" of ").append(numTiles).toString());
             nOverviewsDone++;
-            final Future<String> task = executor.submit(new OverviewsEmbedderTask(fileOverviews,
-    				configuration.getDownsampleStep(),
-    				configuration.getNumSteps(),
-    				configuration.getScaleAlgorithm(),
-    				configuration.getCompressionScheme(),
-    				configuration.getCompressionRatio(),
-    				configuration.getTileW(),
-    				configuration.getTileH()));
+            final Future<String> task = executor.submit(new OverviewsEmbedderTask(fileOverviews, gtovConfiguration));
             overviewsTasks.add(task);
         }
         
@@ -696,5 +674,20 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
     public ActionConfiguration getConfiguration() {
         return configuration;
     }
+    
+    private GeoTiffOverviewsEmbedderConfiguration initGeotiffOverviewsEmbedderConfiguration() {
+    	final GeoTiffOverviewsEmbedderConfiguration gtovConfiguration = new GeoTiffOverviewsEmbedderConfiguration();
+    	gtovConfiguration.setDownsampleStep(configuration.getDownsampleStep());
+    	gtovConfiguration.setNumSteps(configuration.getNumSteps());
+    	gtovConfiguration.setScaleAlgorithm(configuration.getScaleAlgorithm());
+    	gtovConfiguration.setCompressionScheme(configuration.getCompressionScheme());
+    	gtovConfiguration.setCompressionRatio(configuration.getCompressionRatio());
+    	gtovConfiguration.setInterp(Interpolation.INTERP_NEAREST);
+    	gtovConfiguration.setTileW(configuration.getTileW());
+    	gtovConfiguration.setTileH(configuration.getTileH());
+    	gtovConfiguration.setLogNotification(false);
+    	return gtovConfiguration;
+		
+	}
     
 }

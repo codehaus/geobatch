@@ -71,7 +71,37 @@ public class ComposerConfiguration extends BaseImageProcessingConfiguration impl
     private String rawScaleAlgorithm;
     
     private String mosaicScaleAlgorithm;
+    
+    private float logarithmMultiplier = 20;
+    
+    private float logarithmBase = 10;
+    
+    private boolean logNotification = false;
 
+    public void setLogNotification(boolean logNotification) {
+		this.logNotification = logNotification;
+	}
+
+	public boolean isLogNotification() {
+		return logNotification;
+	}
+
+	public void setLogarithmMultiplier(float logarithmMultiplier) {
+		this.logarithmMultiplier = logarithmMultiplier;
+	}
+
+	public float getLogarithmMultiplier() {
+		return logarithmMultiplier;
+	}
+
+	public void setLogarithmBase(float logarithmBase) {
+		this.logarithmBase = logarithmBase;
+	}
+
+	public float getLogarithmBase() {
+		return logarithmBase;
+	}
+    
     public String getRawScaleAlgorithm() {
         return rawScaleAlgorithm;
     }
@@ -211,7 +241,7 @@ public class ComposerConfiguration extends BaseImageProcessingConfiguration impl
     public void setLeavesFolders(String leavesFolders) {
         this.leavesFolders = leavesFolders;
     }
-
+    
     @Override
     public BaseImageProcessingConfiguration clone() throws CloneNotSupportedException {
         final ComposerConfiguration configuration = new ComposerConfiguration(
@@ -239,6 +269,9 @@ public class ComposerConfiguration extends BaseImageProcessingConfiguration impl
         configuration.setGeoserverUID(geoserverUID);
         configuration.setGeoserverUploadMethod(geoserverUploadMethod);
         configuration.setGeoserverURL(geoserverURL);
+        configuration.setLogarithmBase(logarithmBase);
+        configuration.setLogarithmMultiplier(logarithmMultiplier);
+        configuration.setLogNotification(logNotification);
         configuration.setCorePoolSize(getCorePoolSize());
         configuration.setMaxPoolSize(getMaxPoolSize());
         configuration.setMaxWaitingTime(getMaxWaitingTime());

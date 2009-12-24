@@ -51,8 +51,26 @@ public class MosaicerConfiguration extends BaseImageProcessingConfiguration impl
     private int chunkSize;
 
     private int tileSizeLimit;
-
     
+   private float logarithmMultiplier = 20;
+    
+    private float logarithmBase = 10;
+
+    public void setLogarithmMultiplier(float logarithmMultiplier) {
+		this.logarithmMultiplier = logarithmMultiplier;
+	}
+
+	public float getLogarithmMultiplier() {
+		return logarithmMultiplier;
+	}
+
+	public void setLogarithmBase(float logarithmBase) {
+		this.logarithmBase = logarithmBase;
+	}
+
+	public float getLogarithmBase() {
+		return logarithmBase;
+	}
 
     public MosaicerConfiguration() {
         super();
@@ -122,6 +140,8 @@ public class MosaicerConfiguration extends BaseImageProcessingConfiguration impl
         configuration.setMaxWaitingTime(getMaxWaitingTime());
         configuration.setCorePoolSize(getCorePoolSize());
         configuration.setMaxPoolSize(getMaxPoolSize());
+        configuration.setLogarithmBase(logarithmBase);
+        configuration.setLogarithmMultiplier(logarithmMultiplier);
         return configuration;
     }
 
