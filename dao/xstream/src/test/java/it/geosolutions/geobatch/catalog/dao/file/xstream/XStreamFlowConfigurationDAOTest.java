@@ -26,12 +26,11 @@ package it.geosolutions.geobatch.catalog.dao.file.xstream;
 
 import it.geosolutions.filesystemmonitor.OsType;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
-import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration;
 import it.geosolutions.geobatch.configuration.event.generator.file.FileBasedEventGeneratorConfiguration;
 import it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration;
 import it.geosolutions.geobatch.flow.event.consumer.file.FileEventRule;
-import it.geosolutions.geobatch.geotiff.overview.GeoTiffOverviewsEmbedderConfiguration;
+import it.geosolutions.geobatch.registry.AliasRegistry;
 import it.geosolutions.geobatch.xstream.Alias;
 
 import java.io.File;
@@ -45,9 +44,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.Resource;
-
-import com.thoughtworks.xstream.XStream;
-import it.geosolutions.geobatch.registry.AliasRegistry;
 
 /**
  * 
@@ -144,24 +140,24 @@ public class XStreamFlowConfigurationDAOTest extends TestCase {
         List<FileEventRule> ferlist = new ArrayList<FileEventRule>();
         ferlist.add(fer);
         fbecc.setRules(ferlist);
-        GeoTiffOverviewsEmbedderConfiguration gtoc = new GeoTiffOverviewsEmbedderConfiguration();
-        gtoc.setId("gtoc_id");
-        gtoc.setName("gtoc_name");
-        gtoc.setWildcardString("*.tiff?");
-        GeoServerActionConfiguration gsac = new GeoServerActionConfiguration();
-        gsac.setId("gsac_id");
-        gsac.setName("gsac_name");
-        List<ActionConfiguration> acfglist = new ArrayList<ActionConfiguration>();
-        acfglist.add(gtoc);
-        acfglist.add(gsac);
-        fbecc.setActions(acfglist);
-        flowCfg.setEventConsumerConfiguration(fbecc);
-
-        XStream xstream = new XStream();
-        createAlias().setAliases(xstream);
-
-        String xml = xstream.toXML(flowCfg);
-        System.out.println(xml);
+//        GeoTiffOverviewsEmbedderConfiguration gtoc = new GeoTiffOverviewsEmbedderConfiguration();
+//        gtoc.setId("gtoc_id");
+//        gtoc.setName("gtoc_name");
+//        gtoc.setWildcardString("*.tiff?");
+//        GeoServerActionConfiguration gsac = new GeoServerActionConfiguration();
+//        gsac.setId("gsac_id");
+//        gsac.setName("gsac_name");
+//        List<ActionConfiguration> acfglist = new ArrayList<ActionConfiguration>();
+//        acfglist.add(gtoc);
+//        acfglist.add(gsac);
+//        fbecc.setActions(acfglist);
+//        flowCfg.setEventConsumerConfiguration(fbecc);
+//
+//        XStream xstream = new XStream();
+//        createAlias().setAliases(xstream);
+//
+//        String xml = xstream.toXML(flowCfg);
+//        System.out.println(xml);
     }
 
 }

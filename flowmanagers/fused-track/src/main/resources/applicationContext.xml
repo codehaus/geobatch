@@ -11,5 +11,8 @@
 	<import resource="applicationContext-database.xml" />
 	<import resource="applicationContext-DAO.xml" />
 	<import resource="applicationContext-Service.xml" />
-
+	
+   <bean id="fusedTrackAliasRegistrar" class="it.geosolutions.geobatch.track.FusedTrackAliasRegistrar" lazy-init="false">
+        <constructor-arg ref="aliasRegistry" />
+    </bean>
 </beans>
