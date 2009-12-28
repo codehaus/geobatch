@@ -104,7 +104,7 @@ public class XStreamFlowConfigurationDAOTest extends TestCase {
         for (ActionConfiguration actionConfiguration : lac) {
             System.out.println(actionConfiguration);
         }
-        assertEquals(2, lac.size());
+        assertEquals(1, lac.size());
 
         List<FileEventRule> lfer = fbecc.getRules();
         assertNotNull(lfer);
