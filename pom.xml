@@ -726,6 +726,12 @@
 				<version>${gb.version}</version>
       </dependency>		
 
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-registry</artifactId>
+            <version>${gb.version}</version>
+        </dependency>
+
       <!-- Tests or legacy -->
         <dependency>
             <groupId>junit</groupId>
@@ -1021,17 +1027,18 @@
         </pluginRepository -->
     </pluginRepositories>
 
-	  <!-- =========================================================== -->
-	  <!--     Modules for the build in approximate dependency order   -->
-	  <!-- =========================================================== -->
-   	<modules>
-			<module>gb-fsm</module>
-      <module>core</module>
-      <module>file-catalog</module>
-      <module>dao</module>
-      <module>flowmanagers</module>
-      <module>web</module>
-      <module>gb-ftp-server</module>
-  	</modules>
+  <!-- =========================================================== -->
+  <!--     Modules for the build in approximate dependency order   -->
+  <!-- =========================================================== -->
+    <modules>
+	<module>gb-fsm</module>
+        <module>core</module>
+        <module>file-catalog</module>
+        <module>dao</module>
+        <module>flowmanagers</module>
+        <module>web</module>
+        <module>gb-ftp-server</module>
+        <module>registry</module>
+    </modules>
 
 </project>

@@ -4,7 +4,7 @@
 <beans>
 
 	<!-- Environment Initialization -->
-	<bean id="glidersfileGeneratorService" class="it.geosolutions.geobatch.gliders.GlidersFileGeneratorService">
+	<bean id="glidersfileGeneratorService" class="it.geosolutions.geobatch.gliders.GlidersFileGeneratorService" depends-on="gliderRegistrar">
 		<property  name="id">
     		<value>glidersfileGeneratorService</value>
     	</property>
@@ -16,4 +16,7 @@
     	</property>	
 	</bean>
 
+    <bean id="gliderRegistrar" class="it.geosolutions.geobatch.gliders.GlidersAliasRegistrar" lazy-init="false">
+        <constructor-arg ref="aliasRegistry" />
+    </bean>
 </beans>

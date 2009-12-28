@@ -47,6 +47,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.Resource;
 
 import com.thoughtworks.xstream.XStream;
+import it.geosolutions.geobatch.registry.AliasRegistry;
 
 /**
  * 
@@ -64,6 +65,16 @@ public class XStreamFlowConfigurationDAOTest extends TestCase {
         this.context = new ClassPathXmlApplicationContext();
     }
 
+
+    private Alias createAlias() {
+        AliasRegistry aliasRegistry = new AliasRegistry();
+//        new AliasRegistrar(aliasRegistry);
+        Alias alias = new Alias();
+        alias.setAliasRegistry(aliasRegistry);
+        return alias;
+    }
+
+
     @Test
     public void testDAO() throws IOException {
         // printSample();
@@ -75,7 +86,7 @@ public class XStreamFlowConfigurationDAOTest extends TestCase {
         File file = new File(dir, "flow1.xml");
         assertTrue(file.exists());
 
-        XStreamFlowConfigurationDAO dao = new XStreamFlowConfigurationDAO(dir.getAbsolutePath());
+        XStreamFlowConfigurationDAO dao = new XStreamFlowConfigurationDAO(dir.getAbsolutePath(), createAlias());
         FileBasedFlowConfiguration fbfc = dao.find("flow1", false);
 
         assertNotNull(fbfc);
@@ -147,7 +158,7 @@ public class XStreamFlowConfigurationDAOTest extends TestCase {
         flowCfg.setEventConsumerConfiguration(fbecc);
 
         XStream xstream = new XStream();
-        Alias.setAliases(xstream);
+        createAlias().setAliases(xstream);
 
         String xml = xstream.toXML(flowCfg);
         System.out.println(xml);

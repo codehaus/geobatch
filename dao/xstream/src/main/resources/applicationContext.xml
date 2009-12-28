@@ -14,19 +14,26 @@
 
      </bean>  
 
+     <bean id="alias" class="it.geosolutions.geobatch.xstream.Alias">
+         <property name="aliasRegistry" ref="aliasRegistry" />
+     </bean>
 
 	<!-- Environment Initialization -->
 	<bean id="globalConfig" class="it.geosolutions.geobatch.global.XStreamCatalogLoader" depends-on="catalog" >
-        <constructor-arg ref="catalog"/>
+            <constructor-arg ref="catalog"/>
+            <constructor-arg ref="alias"/>
+	
 	    <property  name="dataDir">
     		<value>${GEOBATCH_DATA_DIR}</value>
-    	</property>	
+    	    </property>	
    	    	
 	</bean>
 
     
     <!-- XStream flow manager DAO-->
     <bean id="XStreamFlowConfigurationDAOService" class="it.geosolutions.geobatch.catalog.dao.file.xstream.XStreamDAOService" >
+         <constructor-arg ref="alias"/>
+
     	<property  name="id">
     		<value>XStreamFlowConfigurationDAOService</value>
     	</property>

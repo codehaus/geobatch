@@ -37,6 +37,11 @@
             <artifactId>gb-fs-catalog</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-registry</artifactId>
+        </dependency>
+
        <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-flowmanagers-geotiff</artifactId>

@@ -35,16 +35,21 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
-public abstract class XStreamDAO<T extends Configuration> extends BaseFileBaseDAO<T> implements DAO<T, String> {
+public abstract class XStreamDAO<T extends Configuration> 
+        extends BaseFileBaseDAO<T>
+        implements DAO<T, String> {
 
-    public XStreamDAO(String directory) {
+    protected final Alias alias;
+
+    public XStreamDAO(String directory, Alias alias) {
         super(directory);
+        this.alias = alias;
     }
 
     public T persist(T entity) {
         try {
             XStream xstream = new XStream();
-            Alias.setAliases(xstream);
+            alias.setAliases(xstream);
 
             xstream.toXML(entity, new BufferedOutputStream(new FileOutputStream(new File(
                     getBaseDirectory(), entity.getId() + ".xml"))));

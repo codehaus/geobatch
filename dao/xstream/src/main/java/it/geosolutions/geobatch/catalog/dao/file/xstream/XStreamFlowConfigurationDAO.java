@@ -37,13 +37,14 @@ import java.util.logging.Logger;
 
 import com.thoughtworks.xstream.XStream;
 
-public class XStreamFlowConfigurationDAO extends XStreamDAO<FlowConfiguration> implements
-        FlowManagerConfigurationDAO {
+public class XStreamFlowConfigurationDAO
+        extends XStreamDAO<FlowConfiguration>
+        implements FlowManagerConfigurationDAO {
 
-	private final static Logger LOGGER=Logger.getLogger(XStreamFlowConfigurationDAO.class.toString());
+	private final static Logger LOGGER = Logger.getLogger(XStreamFlowConfigurationDAO.class.toString());
 	
-    public XStreamFlowConfigurationDAO(String directory) {
-        super(directory);
+    public XStreamFlowConfigurationDAO(String directory, Alias alias) {
+        super(directory, alias);
     }
 
     public FileBasedFlowConfiguration find(FlowConfiguration exampleInstance, boolean lock) {
@@ -55,7 +56,7 @@ public class XStreamFlowConfigurationDAO extends XStreamDAO<FlowConfiguration> i
             final File entityfile = new File(getBaseDirectory(), id + ".xml");
             if (entityfile.canRead() && !entityfile.isDirectory()) {
                 XStream xstream = new XStream();
-                Alias.setAliases(xstream);
+                alias.setAliases(xstream);
 
                 FileBasedFlowConfiguration obj = (FileBasedFlowConfiguration) xstream
                         .fromXML(new BufferedInputStream(new FileInputStream(entityfile)));

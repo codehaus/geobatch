@@ -31,6 +31,7 @@ import it.geosolutions.geobatch.catalog.dao.file.xstream.XStreamFlowConfiguratio
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.configuration.flow.file.FileBasedCatalogConfiguration;
 import it.geosolutions.geobatch.flow.file.FileBasedFlowManager;
+import it.geosolutions.geobatch.xstream.Alias;
 
 import java.io.File;
 import java.util.Iterator;
@@ -57,6 +58,8 @@ import org.springframework.web.context.WebApplicationContext;
 public class XStreamCatalogLoader extends CatalogHolder implements ApplicationContextAware {
 
 
+    private final Alias alias;
+
     public void setDataDir(File dataDir) {
 		this.dataDir = dataDir;
 	}
@@ -64,8 +67,9 @@ public class XStreamCatalogLoader extends CatalogHolder implements ApplicationCo
 	private static final Logger LOGGER = Logger.getLogger(XStreamCatalogLoader.class.toString());
 
     // enforcing singleton
-    private XStreamCatalogLoader(Catalog catalog) {
+    private XStreamCatalogLoader(Catalog catalog, Alias alias) {
         CatalogHolder.setCatalog(catalog);
+        this.alias = alias;
     }
 
     ApplicationContext context;
@@ -151,7 +155,7 @@ public class XStreamCatalogLoader extends CatalogHolder implements ApplicationCo
         final FileBasedCatalogConfiguration configuration = new FileBasedCatalogConfiguration();
         configuration.setId(catalog.getId());
         catalog.setConfiguration(configuration);
-        catalog.setDAO(new XStreamCatalogDAO(dataDir.getAbsolutePath()));
+        catalog.setDAO(new XStreamCatalogDAO(dataDir.getAbsolutePath(), alias));
         catalog.load();
 
         // //
@@ -192,7 +196,7 @@ public class XStreamCatalogLoader extends CatalogHolder implements ApplicationCo
                 // try to load the flow and add it to the catalog
                 final FileBasedFlowManager flow = new FileBasedFlowManager();
                 flow.setId(FilenameUtils.getBaseName(o.getName()));
-                flow.setDAO(new XStreamFlowConfigurationDAO(dataDir.getAbsolutePath()));
+                flow.setDAO(new XStreamFlowConfigurationDAO(dataDir.getAbsolutePath(), alias));
                 flow.setCatalog(catalog);
                 flow.load();
 
