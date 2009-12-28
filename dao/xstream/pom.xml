@@ -42,22 +42,6 @@
             <artifactId>gb-registry</artifactId>
         </dependency>
 
-       <dependency>
-            <groupId>it.geosolutions</groupId>
-            <artifactId>gb-flowmanagers-geotiff</artifactId>
-        </dependency> 
-        <dependency>
-            <groupId>it.geosolutions</groupId>
-            <artifactId>gb-flowmanagers-sas</artifactId>
-        </dependency>
-        <!--dependency>
-            <groupId>it.geosolutions</groupId>
-            <artifactId>gb-flowmanagers-gliders</artifactId>
-        </dependency-->
-        <!--dependency>
-            <groupId>it.geosolutions</groupId>
-            <artifactId>gb-flowmanagers-fused-track</artifactId>
-        </dependency-->
         
 
         <dependency>

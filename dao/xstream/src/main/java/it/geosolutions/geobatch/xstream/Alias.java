@@ -44,15 +44,11 @@ public class Alias {
     }
     
     public void setAliasRegistry(AliasRegistry registry) {
-        System.out.println(">>> SETTING ALIAS REGISTRY <<<<<< " + this);
         aliasRegistry = registry;
     }
 
 
     public void setAliases(XStream xstream) {
-
-
-     	System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>"+aliasRegistry.size());
 
         xstream.alias("CatalogConfiguration",
 						it.geosolutions.geobatch.configuration.flow.file.FileBasedCatalogConfiguration.class);
@@ -61,20 +57,10 @@ public class Alias {
 						it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class);
         xstream.alias("FileEventRule",
 						it.geosolutions.geobatch.flow.event.consumer.file.FileEventRule.class);
-        xstream.alias("GeoTiffOverviewConfiguration",
-                        it.geosolutions.geobatch.geotiff.overview.GeoTiffOverviewsEmbedderConfiguration.class);
-        xstream.alias("GeoTiffRetilerConfiguration",
-						it.geosolutions.geobatch.geotiff.retile.GeoTiffRetilerConfiguration.class);
-        xstream.alias("GeoServerActionConfiguration",
-                        it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration.class);
-        xstream.alias("RegistryActionConfiguration",
-                it.geosolutions.geobatch.configuration.event.action.geoserver.RegistryActionConfiguration.class);
-        
-        xstream.alias("ImageMosaicActionConfiguration",
-                it.geosolutions.geobatch.configuration.event.action.geoserver.plugin.ImageMosaicActionConfiguration.class);
 
-        xstream.alias("MetocActionConfiguration",
-                		it.geosolutions.geobatch.configuration.event.action.metoc.MetocActionConfiguration.class);
+        
+//        xstream.alias("GeoServerActionConfiguration",
+//                        it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration.class);
 
         xstream.alias("EventConsumerConfiguration",
                         it.geosolutions.geobatch.configuration.event.consumer.EventConsumerConfiguration.class,
@@ -84,28 +70,12 @@ public class Alias {
 						it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class,
 						"eventConsumerConfiguration");
         
-//OK        xstream.alias("ComposerConfiguration",
-//							it.geosolutions.geobatch.compose.ComposerConfiguration.class);
-//        xstream.alias("MosaicerConfiguration",
-//						it.geosolutions.geobatch.mosaic.MosaicerConfiguration.class);
-//        xstream.alias("FormatConverterConfiguration",
-//						it.geosolutions.geobatch.convert.FormatConverterConfiguration.class);
-        
-        xstream.alias("FsEventGeneratorConfiguration",
-//                        it.geosolutions.geobatch.configuration.event.generator.EventGeneratorConfiguration.class,
-                        it.geosolutions.geobatch.configuration.event.generator.file.FileBasedEventGeneratorConfiguration.class);
-//        xstream.aliasField("FsEventGeneratorConfiguration",
-//                it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class,
-//                "eventGeneratorConfiguration");
+     
+        xstream.alias("FsEventGeneratorConfiguration", it.geosolutions.geobatch.configuration.event.generator.file.FileBasedEventGeneratorConfiguration.class);
 
-
-//OK        xstream.alias("GlidersActionConfiguration",
-//		        it.geosolutions.geobatch.gliders.configuration.GlidersActionConfiguration.class);
         
-// OK       xstream.alias("GeoWebCacheActionConfiguration",
-//        		it.geosolutions.geobatch.gwc.GeoWebCacheActionConfiguration.class);
-        //xstream.alias("FusedTrackActionConfiguration",
-        //		it.geosolutions.geobatch.track.configuration.FusedTrackActionConfiguration.class);
+
+        
 
         xstream.addImplicitCollection(
                         it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration.class,
@@ -123,7 +93,7 @@ public class Alias {
             System.out.println("Alias registry is not set for " + this);
         } else {
             System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>> filling xstream with " + aliasRegistry.size() + " (" + this + ")");
-            for (Entry<String, Class> entry : aliasRegistry) {
+            for (Entry<String, Class<?>> entry : aliasRegistry) {
                 System.out.println("aliasing " + entry.getKey());
                 xstream.alias(entry.getKey(), entry.getValue());
             }
