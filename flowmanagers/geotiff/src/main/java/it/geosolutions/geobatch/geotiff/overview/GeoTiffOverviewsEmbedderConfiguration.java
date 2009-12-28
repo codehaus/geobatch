@@ -37,7 +37,6 @@ public class GeoTiffOverviewsEmbedderConfiguration extends ActionConfiguration i
 	public GeoTiffOverviewsEmbedderConfiguration(String id, String name,
 			String description, boolean dirty) {
 		super(id, name, description, dirty);
-		// TODO Auto-generated constructor stub
 	}
 
 	private long JAICapacity;
