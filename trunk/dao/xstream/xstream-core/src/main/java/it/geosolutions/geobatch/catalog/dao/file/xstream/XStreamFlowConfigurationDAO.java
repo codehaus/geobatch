@@ -73,7 +73,6 @@ public class XStreamFlowConfigurationDAO
             	final IOException ioe= new IOException("Unable to load flow config:"+id);
             	ioe.initCause(e);
             	throw ioe;
-				// TODO: handle exception
 			}
         }
         return null;
