@@ -172,10 +172,6 @@
             <artifactId>gb-core</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>it.geosolutions</groupId>
-            <artifactId>gb-registry</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>it.geosolutions</groupId>
