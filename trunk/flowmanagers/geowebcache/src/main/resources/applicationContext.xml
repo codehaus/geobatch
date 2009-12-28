@@ -4,7 +4,7 @@
 <beans>
 
 	<!-- Environment Initialization -->
-	<bean id="geowebcacheGeneratorService" class="it.geosolutions.geobatch.gwc.GWCGeneratorService">
+	<bean id="geowebcacheGeneratorService" class="it.geosolutions.geobatch.gwc.GWCGeneratorService" depends-on="gwcRegistrar">
 		<property  name="id">
     		<value>geowebcacheGeneratorService</value>
     	</property>
@@ -15,5 +15,9 @@
     		<value>geowebcacheGeneratorService</value>
     	</property>	
 	</bean>
+
+    <bean id="gwcRegistrar" class="it.geosolutions.geobatch.gwc.GWCAliasRegistrar" lazy-init="false">
+        <constructor-arg ref="aliasRegistry" />
+    </bean>
 
 </beans>

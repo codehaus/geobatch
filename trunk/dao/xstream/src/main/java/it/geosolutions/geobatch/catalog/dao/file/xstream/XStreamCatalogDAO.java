@@ -44,8 +44,8 @@ public class XStreamCatalogDAO extends XStreamDAO<CatalogConfiguration> implemen
 	
 	public final static Logger LOGGER= Logger.getLogger(XStreamCatalogDAO.class.toString());
 
-    public XStreamCatalogDAO(String directory) {
-        super(directory);
+    public XStreamCatalogDAO(String directory, Alias alias) {
+        super(directory, alias);
     }
 
     public CatalogConfiguration find(CatalogConfiguration exampleInstance, boolean lock) {
@@ -57,7 +57,7 @@ public class XStreamCatalogDAO extends XStreamDAO<CatalogConfiguration> implemen
             final File entityfile = new File(getBaseDirectory(), id + ".xml");
             if (entityfile.canRead() && !entityfile.isDirectory()) {
                 XStream xstream = new XStream();
-                Alias.setAliases(xstream);
+                alias.setAliases(xstream);
                 FileBasedCatalogConfiguration obj = (FileBasedCatalogConfiguration) xstream.fromXML(new FileInputStream(entityfile));
                 if (obj.getWorkingDirectory() == null)
                     obj.setWorkingDirectory(getBaseDirectory());

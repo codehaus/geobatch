@@ -30,27 +30,33 @@ import it.geosolutions.geobatch.catalog.dao.DAOService;
 import it.geosolutions.geobatch.catalog.impl.BaseService;
 import it.geosolutions.geobatch.configuration.CatalogConfiguration;
 import it.geosolutions.geobatch.configuration.flow.FlowConfiguration;
+import it.geosolutions.geobatch.xstream.Alias;
 
-public class XStreamDAOService<T extends Configuration> extends BaseService implements
-        DAOService<T, String> {
+public class XStreamDAOService<T extends Configuration>
+        extends BaseService
+        implements DAOService<T, String> {
 
     private String baseDirectory;
+    private final Alias alias;
 
-    public XStreamDAOService() {
+    public XStreamDAOService(Alias alias) {
         super(true);
+        this.alias = alias;
     }
 
-    public XStreamDAOService(String baseDirectory) {
+    public XStreamDAOService(String baseDirectory, Alias alias) {
         super(true);
         this.baseDirectory = baseDirectory;
+        this.alias = alias;
     }
 
     public DAO createDAO(Class<T> clazz) {
         if (clazz.isAssignableFrom(FlowConfiguration.class))
-            return new XStreamFlowConfigurationDAO(this.baseDirectory);
-        if (clazz.isAssignableFrom(CatalogConfiguration.class))
-            return new XStreamCatalogDAO(this.baseDirectory);
-        return null;
+            return new XStreamFlowConfigurationDAO(this.baseDirectory, alias);
+        else if (clazz.isAssignableFrom(CatalogConfiguration.class))
+            return new XStreamCatalogDAO(this.baseDirectory, alias);
+        else
+            return null;
     }
 
     public String getBaseDirectory() {

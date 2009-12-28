@@ -58,4 +58,8 @@
     	</property>
     </bean>	     
 
+    <bean id="composerRegistrar" class="it.geosolutions.geobatch.compose.ComposerAliasRegistrar" lazy-init="false">
+        <constructor-arg ref="aliasRegistry" />
+    </bean>
+
 </beans>

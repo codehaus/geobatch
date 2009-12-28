@@ -45,4 +45,8 @@
     	</property>
     </bean>	      
 
+    <bean id="flowGeoTIFFRegistrar" class="it.geosolutions.geobatch.geotiff.GeoTIFFAliasRegistrar" lazy-init="false">
+        <constructor-arg ref="aliasRegistry" />
+    </bean>
+
 </beans>
