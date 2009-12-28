@@ -32,7 +32,7 @@ import it.geosolutions.geobatch.xstream.Alias;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.logging.Level;
+import java.io.IOException;
 import java.util.logging.Logger;
 
 import com.thoughtworks.xstream.XStream;
@@ -47,31 +47,34 @@ public class XStreamFlowConfigurationDAO
         super(directory, alias);
     }
 
-    public FileBasedFlowConfiguration find(FlowConfiguration exampleInstance, boolean lock) {
+    public FileBasedFlowConfiguration find(FlowConfiguration exampleInstance, boolean lock) throws IOException {
         return find(exampleInstance.getId(), lock);
     }
 
-    public FileBasedFlowConfiguration find(String id, boolean lock) {
-        try {
-            final File entityfile = new File(getBaseDirectory(), id + ".xml");
-            if (entityfile.canRead() && !entityfile.isDirectory()) {
-                XStream xstream = new XStream();
-                alias.setAliases(xstream);
+    public FileBasedFlowConfiguration find(String id, boolean lock) throws IOException {
+        final File entityfile = new File(getBaseDirectory(), id + ".xml");
+        if (entityfile.canRead() && !entityfile.isDirectory()) {
+            XStream xstream = new XStream();
+            alias.setAliases(xstream);
 
-                FileBasedFlowConfiguration obj = (FileBasedFlowConfiguration) xstream
-                        .fromXML(new BufferedInputStream(new FileInputStream(entityfile)));
+            try{
+            FileBasedFlowConfiguration obj = (FileBasedFlowConfiguration) xstream
+                    .fromXML(new BufferedInputStream(new FileInputStream(entityfile)));
 
-				if(obj.getEventConsumerConfiguration() == null)
-					LOGGER.severe("FileBasedFlowConfiguration " + obj + " does not have a ConsumerCfg");
+			if(obj.getEventConsumerConfiguration() == null)
+				LOGGER.severe("FileBasedFlowConfiguration " + obj + " does not have a ConsumerCfg");
 
-				if(obj.getEventGeneratorConfiguration() == null)
-					LOGGER.severe("FileBasedFlowConfiguration " + obj + " does not have a GeneratorCfg");
-
-                return obj;
+			if(obj.getEventGeneratorConfiguration() == null)
+				LOGGER.severe("FileBasedFlowConfiguration " + obj + " does not have a GeneratorCfg");
+			
+            return obj;
             }
-        } catch (Throwable e) {
-            if(LOGGER.isLoggable(Level.SEVERE))
-           	   LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
+            catch (Throwable e) {
+            	final IOException ioe= new IOException("Unable to load flow config:"+id);
+            	ioe.initCause(e);
+            	throw ioe;
+				// TODO: handle exception
+			}
         }
         return null;
     }

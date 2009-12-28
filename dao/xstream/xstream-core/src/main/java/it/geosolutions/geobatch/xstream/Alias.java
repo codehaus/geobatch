@@ -88,13 +88,9 @@ public class Alias {
                         it.geosolutions.geobatch.configuration.event.action.ActionConfiguration.class);
 
 
-        if (aliasRegistry == null) {
-            Logger.getLogger(Alias.class.getName()).warning("Alias registry is not set for " + this);
-            System.out.println("Alias registry is not set for " + this);
-        } else {
-            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>> filling xstream with " + aliasRegistry.size() + " (" + this + ")");
+        // adding registered alias
+        if (aliasRegistry != null) {
             for (Entry<String, Class<?>> entry : aliasRegistry) {
-                System.out.println("aliasing " + entry.getKey());
                 xstream.alias(entry.getKey(), entry.getValue());
             }
         }

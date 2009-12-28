@@ -21,6 +21,8 @@
  */
 package it.geosolutions.geobatch.catalog;
 
+import java.io.IOException;
+
 import it.geosolutions.geobatch.catalog.dao.DAO;
 
 public interface PersistentResource<C extends Configuration> extends Resource {
@@ -32,11 +34,11 @@ public interface PersistentResource<C extends Configuration> extends Resource {
 
     public void setConfiguration(C coonfiguration);
 
-    public void persist();
+    public void persist()throws IOException;
 
-    public void load();
+    public void load()throws IOException;
 
-    public boolean remove();
+    public boolean remove()throws IOException;
 
     public void setDAO(DAO<C, ?> dao);
 

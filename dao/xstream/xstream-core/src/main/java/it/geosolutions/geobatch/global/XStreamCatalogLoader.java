@@ -31,6 +31,7 @@ import it.geosolutions.geobatch.catalog.dao.file.xstream.XStreamFlowConfiguratio
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.configuration.flow.file.FileBasedCatalogConfiguration;
 import it.geosolutions.geobatch.flow.file.FileBasedFlowManager;
+import it.geosolutions.geobatch.registry.AliasRegistrar;
 import it.geosolutions.geobatch.xstream.Alias;
 
 import java.io.File;
@@ -161,7 +162,7 @@ public class XStreamCatalogLoader extends CatalogHolder implements ApplicationCo
 
         // //
         //
-        // load all services
+        // Force loading all all services
         //
         // //
         final Map<String, ? extends Service> services = context.getBeansOfType(Service.class);
@@ -179,7 +180,18 @@ public class XStreamCatalogLoader extends CatalogHolder implements ApplicationCo
             catalog.add(servicePair.getValue());
         }
 
+        // //
+        //
+        // force loading all alias registere
+        //
+        // //
+        context.getBeansOfType(AliasRegistrar.class);
+        
+        // //
+        //
         // load all flows
+        //
+        // //
         final Iterator<File> it = FileUtils.iterateFiles(dataDir, new String[] { "xml" }, false);
         while (it.hasNext()) {
             final File o = it.next();

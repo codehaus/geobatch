@@ -34,6 +34,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 public abstract class XStreamDAO<T extends Configuration> 
         extends BaseFileBaseDAO<T>
@@ -46,7 +47,7 @@ public abstract class XStreamDAO<T extends Configuration>
         this.alias = alias;
     }
 
-    public T persist(T entity) {
+    public T persist(T entity)throws IOException {
         try {
             XStream xstream = new XStream();
             alias.setAliases(xstream);
@@ -61,11 +62,11 @@ public abstract class XStreamDAO<T extends Configuration>
         return entity;
     }
 
-    public T refresh(T entity) {
+    public T refresh(T entity)throws IOException {
         return find(entity.getId(), false);
     }
 
-    public boolean remove(T entity) {
+    public boolean remove(T entity)throws IOException {
 
         // XXX use file cleaner
         final File entityfile = new File(getBaseDirectory(), entity.getId() + ".xml");
