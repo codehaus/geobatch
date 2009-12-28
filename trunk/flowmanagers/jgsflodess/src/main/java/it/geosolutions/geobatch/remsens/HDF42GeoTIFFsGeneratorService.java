@@ -22,11 +22,9 @@
 package it.geosolutions.geobatch.remsens;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.configuration.event.action.geoserver.RegistryActionConfiguration;
-import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorService;
+import it.geosolutions.geobatch.registry.RegistryActionConfiguration;
+import it.geosolutions.geobatch.registry.RegistryConfiguratorService;
 
-import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -34,7 +32,7 @@ import java.util.logging.Logger;
  * 
  */
 public class HDF42GeoTIFFsGeneratorService extends
-		GeoServerConfiguratorService<FileSystemMonitorEvent, RegistryActionConfiguration> {
+		RegistryConfiguratorService<FileSystemMonitorEvent, RegistryActionConfiguration> {
 	
     private final static Logger LOGGER = Logger.getLogger(HDF42GeoTIFFsGeneratorService.class.toString());
 
@@ -59,5 +57,6 @@ public class HDF42GeoTIFFsGeneratorService extends
         final boolean superRetVal = super.canCreateAction(configuration);
         return superRetVal;
     }
+
 
 }

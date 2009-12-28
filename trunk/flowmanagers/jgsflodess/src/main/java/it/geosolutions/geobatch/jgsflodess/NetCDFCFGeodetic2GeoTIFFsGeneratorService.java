@@ -22,8 +22,8 @@
 package it.geosolutions.geobatch.jgsflodess;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.configuration.event.action.geoserver.RegistryActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorService;
+import it.geosolutions.geobatch.registry.RegistryActionConfiguration;
 
 import java.io.IOException;
 import java.util.logging.Level;

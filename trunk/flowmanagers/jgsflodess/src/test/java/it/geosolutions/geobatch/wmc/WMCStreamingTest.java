@@ -64,23 +64,6 @@ public class WMCStreamingTest {
 
 	private final static Logger LOGGER = Logger.getLogger(WMCStreamingTest.class.toString());
 
-    private ClassPathXmlApplicationContext context;
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception {
-        this.context = new ClassPathXmlApplicationContext("applicationContext.xml");
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception {
-    }
-
     @Test
     public void testWMCStreamingOut() throws IOException, InterruptedException {
     	/**
