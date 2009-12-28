@@ -22,8 +22,6 @@
 package it.geosolutions.geobatch.imagemosaic;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.configuration.event.action.geoserver.plugin.ImageMosaicActionConfiguration;
-import it.geosolutions.geobatch.flow.event.action.geoserver.plugin.ImageMosaicConfiguratorService;
 
 import java.io.IOException;
 import java.util.logging.Level;

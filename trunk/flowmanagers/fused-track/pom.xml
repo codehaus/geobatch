@@ -52,6 +52,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>it.geosolutions</groupId>
+			<artifactId>gb-registry</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>it.geosolutions</groupId>
 			<artifactId>gb-core</artifactId>
 			<version>${version}</version>
 		</dependency>
@@ -63,12 +68,6 @@
 		<dependency>
 			<groupId>it.geosolutions</groupId>
 			<artifactId>gb-fs-catalog</artifactId>
-			<version>${version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>it.geosolutions</groupId>
-			<artifactId>gb-flowmanagers-ascii</artifactId>
 			<version>${version}</version>
 		</dependency>
 		<dependency>
@@ -111,22 +110,6 @@
 			<artifactId>slf4j-jdk14</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-arcgrid</artifactId>
-			<version>${gt.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>it.geosolutions.imageio-ext</groupId>
-			<artifactId>imageio-ext-arcgrid</artifactId>
-			<version>${imageio-ext.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>it.geosolutions.imageio-ext</groupId>
-			<artifactId>imageio-ext-customstreams</artifactId>
-			<version>${imageio-ext.version}</version>
-		</dependency>
 
 		<!--  SPRING DEPENDENCIES -->
 		<dependency>

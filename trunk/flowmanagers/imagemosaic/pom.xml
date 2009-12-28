@@ -47,28 +47,15 @@
 		</license>
 	</licenses>
 
-	<!-- =========================================================== -->
-	<!--     Dependency Management                                   -->
-	<!-- =========================================================== -->
-	<properties>
-		<imageio-ext.version>1.1-SNAPSHOT</imageio-ext.version>
-	</properties>
 
-  <repositories>
-    <repository>
-      <id>ulisse</id>
-      <name>Ulisse libraries repository</name>
-      <url>http://ulisse.pin.unifi.it:8080/archiva/repository/ext.public.rel/</url>
-    </repository>
-  </repositories>
 
 	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		
+
+      <dependency>
+          <groupId>it.geosolutions</groupId>
+          <artifactId>gb-registry</artifactId>
+      </dependency>
+
 		<dependency>
 			<groupId>com.vividsolutions</groupId>
 			<artifactId>jts</artifactId>
@@ -98,12 +85,6 @@
     </dependency>
 
     <dependency>
-    	<groupId>org.geotools</groupId>
-    	<artifactId>gt-coveragetools</artifactId>
-    	<version>${gt.version}</version>
-    </dependency>
-	    
-    <dependency>
     	<groupId>commons-cli</groupId>
     	<artifactId>commons-cli</artifactId>
   	</dependency>
@@ -113,11 +94,6 @@
       <version>1.4</version>
    	</dependency>
 
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>javax.servlet</artifactId>
-			<version>1.0.0</version>
-		</dependency>
 		<dependency>
 			<groupId>commons-dbcp</groupId>
 			<artifactId>commons-dbcp</artifactId>
@@ -132,57 +108,7 @@
   		<artifactId>vecmath</artifactId>
   	</dependency>
 		
-		<dependency>
-			<groupId>hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>1.8.0.7</version>
-		</dependency>
-		
-  	<dependency>
-    		<groupId>org.slf4j</groupId>
-    		<artifactId>slf4j-jdk14</artifactId>
-    		<scope>runtime</scope>
-  	</dependency>
-    	
-    <!-- ============================== -->
-		<!--     Platform                   -->
-		<!-- ============================== -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-beans</artifactId>
-			<!-- The version number is specified in the parent POM. -->
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-core</artifactId>
-			<!-- The version number is specified in the parent POM. -->
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<!-- The version number is specified in the parent POM. -->
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-			<!-- The version number is specified in the parent POM. -->
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-			<!-- The version number is specified in the parent POM. -->
-		</dependency>
-		<dependency>
-			<groupId>taglibs</groupId>
-			<artifactId>standard</artifactId>
-			<!-- The version number is specified in the parent POM. -->
-		</dependency>
 
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
 		
     <dependency>
 		  <groupId>it.geosolutions</groupId>
