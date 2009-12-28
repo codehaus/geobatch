@@ -101,5 +101,9 @@
     		<value>NURCWPSOutput2WMCGeneratorService</value>
     	</property>	
 	</bean>
+	
+	<bean id="JGSFlossDessAliasRegistrar" class="it.geosolutions.geobatch.jgsflodess.JGSFloDessAliasRegistrar" lazy-init="false">
+        <constructor-arg ref="aliasRegistry" />
+    </bean>
 
 </beans>

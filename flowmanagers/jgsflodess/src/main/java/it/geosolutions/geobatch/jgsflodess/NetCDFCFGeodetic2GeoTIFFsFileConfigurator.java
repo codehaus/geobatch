@@ -24,12 +24,12 @@ package it.geosolutions.geobatch.jgsflodess;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
-import it.geosolutions.geobatch.configuration.event.action.geoserver.RegistryActionConfiguration;
-import it.geosolutions.geobatch.flow.event.action.geoserver.RegistryConfiguratorAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
 import it.geosolutions.geobatch.metocs.jaxb.model.MetocElementType;
 import it.geosolutions.geobatch.metocs.jaxb.model.Metocs;
+import it.geosolutions.geobatch.registry.RegistryActionConfiguration;
+import it.geosolutions.geobatch.registry.RegistryConfiguratorAction;
 import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.geobatch.utils.io.Utilities;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFConverterUtilities;
@@ -109,8 +109,7 @@ import ucar.nc2.Variable;
  * }
  * 
  */
-public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends
-		RegistryConfiguratorAction<FileSystemMonitorEvent> {
+public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends RegistryConfiguratorAction<FileSystemMonitorEvent> {
 
 	/**
 	 * GeoTIFF Writer Default Params

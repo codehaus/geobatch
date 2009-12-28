@@ -22,56 +22,16 @@
 package it.geosolutions.geobatch.remsens;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
-import it.geosolutions.geobatch.configuration.event.action.geoserver.RegistryActionConfiguration;
-import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerRESTHelper;
-import it.geosolutions.geobatch.flow.event.action.geoserver.RegistryConfiguratorAction;
-import it.geosolutions.geobatch.global.CatalogHolder;
-import it.geosolutions.geobatch.utils.IOUtils;
+import it.geosolutions.geobatch.registry.RegistryActionConfiguration;
+import it.geosolutions.geobatch.registry.RegistryConfiguratorAction;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Queue;
-import java.util.TimeZone;
-import java.util.UUID;
-import java.util.logging.Level;
 
-import javax.media.jai.JAI;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-
-import org.apache.commons.io.FilenameUtils;
-import org.geotools.coverage.Category;
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.processing.Operations;
 import org.geotools.factory.Hints;
-import org.geotools.referencing.CRS;
-import org.opengis.coverage.Coverage;
-import org.opengis.feature.type.Name;
-import org.opengis.geometry.Envelope;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.temporal.Period;
-import org.opengis.temporal.TemporalGeometricPrimitive;
-
-import ucar.nc2.NetcdfFile;
 
 /**
  * 
