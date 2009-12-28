@@ -55,6 +55,7 @@
    
     <modules>
       <module>geotiff</module>
+      <module>gb-ftp</module>
     </modules>
     
     <profiles>
