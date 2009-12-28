@@ -39,7 +39,7 @@
 
         <dependency>
             <groupId>it.geosolutions</groupId>
-            <artifactId>gb-registry</artifactId>
+            <artifactId>gb-alias-registry</artifactId>
         </dependency>
 
         
