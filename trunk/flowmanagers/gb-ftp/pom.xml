@@ -20,8 +20,8 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
     <groupId>it.geosolutions</groupId>
-    <artifactId>gb-ftp-support</artifactId>
-    <name>GeoSolutions GeoBatch catalog file system persistence</name>
+    <artifactId>gb-ftp</artifactId>
+    <name>GeoSolutions GeoBatch FTP Support actions</name>
     <url>http://www.geo-solutions.it/maven_reports/gb/data/</url>
 
     <scm>
@@ -29,7 +29,7 @@
         <url>http://svn.geotools.org/geotools/trunk/gt/modules/data/</url>
     </scm>
 
-    <description>GeoSolutions GeoBatch support interactions with an FTp server</description>
+    <description>GeoSolutions GeoBatch support interactions with an FTT server</description>
 
     <licenses>
         <license>
@@ -67,59 +67,5 @@
 
     </dependencies>
 
-
-    <profiles>
-        <profile>
-            <id>dao.jibx</id>
-            <!--<activation>...</activation>-->
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jibx</groupId>
-                        <artifactId>maven-jibx-plugin</artifactId>
-                        <version>1.1.6</version>
-                        <configuration>
-                            <verbose>true</verbose>
-                            <directory>src/main/resources/jibx</directory>
-                            <includes>
-                                <includes>binding.xml</includes>
-                            </includes>
-                            <verbose>true</verbose>
-                            <multi-module>true</multi-module>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>bind</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-            <!--
-            <modules>...</modules>
-            <repositories>...</repositories>
-            <pluginRepositories>...</pluginRepositories>
-             -->
-             <dependencies>
-                <dependency>
-                    <groupId>org.jibx</groupId>
-                    <artifactId>jibx-run</artifactId>
-                    <version>1.1.6</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.jibx</groupId>
-                    <artifactId>jibx-extras</artifactId>
-                    <version>1.1.6</version>
-                </dependency>
-                </dependencies>
-<!--
-            <reporting>...</reporting>
-            <dependencyManagement>...</dependencyManagement>
-            <distributionManagement>...</distributionManagement>
--->
-        </profile>
-    </profiles>
 
 </project>
