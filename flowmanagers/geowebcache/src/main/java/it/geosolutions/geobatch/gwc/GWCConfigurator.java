@@ -69,7 +69,6 @@ public class GWCConfigurator extends  GeoWebCacheConfiguratorAction<FileSystemMo
         try {
         	
             if (configuration == null) {
-                LOGGER.log(Level.SEVERE, "ActionConfig is null.");
                 throw new IllegalStateException("ActionConfig is null.");
             }
 
@@ -151,7 +150,7 @@ public class GWCConfigurator extends  GeoWebCacheConfiguratorAction<FileSystemMo
 	 	 	Date date = new Date();	
 	 	 	String layerName = wmsLayerName + "_" + simple_date.format(date);
 	        
-	        StringBuffer bf = buildGWCLayerConfiguration(layerSRS, minX, minY, maxX, maxY, configuration.getGeoserverUrl(), 
+	        StringBuilder bf = buildGWCLayerConfiguration(layerSRS, minX, minY, maxX, maxY, configuration.getGeoserverUrl(), 
 	        		namespace, wmsLayerName, layerName); 
 	        
 	        sendLayerConfiguration(bf, configuration.getGwcUrl(), configuration.getGwcUser(),
@@ -210,10 +209,10 @@ public class GWCConfigurator extends  GeoWebCacheConfiguratorAction<FileSystemMo
     	}
     }
     
-	private StringBuffer buildGWCLayerConfiguration(String srs, String minX, String minY, String maxX, 
+	private StringBuilder buildGWCLayerConfiguration(String srs, String minX, String minY, String maxX, 
 			String maxY, String geoserverUrl, String namespace, String wmsLayerName, String layerName){
 		
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         
         sb.append("<wmsLayer><name>");
 		sb.append(namespace + ":" + layerName);
@@ -268,7 +267,7 @@ public class GWCConfigurator extends  GeoWebCacheConfiguratorAction<FileSystemMo
         return sb;
 	} 
 	
-	private boolean  sendLayerConfiguration(final StringBuffer buffer, final String gwcUrl, 
+	private boolean  sendLayerConfiguration(final StringBuilder buffer, final String gwcUrl, 
 			final String gwcUser, final String gwcPassword, final String namespace, final String layerName) throws Exception{
 
         boolean res = false;

@@ -16,4 +16,7 @@
     	</property>
     </bean>	     
 
+    <bean id="TaskExecutorRegistrar" class="it.geosolutions.geobatch.task.TaskExecutorAliasRegistrar" lazy-init="false">
+        <constructor-arg ref="aliasRegistry" />
+    </bean>
 </beans>
