@@ -24,6 +24,10 @@
 
 package it.geosolutions.geobatch.catalog.impl;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import it.geosolutions.geobatch.catalog.Configuration;
 import it.geosolutions.geobatch.catalog.PersistentResource;
 import it.geosolutions.geobatch.catalog.dao.DAO;
@@ -31,6 +35,8 @@ import it.geosolutions.geobatch.catalog.dao.DAO;
 public abstract class BasePersistentResource<C extends Configuration> extends BaseResource
         implements PersistentResource<C> {
 
+	private final static Logger LOGGER= Logger.getLogger(BasePersistentResource.class.toString());
+	
     private C configuration;
 
     private DAO dao;
@@ -45,19 +51,20 @@ public abstract class BasePersistentResource<C extends Configuration> extends Ba
         return dao;
     }
 
-    public void persist() {
+    public void persist() throws IOException{
         if (configuration.isDirty())
             configuration = (C) dao.persist(configuration);
 
     }
 
-    public void load() {
-        setConfiguration((C) dao.find(this.getId(), false));
+    public void load() throws IOException{
+    	final Configuration config=dao.find(this.getId(), false);
+        setConfiguration((C) config);
         configuration.setDirty(false);
 
     }
 
-    public boolean remove() {
+    public boolean remove() throws IOException{
         removed = dao.remove(configuration);
         return removed;
 

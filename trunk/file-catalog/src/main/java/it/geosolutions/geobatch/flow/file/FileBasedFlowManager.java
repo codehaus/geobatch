@@ -513,17 +513,17 @@ public class FileBasedFlowManager
     }
 
     @Override
-    public synchronized void load() {
+    public synchronized void load() throws IOException{
         super.load();
     }
 
     @Override
-    public synchronized boolean remove() {
+    public synchronized boolean remove() throws IOException{
         return super.remove();
     }
 
     @Override
-    public synchronized void persist() {
+    public synchronized void persist()throws IOException {
         super.persist();
     }
 

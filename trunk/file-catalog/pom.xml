@@ -185,7 +185,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-      <!-- The version number is specified in the parent POM. -->
+     	<!-- The version number is specified in the parent POM. -->
             <scope>test</scope>   <!-- Needed for compilation, not for running -->
         </dependency>
         <dependency>
@@ -206,7 +206,7 @@
 
       <dependency>
           <groupId>it.geosolutions</groupId>
-          <artifactId>gb-registry</artifactId>          
+          <artifactId>gb-alias-registry</artifactId>          
             <version>${version}</version>
       </dependency>
         <dependency>

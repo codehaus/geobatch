@@ -38,6 +38,7 @@ import it.geosolutions.geobatch.configuration.CatalogConfiguration;
 import it.geosolutions.geobatch.configuration.flow.FlowConfiguration;
 import it.geosolutions.geobatch.flow.FlowManager;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -113,7 +114,12 @@ public class BaseCatalog extends BasePersistentResource<CatalogConfiguration> im
      * @see it.geosolutions.geobatch.catalog.Catalog#dispose()
      */
     public void dispose() {
-        persist();
+        try {
+			persist();
+		} catch (Throwable e) {
+			// TODO
+			e.printStackTrace();
+		}
         flowManagers.clear();
         resources.clear();
         listeners.clear();

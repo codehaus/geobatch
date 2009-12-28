@@ -23,17 +23,18 @@ package it.geosolutions.geobatch.catalog.dao;
 
 import it.geosolutions.geobatch.catalog.Configuration;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 public interface DAO<T extends Configuration, ID extends Serializable> {
-    T find(ID id, boolean lock);
+    T find(ID id, boolean lock)throws IOException;
 
-    T find(T exampleInstance, boolean lock);
+    T find(T exampleInstance, boolean lock)throws IOException;
 
-    T persist(T entity);
+    T persist(T entity)throws IOException;
 
-    boolean remove(T entity);
+    boolean remove(T entity)throws IOException;
 
-    T refresh(T entity);
+    T refresh(T entity)throws IOException;
 
 }
