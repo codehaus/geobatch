@@ -64,7 +64,6 @@ public class XStreamFlowConfigurationDAOTest extends TestCase {
 
     private Alias createAlias() {
         AliasRegistry aliasRegistry = new AliasRegistry();
-//        new AliasRegistrar(aliasRegistry);
         Alias alias = new Alias();
         alias.setAliasRegistry(aliasRegistry);
         return alias;
@@ -73,7 +72,6 @@ public class XStreamFlowConfigurationDAOTest extends TestCase {
 
     @Test
     public void testDAO() throws IOException {
-        // printSample();
 
         Resource resource = context.getResource("data");
         File dir = resource.getFile();
@@ -115,46 +113,6 @@ public class XStreamFlowConfigurationDAOTest extends TestCase {
         assertEquals(1, lfer.size());
 
      
-    }
-
-    /**
-     * Print the XML of a sample FlowConfiguration
-     */
-    private void printSample() {
-        FileBasedFlowConfiguration flowCfg = new FileBasedFlowConfiguration();
-        flowCfg.setId("samplefcfg_id");
-        flowCfg.setName("samplefgcg_name");
-        flowCfg.setServiceID("samplefgcg_srv");
-
-        FileBasedEventGeneratorConfiguration fbegc = new FileBasedEventGeneratorConfiguration(
-                "egc_id", "egc_name", "egc_desc", false, OsType.OS_LINUX, null, "/tmp", "*");
-        flowCfg.setEventGeneratorConfiguration(fbegc);
-
-        FileBasedEventConsumerConfiguration fbecc = new FileBasedEventConsumerConfiguration();
-        fbecc.setId("ecc_id");
-        fbecc.setName("ecc_name");
-        FileEventRule fer = new FileEventRule("fer_id", "fer_name", "fer_desc", false);
-        List<FileEventRule> ferlist = new ArrayList<FileEventRule>();
-        ferlist.add(fer);
-        fbecc.setRules(ferlist);
-//        GeoTiffOverviewsEmbedderConfiguration gtoc = new GeoTiffOverviewsEmbedderConfiguration();
-//        gtoc.setId("gtoc_id");
-//        gtoc.setName("gtoc_name");
-//        gtoc.setWildcardString("*.tiff?");
-//        GeoServerActionConfiguration gsac = new GeoServerActionConfiguration();
-//        gsac.setId("gsac_id");
-//        gsac.setName("gsac_name");
-//        List<ActionConfiguration> acfglist = new ArrayList<ActionConfiguration>();
-//        acfglist.add(gtoc);
-//        acfglist.add(gsac);
-//        fbecc.setActions(acfglist);
-//        flowCfg.setEventConsumerConfiguration(fbecc);
-//
-//        XStream xstream = new XStream();
-//        createAlias().setAliases(xstream);
-//
-//        String xml = xstream.toXML(flowCfg);
-//        System.out.println(xml);
     }
 
 }
