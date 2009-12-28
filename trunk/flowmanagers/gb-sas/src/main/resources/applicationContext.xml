@@ -4,21 +4,6 @@
 <beans>
 
 	<!-- Environment Initialization -->
-<!--	<bean id="sasmosaicGeoServerGenerator" class="it.geosolutions.geobatch.geoserver.matfile5.sas.SasMosaicGeoServerGeneratorService">
-		<property  name="id">
-    		<value>sasmosaicGeoServerGenerator</value>
-    	</property>
-    	<property name="description">
-    		<value>sasmosaicGeoServerGenerator</value>
-    	</property>
-    	<property name="name">
-    		<value>sasmosaicGeoServerGenerator</value>
-    	</property>
-    </bean>	
-    -->
-    
-
-	<!-- Environment Initialization -->
 	<bean id="FormatConverterService" class="it.geosolutions.geobatch.convert.FormatConverterService">
 		<property  name="id">
     		<value>FormatConverterService</value>
@@ -58,7 +43,7 @@
     	</property>
     </bean>	     
 
-    <bean id="composerRegistrar" class="it.geosolutions.geobatch.compose.ComposerAliasRegistrar" lazy-init="false">
+    <bean id="sasRegistrar" class="it.geosolutions.geobatch.sas.SASAliasRegistrar" lazy-init="false">
         <constructor-arg ref="aliasRegistry" />
     </bean>
 
