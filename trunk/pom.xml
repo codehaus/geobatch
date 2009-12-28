@@ -1038,6 +1038,7 @@
         <module>flowmanagers</module>
         <module>web</module>
         <module>gb-ftp-server</module>
+        <module>gb-ftp-support</module>
         <module>registry</module>
     </modules>
 
