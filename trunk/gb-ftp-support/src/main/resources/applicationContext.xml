@@ -17,4 +17,8 @@
             <value>fsFlowManagerService</value>
         </property>
     </bean>
+    
+    <bean id="ftpSupportRegistrar" class="it.geosolutions.geobatch.ftp.FTPAliasRegistrar" lazy-init="false">
+        <constructor-arg ref="aliasRegistry" />
+    </bean>    
 </beans>
