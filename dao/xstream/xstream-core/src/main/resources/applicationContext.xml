@@ -5,11 +5,13 @@
 
 
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-
          <property name="locations">  
              <list>  
                  <value>classpath:gb.properties</value>   
              </list>  
+         </property>
+         <property name="ignoreUnresolvablePlaceholders">  
+                 <value>true</value>   
          </property>
 
      </bean>  
@@ -23,9 +25,9 @@
             <constructor-arg ref="catalog"/>
             <constructor-arg ref="alias"/>
 	
-	    <property  name="dataDir">
-    		<value>${GEOBATCH_DATA_DIR}</value>
-    	    </property>	
+	    <!-- property  name="dataDir">
+    		<value>/home/simone/catalog</value>
+    	    </property-->	
    	    	
 	</bean>
 

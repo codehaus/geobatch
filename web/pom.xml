@@ -113,11 +113,6 @@
 		</dependency>
 		<dependency>
 			<groupId>it.geosolutions</groupId>
-			<artifactId>gb-flowmanagers-geotiff</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>it.geosolutions</groupId>
 			<artifactId>gb-ftp-server</artifactId>
 		</dependency>
 		
