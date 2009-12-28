@@ -16,9 +16,13 @@
   <!-- =========================================================== -->
 
     <groupId>it.geosolutions</groupId>
-    <artifactId>gb-dao-xstream</artifactId>
-    <name>GeoSolutions GeoBatch pluggable DAOs - XStream</name>
+    <artifactId>gb-dao-xstream-base</artifactId>
+    <name>GeoSolutions GeoBatch pluggable DAOs - XStream base project</name>
     <url>http://www.geo-solutions.it/maven_reports/gb/data/</url>
+    <packaging>pom</packaging>
+
+
+
 
     <dependencies>
         <dependency>
@@ -27,22 +31,7 @@
             <version>1.3.1</version>
         </dependency>
 
-        <dependency>
-            <groupId>it.geosolutions</groupId>
-            <artifactId>gb-core</artifactId>
-        </dependency>
 
-        <dependency>
-            <groupId>it.geosolutions</groupId>
-            <artifactId>gb-fs-catalog</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>it.geosolutions</groupId>
-            <artifactId>gb-alias-registry</artifactId>
-        </dependency>
-
-        
 
         <dependency>
             <groupId>junit</groupId>
@@ -52,4 +41,16 @@
         </dependency>
 
     </dependencies>
+
+
+
+
+
+	<modules>
+		<module>alias-registry</module>
+		<module>xstream-core</module>
+	</modules>
+	
+	
+	
 </project>

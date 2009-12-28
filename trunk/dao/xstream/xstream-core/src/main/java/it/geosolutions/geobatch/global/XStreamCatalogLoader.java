@@ -58,13 +58,14 @@ import org.springframework.web.context.WebApplicationContext;
 public class XStreamCatalogLoader extends CatalogHolder implements ApplicationContextAware {
 
 
+	private static final Logger LOGGER = Logger.getLogger(XStreamCatalogLoader.class.toString());
+	
     private final Alias alias;
 
     public void setDataDir(File dataDir) {
 		this.dataDir = dataDir;
 	}
 
-	private static final Logger LOGGER = Logger.getLogger(XStreamCatalogLoader.class.toString());
 
     // enforcing singleton
     private XStreamCatalogLoader(Catalog catalog, Alias alias) {

@@ -382,7 +382,8 @@
 		  	<!-- Jetty -->
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty</artifactId>
+            <artifactId>jetty
+</artifactId>
             <version>6.1.8</version>
         </dependency>
         <dependency>
@@ -658,6 +659,11 @@
       <dependency>
           <groupId>it.geosolutions</groupId>
           <artifactId>gb-fs-catalog</artifactId>
+          <version>${gb.version}</version>
+      </dependency>      
+      <dependency>
+          <groupId>it.geosolutions</groupId>
+          <artifactId>gb-alias-registry</artifactId>
           <version>${gb.version}</version>
       </dependency>
       <dependency>
@@ -1038,7 +1044,6 @@
         <module>flowmanagers</module>
         <module>web</module>
         <module>gb-ftp-server</module>
-        <module>registry</module>
     </modules>
 
 </project>
