@@ -114,10 +114,7 @@ public class XStreamFlowConfigurationDAOTest extends TestCase {
 
         assertEquals(1, lfer.size());
 
-        // System.out.println(dir.getAbsoluteFile() + " " +dir.exists());
-
-        {
-        }
+     
     }
 
     /**
