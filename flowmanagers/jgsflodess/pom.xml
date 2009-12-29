@@ -54,13 +54,13 @@
 		<imageio-ext.version>1.1-SNAPSHOT</imageio-ext.version>
 	</properties>
 
-  <repositories>
+  <!-- repositories>
     <repository>
       <id>ulisse</id>
       <name>Ulisse libraries repository</name>
       <url>http://ulisse.pin.unifi.it:8080/archiva/repository/ext.public.rel/</url>
     </repository>
-  </repositories>
+  </repositories-->
 
 	<dependencies>	
 		<dependency>
