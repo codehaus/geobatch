@@ -22,7 +22,7 @@
 
 package it.geosolutions.geobatch.jgsflodess;
 
-import it.geosolutions.geobatch.lscv08.MetocConfigurationAction;
+import it.geosolutions.geobatch.lscv08.MetocActionConfiguration;
 import it.geosolutions.geobatch.registry.AliasRegistrar;
 import it.geosolutions.geobatch.registry.AliasRegistry;
 import it.geosolutions.geobatch.registry.RegistryActionConfiguration;
@@ -35,7 +35,7 @@ public class JGSFloDessAliasRegistrar extends AliasRegistrar {
 
      public JGSFloDessAliasRegistrar(AliasRegistry registry) {
          LOGGER.info(getClass().getSimpleName() + ": registering alias.");
-         registry.putAlias("RegistryActionConfiguration", 	RegistryActionConfiguration.class);
-         registry.putAlias("MetocConfigurationAction",		MetocConfigurationAction.class);                 
+         registry.putAlias("MetocActionConfiguration", MetocActionConfiguration.class);
+         registry.putAlias("RegistryActionConfiguration", RegistryActionConfiguration.class);
      }
  }

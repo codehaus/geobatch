@@ -15,4 +15,8 @@
     	</property>	
 	</bean>
 
+	<bean id="ImageMosaicAliasRegistrar" class="it.geosolutions.geobatch.imagemosaic.ImageMosaicAliasRegistrar" lazy-init="false">
+        <constructor-arg ref="aliasRegistry" />
+    </bean>
+    
 </beans>
