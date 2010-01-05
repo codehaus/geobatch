@@ -22,9 +22,11 @@
 package it.geosolutions.geobatch.remsens;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.registry.RegistryActionConfiguration;
+import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.registry.RegistryConfiguratorService;
 
+import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -32,7 +34,7 @@ import java.util.logging.Logger;
  * 
  */
 public class HDF42GeoTIFFsGeneratorService extends
-		RegistryConfiguratorService<FileSystemMonitorEvent, RegistryActionConfiguration> {
+		RegistryConfiguratorService<FileSystemMonitorEvent, GeoServerActionConfiguration> {
 	
     private final static Logger LOGGER = Logger.getLogger(HDF42GeoTIFFsGeneratorService.class.toString());
 
@@ -42,18 +44,18 @@ public class HDF42GeoTIFFsGeneratorService extends
      *  @param configuration The data base action configuration 
      *  @return new JGSFLoDeSSSWANFileConfigurator()
      */
-    public HDF42GeoTIFFsFileConfigurator createAction(RegistryActionConfiguration configuration) {
-//        try {
-//            return new HDF42GeoTIFFsFileConfigurator(configuration);
-//        } catch (IOException e) {
-//            if (LOGGER.isLoggable(Level.INFO))
-//                LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
+    public HDF42GeoTIFFsFileConfigurator createAction(GeoServerActionConfiguration configuration) {
+        try {
+            return new HDF42GeoTIFFsFileConfigurator(configuration);
+        } catch (IOException e) {
+            if (LOGGER.isLoggable(Level.INFO))
+                LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
             return null;
-//        }
+        }
     }
 
     @Override
-    public boolean canCreateAction(RegistryActionConfiguration configuration) {
+    public boolean canCreateAction(GeoServerActionConfiguration configuration) {
         final boolean superRetVal = super.canCreateAction(configuration);
         return superRetVal;
     }

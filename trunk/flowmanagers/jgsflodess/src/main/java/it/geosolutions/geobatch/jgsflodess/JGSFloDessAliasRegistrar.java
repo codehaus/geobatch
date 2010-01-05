@@ -22,10 +22,12 @@
 
 package it.geosolutions.geobatch.jgsflodess;
 
-import it.geosolutions.geobatch.lscv08.MetocActionConfiguration;
+import it.geosolutions.geobatch.metocs.MetocActionConfiguration;
 import it.geosolutions.geobatch.registry.AliasRegistrar;
 import it.geosolutions.geobatch.registry.AliasRegistry;
 import it.geosolutions.geobatch.registry.RegistryActionConfiguration;
+import it.geosolutions.geobatch.wmc.WMCActionConfiguration;
+
 /**
  * Register XStream aliases for the relevant services we ship in this class.
  * 
@@ -33,9 +35,10 @@ import it.geosolutions.geobatch.registry.RegistryActionConfiguration;
  */
 public class JGSFloDessAliasRegistrar extends AliasRegistrar {
 
-     public JGSFloDessAliasRegistrar(AliasRegistry registry) {
-         LOGGER.info(getClass().getSimpleName() + ": registering alias.");
-         registry.putAlias("MetocActionConfiguration", MetocActionConfiguration.class);
-         registry.putAlias("RegistryActionConfiguration", RegistryActionConfiguration.class);
-     }
- }
+	public JGSFloDessAliasRegistrar(AliasRegistry registry) {
+		LOGGER.info(getClass().getSimpleName() + ": registering alias.");
+		registry.putAlias("MetocActionConfiguration", MetocActionConfiguration.class);
+		registry.putAlias("RegistryActionConfiguration", RegistryActionConfiguration.class);
+		registry.putAlias("WMCActionConfiguration", WMCActionConfiguration.class);
+	}
+}

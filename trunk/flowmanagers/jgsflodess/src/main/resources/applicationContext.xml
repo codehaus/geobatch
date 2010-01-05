@@ -102,6 +102,32 @@
     	</property>	
 	</bean>
 	
+	<!-- Registry Harvesting -->
+	<bean id="RegistryHarvestingGeneratorService" class="it.geosolutions.geobatch.registry.harvest.RegistryHarvestingGeneratorService">
+		<property  name="id">
+    		<value>RegistryHarvestingGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>RegistryHarvestingGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>RegistryHarvestingGeneratorService</value>
+    	</property>	
+	</bean>
+	
+	<!-- Web Map Context Generator Service -->
+	<bean id="WMCGeneratorService" class="it.geosolutions.geobatch.wmc.WMCGeneratorService">
+		<property  name="id">
+    		<value>WMCGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>WMCGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>WMCGeneratorService</value>
+    	</property>	
+	</bean>
+	
 	<bean id="JGSFlossDessAliasRegistrar" class="it.geosolutions.geobatch.jgsflodess.JGSFloDessAliasRegistrar" lazy-init="false">
         <constructor-arg ref="aliasRegistry" />
     </bean>

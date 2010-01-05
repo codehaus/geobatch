@@ -25,7 +25,10 @@ import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.global.CatalogHolder;
+import it.geosolutions.geobatch.jgsflodess.NetCDFCFGeodetic2GeoTIFFsFileConfigurator;
 import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
+import it.geosolutions.geobatch.metocs.MetocActionConfiguration;
+import it.geosolutions.geobatch.metocs.MetocConfigurationAction;
 import it.geosolutions.geobatch.metocs.jaxb.model.MetocElementType;
 import it.geosolutions.geobatch.metocs.jaxb.model.Metocs;
 import it.geosolutions.geobatch.utils.IOUtils;
@@ -258,7 +261,9 @@ public class NRLNCOMFileConfigurator extends
             //Grabbing the Variables Dictionary
 			JAXBContext context = JAXBContext.newInstance(Metocs.class);
 			Unmarshaller um = context.createUnmarshaller();
-			Metocs metocDictionary = (Metocs) um.unmarshal(new FileReader(new File(configuration.getMetocDictionaryPath())));
+
+			File metocDictionaryFile = IOUtils.findLocation(configuration.getMetocDictionaryPath(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory())); 
+			Metocs metocDictionary = (Metocs) um.unmarshal(new FileReader(metocDictionaryFile));
 
 		
             Map<String, Variable> foundVariables        = new HashMap<String, Variable>();

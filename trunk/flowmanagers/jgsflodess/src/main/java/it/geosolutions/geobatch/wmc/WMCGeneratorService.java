@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  * 
  */
 public class WMCGeneratorService extends BaseService implements
-	ActionService<FileSystemMonitorEvent, WMCConfiguration> {
+	ActionService<FileSystemMonitorEvent, WMCActionConfiguration> {
 	
     private final static Logger LOGGER = Logger.getLogger(WMCGeneratorService.class.toString());
 
@@ -48,7 +48,7 @@ public class WMCGeneratorService extends BaseService implements
      *  @param configuration The data base action configuration 
      *  @return new JGSFLoDeSSSWANFileConfigurator()
      */
-    public WMCFileConfigurator createAction(WMCConfiguration configuration) {
+    public WMCFileConfigurator createAction(WMCActionConfiguration configuration) {
         try {
             return new WMCFileConfigurator(configuration);
         } catch (IOException e) {
@@ -58,8 +58,8 @@ public class WMCGeneratorService extends BaseService implements
         }
     }
 
-    public boolean canCreateAction(WMCConfiguration configuration) {
-    	 return true;
+    public boolean canCreateAction(WMCActionConfiguration configuration) {
+    	return true;
     }
 
 }

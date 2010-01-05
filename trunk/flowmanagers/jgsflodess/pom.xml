@@ -110,9 +110,9 @@
 	    </dependency>
 	    
 	    <dependency>
-	      <groupId>org.geotools</groupId>
-	      <artifactId>gt-hdf4</artifactId>
-	      <version>2.6-SNAPSHOT</version>
+	      	<groupId>org.geotools</groupId>
+	      	<artifactId>gt-hdf4</artifactId>
+	      	<version>${gt.version}</version>
 	    </dependency>
 	    
 	    <dependency>
