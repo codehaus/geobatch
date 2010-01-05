@@ -22,10 +22,10 @@
 package it.geosolutions.geobatch.wmc;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
+import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorAction;
-import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerRESTHelper;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
 import it.geosolutions.geobatch.utils.IOUtils;
@@ -41,9 +41,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -109,7 +107,7 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 
 	private static final String DEFAULT_COMPRESSION_TYPE = "LZW";
 
-	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
+	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
 
 	public static final long matLabStartTime;
 	
@@ -292,8 +290,6 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 			final ArrayList<String> variables = new ArrayList<String>();
 			int numVars = 0;
 
-			final List<WMCEntry> layerList = new ArrayList<WMCEntry>(10);
-			
 			for (Variable var : foundVariables) {
 				if (var != null) {
 					String varName = var.getName();
@@ -307,96 +303,71 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 						continue;
 					variables.add(varName);
 					
-					// //
-					// defining the SampleModel data type
-					// //
-					final SampleModel outSampleModel = Utilities.getSampleModel(var.getDataType(), nLon, nLat,1);
-
-					Array originalVarArray = var.read();
-					final boolean hasLocalZLevel = NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.DEPTH_DIM)
-							|| NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.HEIGHT_DIM);
-					final boolean hasLocalTime = NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.TIME_DIM) && hasTime;
+					boolean canProceed = false;
 					
-					for (int z = 0; z < (hasLocalZLevel ? nZeta : 1); z++) {
-						for (int t = 0; t < (hasLocalTime ? nTime : 1); t++) {
-							WritableRaster userRaster = Raster.createWritableRaster(outSampleModel, null);
+					final File gtiffOutputDir = new File(outDir.getAbsolutePath() + File.separator + inputFileName + "_" + varName.replaceAll("_", ""));
+					
+					if (!gtiffOutputDir.exists())
+						canProceed = gtiffOutputDir.mkdirs();
+					
+					canProceed = gtiffOutputDir.isDirectory();
+					
+					if (canProceed) {
+						// //
+						// defining the SampleModel data type
+						// //
+						final SampleModel outSampleModel = Utilities.getSampleModel(var.getDataType(), nLon, nLat,1);
 
-							int[] dimArray;
-							if (hasLocalZLevel && hasLocalTime)
-								dimArray = new int[] {t, z, nLat, nLon} ;
-							else if (hasLocalZLevel)
-								dimArray = new int[] {z, nLat, nLon} ;
-							else if (hasLocalTime)
-								dimArray = new int[] {t, nLat, nLon} ;
-							else
-								dimArray = new int[] {nLat, nLon} ;
-							JGSFLoDeSSIOUtils.write2DData(userRaster, var, originalVarArray, false, false, dimArray, true);
-							final String variableName = varName.replace("_", "").replace(" ", "");
-							
-							// ////
-							// producing the Coverage here...
-							// ////
-							final StringBuilder coverageName = new StringBuilder(inputFileName)
-							              .append("_").append(variableName)
-							              .append("_").append(hasLocalZLevel ? zetaOriginalData.getLong(zetaOriginalData.getIndex().set(z)) : 0)
-							              .append("_");
-							if (!hasTime)
-								coverageName.append(baseTime);
-							else{
-								coverageName.append(baseTime)
-											.append("_");
-								// Days since 01-01-0000 (Matlab time)	
-								coverageName.append(timeDimExists ? sdf.format(matLabStartTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*86400000L) : "00000000_0000000");
-							}
-							coverageName.append("-T").append(System.currentTimeMillis());
+						Array originalVarArray = var.read();
+						final boolean hasLocalZLevel = NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.DEPTH_DIM)
+								|| NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.HEIGHT_DIM);
+						final boolean hasLocalTime = NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.TIME_DIM) && hasTime;
+						
+						for (int z = 0; z < (hasLocalZLevel ? nZeta : 1); z++) {
+							for (int t = 0; t < (hasLocalTime ? nTime : 1); t++) {
+								WritableRaster userRaster = Raster.createWritableRaster(outSampleModel, null);
 
-							final String coverageStoreId = coverageName.toString();
+								int[] dimArray;
+								if (hasLocalZLevel && hasLocalTime)
+									dimArray = new int[] {t, z, nLat, nLon} ;
+								else if (hasLocalZLevel)
+									dimArray = new int[] {z, nLat, nLon} ;
+								else if (hasLocalTime)
+									dimArray = new int[] {t, nLat, nLon} ;
+								else
+									dimArray = new int[] {nLat, nLon} ;
+								JGSFLoDeSSIOUtils.write2DData(userRaster, var, originalVarArray, false, false, dimArray, true);
+								final String variableName = varName.replace("_", "").replace(" ", "");
+								
+								// ////
+								// producing the Coverage here...
+								// ////
+								final StringBuilder coverageName = new StringBuilder(inputFileName)
+								              .append("_").append(variableName)
+								              .append("_").append(hasLocalZLevel ? elevLevelFormat(zetaOriginalData.getLong(zetaOriginalData.getIndex().set(z))) : "0000")
+								              .append("_");
+								if (!hasTime)
+									coverageName.append(baseTime);
+								else{
+									coverageName.append(baseTime)
+												.append("_");
+									// Days since 01-01-0000 (Matlab time)	
+									coverageName.append(timeDimExists ? sdf.format(matLabStartTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*86400000L) : "00000000T0000000Z");
+								}
+								coverageName.append("-T").append(System.currentTimeMillis());
 
-							File gtiffFile = Utilities.storeCoverageAsGeoTIFF(outDir, coverageName.toString(), variableName, userRaster, Double.NaN, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
-
-							// ////////////////////////////////////////////////////////////////////
-							//
-							// SENDING data to GeoServer via REST protocol.
-							//
-							// ////////////////////////////////////////////////////////////////////
-							Map<String, String> queryParams = new HashMap<String, String>();
-							queryParams.put("namespace", getConfiguration().getDefaultNamespace());
-							queryParams.put("wmspath", getConfiguration().getWmsPath());
-							final String returnedLayer[] = GeoServerRESTHelper.send(outDir, 
-								gtiffFile, 
-								getConfiguration().getGeoserverURL(), 
-								getConfiguration().getGeoserverUID(), 
-								getConfiguration().getGeoserverPWD(),
-								coverageStoreId, 
-								coverageName.toString(),
-								queryParams, null,
-								getConfiguration().getDataTransferMethod(),
-								"geotiff",GEOSERVER_VERSION,
-								getConfiguration().getStyles(), 
-								getConfiguration().getDefaultStyle());
-							
-							if (returnedLayer != null) {
-								final WMCEntry entry = new WMCEntry(returnedLayer[1],returnedLayer[2]);
-								layerList.add(entry);
+								File gtiffFile = Utilities.storeCoverageAsGeoTIFF(gtiffOutputDir, coverageName.toString(), variableName, userRaster, Double.NaN, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
 							}
 						}
+						
+						// ... setting up the appropriate event for the next action
+						events.add(new FileSystemMonitorEvent(gtiffOutputDir, FileSystemMonitorNotifications.FILE_ADDED));
 					}
 
 					numVars++;
 				}
 			}
 			
-	        final WMCConfiguration wmcConfig = new WMCConfiguration();
-	        wmcConfig.setBoundingBox("-180.0,-90.0,180.0,90.0");
-	        wmcConfig.setCrs("EPSG:4326"); //TODO Check real CRS ID
-	        wmcConfig.setGeoserverURL(getConfiguration().getGeoserverURL());
-	        wmcConfig.setLayerList(layerList);
-	        
-	        if (LOGGER.isLoggable(Level.INFO))
-	        	LOGGER.log(Level.INFO, "Ingesting MatFiles in the mosaic composer");
-	        
-	        final WMCFileConfigurator wmcCreator = new WMCFileConfigurator(wmcConfig);
-	        Queue<FileSystemMonitorEvent> proceed = wmcCreator.execute(events);
 			return events;
 		} catch (Throwable t) {
 			LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
@@ -414,8 +385,18 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 			}
 		}
 	}
-
 	
-	
-	
+	/**
+	 * 
+	 * @param zLevel
+	 * @return
+	 */
+	private static String elevLevelFormat(long zLevel) {
+		String res = String.valueOf(zLevel);
+		
+		while (res.length() % 4 != 0)
+			res = "0" + res;
+		
+		return res;
+	}
 }

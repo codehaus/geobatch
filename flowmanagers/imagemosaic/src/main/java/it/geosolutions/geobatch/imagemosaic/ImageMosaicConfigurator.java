@@ -22,6 +22,7 @@
 package it.geosolutions.geobatch.imagemosaic;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
+import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerRESTHelper;
 import it.geosolutions.geobatch.global.CatalogHolder;
@@ -32,7 +33,12 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.logging.Level;
@@ -71,8 +77,10 @@ public class ImageMosaicConfigurator extends
 
 		try {
 			// looking for file
-			if (events.size() <= 0)
+			if (events.size() == 0)
 				throw new IllegalArgumentException("Wrong number of elements for this action: " + events.size());
+			
+			Collection<FileSystemMonitorEvent> layers = new ArrayList<FileSystemMonitorEvent>();
 			
 			while (events.size() > 0) {
 				FileSystemMonitorEvent event = events.remove();
@@ -119,8 +127,9 @@ public class ImageMosaicConfigurator extends
 				//
 				
 				if (configuration.getDatastorePropertiesPath() != null) {
-					final File dsFile = new File(configuration.getDatastorePropertiesPath());
+					final File dsFile = IOUtils.findLocation(configuration.getDatastorePropertiesPath(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
 					if (dsFile != null && dsFile.exists() && !dsFile.isDirectory()) {
+						LOGGER.info("DataStore file found: " + dsFile.getAbsolutePath());
 						FileUtils.copyFileToDirectory(dsFile, inputDir);
 					}
 				}
@@ -206,7 +215,7 @@ public class ImageMosaicConfigurator extends
 					}
 				}
 
-				final String[] fileNames = inputDir.list(new FilenameFilter() {
+				String[] fileNames = inputDir.list(new FilenameFilter() {
 
 					public boolean accept(File dir, String name) {
 						if (FilenameUtils.getExtension(name).equalsIgnoreCase("tiff") || 
@@ -218,12 +227,30 @@ public class ImageMosaicConfigurator extends
 					
 				});
 				
+				List<String> fileNameList = Arrays.asList(fileNames);
+				Collections.sort(fileNameList);
+				fileNames = fileNameList.toArray(new String[1]);
+				
 				if (fileNames != null && fileNames.length > 0) {
-					String[] cvNameParts = fileNames[0].split("_");
+					String[] firstCvNameParts = FilenameUtils.getBaseName(fileNames[0]).split("_");
+					String[] lastCvNameParts  = FilenameUtils.getBaseName(fileNames[fileNames.length-1]).split("_");
 					
-					if (cvNameParts != null && cvNameParts.length > 3) {
-						String coverageStoreId = cvNameParts[0] + "_" + cvNameParts[1] + "_" + cvNameParts[2] + "_" + cvNameParts[4]; 
+					if (firstCvNameParts != null && firstCvNameParts.length > 3) {
+						String coverageStoreId =
+							firstCvNameParts.length == 8 && firstCvNameParts.length == lastCvNameParts.length?
+							new StringBuilder()
+							.append(firstCvNameParts[0]).append("_")
+							.append(firstCvNameParts[1]).append("_")
+							.append(firstCvNameParts[2]).append("_")
+							.append(firstCvNameParts[3]).append("_") // Min Z
+							.append(lastCvNameParts[3]).append("_") // Max Z
+							.append(firstCvNameParts[4]).append("_") // Base Time
+							.append(lastCvNameParts[5]).append("_") // Forecast Time
+							.append(firstCvNameParts[6]).append("_") // TAU
+							.append(firstCvNameParts[7]) // NoDATA
+							.toString() : inputDir.getName(); 
 						
+						LOGGER.info("Coverage Store ID: " + coverageStoreId);
 						// ////////////////////////////////////////////////////////////////////
 						//
 						// SENDING data to GeoServer via REST protocol.
@@ -232,7 +259,7 @@ public class ImageMosaicConfigurator extends
 						Map<String, String> queryParams = new HashMap<String, String>();
 						queryParams.put("namespace", getConfiguration().getDefaultNamespace());
 						queryParams.put("wmspath", getConfiguration().getWmsPath());
-						final String[] layer = GeoServerRESTHelper.send(
+						final String[] layerResponse = GeoServerRESTHelper.send(
 								inputDir, 
 								inputDir, 
 								getConfiguration().getGeoserverURL(), 
@@ -246,12 +273,46 @@ public class ImageMosaicConfigurator extends
 								"imagemosaic",
 								GEOSERVER_VERSION, 
 								getConfiguration().getStyles(), 
-								getConfiguration().getDefaultStyle());
+								getConfiguration().getDefaultStyle()
+						);
+						
+						if (layerResponse != null && layerResponse.length > 2) {
+							String layer = layerResponse[0];
+							LOGGER.info("ImageMosaicConfigurator layer: " + layer);
+							
+							final File layerDescriptor = new File(inputDir, layer + ".layer");
+							
+							if(layerDescriptor.createNewFile()) {
+								try {
+									outFile = new FileWriter(layerDescriptor);
+									out = new PrintWriter(outFile);
+									
+									// Write text to file
+									out.println("namespace=" + layerResponse[1]);
+									out.println("storeid=" + layerResponse[2]);
+									out.println("layerid=" + inputDir.getName());
+									out.println("driver=ImageMosaic");
+								} catch (IOException e){
+									LOGGER.log(Level.SEVERE, "Error occurred while writing indexer.properties file!", e);
+								} finally {
+									if (out != null) {
+										out.flush();
+										out.close();
+									}
+									
+									outFile = null;
+									out = null;
+								}
+								
+								layers.add(new FileSystemMonitorEvent(layerDescriptor, FileSystemMonitorNotifications.FILE_ADDED));
+							}
+						}
 					}
 				}
 			}
             
 			// ... setting up the appropriate event for the next action
+			events.addAll(layers);
 			return events;
 		} catch (Throwable t) {
 			LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
