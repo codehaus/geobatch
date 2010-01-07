@@ -39,10 +39,26 @@ import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * @author Alessio Fabiani
@@ -54,6 +70,11 @@ public class GeoServerRESTHelper {
      */
     private static final Logger LOGGER = Logger.getLogger(GeoServerRESTHelper.class.toString());
 
+    public static boolean putBinaryFileTo(URL geoserverREST_URL, InputStream inputStream,
+            String geoserverUser, String geoserverPassword, final String[] returnedLayerName) {
+    	return putBinaryFileTo(geoserverREST_URL, inputStream, geoserverUser, geoserverPassword, null);
+    }
+    
     /**
      * 
      * @param geoserverREST_URL
@@ -63,7 +84,8 @@ public class GeoServerRESTHelper {
      * @return
      */
     public static boolean putBinaryFileTo(URL geoserverREST_URL, InputStream inputStream,
-            String geoserverUser, String geoserverPassword, final String[] returnedLayerName) {
+            String geoserverUser, String geoserverPassword, final String[] returnedLayerName, 
+            final String contentType) {
         boolean res = false;
 
         try {
@@ -71,6 +93,8 @@ public class GeoServerRESTHelper {
             con.setDoOutput(true);
             con.setDoInput(true);
             con.setRequestMethod("PUT");
+            if (contentType != null && contentType.trim().length()>0)
+            	con.setRequestProperty("Content-Type", contentType);
             
             final String login = geoserverUser;
             final String password = geoserverPassword;
@@ -219,7 +243,7 @@ public class GeoServerRESTHelper {
      * @return
      */
     public static boolean putContent(URL geoserverREST_URL, String content, String geoserverUser,
-            String geoserverPassword, final String[] returnedLayerName) {
+            String geoserverPassword, final String[] returnedLayerName, final String contentType) {
         boolean res = false;
 
         try {
@@ -227,7 +251,8 @@ public class GeoServerRESTHelper {
             con.setDoOutput(true);
             con.setDoInput(true);
             con.setRequestMethod("PUT");
-//            con.setRequestProperty("Content-Type", "text/xml") ;
+            if (contentType != null && contentType.trim().length()>0)
+            	con.setRequestProperty("Content-Type", contentType);
 
             final String login = geoserverUser;
             final String password = geoserverPassword;
@@ -281,7 +306,7 @@ public class GeoServerRESTHelper {
     
     public static boolean putContent(URL geoserverREST_URL, String content, String geoserverUser,
             String geoserverPassword) {
-    	return putContent(geoserverREST_URL, content, geoserverUser, geoserverPassword, null);
+    	return putContent(geoserverREST_URL, content, geoserverUser, geoserverPassword, null, null);
     }
 
     // ////////////////////////////////////////////////////////////////////////
@@ -385,8 +410,9 @@ public class GeoServerRESTHelper {
 	 * @param dataStyles
 	 * @param defaultStyle
 	 * @param queryParams
-	 * @throws MalformedURLException
-	 * @throws FileNotFoundException
+     * @throws TransformerException 
+     * @throws IOException 
+     * @throws ParserConfigurationException 
 	 */
 	public static String[] send(
 			final File inputDataDir, final File data,
@@ -397,7 +423,7 @@ public class GeoServerRESTHelper {
 			final String queryString,
 			final String dataTransferMethod, final String type, final String geoserverVersion, 
 			final List<String> dataStyles, final String defaultStyle )
-			throws MalformedURLException, FileNotFoundException, UnsupportedEncodingException {
+			throws ParserConfigurationException, IOException, TransformerException {
 		URL geoserverREST_URL = null;
 		boolean sent = false;
         final String coverageStoreId = URLEncoder.encode(originalCoverageStoreId,"UTF-8"); 
@@ -445,7 +471,7 @@ public class GeoServerRESTHelper {
 				sent = GeoServerRESTHelper.putContent(
 						geoserverREST_URL, 
 						data.toURL().toExternalForm(), 
-						geoserverUID, geoserverPWD, layer);
+						geoserverUID, geoserverPWD, layer, null);
 			} else if ("EXTERNAL".equals(dataTransferMethod)) {
 				geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL)
 					.append( "/rest/workspaces/" ).append( queryParams.get("namespace"))
@@ -454,24 +480,206 @@ public class GeoServerRESTHelper {
 				sent = GeoServerRESTHelper.putContent(
 						geoserverREST_URL, 
 						data.toURL().toExternalForm(), 
-						geoserverUID, geoserverPWD, layer);
+						geoserverUID, geoserverPWD, layer, null);
 			}
-
 		}
 
 		if (sent) {
 			if (LOGGER.isLoggable(Level.INFO))
-				LOGGER.info("GeoTIFF GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
-			if (defaultStyle != null && defaultStyle.trim().length()>0)
-				configureStyles(layerName, defaultStyle, dataStyles, geoserverBaseURL, geoserverUID, geoserverPWD);
+				LOGGER.info("GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
+			configureLayer(queryParams,defaultStyle,geoserverBaseURL, geoserverUID, geoserverPWD, layerName);
+//			if (defaultStyle != null && defaultStyle.trim().length()>0)
+//				configureStyles(layerName, defaultStyle, dataStyles, geoserverBaseURL, geoserverUID, geoserverPWD);
 			return layer;
 		} else {
 			if (LOGGER.isLoggable(Level.INFO))
-				LOGGER.info("GeoTIFF GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
+				LOGGER.info("GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
+			return null;
+		}
+	}
+
+	 /**
+	 * Send to GeoServer
+	 * 
+	 * @param inputDataDir
+	 * @param data
+	 * @param geoserverBaseURL
+	 * @param timeStamp
+	 * @param coverageStoreId
+	 * @param storeFilePrefix
+	 * @param dataStyles
+	 * @param defaultStyle
+	 * @param queryParams
+	 * @throws TransformerException 
+	 * @throws IOException 
+	 * @throws ParserConfigurationException 
+	 */
+	public static String[] sendFeature(
+			final File inputDataDir, final File data,
+			final String geoserverBaseURL, final String geoserverUID, 
+			final String geoserverPWD,
+			final String originalStoreId, final String storeFilePrefix,
+			final Map<String, String> queryParams,
+			final String dataTransferMethod, final String type, final String geoserverVersion, 
+			final List<String> dataStyles, final String defaultStyle )
+			throws ParserConfigurationException, IOException, TransformerException {
+		URL geoserverREST_URL = null;
+		boolean sent = false;
+        final String datastoreId = URLEncoder.encode(originalStoreId,"UTF-8"); 
+        final String[] layer = new String[3];
+        layer[0] = storeFilePrefix != null ? storeFilePrefix : datastoreId;
+		String layerName = storeFilePrefix != null ? storeFilePrefix : datastoreId;
+
+		if ("DIRECT".equals(dataTransferMethod)) {
+			geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL)
+				.append( "/rest/workspaces/" ).append(queryParams.get("namespace"))
+				.append( "/datastores/" ).append( datastoreId)
+				.append( "/file.").append(type).toString());
+			FileInputStream inStream = null;
+			try{
+				inStream = new FileInputStream(data);
+				sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
+						inStream, geoserverUID, geoserverPWD, layer, "application/zip");
+			}finally{
+				if (inStream != null){
+					try{
+						inStream.close();
+					}catch (Throwable t){
+						//eat me;
+					}
+				}
+			}
+			
+		} else if ("URL".equals(dataTransferMethod)) {
+			geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL)
+				.append( "/rest/workspaces/" ).append( queryParams.get("namespace"))
+				.append( "/datastores/" ).append( datastoreId ).append( "/url.")
+				.append(type).toString());
+			sent = GeoServerRESTHelper.putContent(geoserverREST_URL, 
+					data.toURL().toExternalForm(), geoserverUID, geoserverPWD, layer, null);
+		} else if ("EXTERNAL".equals(dataTransferMethod)) {
+			geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL)
+				.append( "/rest/workspaces/" ).append( queryParams.get("namespace"))
+				.append( "/datastores/" ).append( datastoreId)
+				.append( "/external.").append(type).toString());
+			sent = GeoServerRESTHelper.putContent(geoserverREST_URL, 
+					data.toURL().toExternalForm(), geoserverUID, geoserverPWD, layer, null);
+		}
+
+		if (sent) {
+			if (LOGGER.isLoggable(Level.INFO))
+				LOGGER.info("GeoServerConfiguratorAction: coverage SUCCESSFULLY sent to GeoServer!");
+			
+			configureLayer(queryParams,defaultStyle,geoserverBaseURL, geoserverUID, geoserverPWD, layerName);
+
+//			if (defaultStyle != null && defaultStyle.trim().length()>0)
+//				configureStyles(layerName, defaultStyle, dataStyles, geoserverBaseURL, geoserverUID, geoserverPWD);
+			return layer;
+		} else {
+			if (LOGGER.isLoggable(Level.INFO))
+				LOGGER.info("GeoServerConfiguratorAction: coverage was NOT sent to GeoServer due to connection errors!");
 			return null;
 		}
 	}
 	
+	private static void configureLayer(final Map<String, String> queryParams, final String defaultStyle, 
+			final String geoserverBaseURL, final String geoserverUID, final String geoserverPWD, final String layerName) 
+		throws ParserConfigurationException, IOException, TransformerException {
+		Map<String,String> configElements = new HashMap<String, String>(2);
+		if (queryParams.containsKey("wmspath")){
+			//Configuring wmsPath
+			final String wmsPath = queryParams.get("wmspath");
+			configElements.put("path", wmsPath);
+		}
+		if (defaultStyle != null && defaultStyle.trim().length()>0){
+			configElements.put("defaultStyle", defaultStyle);
+		}
+		if (!configElements.isEmpty()){
+			sendLayerConfiguration(configElements, geoserverBaseURL, geoserverUID, geoserverPWD, layerName);	
+		}
+		
+	}
+
+	/**
+	 * Allows to configure some layer attributes such as WmsPath and DefaultStyle
+	 * @param configElements
+	 * @param geoserverBaseURL
+	 * @param geoserverUID
+	 * @param geoserverPWD
+	 * @param layerName
+	 * @throws ParserConfigurationException
+	 * @throws IOException
+	 * @throws TransformerException
+	 */
+	private static void sendLayerConfiguration(final Map<String,String> configElements, final String geoserverBaseURL, 
+			final String geoserverUID, final String geoserverPWD, final String layerName) throws ParserConfigurationException, IOException, TransformerException {
+		final URL geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL)
+		.append( "/rest/layers/" ).append(layerName).toString());
+		File file = null;
+		FileInputStream inStream = null;
+		try{
+			file = buildXMLConfiguration(configElements);
+			inStream = new FileInputStream(file);
+			final boolean send = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL, 
+					inStream, geoserverUID, geoserverPWD, null, "text/xml");
+			if (send)
+				if (LOGGER.isLoggable(Level.INFO))
+					LOGGER.info("GeoServerConfiguratorAction: Layer SUCCESSFULLY configured!");	
+		}finally{
+			if (file != null){
+				try{
+					file.delete();
+				}catch (Throwable t){
+					//Eat me
+				}
+			}
+			if (inStream != null){
+				try{
+					inStream.close();
+				}catch (Throwable t){
+					//eat me;
+				}
+			}
+	
+		}
+		
+	}
+
+	/**
+	 * Setup an XML file to be sent via REST to configure the Layer
+	 * @param configElements
+	 * @return
+	 * @throws ParserConfigurationException
+	 * @throws IOException
+	 * @throws TransformerException
+	 */
+	private static File buildXMLConfiguration(final Map <String, String> configElements) 
+	throws ParserConfigurationException, IOException, TransformerException{
+		final DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
+	    
+		//Get the DocumentBuilder
+	    DocumentBuilder parser = dfactory.newDocumentBuilder();
+	    //Create blank DOM Document
+	    Document doc = parser.newDocument();
+	    Element root = doc.createElement("layer");
+		doc.appendChild(root);
+	    
+	    Set<String> keys = configElements.keySet();
+	    for (String key:keys){
+	    	final String value = configElements.get(key);
+	    	final Element element = doc.createElement(key);
+	    	root.appendChild(element);
+	    	element.insertBefore(doc.createTextNode(value), null);
+	    }
+
+	    final TransformerFactory factory = TransformerFactory.newInstance();
+	    final Transformer transformer = factory.newTransformer();
+	    final File file = File.createTempFile("config", ".xml");
+	    final Result result = new StreamResult(file);
+	    final Source xmlSource = new DOMSource(doc);
+	    transformer.transform(xmlSource, result);
+	    return file;
+	}
 	/**
 	 * Set the default style and the associable styles for the layer.
 	 *

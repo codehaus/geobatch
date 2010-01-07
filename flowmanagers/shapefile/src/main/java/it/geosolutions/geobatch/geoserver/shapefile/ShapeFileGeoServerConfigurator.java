@@ -64,7 +64,7 @@ public class ShapeFileGeoServerConfigurator extends
 	private File tempOutDir = null;
 	private File zipFileToSend = null;
 
-    protected ShapeFileGeoServerConfigurator(GeoServerActionConfiguration configuration)
+    public ShapeFileGeoServerConfigurator(GeoServerActionConfiguration configuration)
             throws IOException {
         super(configuration);
     }
@@ -90,7 +90,6 @@ public class ShapeFileGeoServerConfigurator extends
             // ////////////////////////////////////////////////////////////////////
             final File workingDir = IOUtils.findLocation(configuration.getWorkingDirectory(),
                     new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
-            //final String configId = configuration.getName();
 
             // ////////////////////////////////////////////////////////////////////
             //
@@ -107,87 +106,6 @@ public class ShapeFileGeoServerConfigurator extends
                 throw new IllegalStateException("Working directory does not exist ("+workingDir.getAbsolutePath()+").");
             }
 
-			// this check is performed in superclass
-//            if ((geoserverURL == null) || "".equals(geoserverURL)) {
-//                LOGGER.log(Level.SEVERE, "GeoServerCatalogServiceURL is null.");
-//                throw new IllegalStateException("GeoServerCatalogServiceURL is null.");
-//            }
-
-            /*
-             * if (storeFilePrefix == null) { LOGGER.log(Level.SEVERE, "DataFilePrefix is null.");
-             * throw new IllegalStateException("DataFilePrefix is null."); }
-             */
-
-            // // //
-            // // looking for optional parameters.
-            // // //
-            // if ((destinationCrs == null) && (configCRS != null)) {
-            // final String authority = configCRS.getAuthority();
-            // final BigInteger code = configCRS.getCode();
-            //
-            // if ((authority != null) && (code != null)) {
-            // try {
-            // destinationCrs = org.geotools.referencing.CRS.decode(authority + ":" + code, true);
-            // } catch (NoSuchAuthorityCodeException e) {
-            // LOGGER.info("No right CRS ('AUTH','CODE') specified ... using the native one!");
-            // destinationCrs = null;
-            // } catch (FactoryException e) {
-            // LOGGER.info("No right CRS ('AUTH','CODE') specified ... using the native one!");
-            // destinationCrs = null;
-            // }
-            // } else {
-            // final String WKT = configCRS.getStringValue();
-            //
-            // try {
-            // destinationCrs = org.geotools.referencing.CRS.parseWKT(WKT);
-            // } catch (FactoryException e) {
-            // LOGGER.info("No right CRS ('WKT') specified ... using the native one!");
-            // destinationCrs = null;
-            // }
-            // }
-            // }
-            //
-            // // //
-            // // the destination Envelope is acceptable only if the CRS was specified.
-            // // //
-            // if ((destinationEnvelope == null) && (destinationCrs != null) && (configEvnelope !=
-            // null)) {
-            // final int dim = configEvnelope.getDimension().intValue();
-            //
-            // if (dim != 2) {
-            // LOGGER.info("Only 2D Envelopes are supported!");
-            // LOGGER.info("No right ENVELOPE specified ... using the native one!");
-            // }
-            //
-            // final double[] minCP = new double[2];
-            // final double[] maxCP = new double[2];
-            //
-            // String[] pos_0 = configEvnelope.getPosArray(0).split(" ");
-            // String[] pos_1 = configEvnelope.getPosArray(1).split(" ");
-            //
-            // try {
-            // minCP[0] = Double.parseDouble(pos_0[0]);
-            // minCP[1] = Double.parseDouble(pos_0[1]);
-            // maxCP[0] = Double.parseDouble(pos_1[0]);
-            // maxCP[1] = Double.parseDouble(pos_1[1]);
-            //
-            // destinationEnvelope = new GeneralEnvelope(minCP, maxCP);
-            // destinationEnvelope.setCoordinateReferenceSystem(destinationCrs);
-            // } catch (NumberFormatException e) {
-            // LOGGER.info("No right ENVELOPE specified ... using the native one!");
-            // destinationEnvelope = null;
-            // }
-            // }
-            // ////////////////////////////////////////////////////////////////////
-            //
-            // Creating Shapefile dataStore.
-            //
-            // ////////////////////////////////////////////////////////////////////
-            // //
-            // looking for file
-            // //
-            // XXX FIX ME
-
 			// Fetch the first event in the queue.
 			// We may have one in these 2 cases:
 			// 1) a single event for a .zip file
@@ -196,11 +114,15 @@ public class ShapeFileGeoServerConfigurator extends
             FileSystemMonitorEvent event = events.peek();
 
 			File[] shpList;
-
+			final boolean isZipped; 
+			File zippedFile = null;
 			if(events.size() == 1 && FilenameUtils.getExtension(event.getSource().getAbsolutePath()).equalsIgnoreCase("zip")) {
-				shpList = handleZipFile(event.getSource(), workingDir);
+				zippedFile = event.getSource();
+				shpList = handleZipFile(zippedFile, workingDir);
+				isZipped = true;
 			} else {
 				shpList = handleShapefile(events);
+				isZipped = false;
 			}
 
 			if(shpList == null)
@@ -219,8 +141,12 @@ public class ShapeFileGeoServerConfigurator extends
                 LOGGER.log(Level.SEVERE, "Shp file not found in fileset.");
                 throw new IllegalStateException("Shp file not found in fileset.");
 			}
-
-			String shpBaseName = FilenameUtils.getBaseName(shapeFile.getName());
+			final String shpBaseName; 
+			if (!isZipped)
+				shpBaseName = FilenameUtils.getBaseName(shapeFile.getName());
+			else{
+				shpBaseName = FilenameUtils.getBaseName(zippedFile.getName());
+			}
 
             // //
             // creating dataStore
@@ -275,21 +201,34 @@ public class ShapeFileGeoServerConfigurator extends
 				}
 				LOGGER.info(sb.toString());
 			}
-
-			zipFileToSend = IOUtils.deflate(workingDir, "sending_" + shpBaseName + System.currentTimeMillis(), shpList);
+			if (isZipped)
+				zipFileToSend = zippedFile;
+			else
+				zipFileToSend = IOUtils.deflate(workingDir, "sending_" + shpBaseName + System.currentTimeMillis(), shpList);
 			LOGGER.info("ZIP file: " + zipFileToSend.getAbsolutePath());
 
-            boolean sent = sendShpLayer(zipFileToSend,
-					getConfiguration().getGeoserverURL(),
-					shpBaseName, shpBaseName,
-                    queryParams);
+			final String[] returnedLayer = GeoServerRESTHelper.sendFeature(zipFileToSend, 
+					zipFileToSend, 
+                    configuration.getGeoserverURL(),
+                    configuration.getGeoserverUID(),
+                    configuration.getGeoserverPWD(),
+                    shpBaseName,
+                    shpBaseName,
+                    queryParams,
+                    configuration.getDataTransferMethod(),
+                    "shp", "2.0.0", null, null);
+			
+//            boolean sent = sendShpLayer(zipFileToSend,
+//					getConfiguration().getGeoserverURL(),
+//					shpBaseName, shpBaseName,
+//                    queryParams);
 
-			if (sent) {
-				LOGGER.info("ShapeFile GeoServerConfiguratorAction: shp SUCCESSFULLY sent to GeoServer!");
-				boolean sldSent = configureStyles(shpBaseName);
-			} else {
-				LOGGER.info("ShapeFile GeoServerConfiguratorAction: shp was NOT sent to GeoServer due to connection errors!");
-			}
+//			if (sent) {
+//				LOGGER.info("ShapeFile GeoServerConfiguratorAction: shp SUCCESSFULLY sent to GeoServer!");
+//				boolean sldSent = configureStyles(shpBaseName);
+//			} else {
+//				LOGGER.info("ShapeFile GeoServerConfiguratorAction: shp was NOT sent to GeoServer due to connection errors!");
+//			}
 
             return events;
 

@@ -85,8 +85,11 @@ public class Utils {
         	 final String missionCollapsed = missionName.substring(0,missionIndex).replace("_", "-");
              missionName = new StringBuilder("mission").append(missionCollapsed).append(missionName.substring(missionIndex+1)).toString();
          }
-         
-         dirName = new StringBuilder(location).append(File.separatorChar).append(prefix)
+         else {
+        	 missionName = new StringBuilder("mission").append(missionName).toString();
+         }
+        	 
+         dirName = new StringBuilder(location).append(Utils.SEPARATOR).append(prefix)
          .append(time).append("_")
          .append(missionName).append(LEG_PREFIX)
          .append(legName.substring(3,legName.length())).append("_")
