@@ -78,6 +78,10 @@
 	    	<groupId>it.geosolutions</groupId>
 	    	<artifactId>gb-flowmanagers-geotiff</artifactId>
 	    </dependency>
+	     <dependency>
+	    	<groupId>it.geosolutions</groupId>
+	    	<artifactId>gb-flowmanagers-shapefile</artifactId>
+	    </dependency>
 	    
 	    <dependency>
 	    	<groupId>org.geotools</groupId>

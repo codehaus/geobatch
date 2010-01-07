@@ -42,9 +42,21 @@
     		<value>ComposerService</value>
     	</property>
     </bean>	     
+    
+     <!-- Environment Initialization -->
+	<bean id="DetectionManagerService" class="it.geosolutions.geobatch.detection.DetectionManagerService">
+		<property name="id">
+    		<value>DetectionManagerService</value>
+    	</property>
+    	<property name="description">
+    		<value>DetectionManagerService</value>
+    	</property>
+    	<property name="name">
+    		<value>DetectionManagerService</value>
+    	</property>
+    </bean>	     
 
     <bean id="sasRegistrar" class="it.geosolutions.geobatch.sas.SASAliasRegistrar" lazy-init="false">
         <constructor-arg ref="aliasRegistry" />
     </bean>
-
 </beans>

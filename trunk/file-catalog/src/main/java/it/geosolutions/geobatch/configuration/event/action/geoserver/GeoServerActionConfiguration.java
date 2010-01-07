@@ -31,7 +31,7 @@ import java.util.List;
 
 public class GeoServerActionConfiguration extends ActionConfiguration implements Configuration {
 
-    protected GeoServerActionConfiguration(String id, String name,
+    public GeoServerActionConfiguration(String id, String name,
 			String description, boolean dirty) {
 		super(id, name, description, dirty);
 		// TODO Auto-generated constructor stub

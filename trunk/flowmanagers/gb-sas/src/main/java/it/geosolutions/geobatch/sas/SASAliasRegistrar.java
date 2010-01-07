@@ -24,6 +24,7 @@ package it.geosolutions.geobatch.sas;
 
 import it.geosolutions.geobatch.compose.ComposerConfiguration;
 import it.geosolutions.geobatch.convert.FormatConverterConfiguration;
+import it.geosolutions.geobatch.detection.DetectionManagerConfiguration;
 import it.geosolutions.geobatch.mosaic.MosaicerConfiguration;
 import it.geosolutions.geobatch.registry.AliasRegistrar;
 import it.geosolutions.geobatch.registry.AliasRegistry;
@@ -40,7 +41,6 @@ public class SASAliasRegistrar extends AliasRegistrar {
          registry.putAlias("MosaicerConfiguration",MosaicerConfiguration.class);
          registry.putAlias("ComposerConfiguration",ComposerConfiguration.class);
          registry.putAlias("FormatConverterConfiguration",FormatConverterConfiguration.class);
-         
-         
+         registry.putAlias("DetectionManagerConfiguration",DetectionManagerConfiguration.class);
      }
  }
