@@ -613,8 +613,12 @@ public class GeoServerRESTHelper {
 	 */
 	private static void sendLayerConfiguration(final Map<String,String> configElements, final String geoserverBaseURL, 
 			final String geoserverUID, final String geoserverPWD, final String layerName) throws ParserConfigurationException, IOException, TransformerException {
+		
+		String layer = URLEncoder.encode(layerName,"UTF-8"); 
+		if (layer.contains("."))
+			layer = layer + ".fake";
 		final URL geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL)
-		.append( "/rest/layers/" ).append(layerName).toString());
+		.append( "/rest/layers/" ).append(layer).toString());
 		File file = null;
 		FileInputStream inStream = null;
 		try{
@@ -665,6 +669,10 @@ public class GeoServerRESTHelper {
 		doc.appendChild(root);
 	    
 	    Set<String> keys = configElements.keySet();
+	    Element enabledElement = doc.createElement("enabled");
+    	root.appendChild(enabledElement);
+    	enabledElement.insertBefore(doc.createTextNode("true"), null);
+	    
 	    for (String key:keys){
 	    	final String value = configElements.get(key);
 	    	final Element element = doc.createElement(key);
