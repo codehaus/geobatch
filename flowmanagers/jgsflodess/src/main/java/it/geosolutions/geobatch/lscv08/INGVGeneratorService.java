@@ -22,7 +22,7 @@
 package it.geosolutions.geobatch.lscv08;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorService;
+import it.geosolutions.geobatch.geoserver.GeoServerConfiguratorService;
 import it.geosolutions.geobatch.metocs.MetocActionConfiguration;
 
 import java.io.IOException;

@@ -24,8 +24,8 @@ package it.geosolutions.geobatch.remsens;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
-import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
-import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerConfiguratorAction;
+import it.geosolutions.geobatch.geoserver.GeoServerActionConfiguration;
+import it.geosolutions.geobatch.geoserver.GeoServerConfiguratorAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.geobatch.utils.io.Utilities;
@@ -319,6 +319,7 @@ public class HDF42GeoTIFFsFileConfigurator extends GeoServerConfiguratorAction<F
 		final StringBuilder coverageName = new StringBuilder(source)
 					.append("_").append(system)
 					.append("_").append(description.replaceAll(" ", ""))
+					.append("_").append("0000")
 					.append("_").append("0000")
 					.append("_").append(referenceTime)
 					.append("_").append(referenceTime)

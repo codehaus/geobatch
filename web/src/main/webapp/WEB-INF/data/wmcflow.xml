@@ -22,7 +22,7 @@
 			<dataTransferMethod>DIRECT</dataTransferMethod>
 			<geoserverPWD>geoserver</geoserverPWD>
 			<geoserverUID>admin</geoserverUID>
-			<geoserverURL>http://localhost:8081/geoserver</geoserverURL>
+			<geoserverURL>http://localhost:8080/geoserver</geoserverURL>
 			<wmsPath>/</wmsPath>
 			<defaultNamespace>nurc</defaultNamespace>
 			<defaultStyle>raster</defaultStyle>
@@ -34,7 +34,7 @@
 		</GeoServerActionConfiguration>
 		
 		<ImageMosaicActionConfiguration>
-			<workingDirectory>JGSFLoDeSSworkingdir/NCOM</workingDirectory>
+			<workingDirectory>wmcflowworkingdir</workingDirectory>
 			<crs>EPSG:4326</crs>
 			<envelope/>
 			<dataTransferMethod>EXTERNAL</dataTransferMethod>

@@ -42,8 +42,7 @@ import java.util.logging.Logger;
 public class GeoTIFFGeoServerGeneratorService extends
         GeoServerConfiguratorService<FileSystemMonitorEvent, GeoServerActionConfiguration> {
 
-    private final static Logger LOGGER = Logger.getLogger(GeoTIFFGeoServerGenerator.class
-            .toString());
+    private final static Logger LOGGER = Logger.getLogger(GeoTIFFGeoServerGenerator.class.toString());
 
     public GeoTIFFGeoServerGenerator createAction(GeoServerActionConfiguration configuration) {
         try {

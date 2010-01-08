@@ -42,7 +42,9 @@ import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.TimeZone;
@@ -105,99 +107,108 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 
 		try {
 			// looking for file
-			if (events.size() != 1)
+			if (events.size() == 0)
 				throw new IllegalArgumentException("Wrong number of elements for this action: " + events.size());
-			FileSystemMonitorEvent event = events.remove();
+			
+			List<FileSystemMonitorEvent> generatedEvents = new ArrayList<FileSystemMonitorEvent>();
+			
+			while (events.size() > 0) {
+				FileSystemMonitorEvent event = events.remove();
 
-			// //
-			// data flow configuration and dataStore name must not be null.
-			// //
-			if (configuration == null) {
-				LOGGER.log(Level.SEVERE, "DataFlowConfig is null.");
-				throw new IllegalStateException("DataFlowConfig is null.");
-			}
-			// ////////////////////////////////////////////////////////////////////
-			//
-			// Initializing input variables
-			//
-			// ////////////////////////////////////////////////////////////////////
-			final File workingDir = IOUtils.findLocation(configuration.getWorkingDirectory(), new File(
-					((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
+				// //
+				// data flow configuration and dataStore name must not be null.
+				// //
+				if (configuration == null) {
+					LOGGER.log(Level.SEVERE, "DataFlowConfig is null.");
+					throw new IllegalStateException("DataFlowConfig is null.");
+				}
+				// ////////////////////////////////////////////////////////////////////
+				//
+				// Initializing input variables
+				//
+				// ////////////////////////////////////////////////////////////////////
+				final File workingDir = IOUtils.findLocation(configuration.getWorkingDirectory(), new File(
+						((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
 
-			// ////////////////////////////////////////////////////////////////////
-			//
-			// Checking input files.
-			//
-			// ////////////////////////////////////////////////////////////////////
-			if ((workingDir == null) || !workingDir.exists()
-					|| !workingDir.isDirectory()) {
-				LOGGER.log(Level.SEVERE, "WorkingDirectory is null or does not exist.");
-				throw new IllegalStateException("WorkingDirectory is null or does not exist.");
-			}
+				// ////////////////////////////////////////////////////////////////////
+				//
+				// Checking input files.
+				//
+				// ////////////////////////////////////////////////////////////////////
+				if ((workingDir == null) || !workingDir.exists()
+						|| !workingDir.isDirectory()) {
+					LOGGER.log(Level.SEVERE, "WorkingDirectory is null or does not exist.");
+					throw new IllegalStateException("WorkingDirectory is null or does not exist.");
+				}
 
-			// ... BUSINESS LOGIC ... //
-			final File inputFile = event.getSource();
-			String inputFileName = inputFile.getAbsolutePath();
-			final String filePrefix = FilenameUtils.getBaseName(inputFileName);
-			final String fileSuffix = FilenameUtils.getExtension(inputFileName);
-			final String fileNameFilter = getConfiguration().getStoreFilePrefix();
+				// ... BUSINESS LOGIC ... //
+				final File inputFile = event.getSource();
+				String inputFileName = inputFile.getAbsolutePath();
+				final String filePrefix = FilenameUtils.getBaseName(inputFileName);
+				final String fileSuffix = FilenameUtils.getExtension(inputFileName);
+				final String fileNameFilter = getConfiguration().getStoreFilePrefix();
 
-			String baseFileName = null;
+				String baseFileName = null;
 
-			if (fileNameFilter != null) {
-				if ((filePrefix.equals(fileNameFilter) || filePrefix.matches(fileNameFilter))
-						&& "layer".equalsIgnoreCase(fileSuffix)) {
-					// etj: are we missing something here?
+				if (fileNameFilter != null) {
+					if ((filePrefix.equals(fileNameFilter) || filePrefix.matches(fileNameFilter))
+							&& "layer".equalsIgnoreCase(fileSuffix)) {
+						// etj: are we missing something here?
+						baseFileName = filePrefix;
+					}
+				} else if ("layer".equalsIgnoreCase(fileSuffix)) {
 					baseFileName = filePrefix;
 				}
-			} else if ("layer".equalsIgnoreCase(fileSuffix)) {
-				baseFileName = filePrefix;
+
+				if (baseFileName == null) {
+					LOGGER.log(Level.SEVERE, "Unexpected file '" + inputFileName + "'");
+					throw new IllegalStateException("Unexpected file '" + inputFileName + "'");
+				}
+
+				Properties props = new Properties();
+
+				//try retrieve data from file
+				try {
+					props.load(new FileInputStream(inputFile));
+				}
+
+				//catch exception in case properties file does not exist
+				catch(IOException e) {
+					LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+				}
+
+				final String namespace = props.getProperty("namespace");
+				final String storeid = props.getProperty("storeid");
+				final String layerid = props.getProperty("layerid");
+				final String driver = props.getProperty("driver");
+				final String path = new File(inputFile.getParentFile(), props.getProperty("path")).getAbsolutePath();
+
+				final File metadataTemplate = IOUtils.findLocation(configuration.getMetocHarvesterXMLTemplatePath(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
+				
+				boolean res = harvest(
+						inputFile.getParentFile(), 
+						new File(path), 
+						metadataTemplate, 
+						driver, 
+						configuration.getGeoserverURL(), 
+						configuration.getRegistryURL(), 
+						configuration.getProviderURL(), 
+						new Date().getTime(), 
+						namespace, 
+						storeid, 
+						layerid, 
+						"DOWN"
+				);
+				
+				//if (res) {
+					// forwarding to the next Action
+					LOGGER.info("RegistryHarvestingAction ... forwarding to the next Action: " + inputFile.getAbsolutePath());
+					generatedEvents.add(new FileSystemMonitorEvent(inputFile, FileSystemMonitorNotifications.FILE_ADDED));
+				//}
 			}
-
-			if (baseFileName == null) {
-				LOGGER.log(Level.SEVERE, "Unexpected file '" + inputFileName + "'");
-				throw new IllegalStateException("Unexpected file '" + inputFileName + "'");
-			}
-
-			Properties props = new Properties();
-
-			//try retrieve data from file
-			try {
-				props.load(new FileInputStream(inputFile));
-			}
-
-			//catch exception in case properties file does not exist
-			catch(IOException e) {
-				LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-			}
-
-			final String namespace = props.getProperty("namespace");
-			final String storeid = props.getProperty("storeid");
-			final String layerid = props.getProperty("layerid");
-			final String driver = props.getProperty("driver");
-
-			final File metadataTemplate = IOUtils.findLocation(configuration.getMetocHarvesterXMLTemplatePath(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
 			
-			boolean res = harvest(inputFile.getParentFile(), 
-					inputFile.getParentFile(), 
-					metadataTemplate, 
-					driver, 
-					configuration.getGeoserverURL(), 
-					configuration.getRegistryURL(), 
-					configuration.getProviderURL(), 
-					new Date().getTime(), 
-					namespace, 
-					storeid, 
-					layerid, 
-					"DOWN"
-			);
-			
-			//if (res) {
-				// forwarding to the next Action
-				LOGGER.info("RegistryHarvestingAction ... forwarding to the next Action: " + inputFile.getAbsolutePath());
-				events.add(new FileSystemMonitorEvent(inputFile, FileSystemMonitorNotifications.FILE_ADDED));
-			//}
-			
+			if (generatedEvents != null)
+				events.addAll(generatedEvents);
 			return events;
 		} catch (Throwable t) {
 			LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);

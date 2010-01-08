@@ -1,6 +1,6 @@
 /*
  *  GeoBatch - Open Source geospatial batch processing system
- *  http://code.google.com/p/geobatch/
+ *  http://geobatch.codehaus.org/
  *  Copyright (C) 2007-2008-2009 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
@@ -19,11 +19,14 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package it.geosolutions.geobatch.imagemosaic;
+
+package it.geosolutions.geobatch.geoserver.geotiff;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
+import it.geosolutions.geobatch.geoserver.GeoServerActionConfiguration;
+import it.geosolutions.geobatch.geoserver.GeoServerConfiguratorAction;
 import it.geosolutions.geobatch.geoserver.GeoServerRESTHelper;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.utils.IOUtils;
@@ -45,33 +48,27 @@ import java.util.logging.Level;
 
 import javax.media.jai.JAI;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 /**
+ * Comments here ...
  * 
- * Public class to ingest a geotiff image-mosaic into GeoServer
+ * @author AlFa
  * 
+ * @version $ GeoTIFFFolderGeoServerConfigurator.java $ Revision: x.x $ 23/mar/07 11:42:25
  */
-public class ImageMosaicConfigurator extends
-		ImageMosaicConfiguratorAction<FileSystemMonitorEvent> {
+public class GeoTIFFFolderGeoServerConfigurator extends
+		GeoServerConfiguratorAction<FileSystemMonitorEvent> {
+	
+	public final static String GEOSERVER_VERSION = "2.X";
 
-    /**
-     * 
-     */
-	public final static String GEOSERVER_VERSION = "2.x";
-
-	protected ImageMosaicConfigurator(
-			ImageMosaicActionConfiguration configuration) throws IOException {
+	protected GeoTIFFFolderGeoServerConfigurator(
+			GeoServerActionConfiguration configuration) throws IOException {
 		super(configuration);
 	}
 
-	/**
-	 * 
-	 */
 	public Queue<FileSystemMonitorEvent> execute(
 			Queue<FileSystemMonitorEvent> events) throws Exception {
-
 		if (LOGGER.isLoggable(Level.INFO))
 			LOGGER.info("Starting with processing...");
 
@@ -122,99 +119,9 @@ public class ImageMosaicConfigurator extends
 					throw new IllegalStateException("Unexpected file '" + inputDir.getAbsolutePath() + "'");
 				}
 
-				//
-				// CREATE REGEX PROPERTIES FILES
-				//
-				
-				if (configuration.getDatastorePropertiesPath() != null) {
-					final File dsFile = IOUtils.findLocation(configuration.getDatastorePropertiesPath(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
-					if (dsFile != null && dsFile.exists() && !dsFile.isDirectory()) {
-						LOGGER.info("DataStore file found: " + dsFile.getAbsolutePath());
-						FileUtils.copyFileToDirectory(dsFile, inputDir);
-					}
-				}
-				
-				final File indexer        = new File(inputDir, "indexer.properties");
-				final File timeregex      = new File(inputDir, "timeregex.properties");
-				final File elevationregex = new File(inputDir, "elevationregex.properties");
-
 				FileWriter outFile = null;
 				PrintWriter out = null;
-
-				// INDEXER
-				try {
-					outFile = new FileWriter(indexer);
-					out = new PrintWriter(outFile);
-					
-					// Write text to file
-					if (configuration.getTimeRegex() != null)
-						out.println("TimeAttribute=ingestion");
-					
-					if (configuration.getElevationRegex() != null)
-						out.println("ElevationAttribute=elevation");
-					
-					out.println("Schema=*the_geom:Polygon,location:String" + 
-							(configuration.getTimeRegex() != null ? ",ingestion:java.util.Date" : "") +
-							(configuration.getElevationRegex() != null ? ",elevation:Double" : "")
-					);
-					out.println("PropertyCollectors=" + 
-							(configuration.getTimeRegex() != null ? "TimestampFileNameExtractorSPI[timeregex](ingestion)" : "") + 
-							(configuration.getElevationRegex() != null ? (configuration.getTimeRegex() != null ? "," : "") + "ElevationFileNameExtractorSPI[elevationregex](elevation)" : "")
-					);
-				} catch (IOException e){
-					LOGGER.log(Level.SEVERE, "Error occurred while writing indexer.properties file!", e);
-				} finally {
-					if (out != null) {
-						out.flush();
-						out.close();
-					}
-					
-					outFile = null;
-					out = null;
-				}
-
-				// TIME REGEX
-				if (configuration.getTimeRegex() != null) {
-					try {
-						outFile = new FileWriter(timeregex);
-						out = new PrintWriter(outFile);
-						
-						// Write text to file
-						out.println("regex=" + configuration.getTimeRegex());
-					} catch (IOException e){
-						LOGGER.log(Level.SEVERE, "Error occurred while writing timeregex.properties file!", e);
-					} finally {
-						if (out != null) {
-							out.flush();
-							out.close();
-						}
-						
-						outFile = null;
-						out = null;
-					}
-				}
-
-				// ELEVATION REGEX
-				if (configuration.getElevationRegex() != null) {
-					try {
-						outFile = new FileWriter(elevationregex);
-						out = new PrintWriter(outFile);
-						
-						// Write text to file
-						out.println("regex=" + configuration.getElevationRegex());
-					} catch (IOException e){
-						LOGGER.log(Level.SEVERE, "Error occurred while writing elevationregex.properties file!", e);
-					} finally {
-						if (out != null) {
-							out.flush();
-							out.close();
-						}
-						
-						outFile = null;
-						out = null;
-					}
-				}
-
+				
 				String[] fileNames = inputDir.list(new FilenameFilter() {
 
 					public boolean accept(File dir, String name) {
@@ -232,24 +139,9 @@ public class ImageMosaicConfigurator extends
 				fileNames = fileNameList.toArray(new String[1]);
 				
 				if (fileNames != null && fileNames.length > 0) {
-					String[] firstCvNameParts = FilenameUtils.getBaseName(fileNames[0]).split("_");
-					String[] lastCvNameParts  = FilenameUtils.getBaseName(fileNames[fileNames.length-1]).split("_");
-					
-					if (firstCvNameParts != null && firstCvNameParts.length > 3) {
-						String coverageStoreId =
-							firstCvNameParts.length == 9 && firstCvNameParts.length == lastCvNameParts.length?
-							new StringBuilder()
-							.append(firstCvNameParts[0]).append("_")
-							.append(firstCvNameParts[1]).append("_")
-							.append(firstCvNameParts[2]).append("_")
-							.append(firstCvNameParts[3]).append("_") // Min Z
-							.append(lastCvNameParts[3]).append("_") // Max Z
-							.append(firstCvNameParts[5]).append("_") // Base Time
-							.append(lastCvNameParts[6]).append("_") // Forecast Time
-							.append(firstCvNameParts[7]).append("_") // TAU
-							.append(firstCvNameParts[8]) // NoDATA
-							.toString() : inputDir.getName(); 
-						
+					for (String fileName : fileNames) {
+						String coverageStoreId = FilenameUtils.getBaseName(fileName);
+							
 						LOGGER.info("Coverage Store ID: " + coverageStoreId);
 						// ////////////////////////////////////////////////////////////////////
 						//
@@ -260,19 +152,19 @@ public class ImageMosaicConfigurator extends
 						queryParams.put("namespace", getConfiguration().getDefaultNamespace());
 						queryParams.put("wmspath", getConfiguration().getWmsPath());
 						final String[] layerResponse = GeoServerRESTHelper.send(
-								inputDir, 
-								inputDir, 
+								inputDir,
+								new File(inputDir, fileName),
 								getConfiguration().getGeoserverURL(), 
-								getConfiguration().getGeoserverUID(), 
+								getConfiguration().getGeoserverUID(),
 								getConfiguration().getGeoserverPWD(),
-								coverageStoreId, 
 								coverageStoreId,
-								queryParams, 
-								"", 
-								"EXTERNAL",
-								"imagemosaic",
-								GEOSERVER_VERSION, 
-								getConfiguration().getStyles(), 
+								coverageStoreId,
+								queryParams,
+								"",
+								getConfiguration().getDataTransferMethod(),
+								"geotiff",
+								GEOSERVER_VERSION,
+								getConfiguration().getStyles(),
 								getConfiguration().getDefaultStyle()
 						);
 						
@@ -289,10 +181,10 @@ public class ImageMosaicConfigurator extends
 									
 									// Write text to file
 									out.println("namespace=" + layerResponse[1]);
-									out.println("storeid=" + coverageStoreId);
-									out.println("layerid=" + inputDir.getName());
-									out.println("driver=ImageMosaic");
-									out.println("path=" + File.separator);
+									out.println("storeid=" + layerResponse[2]);
+									out.println("layerid=" + layer);
+									out.println("driver=GeoTIFF");
+									out.println("path=" + File.separator + FilenameUtils.getName(new File(inputDir, fileName).getAbsolutePath()));
 								} catch (IOException e){
 									LOGGER.log(Level.SEVERE, "Error occurred while writing indexer.properties file!", e);
 								} finally {

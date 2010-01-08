@@ -3,11 +3,11 @@
  */
 package it.geosolutions.geobatch.ui.mvc;
 
-import java.util.List;
-
 import it.geosolutions.geobatch.ftp.server.GeoBatchServer;
 import it.geosolutions.geobatch.ftp.server.GeoBatchUserManager;
 import it.geosolutions.geobatch.ftp.server.model.FtpUser;
+
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

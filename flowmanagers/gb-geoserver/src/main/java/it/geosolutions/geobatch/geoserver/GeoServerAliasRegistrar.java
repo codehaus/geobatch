@@ -14,6 +14,6 @@ public class GeoServerAliasRegistrar extends AliasRegistrar {
 
      public GeoServerAliasRegistrar(AliasRegistry registry) {
         LOGGER.info(getClass().getSimpleName() + ": registering alias.");
-        registry.putAlias("GeoWebCacheActionConfiguration", GeoServerActionConfiguration.class);
+        registry.putAlias("GeoServerActionConfiguration", GeoServerActionConfiguration.class);
      }
 }
