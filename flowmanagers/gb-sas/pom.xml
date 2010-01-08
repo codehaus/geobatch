@@ -67,10 +67,12 @@
 		<dependency>
 			<groupId>org.geotools</groupId>
 			<artifactId>gt-geotiff</artifactId>
+			<version>${gt.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>
-			<artifactId>gt-sas</artifactId>
+			<artifactId>gt-matfile5</artifactId>
+			<version>${gt.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>it.geosolutions</groupId>

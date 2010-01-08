@@ -166,8 +166,7 @@ public class SasMosaicGeoServerGenerator
             
             final Map<String, String> queryParams = new HashMap<String, String>();
             queryParams.put("namespace",	getConfiguration().getDefaultNamespace());
-            queryParams.put("path",		getConfiguration().getWmsPath());
-            queryParams.put("style", getConfiguration().getDefaultStyle());
+            queryParams.put("wmspath",		getConfiguration().getWmsPath());
             final String[] returnedLayer = GeoServerRESTHelper.send(workingDir, 
                     workingDir, 
                     configuration.getGeoserverURL(),
@@ -176,9 +175,9 @@ public class SasMosaicGeoServerGenerator
                     coverageStoreId,
                     baseFileName,
                     queryParams,
-                    getQueryString(queryParams),
+                    "",
                     configuration.getDataTransferMethod(),
-                    dataType, GEOSERVER_VERSION, null, null);
+                    dataType, GEOSERVER_VERSION, null, getConfiguration().getDefaultStyle());
 //            if (returnedLayer!=null && returnedLayer.length==3){
 //            	writeGeowebcacheConfigurationFile(returnedLayer);
 //            }
