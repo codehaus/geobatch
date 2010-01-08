@@ -39,7 +39,25 @@
 			<name>test2</name>
 		</MetocActionConfiguration>
 		
-		<ImageMosaicActionConfiguration>
+		<GeoServerActionConfiguration>
+			<workingDirectory>JGSFLoDeSSworkingdir/NCOM</workingDirectory>
+			<crs>EPSG:4326</crs>
+			<envelope/>
+			<dataTransferMethod>DIRECT</dataTransferMethod>
+			<geoserverPWD>geoserver</geoserverPWD>
+			<geoserverUID>admin</geoserverUID>
+			<geoserverURL>http://localhost:8080/geoserver</geoserverURL>
+			<wmsPath>/</wmsPath>
+			<defaultNamespace>nurc</defaultNamespace>
+			<defaultStyle>raster</defaultStyle>
+			<styles/>
+			<serviceID>geotiffFolderGeoServerConfiguratorService</serviceID>
+			<id>geotiffFolderGeoServerConfiguratorService</id>
+			<description>geotiffFolderGeoServerConfiguratorService</description>
+			<name>geotiffFolderGeoServerConfiguratorService</name>
+		</GeoServerActionConfiguration>
+		
+		<!-- ImageMosaicActionConfiguration>
 			<workingDirectory>JGSFLoDeSSworkingdir/NCOM</workingDirectory>
 			<crs>EPSG:4326</crs>
 			<envelope/>
@@ -58,7 +76,7 @@
 			<id>ImageMosaicService</id>
 			<description>ImageMosaicService</description>
 			<name>ImageMosaicService</name>
-		</ImageMosaicActionConfiguration>
+		</ImageMosaicActionConfiguration -->
 		
 		<RegistryActionConfiguration>
 			<workingDirectory>JGSFLoDeSSworkingdir/NCOM</workingDirectory>

@@ -16,7 +16,17 @@
     	</property>
     </bean>	
     
-    
+    <bean id="geotiffFolderGeoServerConfiguratorService" class="it.geosolutions.geobatch.geoserver.geotiff.GeoTIFFFolderGeoServerConfiguratorService">
+		<property  name="id">
+    		<value>geotiffFolderGeoServerConfiguratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>geotiffFolderGeoServerConfiguratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>geotiffFolderGeoServerConfiguratorService</value>
+    	</property>
+    </bean>
 
 	<!-- Environment Initialization -->
 	<bean id="geotiffOverviewsEmbedderService" class="it.geosolutions.geobatch.geotiff.overview.GeoTiffOverviewsEmbedderService">

@@ -22,7 +22,7 @@
 package it.geosolutions.geobatch.remsens;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
+import it.geosolutions.geobatch.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.registry.RegistryConfiguratorService;
 
 import java.io.IOException;

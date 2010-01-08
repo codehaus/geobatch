@@ -24,17 +24,15 @@
 
 package it.geosolutions.geobatch.jetty;
 
+import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.webapp.WebAppContext;
-
 import org.mortbay.thread.BoundedThreadPool;
-
-import java.io.File;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Jetty starter, will run GeoBatch inside the Jetty web container.<br>

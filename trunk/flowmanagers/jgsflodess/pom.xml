@@ -254,8 +254,30 @@
 
       <dependency>
           <groupId>it.geosolutions</groupId>
+          <artifactId>gb-core</artifactId>
+      </dependency>
+
+      <dependency>
+          <groupId>it.geosolutions</groupId>
+          <artifactId>gb-fs-catalog</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>it.geosolutions</groupId>
           <artifactId>gb-flowmanagers-geoserver</artifactId>
       </dependency>
+      <dependency>
+		  <groupId>it.geosolutions</groupId>
+		  <artifactId>gb-flowmanagers-ImageMosaic</artifactId>
+	  </dependency>
+	  <dependency>
+          <groupId>it.geosolutions</groupId>
+          <artifactId>gb-flowmanagers-geotiff</artifactId>
+      </dependency>  
+	    
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-alias-registry</artifactId>
+        </dependency>
 	    
 	          
 	</dependencies>

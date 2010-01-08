@@ -26,10 +26,10 @@ package it.geosolutions.geobatch.ui.mvc;
 
 import it.geosolutions.geobatch.ui.mvc.data.FlowManagerDataBean;
 
+import java.io.File;
+
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-
-import java.io.File;
 
 /**
  * @author Alessio Fabiani

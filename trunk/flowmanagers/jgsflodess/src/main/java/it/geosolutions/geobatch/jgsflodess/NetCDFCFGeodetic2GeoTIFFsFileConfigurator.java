@@ -300,6 +300,7 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends MetocConfiguratio
 								final StringBuilder coverageName = new StringBuilder(inputFileName)
 								              .append("_").append(varName.replaceAll("_", ""))
 								              .append("_").append(hasLocalZLevel ? elevLevelFormat(zetaOriginalData.getLong(zetaOriginalData.getIndex().set(z))) : "0000")
+								              .append("_").append(hasLocalZLevel ? elevLevelFormat(zetaOriginalData.getLong(zetaOriginalData.getIndex().set(z))) : "0000")
 								              .append("_").append(baseTime)
 											  .append("_").append(timeDimExists ? sdf.format(JGSFLoDeSSIOUtils.startTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*1000) : "00000000T0000000Z")
 											  .append("_").append(TAU)

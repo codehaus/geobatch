@@ -72,7 +72,7 @@ public class GeoServerRESTHelper {
 
     public static boolean putBinaryFileTo(URL geoserverREST_URL, InputStream inputStream,
             String geoserverUser, String geoserverPassword, final String[] returnedLayerName) {
-    	return putBinaryFileTo(geoserverREST_URL, inputStream, geoserverUser, geoserverPassword, null);
+    	return putBinaryFileTo(geoserverREST_URL, inputStream, geoserverUser, geoserverPassword, null, null);
     }
     
     /**
@@ -148,7 +148,7 @@ public class GeoServerRESTHelper {
     
     public static boolean putBinaryFileTo(URL geoserverREST_URL, InputStream inputStream,
             String geoserverUser, String geoserverPassword) {
-    	return putBinaryFileTo(geoserverREST_URL, inputStream, geoserverUser, geoserverPassword, null);
+    	return putBinaryFileTo(geoserverREST_URL, inputStream, geoserverUser, geoserverPassword, null, null);
     	
     }
 
@@ -438,18 +438,24 @@ public class GeoServerRESTHelper {
 					.append( "/rest/folders/").append( coverageStoreId )
 					.append( "/layers/" ).append(layerName).append( "/file.").append(type)
 					.append( queryString).toString());
+				if (LOGGER.isLoggable(Level.INFO))
+					LOGGER.info("GeoServerConfiguratorAction sending binary content to ... " + geoserverREST_URL);
 				sent = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL,
 						new FileInputStream(data), geoserverUID, geoserverPWD);
 			} else if ("URL".equals(dataTransferMethod)) {
 				geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL) 
 					.append( "/rest/folders/").append( coverageStoreId ).append( "/layers/" )
 					.append( layerName ).append( "/url.").append(type).append( queryString).toString());
+				if (LOGGER.isLoggable(Level.INFO))
+					LOGGER.info("GeoServerConfiguratorAction sending data " + data.toURL().toExternalForm() + " to ... " + geoserverREST_URL);
 				sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
 						.toURL().toExternalForm(), geoserverUID, geoserverPWD);
 			} else if ("EXTERNAL".equals(dataTransferMethod)) {
 				geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL)
 					.append( "/rest/folders/").append( coverageStoreId ).append( "/layers/" )
 					.append( layerName).append( "/external.").append(type).append( queryString).toString());
+				if (LOGGER.isLoggable(Level.INFO))
+					LOGGER.info("GeoServerConfiguratorAction sending PATH " + data.toURL().toExternalForm() + " to ... " + geoserverREST_URL);
 				sent = GeoServerRESTHelper.putContent(geoserverREST_URL, data
 						.toURL().toExternalForm(), geoserverUID, geoserverPWD);
 			}
@@ -459,15 +465,19 @@ public class GeoServerRESTHelper {
 					.append( "/rest/workspaces/" ).append( queryParams.get("namespace"))
 					.append( "/coveragestores/" ).append( coverageStoreId)
 					.append( "/file.").append(type).append(suffix).toString());
+				if (LOGGER.isLoggable(Level.INFO))
+					LOGGER.info("GeoServerConfiguratorAction sending binary content to ... " + geoserverREST_URL);
 				sent = GeoServerRESTHelper.putBinaryFileTo(
 						geoserverREST_URL,
 						new FileInputStream(data), 
-						geoserverUID, geoserverPWD, layer);
+						geoserverUID, geoserverPWD, layer, null);
 			} else if ("URL".equals(dataTransferMethod)) {
 				geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL)
 					.append( "/rest/workspaces/" ).append( queryParams.get("namespace"))
 					.append( "/coveragestores/" ).append( coverageStoreId ).append( "/url.")
 					.append(type).append(suffix).toString());
+				if (LOGGER.isLoggable(Level.INFO))
+					LOGGER.info("GeoServerConfiguratorAction sending data " + data.toURL().toExternalForm() + " to ... " + geoserverREST_URL);
 				sent = GeoServerRESTHelper.putContent(
 						geoserverREST_URL, 
 						data.toURL().toExternalForm(), 
@@ -477,6 +487,8 @@ public class GeoServerRESTHelper {
 					.append( "/rest/workspaces/" ).append( queryParams.get("namespace"))
 					.append( "/coveragestores/" ).append( coverageStoreId)
 					.append( "/external.").append(type).append(suffix).toString());
+				if (LOGGER.isLoggable(Level.INFO))
+					LOGGER.info("GeoServerConfiguratorAction sending PATH " + data.toURL().toExternalForm() + " to ... " + geoserverREST_URL);
 				sent = GeoServerRESTHelper.putContent(
 						geoserverREST_URL, 
 						data.toURL().toExternalForm(), 

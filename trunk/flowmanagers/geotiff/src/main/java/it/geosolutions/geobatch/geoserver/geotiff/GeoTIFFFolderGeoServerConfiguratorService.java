@@ -1,6 +1,6 @@
 /*
  *  GeoBatch - Open Source geospatial batch processing system
- *  http://code.google.com/p/geobatch/
+ *  http://geobatch.codehaus.org/
  *  Copyright (C) 2007-2008-2009 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
@@ -19,7 +19,10 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package it.geosolutions.geobatch.jgsflodess;
+
+
+
+package it.geosolutions.geobatch.geoserver.geotiff;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.geoserver.GeoServerActionConfiguration;
@@ -30,23 +33,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Public class to generate JGSFLoDeSS Services 
+ * Comments here ...
  * 
+ * @author
+ * 
+ * @version $ GeoTIFFFolderGeoServerConfiguratorService.java $ Revision: x.x $ 19/feb/07 16:16:13
  */
-public class JGSFLoDeSSNCOMGeneratorService extends
-		GeoServerConfiguratorService<FileSystemMonitorEvent, GeoServerActionConfiguration> {
-	
-    private final static Logger LOGGER = Logger.getLogger(JGSFLoDeSSNCOMGeneratorService.class.toString());
+public class GeoTIFFFolderGeoServerConfiguratorService extends
+        GeoServerConfiguratorService<FileSystemMonitorEvent, GeoServerActionConfiguration> {
 
-    /**
-     *  Action creator
-     * 
-     *  @param configuration The data base action configuration 
-     *  @return new NRLNCOMFileConfigurator()
-     */
-    public JGSFLoDeSSNCOMFileConfigurator createAction(GeoServerActionConfiguration configuration) {
+    private final static Logger LOGGER = Logger.getLogger(GeoTIFFFolderGeoServerConfiguratorService.class.toString());
+
+    public GeoTIFFFolderGeoServerConfigurator createAction(GeoServerActionConfiguration configuration) {
         try {
-            return new JGSFLoDeSSNCOMFileConfigurator(configuration);
+            return new GeoTIFFFolderGeoServerConfigurator(configuration);
         } catch (IOException e) {
             if (LOGGER.isLoggable(Level.INFO))
                 LOGGER.log(Level.INFO, e.getLocalizedMessage(), e);
@@ -54,7 +54,6 @@ public class JGSFLoDeSSNCOMGeneratorService extends
         }
     }
 
-    @Override
     public boolean canCreateAction(GeoServerActionConfiguration configuration) {
         final boolean superRetVal = super.canCreateAction(configuration);
         return superRetVal;
