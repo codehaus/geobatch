@@ -1,7 +1,7 @@
 package it.geosolutions.geobatch.ais.raster;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
+import it.geosolutions.geobatch.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.geoserver.ascii.AsciiGeoServerGenerator;
 
 import java.io.File;

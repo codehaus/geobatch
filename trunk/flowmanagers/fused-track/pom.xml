@@ -50,25 +50,19 @@
 	<!--     Dependency Management                                   -->
 	<!-- =========================================================== -->
 	<dependencies>
-		<dependency>
-			<groupId>it.geosolutions</groupId>
-			<artifactId>gb-registry</artifactId>
-		</dependency>
+       <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-fs-catalog</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-alias-registry</artifactId>
+        </dependency> 
 
-		<dependency>
-			<groupId>it.geosolutions</groupId>
-			<artifactId>gb-core</artifactId>
-			<version>${version}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>
 			<artifactId>gt-shapefile</artifactId>
 			<version>${gt.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>it.geosolutions</groupId>
-			<artifactId>gb-fs-catalog</artifactId>
-			<version>${version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernatespatial</groupId>

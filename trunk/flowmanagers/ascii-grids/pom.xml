@@ -53,8 +53,7 @@
   <dependencies>
 	    <dependency>
 			  <groupId>it.geosolutions</groupId>
-			  <artifactId>gb-core</artifactId>
-	      <version>${version}</version>
+			  <artifactId>gb-flowmanagers-geoserver</artifactId>
 	    </dependency>
 
 	    <dependency>
@@ -73,11 +72,12 @@
 	      <artifactId>imageio-ext-customstreams</artifactId>
 	      <version>${imageio-ext.version}</version>
 	    </dependency>
-	    <dependency>
-	    	<groupId>it.geosolutions</groupId>
-	    	<artifactId>gb-fs-catalog</artifactId>
-	    	<version>${version}</version>
-	    </dependency>
+
+	    
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-alias-registry</artifactId>
+        </dependency>	    
   </dependencies>
 
 </project>

@@ -48,13 +48,6 @@
     </license>
   </licenses>
 
-<!-- repositories>
-    <repository>
-      <id>ulisse</id>
-      <name>Ulisse libraries repository</name>
-      <url>http://ulisse.pin.unifi.it:8080/archiva/repository/ext.public.rel/</url>
-    </repository>
-  </repositories -->
 
   <!-- =========================================================== -->
   <!--     Dependency Management                                   -->
@@ -141,18 +134,14 @@
       		<scope>runtime</scope>
     	</dependency> 
     	
-        <dependency>
-            <groupId>it.geosolutions</groupId>
-            <artifactId>gb-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>it.geosolutions</groupId>
-            <artifactId>gb-registry</artifactId>
-        </dependency>
-        <dependency>
+       <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-fs-catalog</artifactId>
         </dependency>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-alias-registry</artifactId>
+        </dependency> 
 	          
   </dependencies>
 

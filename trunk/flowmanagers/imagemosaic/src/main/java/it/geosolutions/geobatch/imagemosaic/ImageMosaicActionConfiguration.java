@@ -24,7 +24,7 @@
 
 package it.geosolutions.geobatch.imagemosaic;
 
-import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
+import it.geosolutions.geobatch.geoserver.GeoServerActionConfiguration;
 
 public class ImageMosaicActionConfiguration extends GeoServerActionConfiguration {
 

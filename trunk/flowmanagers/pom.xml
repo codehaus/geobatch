@@ -117,6 +117,7 @@
 		<profile>
 			<id>all</id>
 			<modules>
+			   <module>gb-geoserver</module>
 			   <module>geowebcache</module>
 			   <module>ais</module>
 			   <module>fused-track</module> 

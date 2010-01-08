@@ -58,10 +58,6 @@ public class Alias {
         xstream.alias("FileEventRule",
 						it.geosolutions.geobatch.flow.event.consumer.file.FileEventRule.class);
 
-        // TODO remove me
-        xstream.alias("GeoServerActionConfiguration",
-                        it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration.class);
-
         xstream.alias("EventConsumerConfiguration",
                         it.geosolutions.geobatch.configuration.event.consumer.EventConsumerConfiguration.class,
                         it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration.class);

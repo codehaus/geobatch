@@ -203,12 +203,6 @@
             <artifactId>gb-fsm-core</artifactId>
             <version>${version}</version>
         </dependency>
-
-      <dependency>
-          <groupId>it.geosolutions</groupId>
-          <artifactId>gb-alias-registry</artifactId>          
-            <version>${version}</version>
-      </dependency>
         <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-core</artifactId>
