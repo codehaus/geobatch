@@ -258,16 +258,12 @@
 			<artifactId>servlet-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		
-        <dependency>
-			  <groupId>it.geosolutions</groupId>
-			  <artifactId>gb-core</artifactId>
-	    </dependency>
 
-	    <dependency>
-	    	<groupId>it.geosolutions</groupId>
-	    	<artifactId>gb-fs-catalog</artifactId>
-	    </dependency>
+      <dependency>
+          <groupId>it.geosolutions</groupId>
+          <artifactId>gb-flowmanagers-geoserver</artifactId>
+      </dependency>
+	    
 	          
 	</dependencies>
 

@@ -59,26 +59,12 @@
 		</dependency>
 
 		
-		<!--dependency>
-			<groupId>com.vividsolutions</groupId>
-			<artifactId>jts</artifactId>
-		</dependency-->
-	
 
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 		</dependency>
 
-		<!--dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-main</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-epsg-hsql</artifactId>
-		</dependency-->
 	    <dependency>
 	      	<groupId>commons-cli</groupId>
 	      	<artifactId>commons-cli</artifactId>
@@ -88,44 +74,6 @@
 	     	 	<artifactId>commons-io</artifactId>
 	      	<version>1.4</version>
 	   	 </dependency>
-
-		<!--dependency>
-            	<groupId>org.geotools</groupId>
-            	<artifactId>gt-postgis</artifactId>
-            	<version>2.5-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-            	<groupId>org.geotools</groupId>
-            	<artifactId>gt-jdbc</artifactId>
-            	<version>2.5-SNAPSHOT</version>
-		</dependency-->
-
-		<!--dependency>
-			<groupId>postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>8.1-407.jdbc3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>javax.servlet</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-dbcp</groupId>
-			<artifactId>commons-dbcp</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>commons-pool</groupId>
-			<artifactId>commons-pool</artifactId>
-		</dependency-->
-
-
-        
-    	<dependency>
-      		<groupId>java3d</groupId>
-      		<artifactId>vecmath</artifactId>
-      		<scope>test</scope>
-    	</dependency>
 
 		<!-- REST libraries -->
 
@@ -166,17 +114,14 @@
 		</dependency>
     	
     	<!-- GEOBATCH lib -->
-    	
-        <dependency>
-            <groupId>it.geosolutions</groupId>
-            <artifactId>gb-core</artifactId>
-        </dependency>
-
-
-        <dependency>
+       <dependency>
             <groupId>it.geosolutions</groupId>
             <artifactId>gb-fs-catalog</artifactId>
         </dependency>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>gb-alias-registry</artifactId>
+        </dependency> 
 	          
   </dependencies>
 

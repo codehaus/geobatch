@@ -1,7 +1,7 @@
 package it.geosolutions.geobatch.geoserver.matfile5.sas;
 
 import it.geosolutions.geobatch.catalog.Configuration;
-import it.geosolutions.geobatch.configuration.event.action.geoserver.GeoServerActionConfiguration;
+import it.geosolutions.geobatch.geoserver.GeoServerActionConfiguration;
 
 public class SasMosaicGeoServerConfiguration extends GeoServerActionConfiguration implements Configuration{
 	

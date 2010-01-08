@@ -53,9 +53,9 @@
 
       <dependency>
           <groupId>it.geosolutions</groupId>
-          <artifactId>gb-alias-registry</artifactId>
+          <artifactId>gb-flowmanagers-geoserver</artifactId>
       </dependency>
-
+	    
 		<dependency>
 			<groupId>com.vividsolutions</groupId>
 			<artifactId>jts</artifactId>

@@ -25,7 +25,7 @@
 package it.geosolutions.geobatch.imagemosaic;
 
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
-import it.geosolutions.geobatch.flow.event.action.geoserver.GeoServerRESTHelper;
+import it.geosolutions.geobatch.geoserver.GeoServerRESTHelper;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
