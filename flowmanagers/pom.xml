@@ -51,17 +51,25 @@
 
   <!-- =========================================================== -->
   <!--     Modules for the build in approximate dependency order   -->
-  <!-- =========================================================== -->
-   
-    <modules>
-      <module>geotiff</module>
-      <module>gb-ftp</module>
-    </modules>
-    
+  <!-- =========================================================== --> 
     <profiles>
 		<profile>
-			<id>gliders</id>
+			<id>ftp</id>
 			<modules>
+			  <module>gb-ftp</module>
+			</modules>
+		</profile>      
+		<profile>
+			<id>geotiff</id>
+			<modules>
+			  <module>gb-geoserver</module>
+			  <module>geotiff</module>
+			</modules>
+		</profile>    
+		<profile>
+			<id>gliders</id>
+			<modules>				
+			   <module>gb-geoserver</module>
 			   <module>gb-gliders</module>
 			</modules>
 		</profile>
@@ -69,12 +77,14 @@
 			<id>ais</id>
 			<modules>
 			   <module>ais</module>
+			   <module>gb-geoserver</module>
 			</modules>
 		</profile>
 		<profile>
 			<id>fused-track</id>
 			<modules>
 			   <module>fused-track</module>
+			   <module>gb-geoserver</module>
 			</modules>
 		</profile>
 		<profile>
@@ -87,14 +97,15 @@
 			<id>sas</id>
 			<modules>
 			  <module>gb-geoserver</module>
-       	<module>gb-task-executor</module>
-		   	<module>gb-sas</module>
+       	      <module>gb-task-executor</module>
+		   	  <module>gb-sas</module>
 			</modules>
 		</profile>
 		<profile>
       <id>imagemosaic</id>
       <modules>
          <module>imagemosaic</module>
+         <module>gb-geoserver</module>
       </modules>
     </profile>
 		<profile>
@@ -102,13 +113,14 @@
         <modules>
         	 <module>gb-geoserver</module>
         	 <module>imagemosaic</module>
-           <module>jgsflodess</module>
+             <module>jgsflodess</module>
         </modules>
     </profile>
     <profile>
         <id>ascii-grids</id>
         <modules>
            <module>ascii-grids</module>
+           <module>gb-geoserver</module>
         </modules>
     </profile>
     <profile>
@@ -129,7 +141,7 @@
 			   <module>gb-task-executor</module>
 			   <module>imagemosaic</module>
 			   <module>shapefile</module>
-         <module>gb-sas</module>
+			   <module>gb-sas</module>
 			   <module>jgsflodess</module>
 			   <module>ascii-grids</module>
 			</modules>
