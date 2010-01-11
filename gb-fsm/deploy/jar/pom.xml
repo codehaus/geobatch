@@ -56,18 +56,6 @@
                   <arg value="-c"/>
                   <arg value="mvn install:install-file -DgroupId=jnotify -DartifactId=jnotify -Dversion=0.91 -Dpackaging=jar -Dfile=./jnotify-0.91.jar"/>
                 </exec>
-		<exec  executable="sh">
-                  <arg value="-c"/>
-                  <arg value="mvn install:install-file -DgroupId=it.geosolutions -DartifactId=factory -Dversion=1.0-SNAPSHOT -Dpackaging=jar -Dfile=./factory-1.0-SNAPSHOT.jar"/>
-                </exec>
-		<exec  executable="sh">
-                  <arg value="-c"/>
-                  <arg value="mvn install:install-file -DgroupId=it.geosolutions -DartifactId=test-data -Dversion=1.0-SNAPSHOT -Dpackaging=jar -Dfile=./test-data-1.0-SNAPSHOT.jar"/>
-                </exec>
-		<exec  executable="sh">
-                  <arg value="-c"/>
-                  <arg value="mvn install:install-file -DgroupId=it.geosolutions -DartifactId=concurrency -Dversion=1.0-SNAPSHOT -Dpackaging=jar -Dfile=./concurrency-1.0-SNAPSHOT.jar"/>
-                </exec>
                </tasks>
               </configuration>
               <goals>
@@ -126,18 +114,6 @@
                 <exec  executable="cmd">
                   <arg value="/c"/>
                   <arg value="mvn install:install-file -DgroupId=jnotify -DartifactId=jnotify -Dversion=0.91 -Dpackaging=jar -Dfile=./jnotify-0.91.jar"/>
-                </exec>
-		<exec  executable="cmd">
-                  <arg value="/c"/>
-                  <arg value="mvn install:install-file -DgroupId=it.geosolutions -DartifactId=factory -Dversion=1.0-SNAPSHOT -Dpackaging=jar -Dfile=./factory-1.0-SNAPSHOT.jar"/>
-                </exec>
-		<exec  executable="cmd">
-                  <arg value="/c"/>
-                  <arg value="mvn install:install-file -DgroupId=it.geosolutions -DartifactId=test-data -Dversion=1.0-SNAPSHOT -Dpackaging=jar -Dfile=./test-data-1.0-SNAPSHOT.jar"/>
-                </exec>
-		<exec  executable="cmd">
-                  <arg value="/c"/>
-                  <arg value="mvn install:install-file -DgroupId=it.geosolutions -DartifactId=concurrency -Dversion=1.0-SNAPSHOT -Dpackaging=jar -Dfile=./concurrency-1.0-SNAPSHOT.jar"/>
                 </exec>
                </tasks>
               </configuration>
