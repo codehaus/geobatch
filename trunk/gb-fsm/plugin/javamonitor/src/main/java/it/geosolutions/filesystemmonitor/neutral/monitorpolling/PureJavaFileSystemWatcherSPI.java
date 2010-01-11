@@ -1,6 +1,5 @@
 package it.geosolutions.filesystemmonitor.neutral.monitorpolling;
 
-import it.geosolutions.factory.Hints;
 import it.geosolutions.filesystemmonitor.OsType;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorSPI;
 
@@ -19,8 +18,7 @@ public final class PureJavaFileSystemWatcherSPI implements FileSystemMonitorSPI 
 		return true;
 	}
 
-	public PureJavaFileSystemWatcher createInstance(Map<String, ?> configuration,
-			Hints hints) {
+	public PureJavaFileSystemWatcher createInstance(Map<String, ?> configuration) {
 		//get the params
 		//polling interval
 		Long interval=null;

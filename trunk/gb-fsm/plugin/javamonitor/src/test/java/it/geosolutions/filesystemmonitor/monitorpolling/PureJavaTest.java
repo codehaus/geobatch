@@ -1,9 +1,10 @@
 package it.geosolutions.filesystemmonitor.monitorpolling;
 
+import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitor;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorListener;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
-import it.geosolutions.filesystemmonitor.neutral.monitorpolling.PureJavaFileSystemWatcher;
+import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorSPI;
 import it.geosolutions.filesystemmonitor.neutral.monitorpolling.PureJavaFileSystemWatcherSPI;
 import it.geosolutions.resources.TestData;
 
@@ -18,36 +19,45 @@ import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import junit.framework.Assert;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author   Alessio
  */
-public class PureJavaTest extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@TestExecutionListeners({})
+@ContextConfiguration(locations={"/applicationContext.xml", "/TestDummy-context.xml"})
+public class PureJavaTest extends AbstractJUnit4SpringContextTests {
+
 
 	private final static Logger LOGGER = Logger
 			.getLogger("it.geosolutions.filesystemmonitor.monitorpolling");
 
 	private TestListener listener;
 
-	private PureJavaFileSystemWatcher monitor;
+	private FileSystemMonitor monitor;
 
 	private File dir;
 
-	public static void main(String[] args) {
-		TestRunner.run(PureJavaTest.class);
-	}
 
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		listener = new TestListener();
 		dir = TestData.file(this, "");
 		assert dir != null && dir.exists();
 	}
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
+	@After
+	public void tearDown() throws Exception {
 		if (monitor != null) {
 			monitor.stop();
 			monitor.dispose();
@@ -55,6 +65,7 @@ public class PureJavaTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void testPolling() {
 		// ///////////////////////////////////////////////////////////
 		// Attiva il thead che fa polling sulla direcroty di lavoro
@@ -65,7 +76,7 @@ public class PureJavaTest extends TestCase {
 		params.put(PureJavaFileSystemWatcherSPI.SOURCE, dir);
 		params.put(PureJavaFileSystemWatcherSPI.INTERVAL, 1000L);
 		params.put(PureJavaFileSystemWatcherSPI.WILDCARD, "*.txt");
-		monitor = new PureJavaFileSystemWatcherSPI().createInstance(params, null);
+		monitor = ((FileSystemMonitorSPI)this.applicationContext.getBean("pureJavaFSMSPI")).createInstance(params);
 		listener = new TestListener();
 
 		LOGGER.info("Aggiungo la dir prova ai listener");
@@ -120,7 +131,7 @@ public class PureJavaTest extends TestCase {
 
 	private final class TestListener implements FileSystemMonitorListener {
 		public void fileMonitorEventDelivered(FileSystemMonitorEvent fe) {
-			assertTrue("Controllo valore del MonitorEvent ", fe != null);
+			Assert.assertTrue("Controllo valore del MonitorEvent ", fe != null);
 			LOGGER.info(new StringBuffer("\nFile changed: ").append(
 					fe.getSource()).toString());
 			String s = "";
