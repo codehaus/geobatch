@@ -1,6 +1,5 @@
 package it.geosolutions.filesystemmonitor.monitorjni;
 
-import it.geosolutions.factory.NotSupportedException;
 import it.geosolutions.filesystemmonitor.OsType;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorListener;
@@ -20,13 +19,24 @@ import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import junit.framework.Assert;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author   Alessio
  */
-public class JNITest extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@TestExecutionListeners({})
+@ContextConfiguration(locations={"/applicationContext.xml", "/TestDummy-context.xml"})
+public class JNITest extends AbstractJUnit4SpringContextTests {
 	// //
 	// default logger
 	// //
@@ -40,13 +50,9 @@ public class JNITest extends TestCase {
 
 	private boolean go;
 
-	public static void main(String[] args) {
-		TestRunner.run(JNITest.class);
-		
-	}
 
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		go=false;
 		try {
 			System.loadLibrary("jnotify");
@@ -60,15 +66,16 @@ public class JNITest extends TestCase {
 		assert dir != null && dir.exists();
 	}
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
+	@After
+	public void tearDown() throws Exception {
 		if (monitor != null) {
 			monitor.stop();
 			monitor.dispose();
 		}
 	}
 
-	public synchronized void testPolling() throws NotSupportedException {
+	@Test
+	public  void testPolling() {
 		if(!go)
 		{
 			LOGGER.severe("Missing native libs, skipping tests.");
@@ -91,7 +98,7 @@ public class JNITest extends TestCase {
 		params.put(NativeFileSystemWatcherSPI.SOURCE, dir);
 		params.put(NativeFileSystemWatcherSPI.SUBDIRS, Boolean.FALSE);
 		params.put(NativeFileSystemWatcherSPI.WILDCARD, "*.txt");
-		monitor = new NativeFileSystemWatcherSPI().createInstance(params, null);	
+		monitor = new NativeFileSystemWatcherSPI().createInstance(params);	
 		listener = new TestListener();
 
 		LOGGER.info("Aggiungo la dir prova ai listener");
@@ -159,7 +166,7 @@ public class JNITest extends TestCase {
 
 	private final class TestListener implements FileSystemMonitorListener {
 		public void fileMonitorEventDelivered(FileSystemMonitorEvent fe) {
-			assertTrue("Controllo valore del MonitorEvent ", fe != null);
+			Assert.assertTrue("Controllo valore del MonitorEvent ", fe != null);
 			LOGGER.info(new StringBuffer("\nFile changed: ").append(
 					fe.getSource()).toString());
 			String s = "";

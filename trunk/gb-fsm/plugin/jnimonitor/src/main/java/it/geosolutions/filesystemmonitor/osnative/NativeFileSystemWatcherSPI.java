@@ -1,6 +1,5 @@
 package it.geosolutions.filesystemmonitor.osnative;
 
-import it.geosolutions.factory.Hints;
 import it.geosolutions.filesystemmonitor.OsType;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorSPI;
 
@@ -14,7 +13,7 @@ public class NativeFileSystemWatcherSPI implements FileSystemMonitorSPI {
 	public boolean canWatch(OsType osType) {
 		if(!NativeLibsUtils.available)
 			return false;
-		return osType == OsType.OS_WINDOWS||osType==OsType.OS_LINUX;
+		return osType == OsType.OS_WINDOWS||osType==OsType.OS_LINUX||osType==OsType.OS_UNDEFINED;
 	}
 
 
@@ -23,8 +22,7 @@ public class NativeFileSystemWatcherSPI implements FileSystemMonitorSPI {
 		return NativeLibsUtils.available;
 	}
 
-	public NativeFileSystemWatcher createInstance(Map<String, ?> configuration,
-			Hints hints) {
+	public NativeFileSystemWatcher createInstance(Map<String, ?> configuration) {
 		if(!NativeLibsUtils.available)
 			throw new IllegalStateException("Native monitor unable to work.");
 		//get the params
