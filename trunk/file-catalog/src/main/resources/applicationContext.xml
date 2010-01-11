@@ -4,18 +4,6 @@
 <beans default-init-method="init" default-destroy-method="dispose">
 
 
-	<!-- Environment Initialization -->
-<!--
-	<bean id="globalConfig" class="it.geosolutions.geobatch.global.JIBXCatalogLoader" depends-on="catalog" >
-        <constructor-arg ref="catalog"/>
--->
-	
-	    <!--  property  name="dataDir">
-    		<value>${GEOBATCH_DATA_DIR}</value>
-    	</property-->	
-<!--
-	</bean>
--->
 	<bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
 	  <property name="corePoolSize" value="30" />
 	  <property name="maxPoolSize" value="300" />

@@ -24,7 +24,6 @@
 
 package it.geosolutions.geobatch.flow.event.generator.file;
 
-import it.geosolutions.factory.NotSupportedException;
 import it.geosolutions.filesystemmonitor.OsType;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
@@ -99,15 +98,11 @@ public class FileBasedEventGeneratorService
             if (configuration.getWildCard() == null)
                 return new FileBasedEventGenerator(osType, eventType, sensedDir, keepFiles);
             else
-                return new FileBasedEventGenerator(osType, eventType, sensedDir,
-                        configuration.getWildCard(),keepFiles);
+                return new FileBasedEventGenerator(osType, eventType, sensedDir,configuration.getWildCard(),keepFiles);
         } catch (IOException ex) {
             if (LOGGER.isLoggable(Level.SEVERE))
                 LOGGER.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
-        } catch (NotSupportedException e) {
-            if (LOGGER.isLoggable(Level.SEVERE))
-                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             if (LOGGER.isLoggable(Level.SEVERE))
                 LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
         }

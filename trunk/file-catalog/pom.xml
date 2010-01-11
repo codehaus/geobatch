@@ -77,11 +77,6 @@
             <version>2.4</version>
         </dependency>
         <dependency>
-            <groupId>it.geosolutions</groupId>
-            <artifactId>factory</artifactId>
-      <!-- The version number is specified in the parent POM. -->
-        </dependency>
-        <dependency>
             <groupId>org.opengis</groupId>
             <artifactId>geoapi</artifactId>
       <!-- The version number is specified in the parent POM. -->
