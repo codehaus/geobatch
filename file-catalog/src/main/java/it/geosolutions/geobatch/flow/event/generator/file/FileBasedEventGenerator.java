@@ -21,8 +21,7 @@
  */
 package it.geosolutions.geobatch.flow.event.generator.file;
 
-import it.geosolutions.factory.NotSupportedException;
-import it.geosolutions.filesystemmonitor.FactoryFinder;
+import it.geosolutions.filesystemmonitor.FSMSPIFinder;
 import it.geosolutions.filesystemmonitor.OsType;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitor;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
@@ -149,8 +148,7 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
      * @throws NotSupportedException
      */
     public FileBasedEventGenerator(final OsType osType,
-            final FileSystemMonitorNotifications eventType, final File dir)
-            throws NotSupportedException {
+            final FileSystemMonitorNotifications eventType, final File dir) {
         this(osType, eventType, dir, null, false);
     }
 
@@ -166,8 +164,7 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
      * @throws NotSupportedException
      */
     public FileBasedEventGenerator(final OsType osType,
-            final FileSystemMonitorNotifications eventType, final File dir, final String wildcard)
-            throws NotSupportedException {
+            final FileSystemMonitorNotifications eventType, final File dir, final String wildcard){
         this(osType, eventType, dir, wildcard, false);
     }
 
@@ -182,8 +179,7 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
      *            Flag used to keep file in watched directory when flow is started
      * @throws NotSupportedException
      */
-    FileBasedEventGenerator(OsType osType, FileSystemMonitorNotifications eventType, File sensedDir, boolean keepFiles)
-            throws NotSupportedException {
+    FileBasedEventGenerator(OsType osType, FileSystemMonitorNotifications eventType, File sensedDir, boolean keepFiles){
         this(osType, eventType, sensedDir, null, keepFiles);
     }
 
@@ -201,8 +197,7 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
      * @throws NotSupportedException
      */
     public FileBasedEventGenerator(final OsType osType,
-            final FileSystemMonitorNotifications eventType, final File dir, final String wildcard, final boolean keepFiles)
-            throws NotSupportedException {
+            final FileSystemMonitorNotifications eventType, final File dir, final String wildcard, final boolean keepFiles){
 
         initialize(osType, eventType, dir, wildcard, keepFiles);
     }
@@ -220,7 +215,7 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
     		final FileSystemMonitorNotifications eventType,
             final File dir, 
             final String wildcard, 
-            final boolean keepFiles) throws NotSupportedException {
+            final boolean keepFiles) {
         // add myself as listener
         fsListener = new EventListener();
 
@@ -229,7 +224,6 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
         this.eventType = eventType;
         this.keepFiles = keepFiles;
 
-        FactoryFinder.scanForPlugins();
         if ((this.watchDirectory != null) && this.watchDirectory.isDirectory() && this.watchDirectory.exists()) 
         {
             	
@@ -237,7 +231,7 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
     		params.put(FileSystemMonitorSPI.SOURCE, dir);
     		if (this.wildCard != null)
     			params.put(FileSystemMonitorSPI.WILDCARD, wildCard);	
-            this.fsMonitor = (BaseFileSystemMonitor) FactoryFinder.getMonitor(params,osType);
+            this.fsMonitor = (BaseFileSystemMonitor) FSMSPIFinder.getMonitor(params,osType);
             this.fsMonitor.addListener(fsListener);
         }
         else
@@ -246,7 +240,7 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
 
     // ----------------------------------------------- PUBLIC ACCESS METHODS
     public FileBasedEventGenerator(FileBasedEventGeneratorConfiguration configuration)
-            throws IOException, NotSupportedException {
+            throws IOException {
         OsType osType = configuration.getOsType();
         FileSystemMonitorNotifications eventType = configuration.getEventType();
         final File notifyDir = IOUtils.findLocation(configuration.getWorkingDirectory(), new File(
