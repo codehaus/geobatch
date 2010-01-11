@@ -267,6 +267,15 @@
 			</dependencies>
 		</profile>
 		<profile>
+			<id>geotiff</id>
+			<dependencies>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-geotiff</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>		
+		<profile>
 			<id>ascii</id>
 			<dependencies>
 				<dependency>
@@ -332,14 +341,10 @@
 					<artifactId>gb-flowmanagers-fused-track</artifactId>
 				</dependency>
 			</dependencies>
-		</profile>
+		</profile>	
 		
-		<!--
-			<profile> <id>gb-ftp-server</id> <dependencies> <dependency>
-			<groupId>it.geosolutions</groupId>
-			<artifactId>gb-ftp-server</artifactId> </dependency> </dependencies>
-			</profile>
-		-->
+			
+		
 	</profiles>
 
 
