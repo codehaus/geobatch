@@ -182,7 +182,7 @@ public class XStreamCatalogLoader extends CatalogHolder implements ApplicationCo
 
         // //
         //
-        // force loading all alias registere
+        // force loading all alias registerers
         //
         // //
         context.getBeansOfType(AliasRegistrar.class);

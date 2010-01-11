@@ -69,10 +69,6 @@ public class Alias {
      
         xstream.alias("FsEventGeneratorConfiguration", it.geosolutions.geobatch.configuration.event.generator.file.FileBasedEventGeneratorConfiguration.class);
 
-        
-
-        
-
         xstream.addImplicitCollection(
                         it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration.class,
                         "rules",
