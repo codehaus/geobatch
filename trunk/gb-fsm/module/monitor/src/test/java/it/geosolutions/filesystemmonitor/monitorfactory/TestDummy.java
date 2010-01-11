@@ -1,23 +1,34 @@
 package it.geosolutions.filesystemmonitor.monitorfactory;
 
-import it.geosolutions.factory.NotSupportedException;
-import it.geosolutions.filesystemmonitor.FactoryFinder;
+import it.geosolutions.filesystemmonitor.FSMSPIFinder;
 import it.geosolutions.filesystemmonitor.OsType;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitor;
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import junit.framework.Assert;
 
-public class TestDummy extends TestCase {
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+/**
+ * 
+ * @author Simone Giannecchini, GeoSolutions
+ *
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@TestExecutionListeners({})
+@ContextConfiguration(locations={"/applicationContext.xml", "/TestDummy-context.xml"})
+public class TestDummy extends AbstractJUnit4SpringContextTests {
 	
-	public static void main(String[] args) {
-		TestRunner.run(TestDummy.class);
-	}
-	
-	public void testDummy() throws NotSupportedException{
+	@Test
+	public void testDummy(){
 		//get the registered services
-		FileSystemMonitor abstractMonitor= FactoryFinder.getMonitor(null,OsType.OS_UNDEFINED);
-		assertTrue(abstractMonitor!=null);
-		assertTrue(abstractMonitor instanceof DummyMonitor);
+		FSMSPIFinder finder= (FSMSPIFinder) applicationContext.getBean("fsmSPIFinder");
+		Assert.assertTrue(finder!=null);
+		FileSystemMonitor abstractMonitor= FSMSPIFinder.getMonitor(null,OsType.OS_UNDEFINED);
+		Assert.assertTrue(abstractMonitor!=null);
+		Assert.assertTrue(abstractMonitor instanceof DummyMonitor);
 	}
 
 }

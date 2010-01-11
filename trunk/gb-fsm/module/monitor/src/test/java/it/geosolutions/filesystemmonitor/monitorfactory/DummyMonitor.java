@@ -1,6 +1,5 @@
 package it.geosolutions.filesystemmonitor.monitorfactory;
 
-import it.geosolutions.factory.Hints;
 import it.geosolutions.filesystemmonitor.OsType;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitor;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorListener;
@@ -98,8 +97,7 @@ public final class DummyMonitor implements FileSystemMonitorSPI, FileSystemMonit
 	}
 
 
-	public FileSystemMonitor createInstance(Map<String, ?> configuration,
-			Hints hints) {
+	public FileSystemMonitor createInstance(Map<String, ?> configuration) {
 		return new DummyMonitor();
 	}
 
