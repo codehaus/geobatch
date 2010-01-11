@@ -35,7 +35,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestExecutionListeners({})
-@ContextConfiguration(locations={"/applicationContext.xml", "/TestDummy-context.xml"})
+@ContextConfiguration(locations={"/applicationContext.xml"})
 public class JNITest extends AbstractJUnit4SpringContextTests {
 	// //
 	// default logger
