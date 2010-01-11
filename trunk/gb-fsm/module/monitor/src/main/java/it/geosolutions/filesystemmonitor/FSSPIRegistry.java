@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
@@ -15,9 +17,7 @@ import org.springframework.context.ApplicationContextAware;
 
 class FSSPIRegistry implements ApplicationContextAware,InitializingBean{
 
-	private ApplicationContext applicationContext=null;
 	public static final OsType SUGGESTED_OS_TYPE;
-
 	static {
 		final String osName=System.getProperty("os.name").toLowerCase();	
 		
@@ -30,6 +30,10 @@ class FSSPIRegistry implements ApplicationContextAware,InitializingBean{
 				SUGGESTED_OS_TYPE=OsType.OS_UNDEFINED;		
 	}
 
+	private final static Logger LOGGER = Logger.getLogger(FSSPIRegistry.class.toString());
+	
+	private ApplicationContext applicationContext=null;
+
 	public void setApplicationContext(ApplicationContext applicationContext)
 			throws BeansException {
 		this.applicationContext=applicationContext;
@@ -37,17 +41,13 @@ class FSSPIRegistry implements ApplicationContextAware,InitializingBean{
 	}
 	@SuppressWarnings("unchecked")
 	FileSystemMonitor getMonitor(final Map<String,?>config,final OsType osType) {
+		if(applicationContext==null)
+		{
+			if(LOGGER.isLoggable(Level.SEVERE))
+				LOGGER.severe("Underlying applicationContext is null!");
+			return null;
+		}
 		FileSystemMonitorSPI monitorSPI = null;
-	
-		
-//		final Iterator<FileSystemMonitorSPI> fsmfi = getServiceRegistry().getServiceProviders(FileSystemMonitorSPI.class);
-//		while (fsmfi.hasNext()) {
-//			monitorSPI = fsmfi.next();
-//			if (monitorSPI!=null&&monitorSPI.isAvailable()&&monitorSPI.canWatch(osType)) {
-//				break;
-//			}
-//			monitorSPI = null;
-//		}
 		final Map beans = applicationContext.getBeansOfType(FileSystemMonitorSPI.class);
 		final Set beanSet = beans.entrySet();
 		for(final Iterator it=beanSet.iterator();it.hasNext();){
@@ -65,6 +65,8 @@ class FSSPIRegistry implements ApplicationContextAware,InitializingBean{
 		
 	}
 	public void afterPropertiesSet() throws Exception {
+		if(applicationContext==null)
+			throw new IllegalStateException("The provided applicationContext is null!");
 		FSMSPIFinder.registry=this;
 	}
 }
