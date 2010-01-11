@@ -3,7 +3,6 @@
  */
 package it.geosolutions.filesystemmonitor.monitor;
 
-import it.geosolutions.factory.Hints;
 import it.geosolutions.filesystemmonitor.OsType;
 
 import java.util.Map;
@@ -35,7 +34,7 @@ public interface FileSystemMonitorSPI {
 	 * @return an instance of a {@link FileSystemMonitor}.
 	 * 
 	 */
-	public FileSystemMonitor createInstance(final Map<String,?>configuration,final Hints hints);
+	public FileSystemMonitor createInstance(final Map<String,?>configuration);
 	
 	public boolean isAvailable();
 
