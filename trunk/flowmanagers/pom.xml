@@ -97,8 +97,9 @@
 			<id>sas</id>
 			<modules>
 			  <module>gb-geoserver</module>
-       	      <module>gb-task-executor</module>
-		   	  <module>gb-sas</module>
+        <module>gb-task-executor</module>
+        <module>shapefile</module>
+		    <module>gb-sas</module>
 			</modules>
 		</profile>
 		<profile>
@@ -134,6 +135,7 @@
 			<id>all</id>
 			<modules>
 			   <module>gb-geoserver</module>
+			   <module>geotiff</module>
 			   <module>geowebcache</module>
 			   <module>ais</module>
 			   <module>fused-track</module> 
