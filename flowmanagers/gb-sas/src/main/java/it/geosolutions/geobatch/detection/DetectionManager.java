@@ -86,9 +86,11 @@ public class DetectionManager extends BaseAction<FileSystemMonitorEvent> impleme
 	public static class ScriptParams{
 		public final static String PATH = "shapeGeneratorScript";
 		
-		public final static String INPUT = "inputFile";
+		public final static String INPUT = "inputDir";
 		
 		public final static String OUTPUT = "outputDir";
+		
+		public final static String LOGDIR = "loggingDir";
 		
 		public final static String CRS = "crsDefinitionsDir";
 	}
@@ -147,15 +149,7 @@ public class DetectionManager extends BaseAction<FileSystemMonitorEvent> impleme
 	                if (foundFiles != null && foundFiles.length>0){
 	                	initTime = Utils.setInitTime(directory,10);
 	                    final String subDir = buildDetectionsSubDir(initTime, fileDir);
-	                    for (File file : foundFiles){
-	                        if (file.exists()){
-	                        	final String fileName = file.getAbsolutePath();
-	                        	// Check for a detection mat file
-	                        	if (fileName.contains("_det")){
-	                        		ingestDetection(file, subDir);
-	                        	}
-	                        }
-	                    }
+	                    ingestDetection(fileDir, subDir);
 	                }
 	            }
             }            
@@ -174,30 +168,21 @@ public class DetectionManager extends BaseAction<FileSystemMonitorEvent> impleme
      * @return
      */
     private String buildDetectionsSubDir(final String initTime, final File fileDir) {
-    	StringBuilder sb = new StringBuilder(initTime).append(Utils.SEPARATOR)
-    	.append("detections").append("_").append(initTime).append("_");
+    	StringBuilder sb = new StringBuilder(initTime).append(Utils.SEPARATOR);
     	String missionName = fileDir.getName();
-    	final int missionIndex = missionName.lastIndexOf("_");
-        if (missionIndex!=-1){
-       	 	final String missionCollapsed = missionName.substring(0,missionIndex).replace("_", "-");
-            missionName = new StringBuilder("mission").append(missionCollapsed).append(missionName.substring(missionIndex+1)).toString();
-        }
-        else {
-        	missionName = new StringBuilder("mission").append(missionName).toString();
-        }
     	sb.append(missionName);
 		return sb.toString();
 	}
 
     /**
      * 
-     * @param inputFile
+     * @param inputDir
      * @param subDir
      * @throws Exception
      */
-	private void ingestDetection(final File inputFile, final String subDir) throws Exception {
-        final String baseName = FilenameUtils.getBaseName(inputFile.getAbsolutePath());
-        
+	private void ingestDetection(final File inputDir, final String subDir) throws Exception {
+//        final String baseName = FilenameUtils.getBaseName(inputDir.getAbsolutePath());
+        final String baseName = FilenameUtils.getBaseName(inputDir.getAbsolutePath());
         // //
         //
         // Prepare a TaskExecutor to run a conversion script on the provided detection input
@@ -208,7 +193,7 @@ public class DetectionManager extends BaseAction<FileSystemMonitorEvent> impleme
 		final String outputDir = new StringBuilder(configuration.getDetectionsOutputDir()).append(Utils.SEPARATOR).append(subDir).toString();
 		
 		// Generate an XML File containing the script parameters 
-		final File xmlFile = generateXML(inputFile, outputDir);
+		final File xmlFile = generateXML(inputDir, outputDir);
 		
 		// Invoke the taskExecutor to run the script and convert the detection to a shape file
 		FileSystemMonitorEvent fse = new FileSystemMonitorEvent(xmlFile, FileSystemMonitorNotifications.FILE_ADDED);
@@ -284,6 +269,17 @@ public class DetectionManager extends BaseAction<FileSystemMonitorEvent> impleme
 		    	element = doc.createElement(ScriptParams.CRS);
 			    root.appendChild(element);
 			    element.insertBefore(doc.createTextNode(crsPath.getAbsolutePath()), null);
+	    	}
+	    }
+	    
+	    final String logDir = configuration.getLoggingDir();
+	    if (logDir != null && logDir.trim().length()>0){
+	    	 final File logPath = IOUtils.findLocation(logDir,
+	                 new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
+	    	if (logPath != null && logPath.exists() && logPath.isDirectory()){
+		    	element = doc.createElement(ScriptParams.LOGDIR);
+			    root.appendChild(element);
+			    element.insertBefore(doc.createTextNode(logPath.getAbsolutePath()), null);
 	    	}
 	    }
 	    	    
@@ -465,7 +461,7 @@ public class DetectionManager extends BaseAction<FileSystemMonitorEvent> impleme
         		throw new IllegalArgumentException("The provided CRS WKT Definitions folder isn't valid" + crsDefintionDir);
         	}
         }
-    	
+        
 		// //
 		//
 		// 2) Setting the errorLog file which will contains error occurred during task execution
@@ -543,7 +539,7 @@ public class DetectionManager extends BaseAction<FileSystemMonitorEvent> impleme
 	
 	/**
      * Build a WMSPath from the specified inputFile 
-     * Input names are in the form: /DATE/detections_DATE_missionXXXX
+     * Input names are in the form: /DATE/MISSION/target_MISSION/target_completefilename
 
      * 
      * @param name
@@ -554,40 +550,27 @@ public class DetectionManager extends BaseAction<FileSystemMonitorEvent> impleme
 			return "";
 		
 		//Will be something like 
-		//target_MUSCLE_CAT2_091002_1_12_s_6506_6658_40_150_det029_r127_dt032
-		final String baseFileName = FilenameUtils.getBaseName(inputFileName);
+		//target_MUSCLE_CAT2_091002_1_12_s_6506_6658_40_150_det029_r127_dt032.shp
 		final File file = new File(inputFileName);
 		
-		//will refer to /detections_DATE_missionXXXX
-		final File detectionsDir = file.getParentFile().getParentFile();
-		final String detections = FilenameUtils.getBaseName(detectionsDir.getAbsolutePath());
+		//will refer to /MISSIONDIR
+		final File missionDir = file.getParentFile().getParentFile();
 		
-		final int timeIndex = detections.indexOf("_");
-		final int missionIndex = detections.indexOf("_",timeIndex +1);
-        
-		//will contain the DATE part and the missionXXXX part
-		final String timePrefix = detections.substring(timeIndex+1,missionIndex);
-        final String missionPrefix = detections.substring(missionIndex+1,detections.length());
-        
-        final String elements[] = baseFileName.split("_");
-        if (elements.length > 8){
-        	//baseFileName will be something like 
-    		//target_MUSCLE_CAT2_091002_1_12_s_6506_6658_40_150_det029_r127_dt032
-        	
-        	final String legNumber = elements[5];
-        	final StringBuilder leg = new StringBuilder("Leg");
-        	for (int i=0;i<5-legNumber.length();i++)
-        		leg.append("0");
-        	leg.append(legNumber);
-        	final String chan = elements[6];
-        	final String channel = chan.equalsIgnoreCase("s")?"stbd":chan.equalsIgnoreCase("p")?"port":"unkn";
-        	if (channel.equalsIgnoreCase("unkn"))
-        		if (LOGGER.isLoggable(Level.WARNING))
-        			LOGGER.warning("Unable to find the proper channel type: wmspath will be incomplete");
-            final String wmsPath = new StringBuilder("/").append(timePrefix).append("/").append(missionPrefix).append("/")
-            	.append(leg.toString()).append("/").append(channel).toString();
-            return wmsPath;
-        }
-        return "";
+		//will refer to /DATE
+		final File timeDir = missionDir.getParentFile();
+		String time = FilenameUtils.getBaseName(timeDir.getAbsolutePath());
+		
+		String missionName = FilenameUtils.getBaseName(missionDir.getAbsolutePath());
+		final int missionIndex = missionName.lastIndexOf("_");
+	    if (missionIndex!=-1){
+	     	final String missionCollapsed = missionName.substring(0,missionIndex).replace("_", "-");
+	        missionName = new StringBuilder("mission").append(missionCollapsed).append(missionName.substring(missionIndex+1)).toString();
+	    }
+	    else {
+	     	missionName = new StringBuilder("mission").append(missionName).toString();
+	    }
+			
+        final String wmsPath = new StringBuilder("/").append(time).append("/").append(missionName).toString();
+        return wmsPath;
 	}
 }
