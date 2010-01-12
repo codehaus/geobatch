@@ -19,6 +19,7 @@
 			<detectionsOutputDir>D:\work\data\muscleshapes</detectionsOutputDir>
 			<detectionConverterPath>sasdetectionflowworkingdir/config/shapegen.py</detectionConverterPath>
 			<crsDefinitionsDir>sasdetectionflowworkingdir/config/prj</crsDefinitionsDir>
+			<loggingDir>sasdetectionflowworkingdir/log</loggingDir>
 			<executablePath>c:\Python26\python.exe</executablePath>
 			<gdalData>C:\\Python26\\DLLs\\gdalwin32-1.6\\data</gdalData>
 			<path>C:\\Python26</path>

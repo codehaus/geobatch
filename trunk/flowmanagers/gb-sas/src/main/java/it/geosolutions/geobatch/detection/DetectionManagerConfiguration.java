@@ -51,6 +51,8 @@ public class DetectionManagerConfiguration extends ActionConfiguration implement
 
     private String detectionsErrorLog;
     
+    private String loggingDir;
+    
     private String executablePath;
     
     private String xlsPath;
@@ -161,6 +163,14 @@ public class DetectionManagerConfiguration extends ActionConfiguration implement
 
     public String getDetectionsErrorLog() {
 		return detectionsErrorLog;
+	}
+
+	public void setLoggingDir(String loggingDir) {
+		this.loggingDir = loggingDir;
+	}
+
+	public String getLoggingDir() {
+		return loggingDir;
 	}
 
 	public void setDetectionsErrorLog(String detectionsErrorLog) {

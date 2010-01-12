@@ -17,7 +17,7 @@
         <xsl:apply-templates select="@*|node()"/>
     </xsl:template>
     
-    <xsl:template match="inputFile">
+    <xsl:template match="inputDir">
         <xsl:value-of select="concat(' -i ', .)"/>
          <xsl:apply-templates select="@*|node()"/>
     </xsl:template>
@@ -29,6 +29,11 @@
     
     <xsl:template match="crsDefinitionsDir">
         <xsl:value-of select="concat(' --crsdir ', .)"/>
+        <xsl:apply-templates select="@*|node()"/>
+    </xsl:template>
+    
+    <xsl:template match="loggingDir">
+        <xsl:value-of select="concat(' --logdir ', .)"/>
         <xsl:apply-templates select="@*|node()"/>
     </xsl:template>
     
