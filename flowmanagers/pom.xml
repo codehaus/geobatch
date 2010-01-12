@@ -81,13 +81,6 @@
 			</modules>
 		</profile>
 		<profile>
-			<id>fused-track</id>
-			<modules>
-			   <module>fused-track</module>
-			   <module>gb-geoserver</module>
-			</modules>
-		</profile>
-		<profile>
 			<id>geowebcache</id>
 			<modules>
 			   <module>geowebcache</module>
@@ -138,7 +131,6 @@
 			   <module>geotiff</module>
 			   <module>geowebcache</module>
 			   <module>ais</module>
-			   <module>fused-track</module> 
 			   <module>gb-gliders</module>
 			   <module>gb-task-executor</module>
 			   <module>imagemosaic</module>
