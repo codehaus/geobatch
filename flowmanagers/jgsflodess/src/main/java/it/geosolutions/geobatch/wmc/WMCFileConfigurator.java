@@ -28,6 +28,7 @@ import it.geosolutions.geobatch.flow.event.action.BaseAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.geobatch.wmc.model.GeneralWMCConfiguration;
+import it.geosolutions.geobatch.wmc.model.OLDimension;
 import it.geosolutions.geobatch.wmc.model.OLIsBaseLayer;
 import it.geosolutions.geobatch.wmc.model.OLLayerID;
 import it.geosolutions.geobatch.wmc.model.OLMaxExtent;
@@ -48,14 +49,19 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FilenameUtils;
+import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
+import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.grid.io.GridFormatFinder;
+import org.opengis.coverage.grid.Format;
 
 public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 		implements Action<FileSystemMonitorEvent> {
@@ -64,6 +70,8 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 			.getLogger(WMCFileConfigurator.class.toString());
 
 	private WMCActionConfiguration configuration;
+
+	private String sessionId;
 
 	public final static String GEOSERVER_VERSION = "2.x";
 
@@ -132,6 +140,10 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 					throw new IllegalStateException("Unexpected file '" + inputFileName + "'");
 				}
 
+				if (this.sessionId == null) {
+					this.sessionId = getSessionId(filePrefix);
+				}
+				
 				Properties props = new Properties();
 
 				//try retrieve data from file
@@ -148,8 +160,41 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 				final String storeid = props.getProperty("storeid");
 				final String layerid = props.getProperty("layerid");
 				final String driver = props.getProperty("driver");
+				final String path = new File(inputFile.getParentFile(), props.getProperty("path")).getAbsolutePath();
 
+				final AbstractGridCoverage2DReader reader = ((AbstractGridFormat) acquireFormat(driver)).getReader(new File(path).toURI().toURL());
+				
 				WMCEntry entry = new WMCEntry(namespace, layerid);
+				
+				final String[] metadataNames = reader.getMetadataNames();
+	            
+
+	            String timeMetadata = null;
+	            String elevationMetadata=null;
+	            if (metadataNames != null && metadataNames.length > 0) {
+	                // TIME DIMENSION
+	                timeMetadata = reader.getMetadataValue("TIME_DOMAIN");
+
+	                // ELEVATION DIMENSION
+	                elevationMetadata = reader.getMetadataValue("ELEVATION_DOMAIN");                   
+	            }
+	            
+	            if (timeMetadata != null) {
+	                final String[] timePositions = timeMetadata.split(",");
+	                Map<String, String> time = new HashMap<String, String>();
+	                time.put("default", timePositions[0]);
+	                time.put("values", timeMetadata);
+	                entry.getDimensions().put("TIME", time);
+	            }
+	            
+	            if (elevationMetadata != null) {
+	                final String[] elevationLevels = elevationMetadata.split(",");
+	                Map<String, String> elevation = new HashMap<String, String>();
+	                elevation.put("default", elevationLevels[0]);
+	                elevation.put("values", elevationMetadata);
+	                entry.getDimensions().put("ELEVATION", elevation);
+	            }
+	            
 				entryList.add(entry);
 			}
 
@@ -173,9 +218,9 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 			// //
 			// GENERAL CONFIG ...
 			// //
-			ViewContext viewContext = new ViewContext("GeoBatchWMC", "1.0.0");
+			ViewContext viewContext = new ViewContext("WMC", "2Beta");
 			WMCWindow window = new WMCWindow(height, width);
-			GeneralWMCConfiguration generalConfig = new GeneralWMCConfiguration(window, "GeoBatchWMC", "GeoBatchWMC");
+			GeneralWMCConfiguration generalConfig = new GeneralWMCConfiguration(window, "WMC", "WMC");
 			String[] cfgbbox = boundingBox.split(",");
 			WMCBoundingBox bbox = new WMCBoundingBox(crs, Double
 					.valueOf(cfgbbox[0]), Double.valueOf(cfgbbox[1]), Double
@@ -228,6 +273,19 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 				extension.setIsBaseLayer(new OLIsBaseLayer("FALSE"));
 				extension.setSingleTile(new OLSingleTile("FALSE"));
 				extension.setTransparent(new OLTransparent("TRUE"));
+				
+				if (entry.getDimensions() != null) {
+					for (String dim : entry.getDimensions().keySet()) {
+						final String values = entry.getDimensions().get(dim).get("values");
+						final String defaultValue = entry.getDimensions().get(dim).get("default");
+
+						if ("TIME".equals(dim)){
+							extension.setTime(new OLDimension(values, dim, defaultValue));
+						} else if ("ELEVATION".equals(dim)) {
+							extension.setElevation(new OLDimension(values, dim, defaultValue));
+						}
+					}
+				}
 
 				formatList.add(new WMCFormat("1", "image/png"));
 				// styleList.add(new WMCStyle("1", new WMCSLD(new WMCOnlineResource("simple", "http://localhost:8081/NurcCruises/resources/xml/SLDDefault.xml"))));
@@ -256,7 +314,7 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 				FileWriter outFile = null;
 				PrintWriter out = null;
 				try {
-					outFile = new FileWriter(new File(outputDir, "GeoBatchWMC-" + new Date().getTime() + ".xml"));
+					outFile = new FileWriter(new File(outputDir, "WMC_" + sessionId + ".xml"));
 					out = new PrintWriter(outFile);
 				
 					new WMCStream().toXML(viewContext, out);
@@ -277,6 +335,51 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 		} catch (Throwable t) {
 			LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
 			return null;
+		}
+	}
+	
+	private String getSessionId(String filePrefix) {
+		String sessionId = "-1"; 
+		
+		String[] fileParts = filePrefix.split("_");
+		if (fileParts != null && fileParts.length > 0) {
+			for (String part : fileParts) {
+				try {
+					Long.parseLong(part);
+					sessionId = part;
+					break;
+				} catch (NumberFormatException e) {
+					continue;
+				}
+			}
+		}
+		
+		return sessionId;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 * @return
+	 * @throws IOException
+	 */
+	public static Format acquireFormat(String type) throws IOException {
+		Format[] formats = GridFormatFinder.getFormatArray();
+		Format format = null;
+		final int length = formats.length;
+
+		for (int i = 0; i < length; i++) {
+			if (formats[i].getName().equals(type)) {
+				format = formats[i];
+
+				break;
+			}
+		}
+
+		if (format == null) {
+			throw new IOException("Cannot handle format: " + type);
+		} else {
+			return format;
 		}
 	}
 }

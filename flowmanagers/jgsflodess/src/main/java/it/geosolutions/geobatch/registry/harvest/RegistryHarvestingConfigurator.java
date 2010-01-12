@@ -35,6 +35,7 @@ import it.geosolutions.geobatch.utils.IOUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -263,9 +264,6 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 		File metocDictionaryFile = IOUtils.findLocation(configuration.getMetocDictionaryPath(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory())); 
 		Metocs metocDictionary = (Metocs) um.unmarshal(new FileReader(metocDictionaryFile));
 		
-		// keep original name
-		final File outFile = new File(outDir, coverageName + ".xml");
-		
 		// reading GeoTIFF file
 		final AbstractGridCoverage2DReader reader = ((AbstractGridFormat) acquireFormat(sourceFileType)).getReader(sourceFile.toURI().toURL());
 		final CoordinateReferenceSystem crs = reader.getCrs();
@@ -279,8 +277,93 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 
 		final String[] metocFields = coverageStoreId.split("_");
 		
+		final String[] metadataNames = reader.getMetadataNames();
+		
+		boolean res = false;
+
+		String timeMetadata = null;
+		String elevationMetadata=null;
+		if (metadataNames != null && metadataNames.length > 0) {
+			// TIME DIMENSION
+			timeMetadata = reader.getMetadataValue("TIME_DOMAIN");
+
+			// ELEVATION DIMENSION
+			elevationMetadata = reader.getMetadataValue("ELEVATION_DOMAIN");                   
+		}
+
+		String[] timePositions = null;
+		String[] elevationLevels = null;
+		if (timeMetadata != null) {
+			timePositions = timeMetadata.split(",");
+		}
+
+		if (elevationMetadata != null) {
+			elevationLevels = elevationMetadata.split(",");
+		}
+
+		int cols = (timePositions != null ? timePositions.length : 1);
+		int rows = (elevationLevels != null ? elevationLevels.length : 1);
+
+		// <FOR>
+		final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
+		int col = 0;
+		int row = 0;
+		for (int i=0; i<(cols * rows); i++) {
+			col = (row == rows-1 && col < cols? col++ : col);
+			row = (row < rows ? i : (i+1)%rows);
+
+			final String timePosition = (timePositions != null ? timePositions[col] : null);
+			final String elevation = (elevationLevels != null ? elevationLevels[row] : null);
+			final String fileName = coverageName + (timePosition != null ? "-"+sdf.parse(timePosition).getTime() : "") + (elevation != null ? "-"+elevation : "") + ".xml";
+
+			readWriteMetadata(outDir, fileName, metadataTemplate, timestamp, namespace,
+					coverageName, zOrder, metocDictionary, srsId, envelope, range,
+					matrix, metocFields, timePosition, elevation);
+			
+			res = JGSFLoDeSSIOUtils.sendHarvestRequest(registryURL, providerURL, fileName);
+			
+			if (!res) {
+				//break;
+			}
+		}
+		// </FOR>
+
+		reader.dispose();
+
+		return res;
+	}
+
+	/**
+	 * @param outDir
+	 * @param metadataTemplate
+	 * @param timestamp
+	 * @param namespace
+	 * @param coverageName
+	 * @param zOrder
+	 * @param metocDictionary
+	 * @param srsId
+	 * @param envelope
+	 * @param range
+	 * @param matrix
+	 * @param metocFields
+	 * @param fileName
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 * @throws IndexOutOfBoundsException
+	 * @throws ParseException
+	 * @throws NumberFormatException
+	 */
+	private void readWriteMetadata(final File outDir, final String fileName,
+			final File metadataTemplate, final long timestamp,
+			final String namespace, final String coverageName,
+			final String zOrder, Metocs metocDictionary, final String srsId,
+			final GeneralEnvelope envelope, final GridEnvelope range,
+			final Matrix matrix, final String[] metocFields,
+			final String timePosition, final String elevation) throws FileNotFoundException, IOException,
+			IndexOutOfBoundsException, ParseException, NumberFormatException {
 		// Read/Write Metadata
-        
+		final File outFile = new File(outDir, fileName);
+		
 		// Create FileReader Object
         FileReader inputFileReader   = new FileReader(metadataTemplate);
         FileWriter outputFileWriter  = new FileWriter(outFile);
@@ -293,6 +376,7 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 
             String inLine = null;
             final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+            final SimpleDateFormat sdfMetadata = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
             final SimpleDateFormat sdfMetoc = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
             
             while ((inLine = inputStream.readLine()) != null) {
@@ -354,6 +438,11 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 										wcsGetCoverage.append("&amp;WIDTH=").append(range.getSpan(0));
 										wcsGetCoverage.append("&amp;HEIGHT=").append(range.getSpan(1));
 										wcsGetCoverage.append("&amp;CRS=").append(srsId);
+										if (timePosition != null)
+											wcsGetCoverage.append("&amp;TIME=").append(timePosition);
+										if (elevation != null)
+											wcsGetCoverage.append("&amp;ELEVATION=").append(elevation);
+										
             		inLine = inLine.replaceAll("#WCS_GETCOVERAGE#", wcsGetCoverage.toString());
             	}
 
@@ -371,6 +460,11 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
             							wmsGetMap.append("&amp;WIDTH=").append(range.getSpan(0));
             							wmsGetMap.append("&amp;HEIGHT=").append(range.getSpan(1));
             							wmsGetMap.append("&amp;SRS=").append(srsId);
+										if (timePosition != null)
+											wmsGetMap.append("&amp;TIME=").append(timePosition);
+										if (elevation != null)
+											wmsGetMap.append("&amp;ELEVATION=").append(elevation);
+
             		inLine = inLine.replaceAll("#WMS_GETMAP#", wmsGetMap.toString());
             	}
 
@@ -463,7 +557,7 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
             	}
 
             	if (inLine.contains("#FORECAST_TIME#")) {
-            		inLine = inLine.replaceAll("#FORECAST_TIME#", sdf.format(sdfMetoc.parse(metocFields[6])));
+            		inLine = inLine.replaceAll("#FORECAST_TIME#", sdf.format(timePosition != null ? sdfMetadata.parse(timePosition) : sdfMetoc.parse(metocFields[6])));
             	}
 
             	/** ENVELOPE/GRID-RANGE **/
@@ -500,7 +594,7 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
             	}
 
             	if (inLine.contains("#Z_LEVEL#")) {
-            		inLine = inLine.replaceAll("#Z_LEVEL#", String.valueOf(Double.parseDouble(metocFields[3])));
+            		inLine = inLine.replaceAll("#Z_LEVEL#", String.valueOf(elevation != null ? Double.parseDouble(elevation): Double.parseDouble(metocFields[3])));
             	}
 
             	if (inLine.contains("#PIXEL_UOM#")) {
@@ -558,10 +652,6 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
         	inputFileReader.close();
         	outputFileWriter.close();
         }
-		
-		reader.dispose();
-
-		return JGSFLoDeSSIOUtils.sendHarvestRequest(registryURL, providerURL, coverageName);
 	}
 
 	/**

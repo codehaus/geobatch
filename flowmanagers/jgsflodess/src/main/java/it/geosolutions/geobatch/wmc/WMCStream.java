@@ -31,6 +31,7 @@ package it.geosolutions.geobatch.wmc;
 
 import it.geosolutions.geobatch.wmc.model.GeneralWMCConfiguration;
 import it.geosolutions.geobatch.wmc.model.OLBaseClass;
+import it.geosolutions.geobatch.wmc.model.OLDimension;
 import it.geosolutions.geobatch.wmc.model.OLMaxExtent;
 import it.geosolutions.geobatch.wmc.model.ViewContext;
 import it.geosolutions.geobatch.wmc.model.WMCBoundingBox;
@@ -161,6 +162,8 @@ public class WMCStream {
     	xstream.aliasField("ol:numZoomLevels", WMCExtension.class, "numZoomLevels");
     	xstream.aliasField("ol:units", WMCExtension.class, "units");
     	xstream.aliasField("ol:maxExtent", WMCExtension.class, "maxExtent");
+    	xstream.aliasField("ol:dimension", WMCExtension.class, "time");
+    	xstream.aliasField("ol:dimension", WMCExtension.class, "elevation");
     	
     	xstream.registerConverter(new Converter() {
 
@@ -181,17 +184,37 @@ public class WMCStream {
 					writer.addAttribute("maxy", String.valueOf(maxExtent.getMaxy()));
 				}
 				
+				if (value instanceof OLDimension) {
+					OLDimension dimension = (OLDimension) value;
+					writer.addAttribute("name", dimension.getName());
+					writer.addAttribute("default", dimension.getDefaultValue());
+				}
+				
 				if (ol.getContent() != null)
 					writer.setValue(ol.getContent());
 			}
 
 			public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-				OLBaseClass ol = new OLBaseClass(reader.getValue());
+				OLBaseClass ol = null;
+				
+				if (reader.getAttribute("minx") != null && reader.getAttribute("miny") != null && 
+						reader.getAttribute("maxx") != null && reader.getAttribute("maxy") != null) {
+					ol = new OLMaxExtent(reader.getValue());
+					((OLMaxExtent) ol).setMinx(Double.parseDouble(reader.getAttribute("minx")));
+					((OLMaxExtent) ol).setMaxx(Double.parseDouble(reader.getAttribute("maxx")));
+					((OLMaxExtent) ol).setMiny(Double.parseDouble(reader.getAttribute("miny")));
+					((OLMaxExtent) ol).setMaxy(Double.parseDouble(reader.getAttribute("maxy")));
+				} else if (reader.getAttribute("name") != null && reader.getAttribute("default") != null) {
+					ol = new OLDimension(reader.getValue(), reader.getAttribute("name"), reader.getAttribute("default")); 
+				} else {
+					ol = new OLBaseClass(reader.getValue());
+				}
 				
 				return ol;
 			}
     		
     	});
+    	
 	}
 
 	/**
