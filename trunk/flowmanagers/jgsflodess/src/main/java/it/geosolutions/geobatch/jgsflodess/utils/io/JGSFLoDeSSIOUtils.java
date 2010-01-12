@@ -833,7 +833,7 @@ public class JGSFLoDeSSIOUtils {
 	 * @throws ProtocolException
 	 */
 	public static boolean sendHarvestRequest(final String registryURL,
-			final String providerURL, final String coverageName)
+			final String providerURL, final String fileName)
 			throws MalformedURLException, IOException, ProtocolException {
 		boolean res = false;
 		
@@ -841,7 +841,7 @@ public class JGSFLoDeSSIOUtils {
 				"<soapenv:Header/>" +
 				"<soapenv:Body>" +
 				"<csw:Harvest xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" service=\"CSW\" version=\"2.0.2\">" +
-				"<csw:Source>"+providerURL+"/" + coverageName + ".xml" + "</csw:Source>" +
+				"<csw:Source>"+providerURL+"/" + fileName + "</csw:Source>" +
 				"</csw:Harvest>" +
 				"</soapenv:Body>" +
 				"</soapenv:Envelope>";

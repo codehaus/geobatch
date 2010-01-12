@@ -30,6 +30,7 @@
 package it.geosolutions.geobatch.wmc;
 
 import it.geosolutions.geobatch.wmc.model.GeneralWMCConfiguration;
+import it.geosolutions.geobatch.wmc.model.OLDimension;
 import it.geosolutions.geobatch.wmc.model.OLIsBaseLayer;
 import it.geosolutions.geobatch.wmc.model.OLLayerID;
 import it.geosolutions.geobatch.wmc.model.OLMaxExtent;
@@ -83,6 +84,8 @@ public class WMCStreamingTest {
     	extension.setIsBaseLayer(new OLIsBaseLayer("TRUE"));
     	extension.setSingleTile(new OLSingleTile("FALSE"));
     	extension.setTransparent(new OLTransparent("FALSE"));
+    	extension.setTime(new OLDimension("0000-00-00T00:00:000Z", "TIME", "current"));
+    	extension.setElevation(new OLDimension("0.0,10.0", "ELEVATION", "0.0"));
     	
     	formatList.add(new WMCFormat("1", "image/png"));
     	styleList.add(new WMCStyle("1", new WMCSLD(new WMCOnlineResource("simple", "http://localhost:8081/NurcCruises/resources/xml/SLDDefault.xml"))));

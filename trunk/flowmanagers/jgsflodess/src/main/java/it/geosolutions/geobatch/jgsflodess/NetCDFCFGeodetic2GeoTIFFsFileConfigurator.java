@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Queue;
 import java.util.TimeZone;
@@ -270,7 +271,7 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends MetocConfiguratio
 					
 					boolean canProceed = false;
 					
-					final File gtiffOutputDir = new File(outDir.getAbsolutePath() + File.separator + inputFileName + "_" + varName.replaceAll("_", ""));
+					final File gtiffOutputDir = new File(outDir.getAbsolutePath() + File.separator + inputFileName + "_" + varName.replaceAll("_", "") + "_T" + new Date().getTime());
 					
 					if (!gtiffOutputDir.exists())
 						canProceed = gtiffOutputDir.mkdirs();

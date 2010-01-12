@@ -29,6 +29,8 @@
  */
 package it.geosolutions.geobatch.wmc.model;
 
+
+
 /**
  * @author Fabiani
  *
@@ -43,6 +45,9 @@ public class WMCExtension {
 	private OLNumZoomLevels numZoomLevels;
 	private OLUnits units;
 	private OLMaxExtent maxExtent;
+	private OLDimension time;
+	private OLDimension elevation;
+	
 	/**
 	 * @return the id
 	 */
@@ -151,6 +156,30 @@ public class WMCExtension {
 	 */
 	public void setMaxExtent(OLMaxExtent maxExtent) {
 		this.maxExtent = maxExtent;
+	}
+	/**
+	 * @param time the time to set
+	 */
+	public void setTime(OLDimension time) {
+		this.time = time;
+	}
+	/**
+	 * @return the time
+	 */
+	public OLDimension getTime() {
+		return time;
+	}
+	/**
+	 * @param elevation the elevation to set
+	 */
+	public void setElevation(OLDimension elevation) {
+		this.elevation = elevation;
+	}
+	/**
+	 * @return the elevation
+	 */
+	public OLDimension getElevation() {
+		return elevation;
 	}
 
 }

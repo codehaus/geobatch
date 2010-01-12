@@ -21,10 +21,14 @@
  */
 package it.geosolutions.geobatch.wmc;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class WMCEntry {
+
 	private String layerName;
-	
 	private String nameSpace;
+	private Map<String, Map<String, String>> dimensions;
 
 	public String getLayerName() {
 		return layerName;
@@ -45,6 +49,23 @@ public class WMCEntry {
 	public WMCEntry(final String nameSpace, final String layerName){
 		this.layerName = layerName;
 		this.nameSpace = nameSpace;
+	}
+
+	/**
+	 * @param dimensions the dimensions to set
+	 */
+	public void setDimensions(Map<String, Map<String, String>> dimensions) {
+		this.dimensions = dimensions;
+	}
+
+	/**
+	 * @return the dimensions
+	 */
+	public Map<String, Map<String, String>> getDimensions() {
+		if (dimensions == null)
+			dimensions = new HashMap<String, Map<String,String>>();
+		
+		return dimensions;
 	}
 	
 }
