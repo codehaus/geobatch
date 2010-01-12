@@ -14,7 +14,7 @@
 		</FileEventRule>
             <ComposerConfiguration>
 			<workingDirectory>sasflowworkingdir</workingDirectory>
-			<serviceID>composerService</serviceID>
+			<serviceID>ComposerService</serviceID>
 			<outputFormat>GeoTIFF</outputFormat>
 			<inputFormats>mat</inputFormats>
 			<leavesFolders>stbd;port</leavesFolders>
@@ -22,7 +22,7 @@
 			<!-- LINUX NAS -->
 			<!--outputBaseFolder>/mnt/datastorage/sas/mosaic_output</outputBaseFolder-->
 			<!-- LINUX LOCAL -->
-			<outputBaseFolder>i:\temp\sas\output</outputBaseFolder>
+			<outputBaseFolder>V:\temp\sas\output</outputBaseFolder>
 			<JAICacheCapacity>768</JAICacheCapacity>
 	        	<JAIParallelism>8</JAIParallelism>
 			<JAICacheThreshold>1</JAICacheThreshold>
@@ -32,11 +32,11 @@
 			<mosaicScaleAlgorithm>avg</mosaicScaleAlgorithm>
 			<tileH>512</tileH>
 			<tileW>512</tileW>
-			<chunkW>1024</chunkW>
-			<chunkH>1024</chunkH>
+			<chunkW>10240</chunkW>
+			<chunkH>10240</chunkH>
 			<compressionRatio>0.75</compressionRatio>
 			<compressionScheme>LZW</compressionScheme>
-			<geoserverURL>http://192.168.1.17:8080/geoserver</geoserverURL>
+			<geoserverURL>http://192.168.1.17:8086/geoserver</geoserverURL>
 			<geoserverUID>admin</geoserverUID>
 			<geoserverPWD>geoserver</geoserverPWD>
 			<geoserverUploadMethod>EXTERNAL</geoserverUploadMethod>
