@@ -90,9 +90,10 @@
 			<id>sas</id>
 			<modules>
 			  <module>gb-geoserver</module>
-        <module>gb-task-executor</module>
-        <module>shapefile</module>
-		    <module>gb-sas</module>
+        		  <module>geotiff</module>
+			  <module>gb-task-executor</module>
+		          <module>shapefile</module>
+			  <module>gb-sas</module>
 			</modules>
 		</profile>
 		<profile>
