@@ -52,10 +52,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>it.geosolutions</groupId>
-			<artifactId>gb-flowmanagers-ImageMosaic</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>it.geosolutions</groupId>
 			<artifactId>gb-flowmanagers-geoserver</artifactId>
 		</dependency>
 

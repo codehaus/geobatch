@@ -27,9 +27,9 @@ parser.add_option("-i", "--input", dest="input",
                   help="Input mission detections folder", metavar="FILE")
 parser.add_option("-o", "--outdir", dest="outdir",
                   help="Write shapefile to that output dir")
-parser.add_option("-c", "--crsdir", dest="crsdir", default="NONE", 
+parser.add_option("-c", "--crsdir", dest="crsdir", default=None, 
                   help="Folder containing CRS definitions")
-parser.add_option("-l", "--logdir", dest="logdir", default="NONE", 
+parser.add_option("-l", "--logdir", dest="logdir", default=None, 
                   help="Folder containing Logging")                  
 
 (options, args) = parser.parse_args()
@@ -51,10 +51,8 @@ if (not os.path.isdir(inputDir)):
 dirList = os.listdir(inputDir)
 
 shp_path = options.outdir
-#if (nArgs > 2):
+print(shp_path)
 crs_path = options.crsdir
-#else:
-#  crs_path = 'NONE'
   
 #---------------------------------
 # Getting the data name
@@ -66,20 +64,25 @@ baseDir = "target_" + baseDir
 # Preparing the output folder
 #---------------------------------
 shp_filepath = os.path.join(shp_path, baseDir)
-dir = shp_filepath + os.sep
-if (not os.path.isdir(dir)):
-	os.mkdir(dir)
+shapeDir = shp_filepath + os.sep
+if (not os.path.isdir(shapeDir)):
+	os.mkdir(shapeDir)
 shp_filepath = (shp_filepath + os.sep + baseDir + ".shp")
 
-if (not options.logdir is None):
+if options.logdir is None:
+  logDir = os.path.join(shp_path, "logs")
+  print(logDir)
+else:
   logDir = options.logdir
-  if (not os.path.isdir(logDir)):
-    os.mkdir(logDir)
-  logOps = True
-  time = strftime("%Y-%m-%d-%H%M%S")
-  logFile = os.path.join(logDir, time + "-" + baseDir + ".log")
-  logg = open(logFile,'w')
-  logg.write("Extracting detections from input dir " + inputDir + " to " + shp_filepath + "\n")
+  print(logDir)
+
+if (not os.path.isdir(logDir)):
+  os.mkdir(logDir)
+logOps = True
+time = strftime("%Y-%m-%d-%H%M%S")
+logFile = os.path.join(logDir, time + "-" + baseDir + ".log")
+logg = open(logFile,'w')
+logg.write("Extracting detections from input dir " + inputDir + " to " + shp_filepath + "\n")
 
 drv = ogr.GetDriverByName('ESRI Shapefile')
 ds = drv.CreateDataSource(shp_filepath)
@@ -169,6 +172,10 @@ for fname in dirList:
     layer.CreateField(ogr.FieldDefn('lon_target', ogr.OFTReal))
     layer.CreateField(ogr.FieldDefn('lat_target', ogr.OFTReal))
     layer.CreateField(ogr.FieldDefn('layername', ogr.OFTString))
+    layer.CreateField(ogr.FieldDefn('minx', ogr.OFTReal))
+    layer.CreateField(ogr.FieldDefn('miny', ogr.OFTReal))
+    layer.CreateField(ogr.FieldDefn('maxx', ogr.OFTReal))
+    layer.CreateField(ogr.FieldDefn('maxy', ogr.OFTReal))
     first = False
 
   geom = ogr.Geometry(type = layer.GetLayerDefn().GetGeomType())
@@ -188,6 +195,10 @@ for fname in dirList:
   feat.SetField('lat_target', lat_target[0][0])
   feat.SetField('lon_target', lon_target[0][0])
   feat.SetField('layername', layername)
+  feat.SetField('minx', minX)
+  feat.SetField('miny', minY)
+  feat.SetField('maxx', maxX)
+  feat.SetField('maxy', maxY)
   layer.CreateFeature(feat)
   feat.Destroy()
   if (logOps):
@@ -203,7 +214,7 @@ for fname in dirList:
 outprj = shp_filepath[0:len(shp_filepath)-4]+".prj"
 crsfile = "crs" + code + ".prj"
 found = False
-if(crs_path != 'NONE'):
+if(not crs_path is None):
   crspath = os.path.join(crs_path, crsfile)
   if (os.path.isfile(crspath)):
     found = True
