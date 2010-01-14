@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlowConfiguration>
+	
+	<workingDirectory>JGSFLoDeSSworkingdir/SWAN</workingDirectory>
+	
+	<EventConsumerConfiguration>
+		<workingDirectory>JGSFLoDeSSworkingdir/SWAN</workingDirectory>
+		<performBackup>false</performBackup>
+		<FileEventRule>
+			<optional>false</optional>
+			<originalOccurrencies>1</originalOccurrencies>
+			<regex>.*\.nc</regex>
+			<id>r1</id>
+			<description>A single netcdf file</description>
+			<name>test</name>
+		</FileEventRule>
+		
+		<GeoServerActionConfiguration>
+			<workingDirectory>JGSFLoDeSSworkingdir/SWAN</workingDirectory>
+			<crs>EPSG:4326</crs>
+			<envelope/>
+			<dataTransferMethod>DIRECT</dataTransferMethod>
+			<geoserverPWD>geoserver</geoserverPWD>
+			<geoserverUID>admin</geoserverUID>
+			<geoserverURL>http://localhost:8081/geoserver</geoserverURL>
+			<!-- storeFilePrefix>c41078a</storeFilePrefix -->
+			<wmsPath>/</wmsPath>
+			<defaultStyle>raster</defaultStyle>
+			<styles/>
+			<!-- styles>
+				<style>raster.sld</style>
+			</styles -->
+			<serviceID>JGSFLoDeSSSWANGeneratorService</serviceID>
+			<id>a1</id>
+			<description>description1</description>
+			<name>test1</name>
+		</GeoServerActionConfiguration>
+		
+		<GeoServerActionConfiguration>
+			<workingDirectory>JGSFLoDeSSworkingdir/SWAN</workingDirectory>
+			<crs>EPSG:4326</crs>
+			<envelope/>
+			<dataTransferMethod>DIRECT</dataTransferMethod>
+			<geoserverPWD>geoserver</geoserverPWD>
+			<geoserverUID>admin</geoserverUID>
+			<geoserverURL>http://localhost:8081/geoserver</geoserverURL>
+			<!-- storeFilePrefix>c41078a</storeFilePrefix -->
+			<wmsPath>/</wmsPath>
+			<defaultStyle>raster</defaultStyle>
+			<styles/>
+			<!-- styles>
+				<style>raster.sld</style>
+			</styles -->
+			<serviceID>NetCDFCFGeodetic2GeoTIFFsGeneratorService</serviceID>
+			<id>a2</id>
+			<description>description2</description>
+			<name>test2</name>
+		</GeoServerActionConfiguration>
+		
+		<id>id</id>
+		<description>description</description>
+		<name>test</name>
+	</EventConsumerConfiguration>
+	
+	<eventGeneratorConfiguration class="FsEventGeneratorConfiguration">
+		<wildCard>*.*</wildCard>
+		<watchDirectory>JGSFLoDeSSworkingdir/SWAN/in</watchDirectory>
+		<osType>OS_UNDEFINED</osType>
+		<eventType>FILE_ADDED</eventType>
+		<id>JGSFLoDeSSSwanId</id>
+        <serviceID>fsEventGeneratorService</serviceID>
+		<description>description</description>
+		<name>test</name>
+	</eventGeneratorConfiguration>
+	
+	<id>JGSFLoDeSSSWANflow</id>
+	<description>JGSFLoDeSSSWANflow</description>
+	<name>JGSFLoDeSSSWANflow</name>
+</FlowConfiguration>

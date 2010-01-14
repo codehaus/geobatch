@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlowConfiguration>
+	<workingDirectory>flow3workingdir</workingDirectory>
+	<EventConsumerConfiguration>
+		<workingDirectory>flow3workingdir</workingDirectory>
+		<performBackup>false</performBackup>
+
+       <FileEventRule>
+			<optional>false</optional>
+			<originalOccurrencies>1</originalOccurrencies>
+			<regex>.*\.shp</regex>
+			<id>r1</id>
+			<description>description</description>
+			<name>test</name>
+		</FileEventRule>
+
+        <FtpServerActionConfiguration>
+			<workingDirectory>flow3workingdir</workingDirectory>
+			<dataTransferMethod/>
+			<timeout>10000</timeout>
+			<zipInput>true</zipInput>
+			<zipFileName>testZip</zipFileName>
+			<ftpserverPWD>.....</ftpserverPWD>
+			<ftpserverUSR>.....</ftpserverUSR>
+			<ftpserverHost>ftp.geo-solutions.it</ftpserverHost>
+            <ftpserverPort>21</ftpserverPort>
+            <connectMode>ACTIVE</connectMode>
+			<serviceID>ftpUploadActionService</serviceID>
+			<id>a1</id>
+			<description>description</description>
+			<name>test</name>
+		</FtpServerActionConfiguration>
+
+		<id>id</id>
+		<description>description</description>
+		<name>test</name>
+	</EventConsumerConfiguration>
+
+	<eventGeneratorConfiguration class="FsEventGeneratorConfiguration">
+		<wildCard>*.*</wildCard>
+         <watchDirectory>flow3workingdir/in</watchDirectory>
+		<osType>OS_UNDEFINED</osType>
+		<eventType>FILE_ADDED</eventType>
+        <serviceID>fsEventGeneratorService</serviceID>
+		<id>id</id>
+		<description>description</description>
+		<name>test</name>
+	</eventGeneratorConfiguration>
+
+    <id>flowFtpPush</id>
+	<description>test ftp push</description>
+	<name>flowFtpPush</name>
+</FlowConfiguration>
