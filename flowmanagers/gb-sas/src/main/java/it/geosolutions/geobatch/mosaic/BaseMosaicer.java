@@ -357,7 +357,6 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
                     }
                     
                     final RenderedImage mosaicImage = createMosaic(coverages,world2GridTransform);
-                    
                     final RenderedImage balancedMosaic = processMosaic(mosaicImage);
                     
                     final GridCoverage2D balancedGc = coverageFactory.create("balanced", balancedMosaic, globEnvelope);
@@ -407,7 +406,7 @@ public abstract class BaseMosaicer extends BaseAction<FileSystemMonitorEvent> im
         gm.setElement(0, 2, globEnvelope.getLowerCorner().getOrdinate(0));
         gm.setElement(1, 2, globEnvelope.getUpperCorner().getOrdinate(1));
         final MathTransform mosaicTransform = ProjectiveTransform.create(gm);
-        final MathTransform tempTransform = PixelTranslation.translate(mosaicTransform, PixelInCell.CELL_CENTER, PixelInCell.CELL_CORNER);
+        final MathTransform tempTransform = PixelTranslation.translate(mosaicTransform, PixelInCell.CELL_CORNER, PixelInCell.CELL_CENTER);
         
        return tempTransform.inverse();
 	}

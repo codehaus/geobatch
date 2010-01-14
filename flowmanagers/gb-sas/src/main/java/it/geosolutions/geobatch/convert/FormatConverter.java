@@ -251,8 +251,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
         // Getting a GridFormat
         // 
         // //
-        final AbstractGridFormat gridFormat = (AbstractGridFormat) GridFormatFinder
-                .findFormat(file);
+        final AbstractGridFormat gridFormat = (AbstractGridFormat) GridFormatFinder.findFormat(file);
         if (gridFormat != null && !(gridFormat instanceof UnknownFormat)) {
 
             final int tileW = configuration.getTileW();
@@ -275,8 +274,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 	            final AbstractGridFormat writerFormat = (AbstractGridFormat) acquireFormatByName(outputFormatType);
 	
 	            if (!(writerFormat instanceof UnknownFormat)) {
-	                GridCoverageWriter writer = writerFormat.getWriter(
-	                        outputFile);
+	                GridCoverageWriter writer = writerFormat.getWriter(outputFile);
 	
 	                GeoToolsWriteParams params = null;
 	                ParameterValueGroup wparams = null;
@@ -290,8 +288,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 	                if (params != null) {
 	                    params.setTilingMode(GeoToolsWriteParams.MODE_EXPLICIT);
 	                    params.setTiling(tileW, tileH);
-	                    wparams.parameter(
-	                            AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName()
+	                    wparams.parameter(AbstractGridFormat.GEOTOOLS_WRITE_PARAMS.getName()
 	                                    .toString()).setValue(params);
 	                }
 	
