@@ -79,12 +79,12 @@ public class PureJavaTest extends AbstractJUnit4SpringContextTests {
 		monitor = ((FileSystemMonitorSPI)this.applicationContext.getBean("pureJavaFSMSPI")).createInstance(params);
 		listener = new TestListener();
 
-		LOGGER.info("Aggiungo la dir prova ai listener");
+		LOGGER.info("Add a dummy listener");
 		// Add a dummy listener
 		monitor.addListener(listener);
 		monitor.start();
 		Thread.yield();
-		LOGGER.info("Inizio l'ascolto della directory");
+		LOGGER.info("Start folder observer");
 		
 		//prepare the pause
 		LOGGER.info("prepare the pause");
@@ -131,7 +131,7 @@ public class PureJavaTest extends AbstractJUnit4SpringContextTests {
 
 	private final class TestListener implements FileSystemMonitorListener {
 		public void fileMonitorEventDelivered(FileSystemMonitorEvent fe) {
-			Assert.assertTrue("Controllo valore del MonitorEvent ", fe != null);
+			Assert.assertTrue("MonitorEvent value ", fe != null);
 			LOGGER.info(new StringBuffer("\nFile changed: ").append(
 					fe.getSource()).toString());
 			String s = "";
