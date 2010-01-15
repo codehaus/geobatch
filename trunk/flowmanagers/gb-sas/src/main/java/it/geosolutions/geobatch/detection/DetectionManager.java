@@ -130,7 +130,7 @@ public class DetectionManager extends BaseAction<FileSystemMonitorEvent> impleme
             final List<String> missionDirs = Utils.getDataDirectories(inputFile, FolderContentType.DETECTIONS);
             
             if (missionDirs==null || missionDirs.isEmpty()){
-            	LOGGER.warning("Unable to find LegData location from the specified file: "+inputFile.getAbsolutePath());
+            	LOGGER.warning("Unable to find target data location from the specified file: "+inputFile.getAbsolutePath());
             	return events;
             }
             final int nMissions = missionDirs.size();
@@ -152,7 +152,11 @@ public class DetectionManager extends BaseAction<FileSystemMonitorEvent> impleme
 	                    ingestDetection(fileDir, subDir);
 	                }
 	            }
+	            if (LOGGER.isLoggable(Level.INFO))
+	            	LOGGER.info("Done");
             }            
+            if (LOGGER.isLoggable(Level.INFO))
+            	LOGGER.info("End Of processing");
             return events;
         } catch (Throwable t) {
             if (LOGGER.isLoggable(Level.SEVERE))
@@ -494,7 +498,7 @@ public class DetectionManager extends BaseAction<FileSystemMonitorEvent> impleme
         }
 
         taskConfig.setExecutable(configuration.getExecutablePath());
-		taskConfig.setTimeOut(new Long(10000));
+        taskConfig.setTimeOut(new Long(configuration.getConverterTimeout()));
 		List<String> variables = new ArrayList<String>(2);
 		
 		variables.add("GDAL_DATA " + configuration.getGdalData());

@@ -73,6 +73,8 @@ public class DetectionManagerConfiguration extends ActionConfiguration implement
     
     private String wmsPath;
     
+    private long converterTimeout;
+    
     public void setExecutablePath(String executablePath) {
 		this.executablePath = executablePath;
 	}
@@ -202,6 +204,14 @@ public class DetectionManagerConfiguration extends ActionConfiguration implement
 		this.crsDefinitionsDir = crsDefinitionsDir;
 	}
 
+	public void setConverterTimeout(long converterTimeout) {
+		this.converterTimeout = converterTimeout;
+	}
+
+	public long getConverterTimeout() {
+		return converterTimeout;
+	}
+
 	public String getDetectionConverterPath() {
 		return detectionConverterPath;
 	}
@@ -220,8 +230,6 @@ public class DetectionManagerConfiguration extends ActionConfiguration implement
 
 
     public DetectionManagerConfiguration clone() throws CloneNotSupportedException {
-//        final DetectionManagerConfiguration configuration = new DetectionManagerConfiguration(
-//                getId(), getName(), getDescription(), isDirty());
     	try {
 			return (DetectionManagerConfiguration) BeanUtils.cloneBean(this);
 		} catch (IllegalAccessException e) {
@@ -241,22 +249,6 @@ public class DetectionManagerConfiguration extends ActionConfiguration implement
 			cns.initCause(e);
 			throw cns;
 		}
-        
-//        configuration.setServiceID(getServiceID());
-//        configuration.setGeoserverPWD(geoserverPWD);
-//        configuration.setGeoserverUID(geoserverUID);
-//        configuration.setGeoserverUploadMethod(geoserverUploadMethod);
-//        configuration.setGeoserverURL(geoserverURL);
-//        configuration.setCrsDefinitionsDir(crsDefinitionsDir);
-//        configuration.setDetectionConverterPath(detectionConverterPath);
-//        configuration.setDetectionsOutputDir(detectionsOutputDir);
-//        configuration.setVariables(variables);
-//        configuration.setExecutablePath(executablePath);
-//        configuration.setDetectionsErrorLog(detectionsErrorLog);
-//        configuration.setWmsPath(wmsPath);
-//        configuration.setDefaultNamespace(defaultNamespace);
-//        configuration.setXlsPath(xlsPath);
-//        return configuration;
     }
 
 }
