@@ -142,7 +142,7 @@
 			   <module>gb-task-executor</module>
 			   <module>imagemosaic</module>
 			   <module>shapefile</module>
-			   <module>shapefile</module>
+			   <module>shp2pg</module>
 			   <module>gb-sas</module>
 			   <module>jgsflodess</module>
 			   <module>ascii-grids</module>
