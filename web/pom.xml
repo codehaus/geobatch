@@ -294,6 +294,15 @@
 			</dependencies>
 		</profile>
 		<profile>
+			<id>shp2pg</id>
+			<dependencies>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-shp2pg</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
 			<id>geowebcache</id>
 			<dependencies>
 				<dependency>

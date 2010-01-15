@@ -125,6 +125,12 @@
            <module>shapefile</module>
         </modules>
     </profile>
+	<profile>
+        <id>shp2pg</id>
+        <modules>
+           <module>shp2pg</module>
+        </modules>
+    </profile>
 		<profile>
 			<id>all</id>
 			<modules>
@@ -135,6 +141,7 @@
 			   <module>gb-gliders</module>
 			   <module>gb-task-executor</module>
 			   <module>imagemosaic</module>
+			   <module>shapefile</module>
 			   <module>shapefile</module>
 			   <module>gb-sas</module>
 			   <module>jgsflodess</module>
