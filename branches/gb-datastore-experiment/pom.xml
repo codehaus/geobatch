@@ -680,6 +680,11 @@
           <artifactId>gb-flowmanagers-shapefile</artifactId>
           <version>${gb.version}</version>
       </dependency>
+	  <dependency>
+          <groupId>it.geosolutions</groupId>
+          <artifactId>gb-flowmanagers-shp2pg</artifactId>
+          <version>${gb.version}</version>
+      </dependency>
       <dependency>
           <groupId>it.geosolutions</groupId>
           <artifactId>gb-flowmanagers-ascii</artifactId>

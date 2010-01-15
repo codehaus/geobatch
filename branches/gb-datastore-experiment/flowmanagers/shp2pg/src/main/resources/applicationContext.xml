@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- Environment Initialization -->
+	<bean id="shp2PgfileGeneratorService" class="it.geosolutions.geobatch.shp2pg.Shp2PgFileGeneratorService" depends-on="shp2PgRegistrar">
+		<property  name="id">
+    		<value>shp2PgfileGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>shp2PgfileGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>shp2PgfileGeneratorService</value>
+    	</property>	
+	</bean>
+
+    <bean id="shp2PgRegistrar" class="it.geosolutions.geobatch.shp2pg.Shp2PgAliasRegistrar" lazy-init="false">
+        <constructor-arg ref="aliasRegistry" />
+    </bean>
+</beans>
