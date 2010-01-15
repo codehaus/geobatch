@@ -18,6 +18,7 @@
 			<detectionsErrorLog>sasdetectionflowworkingdir/config/errorlog.txt</detectionsErrorLog>
 			<detectionsOutputDir>D:\work\data\muscleshapes</detectionsOutputDir>
 			<detectionConverterPath>sasdetectionflowworkingdir/config/shapegen.py</detectionConverterPath>
+			<converterTimeout>1200000</converterTimeout> <!-- milliseconds -->
 			<crsDefinitionsDir>sasdetectionflowworkingdir/config/prj</crsDefinitionsDir>
 			<loggingDir>sasdetectionflowworkingdir/log</loggingDir>
 			<executablePath>c:\Python26\python.exe</executablePath>

@@ -66,8 +66,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 
 	private final static Map<String, Format> formats= new HashMap<String, Format>();
     
-    public FormatConverter(FormatConverterConfiguration configuration)
-            throws IOException {
+    public FormatConverter(FormatConverterConfiguration configuration) throws IOException {
         this.configuration = configuration;
     }
     
@@ -129,9 +128,10 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
                 if (files != null) {
                     final int numFiles = files.length;
 
-                    if (LOGGER.isLoggable(Level.INFO))
+                    if (LOGGER.isLoggable(Level.INFO)){
                         LOGGER.info(new StringBuilder("Found ")
                                 .append(numFiles).append(" files").toString());
+                    }
                     
                     final GeoTiffOverviewsEmbedderConfiguration gtovConfiguration = initGeotiffOverviewsEmbedderConfiguration();
                     
@@ -183,8 +183,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 	                        // 3) Geoserver Ingestion
 	                        //
 	                        // //
-	                        String runName = Utils.buildRunName(outFile.getParent(), 
-	                        		configuration.getTime(), "");
+	                        String runName = Utils.buildRunName(outFile.getParent(), configuration.getTime(), "");
 	                        
 	                        int index = runName.lastIndexOf(Utils.SEPARATOR);
 	                        if (index == runName.length()-1){
