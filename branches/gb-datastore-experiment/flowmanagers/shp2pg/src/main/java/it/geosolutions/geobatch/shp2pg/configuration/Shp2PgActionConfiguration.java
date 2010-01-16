@@ -60,7 +60,6 @@ public class Shp2PgActionConfiguration extends ActionConfiguration implements Co
 
     private String dbType;
 
-    private String dbTableName;
 
     /**
 	 * 
@@ -212,21 +211,6 @@ public class Shp2PgActionConfiguration extends ActionConfiguration implements Co
      */
     public void setDbType(String dbType) {
         this.dbType = dbType;
-    }
-
-    /**
-     * @return the dbTableName
-     */
-    public String getDbTableName() {
-        return dbTableName;
-    }
-
-    /**
-     * @param dbTableName
-     *            the dbTableName to set
-     */
-    public void setDbTableName(String dbTableName) {
-        this.dbTableName = dbTableName;
     }
 
     /*
