@@ -45,7 +45,6 @@
 			<dbType>postgis</dbType>
 			<dbPort>5432</dbPort>			
 			<dbName>test</dbName>
-			<dbTableName>dcf</dbTableName>
 			<serviceID>shp2PgfileGeneratorService</serviceID>
 			<id>n1</id>
 			<description>description</description>
