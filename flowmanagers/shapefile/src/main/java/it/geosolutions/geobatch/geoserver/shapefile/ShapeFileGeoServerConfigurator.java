@@ -33,12 +33,9 @@ import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.utils.IOUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +54,7 @@ import org.geotools.data.shapefile.ShapefileDataStoreFactory;
  * 
  * @author AlFa
  * @author ETj
+ * @author Daniele Romagnoli, GeoSolutions S.A.S.
  */
 public class ShapeFileGeoServerConfigurator extends
         GeoServerConfiguratorAction<FileSystemMonitorEvent> {
@@ -194,12 +192,12 @@ public class ShapeFileGeoServerConfigurator extends
             queryParams.put("wmspath",   getConfiguration().getWmsPath());
 
 
-			if(LOGGER.isLoggable(Level.INFO)) {
+			if(LOGGER.isLoggable(Level.FINE)) {
 				StringBuilder sb = new StringBuilder("Packing shapefiles: ");
 				for (File file : shpList) {
 					sb.append('[').append(file.getName()).append(']');
 				}
-				LOGGER.info(sb.toString());
+				LOGGER.fine(sb.toString());
 			}
 			if (isZipped)
 				zipFileToSend = zippedFile;
@@ -207,16 +205,14 @@ public class ShapeFileGeoServerConfigurator extends
 				zipFileToSend = IOUtils.deflate(workingDir, "sending_" + shpBaseName + System.currentTimeMillis(), shpList);
 			LOGGER.info("ZIP file: " + zipFileToSend.getAbsolutePath());
 
-			final String[] returnedLayer = GeoServerRESTHelper.sendFeature(zipFileToSend, 
-					zipFileToSend, 
+			final String[] returnedLayer = GeoServerRESTHelper.sendFeature(
+					zipFileToSend, zipFileToSend, 
                     configuration.getGeoserverURL(),
                     configuration.getGeoserverUID(),
                     configuration.getGeoserverPWD(),
-                    shpBaseName,
-                    shpBaseName,
-                    queryParams,
+                    shpBaseName, shpBaseName, queryParams,
                     configuration.getDataTransferMethod(),
-                    "shp", "2.0.0", null, null);
+                    "shp", "2.0.0", getConfiguration().getStyles(), getConfiguration().getDefaultStyle());
 			
 //            boolean sent = sendShpLayer(zipFileToSend,
 //					getConfiguration().getGeoserverURL(),
@@ -245,36 +241,6 @@ public class ShapeFileGeoServerConfigurator extends
 				zipFileToSend.delete();
 		}
     }
-
-
-    protected boolean sendShpLayer(File data, String geoserverBaseURL,
-									String storeId, String layerName,
-									Map<String, String> queryParams)
-		throws MalformedURLException, FileNotFoundException {
-
-		// TODO: PARAMTERIZE THIS
-        URL gsURL = null;
-        boolean sent = false;
-
-        if (data == null) {
-            LOGGER.info("ShapeFile GeoServerConfiguratorAction: cannot send shp to GeoServer, input data null!");
-            return sent;
-        }
-        // if ("DIRECT".equals(IngestionEngineEnvironment.getDataTransferMethod())) {
-        gsURL = new URL(geoserverBaseURL + "/rest/folders/" + storeId + "/layers/"
-                + layerName + "/file.shp?" + getQueryString(queryParams));
-        sent = GeoServerRESTHelper.putBinaryFileTo(gsURL, new FileInputStream(data),
-													getConfiguration().getGeoserverUID(),
-													getConfiguration().getGeoserverPWD());
-        /*
-         * } else if ("URL".equals(IngestionEngineEnvironment.getDataTransferMethod())) {
-         * geoserverREST_URL = new URL(geoserverBaseURL + "/rest/folders/" + storeId + "/layers/" +
-         * storeFilePrefix + "/url.shp"); sent = GeoServerRESTHelper.putContent(geoserverREST_URL,
-         * data.toURL().toExternalForm()); }
-         */
-
-		return sent;
-	}
 
 	/**
 	 * Pack the files received in the events into an array.
