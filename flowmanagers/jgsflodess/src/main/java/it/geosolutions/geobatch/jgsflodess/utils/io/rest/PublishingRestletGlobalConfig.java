@@ -46,16 +46,13 @@ public final class PublishingRestletGlobalConfig {
 
     private static final Logger LOGGER = Logger.getLogger(PublishingRestletGlobalConfig.class.toString());
     
-	private String rootDirectory;
-
-	public PublishingRestletGlobalConfig() {
-	}
+	private static String rootDirectory;
 
 	public PublishingRestletGlobalConfig(String rootDirectory) {
 		this.rootDirectory = rootDirectory;
 	}
 
-	public String getRootDirectory() {
+	public static String getRootDirectory() {
 		return rootDirectory;
 	}
 

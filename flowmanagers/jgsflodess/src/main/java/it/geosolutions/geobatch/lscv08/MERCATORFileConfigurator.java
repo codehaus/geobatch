@@ -105,6 +105,7 @@ public class MERCATORFileConfigurator extends
 			LOGGER.info("Starting with processing...");
 		NetcdfFile ncGridFile = null;
 		NetcdfFileWriteable ncFileOut = null;
+		File outputFile = null;
 		try {
 			// looking for file
 			if (events.size() != 1)
@@ -233,7 +234,7 @@ public class MERCATORFileConfigurator extends
 			// ////
 			// ... create the output file data structure
 			// ////
-            final File outputFile = new File(outDir, "lscv08_MERCATOR-Forecast.nc");
+            outputFile = new File(outDir, "lscv08_MERCATOR-Forecast-T" + new Date().getTime() + ".nc");
             ncFileOut = NetcdfFileWriteable.createNew(outputFile.getAbsolutePath());
 
             //NetCDFConverterUtilities.copyGlobalAttributes(ncFileOut, ncFileIn.getGlobalAttributes());
@@ -404,11 +405,13 @@ public class MERCATORFileConfigurator extends
 			return null;
 		} finally {
 			try {
-				if (ncGridFile != null)
+				if (ncGridFile != null) {
 					ncGridFile.close();
+				}
 
-				if (ncFileOut != null)
+				if (ncFileOut != null) {
 					ncFileOut.close();
+				}
 			} catch (IOException e) {
 				if (LOGGER.isLoggable(Level.WARNING))
 					LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);

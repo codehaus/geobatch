@@ -125,6 +125,7 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends MetocConfiguratio
 		if (LOGGER.isLoggable(Level.INFO))
 			LOGGER.info("Starting with processing...");
 		NetcdfFile ncFileIn = null;
+		File inputFile = null;
 		try {
 			// looking for file
 			if (events.size() != 1)
@@ -181,7 +182,9 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends MetocConfiguratio
 			}
 
 			inputFileName = FilenameUtils.getBaseName(inputFileName);
-			ncFileIn = NetcdfFile.open(event.getSource().getAbsolutePath());
+			inputFileName = (inputFileName.lastIndexOf("-") > 0 ? inputFileName.substring(0, inputFileName.lastIndexOf("-")) : inputFileName);
+			inputFile = new File(event.getSource().getAbsolutePath());
+			ncFileIn = NetcdfFile.open(inputFile.getAbsolutePath());
 			final File outDir = Utilities.createTodayDirectory(workingDir);
 
 			// input DIMENSIONS
@@ -326,8 +329,13 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends MetocConfiguratio
 			return null;
 		} finally {
 			try {
-				if (ncFileIn != null)
+				if (ncFileIn != null) {
 					ncFileIn.close();
+				}
+				
+				if (inputFile != null && inputFile.exists()) {
+					inputFile.delete();
+				}
 			} catch (IOException e) {
 				if (LOGGER.isLoggable(Level.WARNING))
 					LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);

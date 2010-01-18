@@ -2,7 +2,8 @@
 <FlowConfiguration>
 
 	<workingDirectory>wmcflowworkingdir</workingDirectory>
-
+	<autorun>false</autorun>
+	
 	<EventConsumerConfiguration>
 		<workingDirectory>wmcflowworkingdir</workingDirectory>
 		<performBackup>false</performBackup>
@@ -22,7 +23,7 @@
 			<dataTransferMethod>DIRECT</dataTransferMethod>
 			<geoserverPWD>geoserver</geoserverPWD>
 			<geoserverUID>admin</geoserverUID>
-			<geoserverURL>http://localhost:8080/geoserver</geoserverURL>
+			<geoserverURL>http://172.19.125.2:8080/geoserver-nd</geoserverURL>
 			<wmsPath>/</wmsPath>
 			<defaultNamespace>nurc</defaultNamespace>
 			<defaultStyle>raster</defaultStyle>
@@ -40,7 +41,7 @@
 			<dataTransferMethod>EXTERNAL</dataTransferMethod>
 			<geoserverPWD>geoserver</geoserverPWD>
 			<geoserverUID>admin</geoserverUID>
-			<geoserverURL>http://localhost:8080/geoserver</geoserverURL>
+			<geoserverURL>http://172.19.125.2:8080/geoserver-nd</geoserverURL>
 			<wmsPath>/</wmsPath>
 			<defaultNamespace>nurc</defaultNamespace>
 			<defaultStyle>raster</defaultStyle>
@@ -59,13 +60,13 @@
 			<!-- outputDirectory>[OPTIONAL]requires the full path</outputDirectory -->
 			<crs>EPSG:4326</crs>
 			<boundingBox>-180.0,-90.0,180.0,90.0</boundingBox>
-			<geoserverURL>http://localhost:8080/geoserver</geoserverURL>
+			<geoserverURL>http://172.19.125.2:8080/geoserver-nd</geoserverURL>
 			<width>800</width>
 			<height>600</height>
-			<baseLayerId>bluemarble</baseLayerId>
+			<!-- baseLayerId>bluemarble</baseLayerId>
 			<baseLayerURL>http://demo.opengeo.org/geoserver/wms</baseLayerURL>
 			<baseLayerTitle>Bluemarble</baseLayerTitle>
-			<baseLayerFormat>image/png</baseLayerFormat>
+			<baseLayerFormat>image/png</baseLayerFormat -->
 			<serviceID>WMCGeneratorService</serviceID>
 			<id>WMCGeneratorService</id>
 			<description>WMCGeneratorService</description>
