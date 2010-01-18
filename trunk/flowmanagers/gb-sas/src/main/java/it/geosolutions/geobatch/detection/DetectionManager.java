@@ -311,6 +311,7 @@ public class DetectionManager extends BaseAction<FileSystemMonitorEvent> impleme
     	gsConfig.setWorkingDirectory(configuration.getWorkingDirectory());
     	gsConfig.setDefaultNamespace(configuration.getDefaultNamespace());
     	gsConfig.setWmsPath(buildWmsPath(fileToBeSent));
+    	gsConfig.setDefaultStyle(configuration.getDetectionStyle());
     	ShapeFileGeoServerConfigurator gsGenerator = new ShapeFileGeoServerConfigurator(gsConfig);
 		Queue<FileSystemMonitorEvent> events = new LinkedBlockingQueue<FileSystemMonitorEvent>();
 		FileSystemMonitorEvent fse = new FileSystemMonitorEvent(new File(fileToBeSent), FileSystemMonitorNotifications.FILE_ADDED);
@@ -394,6 +395,9 @@ public class DetectionManager extends BaseAction<FileSystemMonitorEvent> impleme
     		fis = new FileInputStream(prj);
     		byte[] headerEPSG = new byte[12];
     		final int len = fis.read(headerEPSG);
+    		
+    		//Checking whether it contains the EPSG code directly instead of
+    		//a proper WKT
     		if (headerEPSG[0] == (byte)'E' &&
     				headerEPSG[1] == (byte)'P' &&
     				headerEPSG[2] == (byte)'S' &&
@@ -404,11 +408,15 @@ public class DetectionManager extends BaseAction<FileSystemMonitorEvent> impleme
     				sb.append(headerEPSG[i]-48);
     			}
     			epsgCode = sb.toString();
+    			
+    			//Try parsing the provided EPSG code to setup a valid CRS
     			final CoordinateReferenceSystem crs = CRS.decode(epsgCode);
     			if (crs != null){
     				
 					String s = crs.toWKT();
 					s = s.replaceAll("\n", "").replaceAll("  ", "");
+					
+					//Write out the proper PRJ file
 					FileWriter out = new FileWriter(prj);
 					try{
 						if (fis != null)
@@ -425,9 +433,9 @@ public class DetectionManager extends BaseAction<FileSystemMonitorEvent> impleme
     			}
     		}
     	} catch (FileNotFoundException e) {
-
+    		throw new IllegalArgumentException("Unable to decode the provided epsg "+epsgCode,e);
 		} catch (IOException e) {
-
+			throw new IllegalArgumentException("Unable to decode the provided epsg "+epsgCode,e);
 		} catch (NoSuchAuthorityCodeException e) {
 			throw new IllegalArgumentException("Unable to decode the provided epsg "+epsgCode,e);
 		} catch (FactoryException e) {

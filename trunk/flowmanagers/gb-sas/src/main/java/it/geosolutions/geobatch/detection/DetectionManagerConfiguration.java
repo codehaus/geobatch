@@ -51,6 +51,8 @@ public class DetectionManagerConfiguration extends ActionConfiguration implement
 
     private String detectionsErrorLog;
     
+    private String detectionStyle;
+    
     private String loggingDir;
     
     private String executablePath;
@@ -214,6 +216,14 @@ public class DetectionManagerConfiguration extends ActionConfiguration implement
 
 	public String getDetectionConverterPath() {
 		return detectionConverterPath;
+	}
+
+	public String getDetectionStyle() {
+		return detectionStyle;
+	}
+
+	public void setDetectionStyle(String detectionStyle) {
+		this.detectionStyle = detectionStyle;
 	}
 
 	public void setDetectionConverterPath(String detectionConverterPath) {
