@@ -87,14 +87,14 @@
 			</modules>
 		</profile>
 		<profile>
-			<id>sas</id>
-			<modules>
-			  <module>gb-geoserver</module>
-        		  <module>geotiff</module>
-			  <module>gb-task-executor</module>
-		          <module>shapefile</module>
-			  <module>gb-sas</module>
-			</modules>
+        <id>sas</id>
+        <modules>
+          <module>gb-geoserver</module>
+          <module>geotiff</module>
+          <module>gb-task-executor</module>
+          <module>shapefile</module>
+          <module>gb-sas</module>
+        </modules>
 		</profile>
 		<profile>
       <id>imagemosaic</id>
@@ -123,6 +123,12 @@
         <modules>
            <module>gb-geoserver</module>
            <module>shapefile</module>
+        </modules>
+    </profile>
+    <profile>
+        <id>task-executor</id>
+        <modules>
+           <module>gb-task-executor</module>
         </modules>
     </profile>
 		<profile>
