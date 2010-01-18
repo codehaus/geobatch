@@ -94,16 +94,18 @@ public class Shp2Pg {
             DataStore postgisDataStore = this.createPostgisDataStore(configuration);
 
             // check if the schema is present in postgis
-
+            boolean schema = false;
             if (postgisDataStore.getTypeNames().length == 0) {
-                postgisDataStore.createSchema(collection.getSchema());
+                schema = true;
             } else {
                 for (String tableName : postgisDataStore.getTypeNames()) {
-                    LOGGER.log(Level.INFO, "Table present: " + tableName);
-                    if (!tableName.equalsIgnoreCase(collection.getSchema().getTypeName()))
-                        postgisDataStore.createSchema(collection.getSchema());
+                    if (tableName.equalsIgnoreCase(collection.getSchema().getTypeName())) {
+                        schema = true;
+                    }
                 }
             }
+            if (!schema)
+                postgisDataStore.createSchema(collection.getSchema());
             
             Transaction transaction = new DefaultTransaction("create");
 
@@ -121,6 +123,8 @@ public class Shp2Pg {
                 transaction.rollback();
             } finally {
                 transaction.close();
+                postgisDataStore.dispose();
+                postgisDataStore = null;
             }
 
         } catch (MalformedURLException e) {
