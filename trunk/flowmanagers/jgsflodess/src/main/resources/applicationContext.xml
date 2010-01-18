@@ -112,7 +112,7 @@
     	</property>
     	<property name="name">
     		<value>RegistryHarvestingGeneratorService</value>
-    	</property>	
+    	</property>
 	</bean>
 	
 	<!-- Web Map Context Generator Service -->

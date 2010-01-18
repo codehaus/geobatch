@@ -26,6 +26,7 @@ import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
+import it.geosolutions.geobatch.jgsflodess.utils.io.rest.PublishingRestletGlobalConfig;
 import it.geosolutions.geobatch.metocs.jaxb.model.MetocElementType;
 import it.geosolutions.geobatch.metocs.jaxb.model.Metocs;
 import it.geosolutions.geobatch.registry.RegistryActionConfiguration;
@@ -48,7 +49,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.Queue;
-import java.util.TimeZone;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -85,16 +85,10 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 	 * GeoTIFF Writer Default Params
 	 */
 	public final static String GEOSERVER_VERSION = "2.x";
-	
-	/**
-	 * Static DateFormat Converter
-	 */
-	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
-	
+
 	protected RegistryHarvestingConfigurator(
 			RegistryActionConfiguration configuration) throws IOException {
 		super(configuration);
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 	}
 
 	/**
@@ -187,7 +181,7 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 				final File metadataTemplate = IOUtils.findLocation(configuration.getMetocHarvesterXMLTemplatePath(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
 				
 				boolean res = harvest(
-						inputFile.getParentFile(), 
+						new File(PublishingRestletGlobalConfig.getRootDirectory()), 
 						new File(path), 
 						metadataTemplate, 
 						driver, 
@@ -286,35 +280,37 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 		if (metadataNames != null && metadataNames.length > 0) {
 			// TIME DIMENSION
 			timeMetadata = reader.getMetadataValue("TIME_DOMAIN");
-
+			
 			// ELEVATION DIMENSION
-			elevationMetadata = reader.getMetadataValue("ELEVATION_DOMAIN");                   
+			elevationMetadata = reader.getMetadataValue("ELEVATION_DOMAIN");
+			
 		}
 
 		String[] timePositions = null;
 		String[] elevationLevels = null;
 		if (timeMetadata != null) {
 			timePositions = timeMetadata.split(",");
+			LOGGER.info("timeMetadata -----------> " + timePositions);
 		}
 
 		if (elevationMetadata != null) {
 			elevationLevels = elevationMetadata.split(",");
+			LOGGER.info("elevationMetadata -----------> " + elevationLevels);
 		}
 
-		int cols = (timePositions != null ? timePositions.length : 1);
-		int rows = (elevationLevels != null ? elevationLevels.length : 1);
+		final int cols = (timePositions != null ? timePositions.length : 1);
+		final int rows = (elevationLevels != null ? elevationLevels.length : 1);
 
 		// <FOR>
-		final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
 		int col = 0;
 		int row = 0;
 		for (int i=0; i<(cols * rows); i++) {
-			col = (row == rows-1 && col < cols? col++ : col);
-			row = (row < rows ? i : (i+1)%rows);
-
+			row = (i < rows ? i : (i+1)%rows);
+			LOGGER.info("Harvesting -----------> ["+col+","+row+"]");
+			
 			final String timePosition = (timePositions != null ? timePositions[col] : null);
 			final String elevation = (elevationLevels != null ? elevationLevels[row] : null);
-			final String fileName = coverageName + (timePosition != null ? "-"+sdf.parse(timePosition).getTime() : "") + (elevation != null ? "-"+elevation : "") + ".xml";
+			final String fileName = coverageName + (timePosition != null ? "-"+timePosition.replaceAll(":", "") : "") + (elevation != null ? "-"+elevation : "") + ".xml";
 
 			readWriteMetadata(outDir, fileName, metadataTemplate, timestamp, namespace,
 					coverageName, zOrder, metocDictionary, srsId, envelope, range,
@@ -323,8 +319,10 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 			res = JGSFLoDeSSIOUtils.sendHarvestRequest(registryURL, providerURL, fileName);
 			
 			if (!res) {
-				//break;
+				break;
 			}
+
+			col = (row == rows-1 && col < cols? col+1 : col);
 		}
 		// </FOR>
 
@@ -375,7 +373,7 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
             PrintWriter    outputStream  = new PrintWriter(outputFileWriter);
 
             String inLine = null;
-            final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+            //final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
             final SimpleDateFormat sdfMetadata = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
             final SimpleDateFormat sdfMetoc = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
             
@@ -388,7 +386,7 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
             	}
 
             	if (inLine.contains("#CREATION_DATE#")) {
-            		inLine = inLine.replaceAll("#CREATION_DATE#", sdf.format(new Date(timestamp)));
+            		inLine = inLine.replaceAll("#CREATION_DATE#", sdfMetadata.format(new Date(timestamp)));
             	}
 
             	if (inLine.contains("#CRUISE_OR_EXP#")) {
@@ -534,7 +532,7 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
             	}
 
             	if (inLine.contains("#ACQUISITION_TIME#"))
-            		inLine = inLine.replaceAll("#ACQUISITION_TIME#", sdf.format(sdfMetoc.parse(metocFields[5])));
+            		inLine = inLine.replaceAll("#ACQUISITION_TIME#", sdfMetadata.format(sdfMetoc.parse(metocFields[5])));
 
             	if (inLine.contains("#MODEL_NAME#")) {
             		inLine = inLine.replaceAll("#MODEL_NAME#", metocFields[1].substring(0, metocFields[1].indexOf("-")));
@@ -553,11 +551,11 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
             	}
 
             	if (inLine.contains("#MODEL_RUNTIME#")) {
-            		inLine = inLine.replaceAll("#MODEL_RUNTIME#", sdf.format(sdfMetoc.parse(metocFields[5])));
+            		inLine = inLine.replaceAll("#MODEL_RUNTIME#", sdfMetadata.format(sdfMetoc.parse(metocFields[5])));
             	}
 
             	if (inLine.contains("#FORECAST_TIME#")) {
-            		inLine = inLine.replaceAll("#FORECAST_TIME#", sdf.format(timePosition != null ? sdfMetadata.parse(timePosition) : sdfMetoc.parse(metocFields[6])));
+            		inLine = inLine.replaceAll("#FORECAST_TIME#", (timePosition != null ? timePosition : sdfMetadata.format(sdfMetoc.parse(metocFields[6]))));
             	}
 
             	/** ENVELOPE/GRID-RANGE **/

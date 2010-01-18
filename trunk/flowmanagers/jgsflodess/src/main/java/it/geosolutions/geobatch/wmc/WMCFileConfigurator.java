@@ -29,6 +29,7 @@ import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.geobatch.wmc.model.GeneralWMCConfiguration;
 import it.geosolutions.geobatch.wmc.model.OLDimension;
+import it.geosolutions.geobatch.wmc.model.OLDisplayInLayerSwitcher;
 import it.geosolutions.geobatch.wmc.model.OLIsBaseLayer;
 import it.geosolutions.geobatch.wmc.model.OLLayerID;
 import it.geosolutions.geobatch.wmc.model.OLMaxExtent;
@@ -213,7 +214,8 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 
 			final int height = Integer.parseInt(configuration.getHeight());
 			
-			final String geoserverUrl = configuration.getGeoserverURL();
+			String geoserverUrl = configuration.getGeoserverURL();
+				   geoserverUrl = (geoserverUrl.contains("wms") ? geoserverUrl : geoserverUrl + (geoserverUrl.endsWith("/") ? "wms" : "/wms"));
 
 			// //
 			// GENERAL CONFIG ...
@@ -229,30 +231,32 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 			// //
 			// BASE LAYER ...
 			// //
-			final String baseLayerName = configuration.getBaseLayerId();
-			final String baseLayerTitle = configuration.getBaseLayerTitle();
-			final String baseLayerURL = configuration.getBaseLayerURL();
-			final String baseLayerFormat = configuration.getBaseLayerFormat();
+			if (configuration.getBaseLayerId() != null) {
+				final String baseLayerName = configuration.getBaseLayerId();
+				final String baseLayerTitle = configuration.getBaseLayerTitle();
+				final String baseLayerURL = configuration.getBaseLayerURL();
+				final String baseLayerFormat = configuration.getBaseLayerFormat();
 
-			WMCLayer testLayer = new WMCLayer("0", "0", baseLayerName, baseLayerTitle, crs);
-			WMCServer server = new WMCServer("wms", "1.1.1", "wms");
-			List<WMCFormat> formatList = new ArrayList<WMCFormat>();
-			// List<WMCStyle> styleList = new ArrayList<WMCStyle>();
-			WMCExtension extension = new WMCExtension();
-			extension.setId(new OLLayerID(baseLayerName));
-			extension.setMaxExtent(new OLMaxExtent(null));
-			extension.setIsBaseLayer(new OLIsBaseLayer("TRUE"));
-			extension.setSingleTile(new OLSingleTile("TRUE"));
-			extension.setTransparent(new OLTransparent("FALSE"));
+				WMCLayer baseLayer = new WMCLayer("0", "0", baseLayerName, baseLayerTitle, crs);
+				WMCServer server = new WMCServer("wms", "1.1.1", "wms");
+				List<WMCFormat> formatList = new ArrayList<WMCFormat>();
+				// List<WMCStyle> styleList = new ArrayList<WMCStyle>();
+				WMCExtension extension = new WMCExtension();
+				extension.setId(new OLLayerID(baseLayerName));
+				extension.setMaxExtent(new OLMaxExtent(null));
+				extension.setIsBaseLayer(new OLIsBaseLayer("true"));
+				extension.setSingleTile(new OLSingleTile("true"));
+				extension.setTransparent(new OLTransparent("false"));
 
-			formatList.add(new WMCFormat("1", baseLayerFormat));
+				formatList.add(new WMCFormat("1", baseLayerFormat));
 
-			server.setOnlineResource(new WMCOnlineResource("simple", baseLayerURL));
-			testLayer.setServer(server);
-			testLayer.setFormatList(formatList);
-			testLayer.setExtension(extension);
+				server.setOnlineResource(new WMCOnlineResource("simple", baseLayerURL));
+				baseLayer.setServer(server);
+				baseLayer.setFormatList(formatList);
+				baseLayer.setExtension(extension);
 
-			layerList.add(testLayer);
+				layerList.add(baseLayer);
+			}
 			
 			// //
 			//
@@ -263,16 +267,17 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 				final String nameSpace = entry.getNameSpace();
 				final String layerName = entry.getLayerName();
 
-				testLayer = new WMCLayer("0", "0", nameSpace + ":" + layerName, layerName, crs);
-				server = new WMCServer("wms", "1.1.1", "wms");
-				formatList = new ArrayList<WMCFormat>();
+				WMCLayer newLayer = new WMCLayer("0", "0", nameSpace + ":" + layerName, layerName, crs);
+				WMCServer server = new WMCServer("wms", "1.1.1", "wms");
+				List<WMCFormat> formatList = new ArrayList<WMCFormat>();
 				// List<WMCStyle> styleList = new ArrayList<WMCStyle>();
-				extension = new WMCExtension();
+				WMCExtension extension = new WMCExtension();
 				extension.setId(new OLLayerID(layerName));
 				extension.setMaxExtent(new OLMaxExtent(null));
-				extension.setIsBaseLayer(new OLIsBaseLayer("FALSE"));
-				extension.setSingleTile(new OLSingleTile("FALSE"));
-				extension.setTransparent(new OLTransparent("TRUE"));
+				extension.setIsBaseLayer(new OLIsBaseLayer("false"));
+				extension.setSingleTile(new OLSingleTile("false"));
+				extension.setTransparent(new OLTransparent("true"));
+				extension.setDisplayInLayerSwitcher(new OLDisplayInLayerSwitcher("false"));
 				
 				if (entry.getDimensions() != null) {
 					for (String dim : entry.getDimensions().keySet()) {
@@ -291,12 +296,12 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 				// styleList.add(new WMCStyle("1", new WMCSLD(new WMCOnlineResource("simple", "http://localhost:8081/NurcCruises/resources/xml/SLDDefault.xml"))));
 
 				server.setOnlineResource(new WMCOnlineResource("simple", geoserverUrl));
-				testLayer.setServer(server);
-				testLayer.setFormatList(formatList);
+				newLayer.setServer(server);
+				newLayer.setFormatList(formatList);
 				// testLayer.setStyleList(styleList);
-				testLayer.setExtension(extension);
+				newLayer.setExtension(extension);
 
-				layerList.add(testLayer);
+				layerList.add(newLayer);
 			}
 
 			// //

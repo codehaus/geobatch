@@ -305,7 +305,7 @@
 			</variable>
 		</variablesList>
 		<temporalInformation>
-			<dataTime format="YYYY-MM-ddThh:mm:ssZ">#MODEL_RUNTIME#</dataTime>
+			<dataTime format="YYYY-MM-ddThh:mm:ss.sssZ">#MODEL_RUNTIME#</dataTime>
 			<!-- Model Forecast Time-->
 		</temporalInformation>
 		<dataInformation>
@@ -327,7 +327,7 @@
 			<modelData>
 				<modelName>#MODEL_NAME#</modelName>
 				<modelTau uom="#TAU_UOM#">#MODEL_TAU#</modelTau>
-				<modelRunTime format="YYYY-MM-ddThh:mm:ssZ">#MODEL_RUNTIME#</modelRunTime>
+				<modelRunTime format="YYYY-MM-ddThh:mm:ss.sssZ">#MODEL_RUNTIME#</modelRunTime>
 				<modelType>#MODEL_TYPE#</modelType>
 				<!-- Foracast or Analysis-->
 				<postProcessingFlag>#POST_PROC_FLAG#</postProcessingFlag>

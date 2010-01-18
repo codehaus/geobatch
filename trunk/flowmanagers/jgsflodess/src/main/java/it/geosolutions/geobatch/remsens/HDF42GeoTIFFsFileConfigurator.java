@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -252,7 +253,7 @@ public class HDF42GeoTIFFsFileConfigurator extends GeoServerConfiguratorAction<F
 							final String coverageStoreId = coverageName.toString();
 							final GridCoverage2D resampledCoverage = (GridCoverage2D) OPERATIONS.resample(coverage, WGS84);
 							
-							final File gtiffOutputDir = new File(outDir.getAbsolutePath() + File.separator + FilenameUtils.getBaseName(inputFileName) + "_" + varBrief.replaceAll("_", ""));
+							final File gtiffOutputDir = new File(outDir.getAbsolutePath() + File.separator + FilenameUtils.getBaseName(inputFileName) + "_" + varBrief.replaceAll("_", "") + "_T" + new Date().getTime());
 							
 							LOGGER.info(gtiffOutputDir.getAbsolutePath());
 							boolean canProceed = false;

@@ -269,7 +269,7 @@
 			</variable>
 		</variablesList>
 		<temporalInformation>
-			<dataTime format="YYYY-MM-ddThh:mm:ssZ">#ACQUISITION_TIME#</dataTime>
+			<dataTime format="YYYY-MM-ddThh:mm:ss.sssZ">#ACQUISITION_TIME#</dataTime>
 			<!-- Remote Sensing Data date/time-->
 		</temporalInformation>
 		<dataInformation>
