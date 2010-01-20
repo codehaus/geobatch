@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- Environment Initialization -->
+	<bean id="reloadFileGeneratorService" class="it.geosolutions.geobatch.reload.ReloadFileGeneratorService" depends-on="reloadRegistrar">
+		<property  name="id">
+    		<value>reloadFileGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>reloadFileGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>reloadFileGeneratorService</value>
+    	</property>	
+	</bean>
+
+    <bean id="reloadRegistrar" class="it.geosolutions.geobatch.reload.ReloadAliasRegistrar" lazy-init="false">
+        <constructor-arg ref="aliasRegistry" />
+    </bean>
+</beans>

@@ -300,6 +300,10 @@
 					<groupId>it.geosolutions</groupId>
 					<artifactId>gb-flowmanagers-shp2pg</artifactId>
 				</dependency>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-reload</artifactId>
+				</dependency>
 			</dependencies>
 		</profile>
 		<profile>
@@ -339,6 +343,15 @@
 		          	<groupId>it.geosolutions</groupId>
 		          	<artifactId>gb-flowmanagers-geotiff</artifactId>
 		      	</dependency> 
+			</dependencies>
+		</profile>
+		<profile>
+			<id>reload</id>
+			<dependencies>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-reload</artifactId>
+				</dependency>
 			</dependencies>
 		</profile>		
 	</profiles>
