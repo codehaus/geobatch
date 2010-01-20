@@ -129,8 +129,16 @@
         <id>shp2pg</id>
         <modules>
            <module>shp2pg</module>
+		   <module>reload</module>
         </modules>
     </profile>
+	<profile>
+        <id>reload</id>
+        <modules>
+           <module>reload</module>
+        </modules>
+    </profile>
+
 		<profile>
 			<id>all</id>
 			<modules>
@@ -146,6 +154,7 @@
 			   <module>gb-sas</module>
 			   <module>jgsflodess</module>
 			   <module>ascii-grids</module>
+			   <module>reload</module>
 			</modules>
 		</profile>		
    </profiles>

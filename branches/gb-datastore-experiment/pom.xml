@@ -729,7 +729,12 @@
 				<groupId>it.geosolutions</groupId>
 				<artifactId>gb-ftp-server</artifactId>
 				<version>${gb.version}</version>
-      </dependency>		
+      </dependency>
+	  <dependency>
+          <groupId>it.geosolutions</groupId>
+          <artifactId>gb-flowmanagers-reload</artifactId>
+          <version>${gb.version}</version>
+      </dependency>	
 
         <dependency>
             <groupId>it.geosolutions</groupId>
