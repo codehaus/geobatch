@@ -50,6 +50,26 @@
 			<description>description</description>
 			<name>test</name>
 		</Shp2PgActionConfiguration>
+		<!--ReloadActionConfiguration>
+			<servers>
+				<server>
+					<serverIP>10.10.10.6</serverIP>
+					<serverPort>8080</serverPort>
+					<serverUserName>admin</serverUserName>
+					<serverPassword>geoserver</serverPassword>
+				</server>
+				<server>
+					<serverIP>10.10.10.61</serverIP>
+					<serverPort>8080</serverPort>
+					<serverUserName>siti</serverUserName>
+					<serverPassword>siti$$</serverPassword>
+				</server>
+			</servers>
+			<serviceID>reloadFileGeneratorService</serviceID>
+			<id>n2</id>
+			<description>description</description>
+			<name>test</name>
+		</ReloadActionConfiguration-->
 		<id>id</id>
 		<description>description</description>
 		<name>test</name>
