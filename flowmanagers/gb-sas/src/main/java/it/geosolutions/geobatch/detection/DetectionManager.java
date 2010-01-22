@@ -147,7 +147,7 @@ public class DetectionManager extends BaseAction<FileSystemMonitorEvent> impleme
 	            if (fileDir != null && fileDir.isDirectory()) {
 	                final File[] foundFiles = fileDir.listFiles(FILEFILTER);
 	                if (foundFiles != null && foundFiles.length>0){
-	                	initTime = Utils.setInitTime(directory,10);
+	                	initTime = Utils.setInitTime(directory,2);
 	                    final String subDir = buildDetectionsSubDir(initTime, fileDir);
 	                    ingestDetection(fileDir, subDir);
 	                }
