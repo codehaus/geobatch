@@ -275,7 +275,7 @@ public class FormatConverter extends BaseAction<FileSystemMonitorEvent>
 	            if (!(writerFormat instanceof UnknownFormat)) {
 	                GridCoverageWriter writer = writerFormat.getWriter(outputFile);
 	
-	                GeoToolsWriteParams params = null;
+	                 GeoToolsWriteParams params = null;
 	                ParameterValueGroup wparams = null;
 	                try {
 	                    wparams = writerFormat.getWriteParameters();

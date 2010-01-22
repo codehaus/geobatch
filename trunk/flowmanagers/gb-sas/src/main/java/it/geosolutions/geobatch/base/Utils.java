@@ -193,13 +193,13 @@ public class Utils {
                 //muscle_col2_090316_1_2_p_5790_5962_40_150.tif
                 
                 for (int i=0;i<stripCount&&index!=-1;i++){
-                    index = date.lastIndexOf("_");
-                    date = date.substring(0,index);
+                    index = date.indexOf("_");
+                    date = date.substring(index+1, date.length());
                 }
                 if (index!=-1){
-                    final int indexOf = date.lastIndexOf("_");
+                    final int indexOf = date.indexOf("_");
                     if (indexOf!=-1){
-                        initTime = date.substring(indexOf+1,index);
+                        initTime = date.substring(0,indexOf);
                         found = true;
                     }
                 }

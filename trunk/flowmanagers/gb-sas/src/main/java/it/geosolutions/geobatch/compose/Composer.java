@@ -187,7 +187,7 @@ public class Composer extends BaseAction<FileSystemMonitorEvent> implements
 	                                      
 	                                      // Initialize time
 	                                      if (initTime == null){
-	                                          initTime = Utils.setInitTime(leafPath,7);
+	                                          initTime = Utils.setInitTime(leafPath,2);
 	                                      }
 	                                      
 	                                      //Build the output directory path
