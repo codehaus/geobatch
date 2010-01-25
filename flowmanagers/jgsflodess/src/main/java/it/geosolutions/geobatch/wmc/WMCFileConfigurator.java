@@ -267,7 +267,7 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 				final String nameSpace = entry.getNameSpace();
 				final String layerName = entry.getLayerName();
 
-				WMCLayer newLayer = new WMCLayer("0", "0", nameSpace + ":" + layerName, layerName, crs);
+				WMCLayer newLayer = new WMCLayer("0", "1", nameSpace + ":" + layerName, layerName, crs);
 				WMCServer server = new WMCServer("wms", "1.1.1", "wms");
 				List<WMCFormat> formatList = new ArrayList<WMCFormat>();
 				// List<WMCStyle> styleList = new ArrayList<WMCStyle>();

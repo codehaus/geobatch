@@ -23,7 +23,7 @@
 			<dataTransferMethod>DIRECT</dataTransferMethod>
 			<geoserverPWD>geoserver</geoserverPWD>
 			<geoserverUID>admin</geoserverUID>
-			<geoserverURL>http://172.19.125.2:8080/geoserver-nd</geoserverURL>
+			<geoserverURL>http://localhost:8080/geoserver</geoserverURL>
 			<wmsPath>/</wmsPath>
 			<defaultNamespace>nurc</defaultNamespace>
 			<defaultStyle>raster</defaultStyle>
@@ -41,7 +41,7 @@
 			<dataTransferMethod>EXTERNAL</dataTransferMethod>
 			<geoserverPWD>geoserver</geoserverPWD>
 			<geoserverUID>admin</geoserverUID>
-			<geoserverURL>http://172.19.125.2:8080/geoserver-nd</geoserverURL>
+			<geoserverURL>http://localhost:8080/geoserver</geoserverURL>
 			<wmsPath>/</wmsPath>
 			<defaultNamespace>nurc</defaultNamespace>
 			<defaultStyle>raster</defaultStyle>
@@ -60,7 +60,7 @@
 			<!-- outputDirectory>[OPTIONAL]requires the full path</outputDirectory -->
 			<crs>EPSG:4326</crs>
 			<boundingBox>-180.0,-90.0,180.0,90.0</boundingBox>
-			<geoserverURL>http://172.19.125.2:8080/geoserver-nd</geoserverURL>
+			<geoserverURL>http://localhost:8080/geoserver</geoserverURL>
 			<width>800</width>
 			<height>600</height>
 			<!-- baseLayerId>bluemarble</baseLayerId>
