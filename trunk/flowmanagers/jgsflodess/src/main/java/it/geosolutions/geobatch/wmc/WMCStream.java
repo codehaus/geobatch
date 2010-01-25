@@ -44,8 +44,10 @@ import it.geosolutions.geobatch.wmc.model.WMCServer;
 import it.geosolutions.geobatch.wmc.model.WMCStyle;
 import it.geosolutions.geobatch.wmc.model.WMCWindow;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 
@@ -63,7 +65,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
  */
 public class WMCStream {
 
-	private XStream xstream = new XStream(new DomDriver());
+	private XStream xstream = new XStream(new DomDriver("UTF-8"));
 	
 	/**
 	 * 
@@ -72,8 +74,10 @@ public class WMCStream {
     	// WMC ViewContext
     	xstream.alias("ViewContext", ViewContext.class);
     	xstream.useAttributeFor(ViewContext.class, "xmlns");
+    	xstream.useAttributeFor(ViewContext.class, "xlink");
     	xstream.useAttributeFor(ViewContext.class, "id");
     	xstream.useAttributeFor(ViewContext.class, "version");
+    	xstream.aliasField("xmlns:xlink", ViewContext.class, "xlink");
     	xstream.aliasField("General", ViewContext.class, "general");
     	xstream.aliasField("LayerList", ViewContext.class, "layerList");
 
@@ -230,17 +234,22 @@ public class WMCStream {
 	 * 
 	 * @param viewContext
 	 * @param out
+	 * @throws IOException 
 	 */
-	public void toXML(ViewContext viewContext, OutputStream out) {
-		xstream.toXML(viewContext, out);
+	public void toXML(ViewContext viewContext, OutputStream out) throws IOException {
+		Writer writer = new OutputStreamWriter(out, "UTF-8");
+		writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
+		xstream.toXML(viewContext, writer);
 	}
 
 	/**
 	 * 
 	 * @param viewContext
 	 * @param out
+	 * @throws IOException 
 	 */
-	public void toXML(ViewContext viewContext, Writer out) {
+	public void toXML(ViewContext viewContext, Writer out) throws IOException {
+		out.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
 		xstream.toXML(viewContext, out);
 	}
 	

@@ -74,7 +74,7 @@ public class WMCStreamingTest {
     	
     	List<WMCLayer> layerList = new ArrayList<WMCLayer>();
     	
-    	WMCLayer testLayer = new WMCLayer("0", "0", "nurc:testLayer", "Test Layer", "EPSG:4326");
+    	WMCLayer testLayer = new WMCLayer("0", "1", "nurc:testLayer", "Test Layer", "EPSG:4326");
     	WMCServer server = new WMCServer("wms", "1.1.1", "wms");
     	List<WMCFormat> formatList = new ArrayList<WMCFormat>();
     	List<WMCStyle> styleList = new ArrayList<WMCStyle>();

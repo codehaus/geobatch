@@ -290,39 +290,36 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 		String[] elevationLevels = null;
 		if (timeMetadata != null) {
 			timePositions = timeMetadata.split(",");
-			LOGGER.info("timeMetadata -----------> " + timePositions);
+			//LOGGER.info("timeMetadata -----------> " + timePositions);
 		}
 
 		if (elevationMetadata != null) {
 			elevationLevels = elevationMetadata.split(",");
-			LOGGER.info("elevationMetadata -----------> " + elevationLevels);
+			//LOGGER.info("elevationMetadata -----------> " + elevationLevels);
 		}
 
 		final int cols = (timePositions != null ? timePositions.length : 1);
 		final int rows = (elevationLevels != null ? elevationLevels.length : 1);
 
 		// <FOR>
-		int col = 0;
-		int row = 0;
-		for (int i=0; i<(cols * rows); i++) {
-			row = (i < rows ? i : (i+1)%rows);
-			LOGGER.info("Harvesting -----------> ["+col+","+row+"]");
-			
-			final String timePosition = (timePositions != null ? timePositions[col] : null);
-			final String elevation = (elevationLevels != null ? elevationLevels[row] : null);
-			final String fileName = coverageName + (timePosition != null ? "-"+timePosition.replaceAll(":", "") : "") + (elevation != null ? "-"+elevation : "") + ".xml";
+		for (int col = 0; col < cols; col++) {
+			for (int row=0; row < rows; row++) {
+				//LOGGER.info("Harvesting -----------> ["+col+","+row+"]");
 
-			readWriteMetadata(outDir, fileName, metadataTemplate, timestamp, namespace,
-					coverageName, zOrder, metocDictionary, srsId, envelope, range,
-					matrix, metocFields, timePosition, elevation);
-			
-			res = JGSFLoDeSSIOUtils.sendHarvestRequest(registryURL, providerURL, fileName);
-			
-			if (!res) {
-				break;
+				final String timePosition = (timePositions != null ? timePositions[col] : null);
+				final String elevation = (elevationLevels != null ? elevationLevels[row] : null);
+				final String fileName = coverageName + (timePosition != null ? "-"+timePosition.replaceAll(":", "") : "") + (elevation != null ? "-"+elevation : "") + ".xml";
+
+				readWriteMetadata(outDir, fileName, metadataTemplate, timestamp, namespace,
+						coverageName, zOrder, metocDictionary, srsId, envelope, range,
+						matrix, metocFields, timePosition, elevation);
+
+				res = JGSFLoDeSSIOUtils.sendHarvestRequest(registryURL, providerURL, fileName);
+
+				if (!res) {
+					break;
+				}
 			}
-
-			col = (row == rows-1 && col < cols? col+1 : col);
 		}
 		// </FOR>
 

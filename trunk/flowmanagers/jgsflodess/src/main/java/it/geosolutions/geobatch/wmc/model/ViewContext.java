@@ -37,6 +37,7 @@ import java.util.List;
  */
 public class ViewContext {
 	private String xmlns = "http://www.opengis.net/context";
+	private String xlink = "http://www.w3.org/1999/xlink";
 	private String id;
 	private String version;
 	private GeneralWMCConfiguration general;
@@ -109,5 +110,17 @@ public class ViewContext {
 	 */
 	public String getXmlns() {
 		return xmlns;
+	}
+	/**
+	 * @param xlink the xlink to set
+	 */
+	public void setXlink(String xlink) {
+		this.xlink = xlink;
+	}
+	/**
+	 * @return the xlink
+	 */
+	public String getXlink() {
+		return xlink;
 	}
 }

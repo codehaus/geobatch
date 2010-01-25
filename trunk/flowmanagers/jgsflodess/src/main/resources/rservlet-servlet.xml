@@ -31,7 +31,7 @@
 	<!-- Temp storage cleanup -->
 	<!-- The actual scheduled task -->
 	<bean id="storageCleaner" class="it.geosolutions.geobatch.jgsflodess.utils.io.rest.StorageCleaner">
-	    <property name="expirationDelay" value="3000" /><!-- 300 seconds, 5 minutes -->
+	    <property name="expirationDelay" value="300" /><!-- 300 seconds, 5 minutes -->
 	    <property name="config" ref="PublishingRestletGlobalConfig" />
 	</bean>
 	
@@ -52,5 +52,5 @@
 	        <ref bean="storageCleanerTask" />
 	      </list>
 	    </property>
-	  </bean>    
+	  </bean>
 </beans>
