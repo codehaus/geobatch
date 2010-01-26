@@ -38,8 +38,18 @@ public class ImageMosaicActionConfiguration extends GeoServerActionConfiguration
     private String timeRegex;
 
     private String elevationRegex;
+    
+    private double backgroundValue;
 
-    public ImageMosaicActionConfiguration() {
+    public double getBackgroundValue() {
+		return backgroundValue;
+	}
+
+	public void setBackgroundValue(double backgroundValue) {
+		this.backgroundValue = backgroundValue;
+	}
+
+	public ImageMosaicActionConfiguration() {
         super();
     }
 
@@ -104,7 +114,7 @@ public class ImageMosaicActionConfiguration extends GeoServerActionConfiguration
 		configuration.setStyles(getStyles());
 		configuration.setWmsPath(getWmsPath());
 		configuration.setWorkingDirectory(getWorkingDirectory());
-		
+		configuration.setBackgroundValue(getBackgroundValue());
 		configuration.setDatastorePropertiesPath(getDatastorePropertiesPath());
 		configuration.setTimeRegex(getTimeRegex());
 		configuration.setElevationRegex(getElevationRegex());
