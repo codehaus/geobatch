@@ -51,12 +51,9 @@ import java.util.logging.Level;
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
-import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -367,7 +364,7 @@ public class FusedTrackGenerator extends
     	// Checking if contact is exist 
     	// ///////////////////////////////
 		
-	    Contact cnt = contactDAO.isExist(contactId);
+	    Contact cnt = contactDAO.findIsExist(contactId);
 
 	    if(cnt != null){	    
 
@@ -386,6 +383,9 @@ public class FusedTrackGenerator extends
             Transaction transaction = new DefaultTransaction("create");
             FeatureIterator<SimpleFeature> iterator = null;
             
+            FeatureCollection<SimpleFeatureType, SimpleFeature> features = null;            
+            FeatureWriter<SimpleFeatureType, SimpleFeature> aWriter = null;
+            
             try {
                 dataStore = (DataStore)DataStoreFinder.getDataStore(this.postgisDataStore.getParams());
                 
@@ -396,25 +396,22 @@ public class FusedTrackGenerator extends
                 Filter shardingFilter = CQL.toFilter("CONTAINS(the_geom, POINT("
                         + point.getX() + " " + point.getY() + "))");
 
-                FeatureCollection<SimpleFeatureType, SimpleFeature> features = fs
-                        .getFeatures(shardingFilter);
+                features = fs.getFeatures(shardingFilter);
                 
                 iterator = features.features();
 
                 while (iterator.hasNext()) {
-
                     SimpleFeature feature = iterator.next();
 
                 	SimpleFeatureType newFT = dataStore.getSchema(feature.getAttribute("shard_link").toString());
-                    
-                	FeatureWriter<SimpleFeatureType, SimpleFeature> aWriter =
-                		dataStore.getFeatureWriterAppend(newFT.getTypeName(),transaction);
-                
+
+                	aWriter = dataStore.getFeatureWriterAppend(newFT.getTypeName(),transaction);
+                	
             		SimpleFeature aNewFeature = (SimpleFeature)aWriter.next();	           		
             		
             		//point = geometryFactory.createPoint(new Coordinate(point.getX(),
             		//		point.getY()));
-                    
+
                     aNewFeature.setAttribute("cog", cnt.getContactPosition().getCog());
                     aNewFeature.setAttribute("the_geom", cnt.getContactPosition().getCourse());
                     aNewFeature.setAttribute("position", point);
@@ -423,6 +420,7 @@ public class FusedTrackGenerator extends
 
     	    		aWriter.write();  
     	    		aWriter.close();
+    	    		aWriter = null;
                 }                    	
             	
                 transaction.commit();
@@ -433,60 +431,66 @@ public class FusedTrackGenerator extends
             } catch (CQLException e) {
             	LOGGER.log(Level.SEVERE, e.getLocalizedMessage());
             } finally {
-                transaction.close();
-                iterator.close(); // IMPORTANT
+                transaction.close();	
+                features.close(iterator);
+//                iterator.close(); // IMPORTANT                
+                if(aWriter != null )aWriter.close();
                 dataStore.dispose();
                 dataStore = null;
             }
             
 	    	pastContactPositionDAO.save(pastContactPosition);
 	    	
-	    	Date contactTimestamp = new Date(timestamp*1000);
+	    	Date now = new Date();
+	    	long timeMillis = (timestamp*1000) + (now.getTime() - timestamp*1000);
+	    	Date contactTimestamp = new Date(timeMillis);
+	    	
+
 	    	
 	    	// ///////////////////////////////////////////////////////////
 	    	// Find the past contact positions received in the last time 
 	    	// ///////////////////////////////////////////////////////////
             
 	    	
-	    	////////////////////////////////////////////////////////////////
-	    	
-	    	List<PastContactPosition> pastContacts = new ArrayList<PastContactPosition>();
-	    	Transaction view_transaction = new DefaultTransaction("view_transaction");
-	    	FeatureReader<?, SimpleFeature> aReader = null;
-	    	
-            try {
-            	dataStore = (DataStore)DataStoreFinder.getDataStore(this.postgisDataStore.getParams());
-            	
-            	Filter filter = CQL.toFilter("contact_id=" + cnt.getContactId());
-    			Query query = new DefaultQuery("history", filter);
-    	        aReader = dataStore.getFeatureReader(query, view_transaction);
-    	        
-    	        for(;aReader.hasNext();){
-    	        	 SimpleFeature feature = aReader.next();
-
-                  	 PastContactPosition pcp = new PastContactPosition();
-                	 pcp.setCog(((Double)feature.getAttribute("cog")).doubleValue());
-                	 pcp.setPosition((Point)feature.getDefaultGeometry());
-                	 
-                	 pastContacts.add(pcp);
-    	        }
-    	        
-            }catch (IOException e) {
-            	view_transaction.rollback();
-            	LOGGER.log(Level.SEVERE, e.getLocalizedMessage());
-            } catch (CQLException e) {
-            	LOGGER.log(Level.SEVERE, e.getLocalizedMessage());
-            } finally {
-            	view_transaction.close();
-            	aReader.close();
-                dataStore.dispose();
-                dataStore = null;
-            }
-
-	    	////////////////////////////////////////////////////////////////
+//	    	////////////////////////////////////////////////////////////////
+//	    	
+//	    	List<PastContactPosition> pastContacts = new ArrayList<PastContactPosition>();
+//	    	Transaction view_transaction = new DefaultTransaction("view_transaction");
+//	    	FeatureReader<?, SimpleFeature> aReader = null;
+//	    	
+//            try {
+//            	dataStore = (DataStore)DataStoreFinder.getDataStore(this.postgisDataStore.getParams());
+//            	
+//            	Filter filter = CQL.toFilter("contact_id=" + cnt.getContactId());
+//    			Query query = new DefaultQuery("history", filter);
+//    	        aReader = dataStore.getFeatureReader(query, view_transaction);
+//    	        
+//    	        for(;aReader.hasNext();){
+//    	        	 SimpleFeature feature = aReader.next();
+//
+//                  	 PastContactPosition pcp = new PastContactPosition();
+//                	 pcp.setCog(((Double)feature.getAttribute("cog")).doubleValue());
+//                	 pcp.setPosition((Point)feature.getDefaultGeometry());
+//                	 
+//                	 pastContacts.add(pcp);
+//    	        }
+//    	        
+//            }catch (IOException e) {
+//            	view_transaction.rollback();
+//            	LOGGER.log(Level.SEVERE, e.getLocalizedMessage());
+//            } catch (CQLException e) {
+//            	LOGGER.log(Level.SEVERE, e.getLocalizedMessage());
+//            } finally {
+//            	view_transaction.close();
+//            	aReader.close();
+//                dataStore.dispose();
+//                dataStore = null;
+//            }
+//
+//	    	////////////////////////////////////////////////////////////////
             
-	    	//List<PastContactPosition> pastContacts = pastContactPositionDAO.findByPeriod(timestamp, 
-	    		//	this.configuration.getStepTimeSecond(), cnt.getContactId());
+	    	List<PastContactPosition> pastContacts = pastContactPositionDAO.findByPeriod(timeMillis, 
+	    			this.configuration.getStepTimeSecond(), cnt.getContactId());
 	    	
 			if(this.configuration.getLogType().indexOf("fused") != -1){
 		    	if(type.compareTo(ContactType.NONESSENTIAL) != 0){
@@ -527,7 +531,12 @@ public class FusedTrackGenerator extends
     	    // ///////////////////////////////
     	    
     	    ContactPosition currentContact = new ContactPosition();
-    	    currentContact.setTime(new Date(timestamp*1000));
+    	    
+	    	Date now = new Date();
+	    	long timeMillis = (timestamp*1000) + (now.getTime() - timestamp*1000);
+	    	Date contactTimestamp = new Date(timeMillis);
+    	    
+    	    currentContact.setTime(contactTimestamp);
     	    currentContact.setCog(cog);
         	
     	    WKTReader wkt_reader = new WKTReader(geometryFactory);

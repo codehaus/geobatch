@@ -30,8 +30,6 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import org.hibernate.Query;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -46,17 +44,17 @@ public class DAOPastContactPositionHibernate extends DAOAbstractSpring<PastConta
 		super(PastContactPosition.class);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+//	@Transactional(propagation = Propagation.MANDATORY)
 	public PastContactPosition save(PastContactPosition contact) throws DAOException {
 		return super.makePersistent(contact);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+//	@Transactional(propagation = Propagation.MANDATORY)
 	public void delete(final PastContactPosition pastContact) throws DAOException {
 		super.getHibernateTemplate().delete(pastContact);
 	}
 	
-	@Transactional(propagation = Propagation.REQUIRED, readOnly=true)
+//	@Transactional(propagation = Propagation.MANDATORY, readOnly=true)
 	@SuppressWarnings("unchecked")
 	public List<PastContactPosition> findByPeriod(final long timestamp, 
 			final long step, final long contactId) throws DAOException {
@@ -64,7 +62,7 @@ public class DAOPastContactPositionHibernate extends DAOAbstractSpring<PastConta
 		super.getHibernateTemplate().setCacheQueries(true);
 		super.getHibernateTemplate().setQueryCacheRegion("query.PastContactPosition");
 		
-		Timestamp time = new Timestamp((timestamp-step)*1000);
+		Timestamp time = new Timestamp(timestamp - (step*1000));
 
 		Query query = super.getSession().getNamedQuery("findPastContactPositionByPeriod");
 		query.setLong("contactId", contactId);

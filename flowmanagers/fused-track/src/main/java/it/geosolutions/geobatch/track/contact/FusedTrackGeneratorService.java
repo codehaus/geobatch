@@ -34,8 +34,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.hibernate.SessionFactory;
-
 
 /**
  * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)

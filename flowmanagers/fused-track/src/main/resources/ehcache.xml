@@ -18,7 +18,7 @@
 		diskPersistent="false" diskExpiryThreadIntervalSeconds="240"
 		memoryStoreEvictionPolicy="LRU" />
 		
-	<cache name="query.PastContactPosition" maxElementsInMemory="10"
+	<cache name="query.PastContactPosition" maxElementsInMemory="1000"
 		eternal="false" timeToLiveSeconds="120" diskPersistent="false"
 		overflowToDisk="true" />
 		

@@ -166,6 +166,26 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
+		<dependency>
+             <groupId>aspectj</groupId>
+             <artifactId>aspectjrt</artifactId>
+             <version>1.5.4</version>
+             <!--url>http://www.eclipse.org/aspectj</url>
+             <properties>
+                <war.bundle>true</war.bundle>
+             </properties-->
+        </dependency>
+        
+        <dependency>
+             <groupId>aspectj</groupId>
+             <artifactId>aspectjweaver</artifactId>
+             <version>1.5.4</version>
+             <!--url>http://www.eclipse.org/aspectj</url>
+             <properties>
+                <war.bundle>true</war.bundle>
+             </properties-->
+        </dependency>
 	</dependencies>
 
 	<build>

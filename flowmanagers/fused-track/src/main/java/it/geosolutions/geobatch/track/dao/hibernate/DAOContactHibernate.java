@@ -26,10 +26,6 @@ import it.geosolutions.geobatch.track.dao.ContactDAO;
 import it.geosolutions.geobatch.track.dao.DAOException;
 import it.geosolutions.geobatch.track.model.Contact;
 
-import org.hibernate.SessionFactory;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 /**
  * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
  * 
@@ -42,28 +38,28 @@ public class DAOContactHibernate extends DAOAbstractSpring<Contact,Long>
 		super(Contact.class);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+	//@Transactional(propagation = Propagation.MANDATORY)
 	public Contact save(Contact contact) throws DAOException {
 		return super.makePersistent(contact);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+	//@Transactional(propagation = Propagation.MANDATORY)
 	public void delete(final Contact contact) throws DAOException {
 		super.getHibernateTemplate().delete(contact);
 	}
 	
-	@Transactional(propagation = Propagation.REQUIRED)
+	//@Transactional(propagation = Propagation.MANDATORY)
 	public void merge(final Contact contact) throws DAOException {
 		super.getHibernateTemplate().merge(contact);
 	}
 	
-	@Transactional(propagation = Propagation.REQUIRED)
+	//@Transactional(propagation = Propagation.MANDATORY)
 	public void update(final Contact contact) throws DAOException {
 		super.getHibernateTemplate().update(contact);
 	}
 	
-	@Transactional(propagation = Propagation.REQUIRED, readOnly=true)
-	public Contact isExist(final long id) throws DAOException {
+	//@Transactional(propagation = Propagation.MANDATORY, readOnly=true)
+	public Contact findIsExist(final long id) throws DAOException {
 		return (Contact)super.getHibernateTemplate().get(Contact.class, id);
 	}
 }
