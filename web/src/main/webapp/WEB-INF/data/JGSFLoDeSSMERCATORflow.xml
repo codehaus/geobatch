@@ -54,7 +54,7 @@
 			<styles/>
 			<datastorePropertiesPath>JGSFLoDeSSworkingdir/config/NURC-2009/datastore.properties</datastorePropertiesPath>
 			<timeRegex>[0-9]{8}T[0-9]{7}Z(?!.*[0-9]{8}T[0-9]{7}Z.*)</timeRegex>
-			<elevationRegex><![CDATA[(?<=_)(\\d{4})(?=_)]]></elevationRegex>
+			<elevationRegex><![CDATA[(?<=_)(\\d{4}\\.\\d{3})(?=_)]]></elevationRegex>
 			<serviceID>ImageMosaicGeneratorService</serviceID>
 			<id>ImageMosaicService</id>
 			<description>ImageMosaicService</description>
