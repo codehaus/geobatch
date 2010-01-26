@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<!-- Hibernate SessionFactory -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:lobHandler-ref="defaultLobHandler">
+		
+		<property name="annotatedClasses">
+			<list>
+				<value>
+					it.geosolutions.geobatch.track.model.Contact
+				</value>
+				<value>
+					it.geosolutions.geobatch.track.model.ContactPosition
+				</value>
+				<value>
+					it.geosolutions.geobatch.track.model.PastContactPosition
+				</value>
+			</list>
+		</property>
+		
+		<property name="hibernateProperties">
+			<value>
+				hibernate.dialect=${hibernate.dialect}
+				hibernate.jdbc.batch_size=${hibernate.jdbc.batch_size}
+				hibernate.c3p0.min_size=${hibernate.c3p0.min_size}
+				hibernate.c3p0.max_size=${hibernate.c3p0.max_size}
+				hibernate.c3p0.timeout=${hibernate.c3p0.timeout}
+				hibernate.c3p0.max_statements=${hibernate.c3p0.max_statements}
+				hibernate.c3p0.idle_test_period=${hibernate.c3p0.idle_test_period}
+				hibernate.cache.provider_class=${hibernate.cache.provider_class}
+				hibernate.connection.provider_class=${hibernate.connection.provider_class}
+				hibernate.show_sql=${hibernate.show_sql}
+				hibernate.hbm2ddl.auto=${hibernate.hbm2ddl.auto}
+				hibernate.cache.use_second_level_cache=${hibernate.cache.use_second_level_cache}
+				hibernate.cache.use_query_cache=${hibernate.cache.use_query_cache}
+				hibernate.current_session_context_class=${hibernate.current_session_context_class}
+				hibernate.transaction.factory_class=${hibernate.transaction.factory_class}
+				hibernate.connection.autocommit=${hibernate.connection.autocommit}
+			</value>
+		</property>		
+	</bean>
+	
+	<aop:config>
+<!--		<aop:pointcut id="allMethods" expression="execution(* it.geosolutions.geobatch.track.contact.*.*(..))"/>-->
+		<aop:pointcut id="allDaoMethods" expression="execution(* it.geosolutions.geobatch.track.dao.hibernate.*.*(..))"/>
+		
+<!--		<aop:advisor advice-ref="transactionAdvice" pointcut-ref="allMethods"/>-->
+		<aop:advisor advice-ref="daoTransactionAdvice" pointcut-ref="allDaoMethods"/>
+	</aop:config>
+	
+<!--	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">-->
+<!--		<tx:attributes>-->
+<!--			<tx:method name="*"-->
+<!--					   isolation="DEFAULT"-->
+<!--					   propagation="REQUIRED"-->
+<!--					   timeout="100"/>-->
+<!--			<tx:method name="createAction*"-->
+<!--					   isolation="DEFAULT"-->
+<!--					   propagation="REQUIRED"-->
+<!--					   timeout="100"/>-->
+<!--			<tx:method name="execute*"-->
+<!--					   isolation="DEFAULT"-->
+<!--					   propagation="REQUIRED"-->
+<!--					   timeout="100"/>-->
+<!--			<tx:method name="insert*"-->
+<!--					   isolation="DEFAULT"-->
+<!--					   propagation="REQUIRED"-->
+<!--					   timeout="100"/>-->
+<!--		</tx:attributes>-->
+<!--	</tx:advice>-->
+	
+	<tx:advice id="daoTransactionAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="find*"
+					   isolation="DEFAULT"
+					   propagation="REQUIRED"
+					   timeout="100"
+					   read-only="true"/>
+			<tx:method name="*"
+					   isolation="DEFAULT"
+					   propagation="REQUIRED"
+					   timeout="100"/>
+			<!--tx:method name="delete*"
+					   isolation="DEFAULT"
+					   propagation="MANDATORY"
+					   timeout="100"/>
+		    <tx:method name="merge*"
+					   isolation="DEFAULT"
+					   propagation="MANDATORY"
+					   timeout="100"/>
+			<tx:method name="update*"
+					   isolation="DEFAULT"
+					   propagation="MANDATORY"
+					   timeout="100"/-->
+		</tx:attributes>
+	</tx:advice>
+	
+	<!-- Database LOB Handling -->
+	<bean id="defaultLobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler"/>
+	
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	
+	<!-- Transaction manager -->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager"
+		p:sessionFactory-ref="sessionFactory"/>
+		
+	<!-- Read in daos from the hibernate package -->
+	<!--context:component-scan base-package="it.geosolutions.geobatch.track.dao.hibernate">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
+	</context:component-scan-->
+</beans>

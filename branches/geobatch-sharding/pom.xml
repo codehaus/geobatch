@@ -67,7 +67,7 @@
         <stress.skip.pattern>**/*StressTest.java</stress.skip.pattern>
         <test.maxHeapSize>512M</test.maxHeapSize>
         <src.output>${basedir}/target</src.output>
-        <gt.version>2.6-SNAPSHOT</gt.version>
+        <gt.version>2.7-SNAPSHOT</gt.version>
         <gb.version>0.9-SNAPSHOT</gb.version>
 	    <imageio-ext.version>1.0.4</imageio-ext.version>
         <spring.version>2.5.6.SEC01</spring.version>
