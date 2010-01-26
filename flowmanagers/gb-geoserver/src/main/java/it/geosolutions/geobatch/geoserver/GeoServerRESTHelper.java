@@ -594,7 +594,7 @@ public class GeoServerRESTHelper {
 		}
 	}
 	
-	private static void configureLayer(final Map<String, String> queryParams, final String defaultStyle, 
+	public static void configureLayer(final Map<String, String> queryParams, final String defaultStyle, 
 			final String geoserverBaseURL, final String geoserverUID, final String geoserverPWD, final String layerName) 
 		throws ParserConfigurationException, IOException, TransformerException {
 		Map<String,String> configElements = new HashMap<String, String>(2);
@@ -611,7 +611,7 @@ public class GeoServerRESTHelper {
 		}
 		
 	}
-
+	
 	/**
 	 * Allows to configure some layer attributes such as WmsPath and DefaultStyle
 	 * @param configElements
@@ -641,6 +641,56 @@ public class GeoServerRESTHelper {
 			if (send)
 				if (LOGGER.isLoggable(Level.INFO))
 					LOGGER.info("GeoServerConfiguratorAction: Layer SUCCESSFULLY configured!");	
+		}finally{
+			if (file != null){
+				try{
+					file.delete();
+				}catch (Throwable t){
+					//Eat me
+				}
+			}
+			if (inStream != null){
+				try{
+					inStream.close();
+				}catch (Throwable t){
+					//eat me;
+				}
+			}
+	
+		}
+		
+	}
+	
+	/**
+	 * Allows to configure some layer attributes such as WmsPath and DefaultStyle
+	 * @param configElements
+	 * @param geoserverBaseURL
+	 * @param geoserverUID
+	 * @param geoserverPWD
+	 * @param layerName
+	 * @throws ParserConfigurationException
+	 * @throws IOException
+	 * @throws TransformerException
+	 */
+	public static void sendCoverageConfiguration(final Map<String,String> configElements, final String geoserverBaseURL, 
+			final String geoserverUID, final String geoserverPWD, final String workspace, 
+			final String coverageStore, final String coverageName) throws ParserConfigurationException, IOException, TransformerException {
+		
+		String coveragest = URLEncoder.encode(coverageStore,"UTF-8"); 
+		final URL geoserverREST_URL = new URL(new StringBuilder(geoserverBaseURL)
+		.append( "/rest/workspaces/" )
+		.append(workspace).append("/coveragestores/").append(coveragest).append("/coverages/").append(coverageName)
+		.append(".xml").toString());
+		File file = null;
+		FileInputStream inStream = null;
+		try{
+			file = buildCoverageXMLConfiguration(configElements);
+			inStream = new FileInputStream(file);
+			final boolean send = GeoServerRESTHelper.putBinaryFileTo(geoserverREST_URL, 
+					inStream, geoserverUID, geoserverPWD, null, "text/xml");
+			if (send)
+				if (LOGGER.isLoggable(Level.INFO))
+					LOGGER.info("GeoServerConfiguratorAction: Coverage SUCCESSFULLY configured!");	
 		}finally{
 			if (file != null){
 				try{
@@ -690,6 +740,56 @@ public class GeoServerRESTHelper {
 	    	final Element element = doc.createElement(key);
 	    	root.appendChild(element);
 	    	element.insertBefore(doc.createTextNode(value), null);
+	    }
+
+	    final TransformerFactory factory = TransformerFactory.newInstance();
+	    final Transformer transformer = factory.newTransformer();
+	    final File file = File.createTempFile("config", ".xml");
+	    final Result result = new StreamResult(file);
+	    final Source xmlSource = new DOMSource(doc);
+	    transformer.transform(xmlSource, result);
+	    return file;
+	}
+	
+	/**
+	 * Setup an XML file to be sent via REST to configure the Layer
+	 * @param configElements
+	 * @return
+	 * @throws ParserConfigurationException
+	 * @throws IOException
+	 * @throws TransformerException
+	 */
+	private static File buildCoverageXMLConfiguration(final Map <String, String> configElements) 
+	throws ParserConfigurationException, IOException, TransformerException{
+		final DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
+	    
+		//Get the DocumentBuilder
+	    DocumentBuilder parser = dfactory.newDocumentBuilder();
+	    //Create blank DOM Document
+	    Document doc = parser.newDocument();
+	    Element root = doc.createElement("coverage");
+		doc.appendChild(root);
+	    
+	    Set<String> keys = configElements.keySet();
+	    Element enabledElement = doc.createElement("enabled");
+    	root.appendChild(enabledElement);
+    	enabledElement.insertBefore(doc.createTextNode("true"), null);
+	    
+    	Element parametersElement = doc.createElement("parameters");
+    	root.appendChild(parametersElement);
+    	
+    	for (String key:keys){
+        	Element entry = doc.createElement("entry");
+        	parametersElement.appendChild(entry);
+        	
+        	Element string = doc.createElement("string");
+        	entry.appendChild(string);
+	    	string.insertBefore(doc.createTextNode(key), null);
+	    	
+	    	Element string2 = doc.createElement("string");
+        	entry.appendChild(string2);
+        	final String value = configElements.get(key);
+        	string2.insertBefore(doc.createTextNode(value), null);
 	    }
 
 	    final TransformerFactory factory = TransformerFactory.newInstance();

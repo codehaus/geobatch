@@ -44,6 +44,8 @@ import java.util.Queue;
 import java.util.logging.Level;
 
 import javax.media.jai.JAI;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -236,19 +238,22 @@ public class ImageMosaicConfigurator extends
 					String[] lastCvNameParts  = FilenameUtils.getBaseName(fileNames[fileNames.length-1]).split("_");
 					
 					if (firstCvNameParts != null && firstCvNameParts.length > 3) {
-						String coverageStoreId =
-							firstCvNameParts.length == 9 && firstCvNameParts.length == lastCvNameParts.length?
-							new StringBuilder()
-							.append(firstCvNameParts[0]).append("_")
-							.append(firstCvNameParts[1]).append("_")
-							.append(firstCvNameParts[2]).append("_")
-							.append(firstCvNameParts[3]).append("_") // Min Z
-							.append(lastCvNameParts[3]).append("_") // Max Z
-							.append(firstCvNameParts[5]).append("_") // Base Time
-							.append(lastCvNameParts[6]).append("_") // Forecast Time
-							.append(firstCvNameParts[7]).append("_") // TAU
-							.append(firstCvNameParts[8]) // NoDATA
-							.toString() : inputDir.getName(); 
+						// 	Temp workaround to leverages on a coverageStoreId having the same name of the coverage 
+						// and the same name of the mosaic folder
+//						String coverageStoreId =
+//							firstCvNameParts.length == 9 && firstCvNameParts.length == lastCvNameParts.length?
+//							new StringBuilder()
+//							.append(firstCvNameParts[0]).append("_")
+//							.append(firstCvNameParts[1]).append("_")
+//							.append(firstCvNameParts[2]).append("_")
+//							.append(firstCvNameParts[3]).append("_") // Min Z
+//							.append(lastCvNameParts[3]).append("_") // Max Z
+//							.append(firstCvNameParts[5]).append("_") // Base Time
+//							.append(lastCvNameParts[6]).append("_") // Forecast Time
+//							.append(firstCvNameParts[7]).append("_") // TAU
+//							.append(firstCvNameParts[8]) // NoDATA
+//							.toString() : inputDir.getName(); 
+						String coverageStoreId = inputDir.getName();
 						
 						LOGGER.info("Coverage Store ID: " + coverageStoreId);
 						// ////////////////////////////////////////////////////////////////////
@@ -279,6 +284,25 @@ public class ImageMosaicConfigurator extends
 						if (layerResponse != null && layerResponse.length > 2) {
 							String layer = layerResponse[0];
 							LOGGER.info("ImageMosaicConfigurator layer: " + layer);
+							
+							final String workspace = layerResponse[1];
+							final String coverageStore = coverageStoreId;
+							final String coverageName = layer;
+							queryParams.clear();
+							queryParams.put("MaxAllowedTiles", Integer.toString(Integer.MAX_VALUE));
+							//Actually, the ImageMosaicConfiguration is contained in the flow.xml.
+							//therefore, there is no way to set the background values a runtime
+							//for the moment, we take the nodata from the file name.
+							queryParams.put("BackgroundValues", firstCvNameParts[8]);//NoData
+							queryParams.put("OutputTransparentColor", "");
+							queryParams.put("InputTransparentColor", "");
+							queryParams.put("AllowMultithreading", "false");
+							queryParams.put("USE_JAI_IMAGEREAD", "true");
+							queryParams.put("SUGGESTED_TILE_SIZE", "512,512");
+							
+							configureMosaic(queryParams, getConfiguration().getGeoserverURL(), 
+									getConfiguration().getGeoserverUID(), 
+									getConfiguration().getGeoserverPWD(), workspace, coverageStore, coverageName);
 							
 							final File layerDescriptor = new File(inputDir, layer + ".layer");
 							
@@ -322,5 +346,80 @@ public class ImageMosaicConfigurator extends
 		} finally {
 			JAI.getDefaultInstance().getTileCache().flush();
 		}
+	}
+	
+	public static void configureMosaic(final Map<String, String> queryParams,  
+			final String geoserverBaseURL, final String geoserverUID, final String geoserverPWD,
+			final String workspace, final String coverageStore, final String coverageName) 
+		throws ParserConfigurationException, IOException, TransformerException {
+		Map<String,String> configElements = new HashMap<String, String>(2);
+		if (queryParams.containsKey("MaxAllowedTiles")){
+			//Configuring wmsPath
+			final String maxTiles = queryParams.get("MaxAllowedTiles");
+			configElements.put("MaxAllowedTiles", maxTiles);
+		}
+		else{
+			configElements.put("MaxAllowedTiles", "2147483647");
+		}
+		
+		if (queryParams.containsKey("BackgroundValues")){
+			//Configuring wmsPath
+			final String backgroundValues = queryParams.get("BackgroundValues");
+			configElements.put("BackgroundValues", backgroundValues);
+		}
+		else{
+			configElements.put("BackgroundValues", "");
+		}
+		
+		if (queryParams.containsKey("OutputTransparentColor")){
+			//Configuring wmsPath
+			final String outputTransparentColor = queryParams.get("OutputTransparentColor");
+			configElements.put("OutputTransparentColor", outputTransparentColor);
+		}
+		else{
+			configElements.put("OutputTransparentColor", "");
+		}
+		
+		if (queryParams.containsKey("InputTransparentColor")){
+			//Configuring wmsPath
+			final String inputTransparentColor = queryParams.get("InputTransparentColor");
+			configElements.put("InputTransparentColor", inputTransparentColor);
+		}
+		else{
+			configElements.put("InputTransparentColor", "");
+		}
+		
+		if (queryParams.containsKey("AllowMultithreading")){
+			//Configuring wmsPath
+			final String allowMultithreading = queryParams.get("AllowMultithreading");
+			configElements.put("AllowMultithreading", allowMultithreading);
+		}
+		else{
+			configElements.put("AllowMultithreading", "false");
+		}
+		
+		if (queryParams.containsKey("USE_JAI_IMAGEREAD")){
+			//Configuring wmsPath
+			final String useJaiImageread = queryParams.get("USE_JAI_IMAGEREAD");
+			configElements.put("USE_JAI_IMAGEREAD", useJaiImageread);
+		}
+		else{
+			configElements.put("USE_JAI_IMAGEREAD", "false");
+		}
+		
+		if (queryParams.containsKey("SUGGESTED_TILE_SIZE")){
+			//Configuring wmsPath
+			final String suggestedTileSize = queryParams.get("SUGGESTED_TILE_SIZE");
+			configElements.put("SUGGESTED_TILE_SIZE", suggestedTileSize);
+		}
+		else{
+			configElements.put("SUGGESTED_TILE_SIZE", "512,512");
+		}
+		    
+		if (!configElements.isEmpty()){
+			GeoServerRESTHelper.sendCoverageConfiguration(configElements, geoserverBaseURL, geoserverUID, geoserverPWD, workspace,
+					coverageStore, coverageName);	
+		}
+		
 	}
 }
