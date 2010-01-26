@@ -344,7 +344,7 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 								// ////
 								final StringBuilder coverageName = new StringBuilder(inputFileName)
 								              .append("_").append(variableName)
-								              .append("_").append(hasLocalZLevel ? elevLevelFormat(zetaOriginalData.getLong(zetaOriginalData.getIndex().set(z))) : "0000")
+								              .append("_").append(hasLocalZLevel ? elevLevelFormat(zetaOriginalData.getDouble(zetaOriginalData.getIndex().set(z))) : "0000.000")
 								              .append("_");
 								if (!hasTime)
 									coverageName.append(baseTime);
@@ -388,15 +388,23 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 	
 	/**
 	 * 
-	 * @param zLevel
+	 * @param d
 	 * @return
 	 */
-	private static String elevLevelFormat(long zLevel) {
-		String res = String.valueOf(zLevel);
+	private static String elevLevelFormat(double d) {
+		String[] parts = String.valueOf(d).split("\\.");
 		
-		while (res.length() % 4 != 0)
-			res = "0" + res;
+		String integerPart = parts[0];
+		String decimalPart = parts[1];
 		
-		return res;
+		while (integerPart.length() % 4 != 0)
+			integerPart = "0" + integerPart;
+		
+		decimalPart = decimalPart.length() > 3 ? decimalPart.substring(0, 3) : decimalPart;
+		
+		while (decimalPart.length() % 3 != 0)
+			decimalPart = decimalPart + "0";
+		
+		return integerPart + "." + decimalPart;
 	}
 }

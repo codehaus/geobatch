@@ -304,7 +304,7 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 		// <FOR>
 		for (int col = 0; col < cols; col++) {
 			for (int row=0; row < rows; row++) {
-				//LOGGER.info("Harvesting -----------> ["+col+","+row+"]");
+				LOGGER.info("Harvesting -----------> ["+col+","+row+"]");
 
 				final String timePosition = (timePositions != null ? timePositions[col] : null);
 				final String elevation = (elevationLevels != null ? elevationLevels[row] : null);
@@ -314,11 +314,15 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 						coverageName, zOrder, metocDictionary, srsId, envelope, range,
 						matrix, metocFields, timePosition, elevation);
 
-				res = JGSFLoDeSSIOUtils.sendHarvestRequest(registryURL, providerURL, fileName);
-
-				if (!res) {
-					break;
+				try {
+					res = JGSFLoDeSSIOUtils.sendHarvestRequest(registryURL, providerURL, fileName);
+				} catch (Exception e) {
+					res = false;
 				}
+
+//				if (!res) {
+//					break;
+//				}
 			}
 		}
 		// </FOR>
