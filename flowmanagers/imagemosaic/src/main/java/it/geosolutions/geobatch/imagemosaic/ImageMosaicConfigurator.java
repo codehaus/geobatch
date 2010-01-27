@@ -240,19 +240,19 @@ public class ImageMosaicConfigurator extends
 					if (firstCvNameParts != null && firstCvNameParts.length > 3) {
 						// 	Temp workaround to leverages on a coverageStoreId having the same name of the coverage 
 						// and the same name of the mosaic folder
-//						String coverageStoreId =
-//							firstCvNameParts.length == 9 && firstCvNameParts.length == lastCvNameParts.length?
-//							new StringBuilder()
-//							.append(firstCvNameParts[0]).append("_")
-//							.append(firstCvNameParts[1]).append("_")
-//							.append(firstCvNameParts[2]).append("_")
-//							.append(firstCvNameParts[3]).append("_") // Min Z
-//							.append(lastCvNameParts[3]).append("_") // Max Z
-//							.append(firstCvNameParts[5]).append("_") // Base Time
-//							.append(lastCvNameParts[6]).append("_") // Forecast Time
-//							.append(firstCvNameParts[7]).append("_") // TAU
-//							.append(firstCvNameParts[8]) // NoDATA
-//							.toString() : inputDir.getName(); 
+						String metocFields =
+							firstCvNameParts.length == 9 && firstCvNameParts.length == lastCvNameParts.length?
+							new StringBuilder()
+							.append(firstCvNameParts[0]).append("_")
+							.append(firstCvNameParts[1]).append("_")
+							.append(firstCvNameParts[2]).append("_")
+							.append(firstCvNameParts[3]).append("_") // Min Z
+							.append(lastCvNameParts[3]).append("_") // Max Z
+							.append(firstCvNameParts[5]).append("_") // Base Time
+							.append(lastCvNameParts[6]).append("_") // Forecast Time
+							.append(firstCvNameParts[7]).append("_") // TAU
+							.append(firstCvNameParts[8]) // NoDATA
+							.toString() : inputDir.getName(); 
 						String coverageStoreId = inputDir.getName();
 						
 						LOGGER.info("Coverage Store ID: " + coverageStoreId);
@@ -313,6 +313,7 @@ public class ImageMosaicConfigurator extends
 									
 									// Write text to file
 									out.println("namespace=" + layerResponse[1]);
+									out.println("metocFields=" + metocFields);
 									out.println("storeid=" + coverageStoreId);
 									out.println("layerid=" + inputDir.getName());
 									out.println("driver=ImageMosaic");
