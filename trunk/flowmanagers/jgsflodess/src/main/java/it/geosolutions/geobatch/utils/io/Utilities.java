@@ -122,8 +122,8 @@ public class Utilities {
 		// PREPARING A WRITE
 		//
 		// /////////////////////////////////////////////////////////////////////
-		if (LOGGER.isLoggable(Level.INFO))
-			LOGGER.info("Writing down the file in the decoded directory...");
+		if (LOGGER.isLoggable(Level.FINE))
+			LOGGER.fine("Writing down the file in the decoded directory...");
 		final GeoTiffFormat wformat = new GeoTiffFormat();
 		final GeoTiffWriteParams wp = new GeoTiffWriteParams();
 		if (!Double.isNaN(compressionRatio)) {

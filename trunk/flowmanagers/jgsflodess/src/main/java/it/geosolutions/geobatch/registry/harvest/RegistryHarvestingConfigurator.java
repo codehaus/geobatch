@@ -173,11 +173,12 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 				}
 
 				final String namespace = props.getProperty("namespace");
+				final String metocFields = props.getProperty("metocFields");
 				final String storeid = props.getProperty("storeid");
 				final String layerid = props.getProperty("layerid");
 				final String driver = props.getProperty("driver");
 				final String path = new File(inputFile.getParentFile(), props.getProperty("path")).getAbsolutePath();
-
+				
 				final File metadataTemplate = IOUtils.findLocation(configuration.getMetocHarvesterXMLTemplatePath(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
 				
 				boolean res = harvest(
@@ -190,16 +191,16 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 						configuration.getProviderURL(), 
 						new Date().getTime(), 
 						namespace, 
-						storeid, 
+						metocFields, 
 						layerid, 
 						"DOWN"
 				);
 				
-				//if (res) {
+				if (res) {
 					// forwarding to the next Action
 					LOGGER.info("RegistryHarvestingAction ... forwarding to the next Action: " + inputFile.getAbsolutePath());
 					generatedEvents.add(new FileSystemMonitorEvent(inputFile, FileSystemMonitorNotifications.FILE_ADDED));
-				//}
+				}
 			}
 			
 			if (generatedEvents != null)
@@ -225,7 +226,7 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 	 * @param providerURL
 	 * @param timestamp
 	 * @param namespace
-	 * @param coverageStoreId
+	 * @param metocFields
 	 * @param coverageName
 	 * @param zOrder
 	 * @return
@@ -244,7 +245,7 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 			final String providerURL,
 			final long timestamp, 
 			final String namespace, 
-			final String coverageStoreId,
+			final String metocFields,
 			final String coverageName, 
 			final String zOrder
 	) throws JAXBException, IOException, FactoryException, ParseException {
@@ -269,7 +270,7 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 		final LinearTransform tx = (LinearTransform) gridToCRS;
         final Matrix matrix = tx.getMatrix();
 
-		final String[] metocFields = coverageStoreId.split("_");
+		final String[] metocFieldsParts = metocFields.split("_");
 		
 		final String[] metadataNames = reader.getMetadataNames();
 		
@@ -304,7 +305,7 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 		// <FOR>
 		for (int col = 0; col < cols; col++) {
 			for (int row=0; row < rows; row++) {
-				LOGGER.info("Harvesting -----------> ["+col+","+row+"]");
+//				LOGGER.info("Harvesting -----------> ["+col+","+row+"]");
 
 				final String timePosition = (timePositions != null ? timePositions[col] : null);
 				final String elevation = (elevationLevels != null ? elevationLevels[row] : null);
@@ -312,7 +313,7 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 
 				readWriteMetadata(outDir, fileName, metadataTemplate, timestamp, namespace,
 						coverageName, zOrder, metocDictionary, srsId, envelope, range,
-						matrix, metocFields, timePosition, elevation);
+						matrix, metocFieldsParts, timePosition, elevation);
 
 				try {
 					res = JGSFLoDeSSIOUtils.sendHarvestRequest(registryURL, providerURL, fileName);
@@ -320,9 +321,9 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 					res = false;
 				}
 
-//				if (!res) {
-//					break;
-//				}
+				if (!res) {
+					break;
+				}
 			}
 		}
 		// </FOR>
