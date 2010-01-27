@@ -174,7 +174,7 @@ public class INGVFileConfigurator extends
 			
 			inputFileName = FilenameUtils.getName(inputFileName);
 			// decompress input file into a temp directory
-			final File tempFile = File.createTempFile(inputFileName, ".tmp");
+			final File tempFile = File.createTempFile(inputFileName, ".tmp", outDir);
 			final File ncomsDatasetDirectory = 
 				("zip".equalsIgnoreCase(fileSuffix) || "tar".equalsIgnoreCase(fileSuffix)) ? 
 						Utilities.decompress("INGV-MFS", event.getSource(), tempFile) :
@@ -183,6 +183,8 @@ public class INGVFileConfigurator extends
 			// move the file if it's not an archive
 			if (!("zip".equalsIgnoreCase(fileSuffix) || "tar".equalsIgnoreCase(fileSuffix)))
 				event.getSource().renameTo(new File(ncomsDatasetDirectory, inputFileName));
+			
+			tempFile.delete();
 			
 			// ////
 			// STEP 1: Looking for grid NetCDF files
@@ -276,7 +278,7 @@ public class INGVFileConfigurator extends
 			// ////
 			// ... create the output file data structure
 			// ////
-            outputFile = new File(outDir, "lscv08_INGVMFS-Forecast-T" + new Date().getTime() + ".nc");
+            outputFile = new File(outDir, "lscv08_INGVMFS-Forecast-T" + new Date().getTime() + inputFileName.replaceAll("-", "") + ".nc");
             ncFileOut = NetcdfFileWriteable.createNew(outputFile.getAbsolutePath());
 
             //NetCDFConverterUtilities.copyGlobalAttributes(ncFileOut, ncFileIn.getGlobalAttributes());
