@@ -29,7 +29,7 @@
 
     
     <!-- File based event generator service based on the filesystem monitor -->
-    <bean id="fsEventGeneratorService" class="it.geosolutions.geobatch.flow.event.generator.file.FileBasedEventGeneratorService" >
+    <bean id="fsEventGeneratorService" class="it.geosolutions.geobatch.flow.event.generator.file.FileBasedEventGeneratorService" depends-on="fsmSPIFinder" >
     	<property  name="id">
     		<value>fsEventGeneratorService</value>
     	</property>
@@ -43,7 +43,7 @@
 
     
     <!-- File based flow manager service-->
-    <bean id="fsFlowManagerService" class="it.geosolutions.geobatch.flow.file.FileBasedFlowManagerService" >
+    <bean id="fsFlowManagerService" class="it.geosolutions.geobatch.flow.file.FileBasedFlowManagerService"  depends-on="fsmSPIFinder" >
     	<property  name="available">
     		<value>true</value>
     	</property>

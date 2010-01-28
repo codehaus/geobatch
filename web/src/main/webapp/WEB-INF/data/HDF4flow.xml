@@ -2,7 +2,7 @@
 <FlowConfiguration>
 
 	<workingDirectory>hdf4flowworkingdir</workingDirectory>
-	<autorun>false</autorun>
+	<autorun>true</autorun>
 	
 	<EventConsumerConfiguration>
 		<workingDirectory>hdf4flowworkingdir</workingDirectory>

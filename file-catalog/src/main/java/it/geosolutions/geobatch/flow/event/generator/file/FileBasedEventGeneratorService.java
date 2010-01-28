@@ -63,6 +63,7 @@ public class FileBasedEventGeneratorService
             return false;
         final File sensedDir;
         try {
+        	System.out.println("BaseDirectory : " + ((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory());
             sensedDir = IOUtils.findLocation(configuration.getWorkingDirectory(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
             if (sensedDir != null) {
                 if (sensedDir.exists() && sensedDir.isDirectory() && sensedDir.canRead()) // TODO message
@@ -83,30 +84,30 @@ public class FileBasedEventGeneratorService
      * .util.Map)
      */
     public FileBasedEventGenerator createEventGenerator(
-            FileBasedEventGeneratorConfiguration configuration) {
+    		FileBasedEventGeneratorConfiguration configuration) {
 
-        try {
-            final OsType osType = configuration.getOsType();
-            final FileSystemMonitorNotifications eventType = configuration.getEventType();
-        final File sensedDir;
-            sensedDir = IOUtils.findLocation(configuration.getWorkingDirectory(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
-            if (sensedDir != null) {
-                if (!sensedDir.exists() || !sensedDir.isDirectory() || !sensedDir.canRead()) // TODO message
-                    return null;
-            }
-            final boolean keepFiles = configuration.getKeepFiles();
-            if (configuration.getWildCard() == null)
-                return new FileBasedEventGenerator(osType, eventType, sensedDir, keepFiles);
-            else
-                return new FileBasedEventGenerator(osType, eventType, sensedDir,configuration.getWildCard(),keepFiles);
-        } catch (IOException ex) {
-            if (LOGGER.isLoggable(Level.SEVERE))
-                LOGGER.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
-        } catch (Throwable e) {
-            if (LOGGER.isLoggable(Level.SEVERE))
-                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-        }
-        return null;
+    	try {
+    		final OsType osType = configuration.getOsType();
+    		final FileSystemMonitorNotifications eventType = configuration.getEventType();
+    		final File sensedDir;
+    		sensedDir = IOUtils.findLocation(configuration.getWorkingDirectory(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
+    		if (sensedDir != null) {
+    			if (!sensedDir.exists() || !sensedDir.isDirectory() || !sensedDir.canRead()) // TODO message
+    				return null;
+    		}
+    		final boolean keepFiles = configuration.getKeepFiles();
+    		if (configuration.getWildCard() == null)
+    			return new FileBasedEventGenerator(osType, eventType, sensedDir, keepFiles);
+    		else
+    			return new FileBasedEventGenerator(osType, eventType, sensedDir,configuration.getWildCard(),keepFiles);
+    	} catch (IOException ex) {
+    		if (LOGGER.isLoggable(Level.SEVERE))
+    			LOGGER.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
+    	} catch (Throwable e) {
+    		if (LOGGER.isLoggable(Level.SEVERE))
+    			LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+    	}
+    	return null;
     }
 
 }

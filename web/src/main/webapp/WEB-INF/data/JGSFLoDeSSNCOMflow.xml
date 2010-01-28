@@ -2,7 +2,7 @@
 <FlowConfiguration>
 
 	<workingDirectory>JGSFLoDeSSworkingdir/NCOM</workingDirectory>
-	<autorun>false</autorun>
+	<autorun>true</autorun>
 	
 	<EventConsumerConfiguration>
 		<workingDirectory>JGSFLoDeSSworkingdir/NCOM</workingDirectory>

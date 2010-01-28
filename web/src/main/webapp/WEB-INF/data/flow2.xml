@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FlowConfiguration>
 	<workingDirectory>flow2workingdir</workingDirectory>
-    <autorun>true</autorun>
+    <autorun>false</autorun>
 	<EventConsumerConfiguration>
 		<workingDirectory>flow2workingdir</workingDirectory>
 		<performBackup>true</performBackup>

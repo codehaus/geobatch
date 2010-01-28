@@ -2,7 +2,7 @@
 <FlowConfiguration>
 
 	<workingDirectory>JGSFLoDeSSworkingdir/MERCATOR</workingDirectory>
-	<autorun>false</autorun>
+	<autorun>true</autorun>
 	
 	<EventConsumerConfiguration>
 		<workingDirectory>JGSFLoDeSSworkingdir/MERCATOR</workingDirectory>

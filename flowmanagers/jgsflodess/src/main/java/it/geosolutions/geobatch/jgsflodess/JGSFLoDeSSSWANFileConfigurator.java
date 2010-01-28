@@ -135,7 +135,7 @@ public class JGSFLoDeSSSWANFileConfigurator extends
 
 			inputFileName = FilenameUtils.getBaseName(inputFileName);
 			ncFileIn = NetcdfFile.open(event.getSource().getAbsolutePath());
-			final File outDir = Utilities.createTodayDirectory(workingDir);
+			final File outDir = Utilities.createTodayDirectory(workingDir, FilenameUtils.getBaseName(inputFileName));
             
 			boolean hasZeta = false;
 			

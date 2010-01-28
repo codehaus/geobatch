@@ -185,7 +185,7 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends MetocConfiguratio
 			inputFileName = (inputFileName.lastIndexOf("-") > 0 ? inputFileName.substring(0, inputFileName.lastIndexOf("-")) : inputFileName);
 			inputFile = new File(event.getSource().getAbsolutePath());
 			ncFileIn = NetcdfFile.open(inputFile.getAbsolutePath());
-			final File outDir = Utilities.createTodayDirectory(workingDir);
+			final File outDir = Utilities.createTodayDirectory(workingDir, inputFileName);
 
 			// input DIMENSIONS
 			final Dimension timeDim = ncFileIn.findDimension(JGSFLoDeSSIOUtils.TIME_DIM);

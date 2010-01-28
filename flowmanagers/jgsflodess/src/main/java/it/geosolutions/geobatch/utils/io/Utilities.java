@@ -86,10 +86,6 @@ public class Utilities {
 	
 	protected final static Logger LOGGER = Logger.getLogger(Utilities.class.toString());
 	
-	final private static SimpleDateFormat SDF_HMS = new SimpleDateFormat("yyyy_MM_dd_hhmmsss");
-	
-	final private static SimpleDateFormat SDF = new SimpleDateFormat("yyyy_MM_dd");
-	
 	private Utilities(){
 		
 	}
@@ -392,12 +388,14 @@ public class Utilities {
 	 * @param destDir
 	 *            the destination directory where to build the "today"
 	 *            directory.
+	 * @param inputFileName 
 	 * @return the created directory.
 	 */
-	public final static File createTodayDirectory(File destDir) {
+	public final static File createTodayDirectory(File destDir, String inputFileName) {
+		final SimpleDateFormat SDF = new SimpleDateFormat("yyyy_MM_dd");
 		final String newPath = (new StringBuffer(destDir.getAbsolutePath()
 				.trim()).append(File.separatorChar).append(SDF
-				.format(new Date()))).toString();
+				.format(new Date())).append("_").append(inputFileName)).toString();
 		File dir = new File(newPath);
 		if (!dir.exists())
 			dir.mkdir();
@@ -415,6 +413,7 @@ public class Utilities {
 	 * @return the created directory.
 	 */
 	public static File createTodayPrefixedDirectory(final String prefix, final File parent) {
+		final SimpleDateFormat SDF_HMS = new SimpleDateFormat("yyyy_MM_dd_hhmmsss");
 		final String newPath = (new StringBuffer(parent.getAbsolutePath().trim())
 				.append(File.separatorChar).append(prefix).append(File.separatorChar)
 				.append(SDF_HMS.format(new Date()))).toString();

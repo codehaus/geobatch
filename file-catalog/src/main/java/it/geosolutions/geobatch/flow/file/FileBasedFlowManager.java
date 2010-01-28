@@ -357,13 +357,13 @@ public class FileBasedFlowManager
                                 LOGGER.info("EventGeneratorCreationFound!");
                                 eventGenerator = generatorService.createEventGenerator(generatorConfig);
                                 if (eventGenerator!=null){
-                                LOGGER.info("EventGeneratorCreationCreated!");
-                                eventGenerator.addListener(this);
-                                LOGGER.info("EventGeneratorCreationAdded!");
-                                eventGenerator.start();
-                                LOGGER.info("EventGeneratorCreationStarted!");
+                                	LOGGER.info("EventGeneratorCreationCreated!");
+                                	eventGenerator.addListener(this);
+                                	LOGGER.info("EventGeneratorCreationAdded!");
+                                	eventGenerator.start();
+                                	LOGGER.info("EventGeneratorCreationStarted!");
                                 } else {
-                                 throw new RuntimeException("Error on EventGenerator creations");
+                                	throw new RuntimeException("Error on EventGenerator creations");
                                 }
 
                             }
