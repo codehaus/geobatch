@@ -2,7 +2,7 @@
 <FlowConfiguration>
 
 	<workingDirectory>wmcflowworkingdir</workingDirectory>
-	<autorun>false</autorun>
+	<autorun>true</autorun>
 	
 	<EventConsumerConfiguration>
 		<workingDirectory>wmcflowworkingdir</workingDirectory>

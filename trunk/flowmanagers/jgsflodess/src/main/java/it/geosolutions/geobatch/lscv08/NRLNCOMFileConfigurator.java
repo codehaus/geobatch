@@ -162,15 +162,16 @@ public class NRLNCOMFileConfigurator extends
 				throw new IllegalStateException("Unexpected file '" + inputFileName + "'");
 			}
 
-			final File outDir = Utilities.createTodayDirectory(workingDir);
-			
 			inputFileName = FilenameUtils.getName(inputFileName);
+			
+			final File outDir = Utilities.createTodayDirectory(workingDir, FilenameUtils.getBaseName(inputFileName));
+			
 			// decompress input file into a temp directory
 			final File tempFile = File.createTempFile(inputFileName, ".tmp", outDir);
 			final File ncomsDatasetDirectory = 
 				("zip".equalsIgnoreCase(fileSuffix) || "tar".equalsIgnoreCase(fileSuffix)) ? 
 						Utilities.decompress("NCOM", event.getSource(), tempFile) :
-							Utilities.createTodayPrefixedDirectory("NCOM", new File(tempFile.getParent()));
+							Utilities.createTodayPrefixedDirectory("NCOM", outDir);
 			
 			// move the file if it's not an archive
 			if (!("zip".equalsIgnoreCase(fileSuffix) || "tar".equalsIgnoreCase(fileSuffix)))
@@ -246,7 +247,7 @@ public class NRLNCOMFileConfigurator extends
 			// ////
 			// ... create the output file data structure
 			// ////
-            outputFile = new File(outDir, "lscv08_NCOM" + (inputFileName.contains("nest") ? "nest"+inputFileName.substring(inputFileName.indexOf("nest")+"nest".length(), inputFileName.indexOf("nest")+"nest".length()+1) : "") + "-Forecast-T" + new Date().getTime() + inputFileName.replaceAll("-", "") + ".nc");
+            outputFile = new File(outDir, "lscv08_NCOM" + (inputFileName.contains("nest") ? "nest"+inputFileName.substring(inputFileName.indexOf("nest")+"nest".length(), inputFileName.indexOf("nest")+"nest".length()+1) : "") + "-Forecast-T" + new Date().getTime() + FilenameUtils.getBaseName(inputFileName).replaceAll("-", "") + ".nc");
             ncFileOut = NetcdfFileWriteable.createNew(outputFile.getAbsolutePath());
 
             //NetCDFConverterUtilities.copyGlobalAttributes(ncFileOut, ncFileIn.getGlobalAttributes());

@@ -145,7 +145,7 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends GeoServerConfiguratorActio
 				throw new IllegalStateException("Unexpected file '" + inputFileName + "'");
 			}
 
-			final File outDir = Utilities.createTodayDirectory(workingDir);
+			final File outDir = Utilities.createTodayDirectory(workingDir, FilenameUtils.getBaseName(inputFileName));
 			
 			inputFileName = FilenameUtils.getName(inputFileName);
 			// decompress input file into a temp directory

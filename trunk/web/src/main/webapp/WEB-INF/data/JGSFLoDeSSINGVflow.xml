@@ -2,7 +2,7 @@
 <FlowConfiguration>
 
 	<workingDirectory>JGSFLoDeSSworkingdir/INGV</workingDirectory>
-	<autorun>false</autorun>
+	<autorun>true</autorun>
 	
 	<EventConsumerConfiguration>
 		<workingDirectory>JGSFLoDeSSworkingdir/INGV</workingDirectory>

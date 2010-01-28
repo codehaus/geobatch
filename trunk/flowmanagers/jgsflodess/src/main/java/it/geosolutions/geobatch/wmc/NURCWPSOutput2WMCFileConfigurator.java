@@ -188,7 +188,7 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 
 			inputFileName = FilenameUtils.getBaseName(inputFileName);
 			ncFileIn = NetcdfFile.open(event.getSource().getAbsolutePath());
-			final File outDir = Utilities.createTodayDirectory(workingDir);
+			final File outDir = Utilities.createTodayDirectory(workingDir, FilenameUtils.getBaseName(inputFileName));
 
 			// input DIMENSIONS
 			final Dimension timeDim = ncFileIn.findDimension(JGSFLoDeSSIOUtils.TIME_DIM);

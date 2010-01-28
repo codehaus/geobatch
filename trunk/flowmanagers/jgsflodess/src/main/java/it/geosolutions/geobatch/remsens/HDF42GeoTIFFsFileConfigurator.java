@@ -233,7 +233,7 @@ public class HDF42GeoTIFFsFileConfigurator extends GeoServerConfiguratorAction<F
 						final Collection<? extends Coverage> results = response.getResults(null);
 						for (Coverage c : results) {
 							GridCoverage2D coverage = (GridCoverage2D) c;
-							final File outDir = Utilities.createTodayDirectory(workingDir);
+							final File outDir = Utilities.createTodayDirectory(workingDir, FilenameUtils.getBaseName(inputFileName));
 
 							// Storing fields as GeoTIFFs
 
