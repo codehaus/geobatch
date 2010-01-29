@@ -26,7 +26,6 @@ import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.track.configuration.FusedTrackActionConfiguration;
 import it.geosolutions.geobatch.track.configuration.FusedTrackConfiguratorService;
 import it.geosolutions.geobatch.track.dao.ContactDAO;
-import it.geosolutions.geobatch.track.dao.ContactTypeDAO;
 import it.geosolutions.geobatch.track.dao.PastContactPositionDAO;
 import it.geosolutions.geobatch.track.datastore.Postgis;
 
@@ -48,8 +47,6 @@ public class FusedTrackGeneratorService
 	private ContactDAO contactDAO;
 	
 	private PastContactPositionDAO pastContactPositionDAO;
-	
-	private ContactTypeDAO contactTypeDAO;
 	
 	private Postgis postgisDataStore;
 	
@@ -84,14 +81,6 @@ public class FusedTrackGeneratorService
 
 	public PastContactPositionDAO getPastContactPositionDAO() {
 		return pastContactPositionDAO;
-	}
-	
-	public void setContactTypeDAO(ContactTypeDAO contactTypeDAO) {
-		this.contactTypeDAO = contactTypeDAO;
-	}
-
-	public ContactTypeDAO getContactTypeDAO() {
-		return contactTypeDAO;
 	}
 	
 	public FusedTrackGenerator createAction(FusedTrackActionConfiguration configuration) {

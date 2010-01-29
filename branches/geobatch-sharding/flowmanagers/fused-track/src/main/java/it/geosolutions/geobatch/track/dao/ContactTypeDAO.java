@@ -22,8 +22,6 @@
 
 package it.geosolutions.geobatch.track.dao;
 
-import org.hibernate.SessionFactory;
-
 import it.geosolutions.geobatch.track.model.ContactType;
 
 /**
@@ -31,9 +29,9 @@ import it.geosolutions.geobatch.track.model.ContactType;
  * 
  */
 
-public interface ContactTypeDAO extends GenericDAO<ContactType,Long> {
+public interface ContactTypeDAO{
 
-	public ContactType save(ContactType type) throws DAOException;
+	public void save(ContactType type) throws DAOException;
 	
 	public void delete(final ContactType type) throws DAOException;
 

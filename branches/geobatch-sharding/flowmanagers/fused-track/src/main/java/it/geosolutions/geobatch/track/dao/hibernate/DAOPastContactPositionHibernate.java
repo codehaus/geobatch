@@ -29,48 +29,56 @@ import it.geosolutions.geobatch.track.model.PastContactPosition;
 import java.sql.Timestamp;
 import java.util.List;
 
-import org.hibernate.Query;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
  * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
  * 
  */
+@Repository
+@Transactional
+public class DAOPastContactPositionHibernate implements PastContactPositionDAO {
 
-public class DAOPastContactPositionHibernate extends DAOAbstractSpring<PastContactPosition,Long>
-		implements PastContactPositionDAO {
-
-	public DAOPastContactPositionHibernate() {
-		super(PastContactPosition.class);
+	private EntityManager em;
+	
+	@PersistenceContext(unitName = "fusedtrack") 
+	public void setEntityManager(EntityManager em){
+		this.em = em;
 	}
 
-//	@Transactional(propagation = Propagation.MANDATORY)
-	public PastContactPosition save(PastContactPosition contact) throws DAOException {
-		return super.makePersistent(contact);
+//	@Transactional(propagation = Propagation.REQUIRED)
+	public void save(PastContactPosition contact) throws DAOException {
+		this.em.persist(contact);
 	}
 
-//	@Transactional(propagation = Propagation.MANDATORY)
+//	@Transactional(propagation = Propagation.REQUIRED)
 	public void delete(final PastContactPosition pastContact) throws DAOException {
-		super.getHibernateTemplate().delete(pastContact);
+		this.em.remove(pastContact);
 	}
 	
-//	@Transactional(propagation = Propagation.MANDATORY, readOnly=true)
+//	@Transactional(propagation = Propagation.REQUIRED, readOnly=true)
 	@SuppressWarnings("unchecked")
 	public List<PastContactPosition> findByPeriod(final long timestamp, 
 			final long step, final long contactId) throws DAOException {
 		
-		super.getHibernateTemplate().setCacheQueries(true);
-		super.getHibernateTemplate().setQueryCacheRegion("query.PastContactPosition");
+//		super.getHibernateTemplate().setCacheQueries(true);
+//		super.getHibernateTemplate().setQueryCacheRegion("query.PastContactPosition");
 		
 		Timestamp time = new Timestamp(timestamp - (step*1000));
 
-		Query query = super.getSession().getNamedQuery("findPastContactPositionByPeriod");
-		query.setLong("contactId", contactId);
-		query.setTimestamp("timeStamp", time);
+		Query query = this.em.createNamedQuery("findPastContactPositionByPeriod");
+		query.setParameter("contactId", contactId);
+		query.setParameter("timeStamp", time);
 		
-		query.setCacheable(true);	
-		query.setCacheRegion("query.PastContactPosition");
+//		query.setCacheable(true);	
+//		query.setCacheRegion("query.PastContactPosition");
 		
-		return (List<PastContactPosition>)query.list();
+		return (List<PastContactPosition>)query.getResultList();
 	}
 }

@@ -26,16 +26,14 @@ import it.geosolutions.geobatch.track.model.PastContactPosition;
 
 import java.util.List;
 
-import org.hibernate.SessionFactory;
-
 /**
  * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
  * 
  */
 
-public interface PastContactPositionDAO extends GenericDAO<PastContactPosition,Long> {
+public interface PastContactPositionDAO{
 
-	public PastContactPosition save(PastContactPosition contact) throws DAOException;
+	public void save(PastContactPosition contact) throws DAOException;
 	
 	public void delete(final PastContactPosition pastContact) throws DAOException;
 

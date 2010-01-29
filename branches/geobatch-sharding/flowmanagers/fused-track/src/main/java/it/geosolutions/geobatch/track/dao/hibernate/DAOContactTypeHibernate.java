@@ -26,25 +26,34 @@ import it.geosolutions.geobatch.track.dao.ContactTypeDAO;
 import it.geosolutions.geobatch.track.dao.DAOException;
 import it.geosolutions.geobatch.track.model.ContactType;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
  * 
  */
+@Repository
+public class DAOContactTypeHibernate implements ContactTypeDAO {
 
-public class DAOContactTypeHibernate extends DAOAbstractSpring<ContactType,Long>
-		implements ContactTypeDAO {
-
-	public DAOContactTypeHibernate() {
-		super(ContactType.class);
+	private EntityManager em;
+	
+	@PersistenceContext(unitName = "fusedtrack") 
+	public void setEntityManager(EntityManager em){
+		this.em = em;
 	}
 
-	//@Transactional(propagation = Propagation.MANDATORY)
-	public ContactType save(ContactType type) throws DAOException {
-		return super.makePersistent(type);
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void save(ContactType type) throws DAOException {
+		this.em.persist(type);
 	}
 
-	//@Transactional(propagation = Propagation.MANDATORY)
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void delete(final ContactType type) throws DAOException {
-		super.getHibernateTemplate().delete(type);
+		this.em.remove(type);
 	}
 }
