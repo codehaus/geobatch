@@ -7,28 +7,9 @@
            http://www.springframework.org/schema/context/spring-context-2.5.xsd"
 	default-autowire="byName">
 
-	<context:annotation-config />
-
 	<!-- CONTACTS DAO -->
 
-	<bean id="contactDAO" class="it.geosolutions.geobatch.track.dao.hibernate.DAOContactHibernate">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
+	<bean id="contactDAO" class="it.geosolutions.geobatch.track.dao.hibernate.DAOContactHibernate"/>
 	
-	<bean id="pastContactPositionDAO" class="it.geosolutions.geobatch.track.dao.hibernate.DAOPastContactPositionHibernate">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	
-	<bean id="contactTypeDAO" class="it.geosolutions.geobatch.track.dao.hibernate.DAOContactTypeHibernate">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	
-	
-
+	<bean id="pastContactPositionDAO" class="it.geosolutions.geobatch.track.dao.hibernate.DAOPastContactPositionHibernate"/>
 </beans>

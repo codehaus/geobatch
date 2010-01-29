@@ -39,8 +39,6 @@
 
 	</bean>
 
-	<context:annotation-config />
-
 	<!-- Environment Initialization -->
 	<bean id="fusedTrackGeneratorService"
 		class="it.geosolutions.geobatch.track.contact.FusedTrackGeneratorService">
@@ -55,7 +53,6 @@
 		</property>
 		<property name="contactDAO" ref="contactDAO"/>
 		<property name="pastContactPositionDAO" ref="pastContactPositionDAO"/>
-		<property name="contactTypeDAO" ref="contactTypeDAO"/>
 	    <property name="postgisDataStore" ref="postgisDataStore" />
 	</bean>	
 

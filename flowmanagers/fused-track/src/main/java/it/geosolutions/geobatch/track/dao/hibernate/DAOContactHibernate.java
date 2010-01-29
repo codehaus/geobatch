@@ -26,40 +26,44 @@ import it.geosolutions.geobatch.track.dao.ContactDAO;
 import it.geosolutions.geobatch.track.dao.DAOException;
 import it.geosolutions.geobatch.track.model.Contact;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
  * 
  */
+@Repository
+public class DAOContactHibernate implements ContactDAO {
 
-public class DAOContactHibernate extends DAOAbstractSpring<Contact,Long>
-		implements ContactDAO {
-
-	public DAOContactHibernate() {
-		super(Contact.class);
+	private EntityManager em = null;
+	
+	@PersistenceContext(unitName = "fusedtrack") 
+	public void setEntityManager(EntityManager em){
+		this.em = em;
 	}
 
-	//@Transactional(propagation = Propagation.MANDATORY)
-	public Contact save(Contact contact) throws DAOException {
-		return super.makePersistent(contact);
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void save(Contact contact) throws DAOException {
+		this.em.persist(contact);
 	}
 
-	//@Transactional(propagation = Propagation.MANDATORY)
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void delete(final Contact contact) throws DAOException {
-		super.getHibernateTemplate().delete(contact);
+		this.em.remove(contact);
 	}
 	
-	//@Transactional(propagation = Propagation.MANDATORY)
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void merge(final Contact contact) throws DAOException {
-		super.getHibernateTemplate().merge(contact);
+		this.em.merge(contact);
 	}
 	
-	//@Transactional(propagation = Propagation.MANDATORY)
-	public void update(final Contact contact) throws DAOException {
-		super.getHibernateTemplate().update(contact);
-	}
-	
-	//@Transactional(propagation = Propagation.MANDATORY, readOnly=true)
+	@Transactional(propagation = Propagation.REQUIRED, readOnly=true)
 	public Contact findIsExist(final long id) throws DAOException {
-		return (Contact)super.getHibernateTemplate().get(Contact.class, id);
+		return (Contact)this.em.find(Contact.class, id);
 	}
 }

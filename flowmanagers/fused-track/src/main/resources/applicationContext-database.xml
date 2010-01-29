@@ -4,29 +4,86 @@
 	xmlns:aop="http://www.springframework.org/schema/aop"
 	xmlns:tx="http://www.springframework.org/schema/tx"
 	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:jee="http://www.springframework.org/schema/jee"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
-    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+    http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.0.xsd">
 
 	<!-- general definitions -->
 	<context:property-placeholder location="classpath:postgis.properties"/>
-	
-	<!-- resource definitions -->
-	
+
 	<!-- local data source that works in any environment -->
-	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+	<bean id="dataSource" class="${jdbc.dataSource}" destroy-method="close"
 		p:driverClassName="${jdbc.driver}"
 		p:url="${jdbc.url}"
 		p:username="${jdbc.user}"
 		p:password="${jdbc.password}"/>
 
-    <!-- JNDI DataSource for J2EE environment -->
-    <import resource="spring-hibernate.xml"/>
+	<!-- EntityManagerFactory creation for Hibernate -->
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="persistenceUnitName" value="fusedtrack"/>
+		<property name="dataSource" ref="dataSource"/>	
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+                <property name="database" value="POSTGRESQL"/>
+                <property name="databasePlatform" value="org.hibernate.dialect.PostgreSQLDialect"/>
+                <property name="showSql" value="true"/>
+                <property name="generateDdl" value="false"/>
+            </bean>
+		</property>
+		<property name="jpaPropertyMap">
+            <map>
+                <entry key="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}" />
+                <entry key="hibernate.cache.provider_class" value="${hibernate.cache.provider_class}"/>
+                <entry key="hibernate.cache.provider_configuration_file_resource_path" value="${hibernate.cache.provider_configuration_file_resource_path}"/>
+                <entry key="hibernate.cache.use_query_cache" value="${hibernate.cache.use_query_cache}"/>
+                <entry key="hibernate.cache.use_second_level_cache" value="${hibernate.cache.use_second_level_cache}"/>    
+                <entry key="hibernate.dialect" value="${hibernate.dialect}"/>           
+                <entry key="hibernate.bytecode.use_reflection_optimizer" value="${hibernate.bytecode.use_reflection_optimizer}"/>                
+                <entry key="hibernate.show_sql" value="${hibernate.show_sql}"/>
+                <entry key="hibernate.use_sql_comments" value="${hibernate.use_sql_comments}"/>
+                <entry key="hibernate.format_sql" value="${hibernate.format_sql}"/>                
+            </map>
+        </property>		
+	</bean>
     
-	<!--context:component-scan base-package="it.geosolutions.geobatch.track.contact">
-		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>		
-	</context:component-scan-->
+    <!-- aop:config>
+		<aop:pointcut id="allDaoMethods" expression="execution(* it.geosolutions.geobatch.track.dao.hibernate.*.*(..))"/>
+		<aop:advisor advice-ref="daoTransactionAdvice" pointcut-ref="allDaoMethods"/>
+	</aop:config>
 	
+	<tx:advice id="daoTransactionAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="find*"
+					   isolation="DEFAULT"
+					   propagation="REQUIRED"
+					   timeout="100"
+					   read-only="true"/>
+			<tx:method name="*"
+					   isolation="DEFAULT"
+					   propagation="REQUIRED"
+					   timeout="100"/>
+		</tx:attributes>
+	</tx:advice -->
+	
+    <!-- Setting up a transaction manager based on annotations -->
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory" />
+    </bean>
+
+    <!-- enable the configuration of transactional behavior based on annotations -->
+    <tx:annotation-driven />
+    
+	<!-- exception translation -->
+	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+
+	<!-- annotation bean -->
+	<bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+	
+	<!-- Activates various annotations to be detected in bean classes -->
+	<context:annotation-config />
+	    
 </beans>
