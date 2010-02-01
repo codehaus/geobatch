@@ -74,6 +74,12 @@
 			</modules>
 		</profile>
 		<profile>
+			<id>ctd</id>
+			<modules>
+			  <module>gb-ctd</module>
+			</modules>
+		</profile> 
+		<profile>
 			<id>ais</id>
 			<modules>
 			   <module>ais</module>
@@ -139,6 +145,7 @@
 			   <module>geowebcache</module>
 			   <module>ais</module>
 			   <module>gb-gliders</module>
+			   <module>gb-ctd</module>
 			   <module>gb-task-executor</module>
 			   <module>imagemosaic</module>
 			   <module>shapefile</module>

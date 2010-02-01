@@ -218,6 +218,10 @@
 				</dependency>
 				<dependency>
 					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-ctd</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
 					<artifactId>gb-flowmanagers-ais</artifactId>
 				</dependency>
 				<dependency>
@@ -245,6 +249,15 @@
 				<dependency>
 					<groupId>it.geosolutions</groupId>
 					<artifactId>gb-flowmanagers-gliders</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>ctd</id>
+			<dependencies>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-ctd</artifactId>
 				</dependency>
 			</dependencies>
 		</profile>

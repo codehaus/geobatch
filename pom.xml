@@ -696,9 +696,14 @@
           <version>${gb.version}</version>
       </dependency>
       <dependency>
-				<groupId>it.geosolutions</groupId>
-				<artifactId>gb-flowmanagers-ais</artifactId>
-				<version>${gb.version}</version>
+          <groupId>it.geosolutions</groupId>
+          <artifactId>gb-flowmanagers-ctd</artifactId>
+          <version>${gb.version}</version>
+      </dependency>
+      <dependency>
+	    <groupId>it.geosolutions</groupId>
+	    <artifactId>gb-flowmanagers-ais</artifactId>
+	    <version>${gb.version}</version>
       </dependency>
       <dependency>
 				<groupId>it.geosolutions</groupId>
