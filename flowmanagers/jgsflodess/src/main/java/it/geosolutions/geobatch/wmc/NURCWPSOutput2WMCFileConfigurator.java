@@ -345,6 +345,7 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 								final StringBuilder coverageName = new StringBuilder(inputFileName)
 								              .append("_").append(variableName)
 								              .append("_").append(hasLocalZLevel ? elevLevelFormat(zetaOriginalData.getDouble(zetaOriginalData.getIndex().set(z))) : "0000.000")
+								              .append("_").append(hasLocalZLevel ? elevLevelFormat(zetaOriginalData.getDouble(zetaOriginalData.getIndex().set(z))) : "0000.000")
 								              .append("_");
 								if (!hasTime)
 									coverageName.append(baseTime);

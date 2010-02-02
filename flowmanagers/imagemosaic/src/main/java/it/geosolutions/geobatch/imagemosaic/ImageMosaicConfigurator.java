@@ -290,10 +290,11 @@ public class ImageMosaicConfigurator extends
 							final String coverageName = layer;
 							queryParams.clear();
 							queryParams.put("MaxAllowedTiles", Integer.toString(Integer.MAX_VALUE));
+							String noData = (firstCvNameParts.length >= 9 ? firstCvNameParts[8] : "-1.0");
 							//Actually, the ImageMosaicConfiguration is contained in the flow.xml.
 							//therefore, there is no way to set the background values a runtime
 							//for the moment, we take the nodata from the file name.
-							queryParams.put("BackgroundValues", firstCvNameParts[8]);//NoData
+							queryParams.put("BackgroundValues", noData);//NoData
 							queryParams.put("OutputTransparentColor", "");
 							queryParams.put("InputTransparentColor", "");
 							queryParams.put("AllowMultithreading", "false");
