@@ -343,21 +343,19 @@ public class NRLNCOMFileConfigurator extends
         	final Date timeOriginDate = toSdf.parse(inputFileName.substring(inputFileName.lastIndexOf("_")+1));
         	int TAU = 0;
         	
-        	Array time1Data = timeOriginalVar.read();
+        	Array time1Data = NetCDFConverterUtilities.getArray(time_dim.getLength(), DataType.DOUBLE);
             for (int t=0; t<time_dim.getLength(); t++) {
             	// hours since 2000-01-01 00:00 UTC
-            	double timeValue = timeOriginalData.getDouble(timeOriginalData.getIndex().set(t));
+            	long timeValue = timeOriginalData.getLong(timeOriginalData.getIndex().set(t));
             	if (t == 0 && time_dim.getLength() > 1) {
-        			TAU = (int) (timeOriginalData.getDouble(timeOriginalData.getIndex().set(t+1)) - timeValue);
+        			TAU = (int) (timeOriginalData.getLong(timeOriginalData.getIndex().set(t+1)) - timeValue);
         		} else if (t == 0) {
         			TAU = (int) ((timeValue * 3600 * 1000) + NCOMstartTime - timeOriginDate.getTime());
         		}
-            	// converting to ms
-            	timeValue = timeValue * 60 * 60 * 1000;
             	// adding time offset
-            	timeValue += (NCOMstartTime - startTime);
+            	  timeValue = (NCOMstartTime - startTime) + (timeValue * 3600000);
             	// converting back to seconds and storing to data
-				time1Data.setDouble(time1Data.getIndex().set(t), (long) (timeValue / 1000));
+				  time1Data.setLong(time1Data.getIndex().set(t), timeValue / 1000 );
             }
             
         	// Setting up global Attributes ...

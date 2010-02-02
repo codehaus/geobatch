@@ -39,7 +39,9 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Queue;
 import java.util.TimeZone;
@@ -306,7 +308,7 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends MetocConfiguratio
 								              .append("_").append(hasLocalZLevel ? elevLevelFormat(zetaOriginalData.getDouble(zetaOriginalData.getIndex().set(z))) : "0000.000")
 								              .append("_").append(hasLocalZLevel ? elevLevelFormat(zetaOriginalData.getDouble(zetaOriginalData.getIndex().set(z))) : "0000.000")
 								              .append("_").append(baseTime)
-											  .append("_").append(timeDimExists ? sdf.format(JGSFLoDeSSIOUtils.startTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*1000) : "00000000T0000000Z")
+											  .append("_").append(timeDimExists ? sdf.format(getTimeInstant(timeOriginalData, timeOriginalIndex, t)) : "00000000T0000000Z")
 											  .append("_").append(TAU)
 											  .append("_").append(noData);
 
@@ -343,6 +345,33 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends MetocConfiguratio
 				JAI.getDefaultInstance().getTileCache().flush();
 			}
 		}
+	}
+
+	/**
+	 * @param timeOriginalData
+	 * @param timeOriginalIndex
+	 * @param t
+	 * @return
+	 */
+	private static long getTimeInstant(final Array timeOriginalData, final Index timeOriginalIndex, int t) {
+		long timeValue = timeOriginalData.getLong(timeOriginalIndex.set(t));
+			 timeValue = JGSFLoDeSSIOUtils.startTime + timeValue*1000;
+
+		final Calendar roundedTimeInstant = new GregorianCalendar(TimeZone.getTimeZone("GMT+0"));
+		roundedTimeInstant.setTimeInMillis(timeValue);
+		
+		int seconds = roundedTimeInstant.get(Calendar.SECOND);
+		int minutes = roundedTimeInstant.get(Calendar.MINUTE);
+		int hours   = roundedTimeInstant.get(Calendar.HOUR);
+		
+		if (minutes > 0 && minutes > 30)
+			hours++;
+		
+		roundedTimeInstant.set(Calendar.SECOND, 0);
+		roundedTimeInstant.set(Calendar.MINUTE, 0);
+		roundedTimeInstant.set(Calendar.HOUR, hours);
+		
+		return roundedTimeInstant.getTimeInMillis();
 	}
 
 	/**
