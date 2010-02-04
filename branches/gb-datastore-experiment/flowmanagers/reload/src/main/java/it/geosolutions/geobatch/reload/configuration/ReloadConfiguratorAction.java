@@ -45,8 +45,7 @@ public abstract class ReloadConfiguratorAction<T extends EventObject> extends
 	/**
      * Default logger
      */
-    protected final static Logger LOGGER = Logger.getLogger(ReloadConfiguratorAction.class
-            .toString());
+    protected final static Logger LOGGER = Logger.getLogger(ReloadConfiguratorAction.class.toString());
     
     
     protected final ReloadActionConfiguration configuration;

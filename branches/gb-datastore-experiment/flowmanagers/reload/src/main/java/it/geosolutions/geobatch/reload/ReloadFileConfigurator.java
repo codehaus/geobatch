@@ -60,7 +60,6 @@ public class ReloadFileConfigurator extends
 	public Queue<FileSystemMonitorEvent> execute(
 			Queue<FileSystemMonitorEvent> events) throws Exception {
 
-		try {
 
 			// ///////////////////////////////////
 			// Initializing input variables
@@ -90,28 +89,38 @@ public class ReloadFileConfigurator extends
 					}
 				});
 
-				HttpURLConnection con = (HttpURLConnection) geoserver
-						.openConnection();
-				con.setRequestMethod("POST");
-
-				if (con.getResponseCode() == 200) {
-					LOGGER.log(Level.INFO, "SUCCESS 200: Reload configuration for: "+ server.getServerIP());
-				} else if (con.getResponseCode() == 405){
-					LOGGER.log(Level.SEVERE, "ERROR 405: The specified HTTP method is not allowed for the requested resource (): " +server.getServerIP());
-					throw new IllegalStateException("The specified HTTP method is not allowed for the requested resource (): " +server.getServerIP());
-				} else {
-					LOGGER.log(Level.SEVERE, "ERROR: Unable to reload configuration for: " +server.getServerIP());
-					throw new IllegalStateException("ERROR: Unable to reload configuration for: " +server.getServerIP());
+				HttpURLConnection con = null;
+				try{
+					con=(HttpURLConnection) geoserver.openConnection();
+					con.setRequestMethod("POST");
+	
+					if (con.getResponseCode() == 200) {
+						if(LOGGER.isLoggable(Level.SEVERE))
+							LOGGER.log(Level.INFO, "SUCCESS 200: Reload configuration for: "+ server.getServerIP());
+					} else if (con.getResponseCode() == 405){
+						if(LOGGER.isLoggable(Level.SEVERE))
+							LOGGER.log(Level.SEVERE, "ERROR 405: The specified HTTP method is not allowed for the requested resource (): " +server.getServerIP());
+					} else {
+						if(LOGGER.isLoggable(Level.SEVERE))
+							LOGGER.log(Level.SEVERE, "ERROR: Unable to reload configuration for: " +server.getServerIP());
+					}
+				} catch (Throwable t) {
+					if(LOGGER.isLoggable(Level.SEVERE))
+						LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
+					return null;
+				} finally {
+					if(con!=null)
+						try{
+							con.disconnect();
+						}
+						catch (Throwable e) {
+							if(LOGGER.isLoggable(Level.FINE))
+								LOGGER.log(Level.FINE, "ERROR: Unable to reload configuration for: " +server.getServerIP());
+						}
 				}
+				
 
 			}
-
-		} catch (Throwable t) {
-			LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
-			return null;
-		} finally {
-			// TODO: close all
-		}
 
 		return events;
 	}
