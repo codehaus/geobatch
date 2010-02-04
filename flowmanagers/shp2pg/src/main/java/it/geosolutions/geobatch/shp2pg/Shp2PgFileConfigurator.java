@@ -2,32 +2,38 @@ package it.geosolutions.geobatch.shp2pg;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
+import it.geosolutions.geobatch.flow.event.action.BaseAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.shp2pg.configuration.Shp2PgActionConfiguration;
-import it.geosolutions.geobatch.shp2pg.configuration.Shp2PgConfiguratorAction;
 import it.geosolutions.geobatch.shp2pg.util.Shp2Pg;
 import it.geosolutions.geobatch.utils.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 
-public class Shp2PgFileConfigurator extends Shp2PgConfiguratorAction<FileSystemMonitorEvent> {
+public class Shp2PgFileConfigurator extends BaseAction<FileSystemMonitorEvent> {
+	
+	private final static Logger LOGGER = Logger.getLogger(Shp2PgFileConfigurator.class.toString());
 
     private File tempOutDir = null;
+    
+	private Shp2PgActionConfiguration configuration;
 
     public Shp2PgFileConfigurator(Shp2PgActionConfiguration configuration) throws IOException {
-        super(configuration);
+    	try {
+			this.configuration=configuration.clone();
+		} catch (CloneNotSupportedException e) {
+			final IOException ioe= new IOException();
+			ioe.initCause(e);
+			throw ioe; 
+		}
     }
 
     public Queue<FileSystemMonitorEvent> execute(Queue<FileSystemMonitorEvent> events)
