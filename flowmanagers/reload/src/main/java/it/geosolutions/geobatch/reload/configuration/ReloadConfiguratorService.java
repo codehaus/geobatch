@@ -47,7 +47,7 @@ public abstract class ReloadConfiguratorService<T extends EventObject, C extends
 	}
 
 	public boolean canCreateAction(C configuration) {
-		// XXX ImPLEMENT ME
+		// TODO ImPLEMENT ME
 		return true;
 	}
 
