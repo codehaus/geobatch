@@ -34,7 +34,6 @@ import it.geosolutions.geobatch.shp2pg.configuration.Shp2PgActionConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -46,11 +45,10 @@ import org.geotools.data.DataStoreFinder;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
+import org.geotools.data.FeatureReader;
+import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
 import org.geotools.data.postgis.PostgisNGDataStoreFactory;
-import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -63,77 +61,104 @@ public class Shp2Pg {
 
     protected final static Logger LOGGER = Logger.getLogger(Shp2Pg.class.toString());
 
-    public void copy(File shapeFile, Shp2PgActionConfiguration configuration) {
-        try {
-            Map<String, Object> connect = new HashMap<String, Object>();
-            connect.put("url", shapeFile.toURI().toURL());
+    public boolean copy(File shapeFile, Shp2PgActionConfiguration configuration) {
+        try{
+        	// connect to the shapefile
+            final Map<String, Object> connect = new HashMap<String, Object>();
+            connect.put("url", DataUtilities.fileToURL(shapeFile));
 
-            DataStore dataStore = DataStoreFinder.getDataStore(connect);
-            String[] typeNames = dataStore.getTypeNames();
+            final DataStore sourceDataStore = DataStoreFinder.getDataStore(connect);
+            String[] typeNames = sourceDataStore.getTypeNames();
             String typeName = typeNames[0];
 
             LOGGER.log(Level.INFO, "Reading content " + typeName);
 
-            FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = dataStore
-                    .getFeatureSource(typeName);
+            SimpleFeatureType originalSchema = sourceDataStore.getSchema(typeName);
+            LOGGER.log(Level.INFO, "SCHEMA HEADER: " + DataUtilities.spec(originalSchema));
 
-            SimpleFeatureType simpleFeatureType = featureSource.getSchema();
-
-            LOGGER.log(Level.INFO, "SCHEMA HEADER: " + DataUtilities.spec(simpleFeatureType));
-
+            // prepare to open up a reader for the shapefile
             DefaultQuery query = new DefaultQuery();
             query.setTypeName(typeName);
-
-            CoordinateReferenceSystem prj = simpleFeatureType.getCoordinateReferenceSystem();
-
+            CoordinateReferenceSystem prj = originalSchema.getCoordinateReferenceSystem();
             query.setCoordinateSystem(prj);
 
-            FeatureCollection<SimpleFeatureType, SimpleFeature> collection = featureSource
-                    .getFeatures(query);
+            
 
-            DataStore postgisDataStore = this.createPostgisDataStore(configuration);
+            DataStore destinationDataSource = this.createPostgisDataStore(configuration);
 
             // check if the schema is present in postgis
             boolean schema = false;
-            if (postgisDataStore.getTypeNames().length == 0) {
+            if (destinationDataSource.getTypeNames().length == 0) {
                 schema = true;
             } else {
-                for (String tableName : postgisDataStore.getTypeNames()) {
-                    if (tableName.equalsIgnoreCase(collection.getSchema().getTypeName())) {
+                for (String tableName : destinationDataSource.getTypeNames()) {
+                    if (tableName.equalsIgnoreCase(typeName)) {
                         schema = true;
                     }
                 }
             }
             if (!schema)
-                postgisDataStore.createSchema(collection.getSchema());
+                destinationDataSource.createSchema(originalSchema);
             
-            Transaction transaction = new DefaultTransaction("create");
-
-            FeatureStore<SimpleFeatureType, SimpleFeature> featureStore;
-            featureStore = (FeatureStore<SimpleFeatureType, SimpleFeature>) postgisDataStore
-                    .getFeatureSource(typeName);
-
-            featureStore.setTransaction(transaction);
-
-            try {
-                featureStore.addFeatures(collection);
-                transaction.commit();
-            } catch (Exception problem) {
-                problem.printStackTrace();
-                transaction.rollback();
-            } finally {
-                transaction.close();
-                postgisDataStore.dispose();
-                postgisDataStore = null;
-            }
-
-        } catch (MalformedURLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+            final Transaction transaction = new DefaultTransaction("create");
+            FeatureWriter<SimpleFeatureType, SimpleFeature> fw=null;
+            FeatureReader<SimpleFeatureType, SimpleFeature> fr=null;
+            try{
+	            fw = destinationDataSource.getFeatureWriter(typeName, transaction);
+	            fr = sourceDataStore.getFeatureReader(query, transaction);
+	            while(fr.hasNext()){
+	            	final SimpleFeature newFeature=fw.next();
+	            	final SimpleFeature oldfeature=fr.next();
+	            	
+	            	//copy over
+	            	newFeature.setValue(oldfeature.getValue());
+	            	
+	            	// set default geometry
+	            	newFeature.setDefaultGeometry(oldfeature.getDefaultGeometry());
+	            	
+	            }
+	            
+	            // close transaction
+	            transaction.commit();
+	            
+	            return true;
+            }catch (Throwable e) {
+				try {
+					transaction.rollback();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				if(fr!=null)
+					try {
+						fr.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
+					
+				if(fw!=null)
+					try {
+						fw.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+			}finally{
+				try {
+					transaction.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+        }catch (Throwable e) {
+			if(LOGGER.isLoggable(Level.SEVERE))
+				LOGGER.log(Level.SEVERE,"Unable to transcode features",e);
+		}
+        return false;
 
     }
 

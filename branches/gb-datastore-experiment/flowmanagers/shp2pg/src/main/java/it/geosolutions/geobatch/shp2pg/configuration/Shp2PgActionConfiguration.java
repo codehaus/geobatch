@@ -219,7 +219,7 @@ public class Shp2PgActionConfiguration extends ActionConfiguration implements Co
      * @see it.geosolutions.geobatch.configuration.event.action.ActionConfiguration #clone()
      */
     @Override
-    public ActionConfiguration clone() throws CloneNotSupportedException {
+    public Shp2PgActionConfiguration clone() throws CloneNotSupportedException {
 
         try {
             return (Shp2PgActionConfiguration) BeanUtils.cloneBean(this);
