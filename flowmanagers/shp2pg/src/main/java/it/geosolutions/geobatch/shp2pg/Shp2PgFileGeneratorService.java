@@ -58,7 +58,7 @@ public class Shp2PgFileGeneratorService extends
         }
 
     }
-    
+
     @Override
     public boolean canCreateAction(Shp2PgActionConfiguration configuration) {
         final boolean superRetVal = super.canCreateAction(configuration);

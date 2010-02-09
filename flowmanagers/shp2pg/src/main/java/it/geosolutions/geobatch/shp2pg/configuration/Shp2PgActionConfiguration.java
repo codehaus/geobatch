@@ -60,7 +60,6 @@ public class Shp2PgActionConfiguration extends ActionConfiguration implements Co
 
     private String dbType;
 
-
     /**
 	 * 
 	 */

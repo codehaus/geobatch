@@ -46,11 +46,14 @@ import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureReader;
+import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
 import org.geotools.data.postgis.PostgisNGDataStoreFactory;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
@@ -62,8 +65,8 @@ public class Shp2Pg {
     protected final static Logger LOGGER = Logger.getLogger(Shp2Pg.class.toString());
 
     public boolean copy(File shapeFile, Shp2PgActionConfiguration configuration) {
-        try{
-        	// connect to the shapefile
+        try {
+            // connect to the shapefile
             final Map<String, Object> connect = new HashMap<String, Object>();
             connect.put("url", DataUtilities.fileToURL(shapeFile));
 
@@ -82,8 +85,6 @@ public class Shp2Pg {
             CoordinateReferenceSystem prj = originalSchema.getCoordinateReferenceSystem();
             query.setCoordinateSystem(prj);
 
-            
-
             DataStore destinationDataSource = this.createPostgisDataStore(configuration);
 
             // check if the schema is present in postgis
@@ -99,65 +100,68 @@ public class Shp2Pg {
             }
             if (!schema)
                 destinationDataSource.createSchema(originalSchema);
-            
+
             final Transaction transaction = new DefaultTransaction("create");
-            FeatureWriter<SimpleFeatureType, SimpleFeature> fw=null;
-            FeatureReader<SimpleFeatureType, SimpleFeature> fr=null;
-            try{
-	            fw = destinationDataSource.getFeatureWriter(typeName, transaction);
-	            fr = sourceDataStore.getFeatureReader(query, transaction);
-	            while(fr.hasNext()){
-	            	final SimpleFeature newFeature=fw.next();
-	            	final SimpleFeature oldfeature=fr.next();
-	            	
-	            	//copy over
-	            	newFeature.setValue(oldfeature.getValue());
-	            	
-	            	// set default geometry
-	            	newFeature.setDefaultGeometry(oldfeature.getDefaultGeometry());
-	            	
-	            }
-	            
-	            // close transaction
-	            transaction.commit();
-	            
-	            return true;
-            }catch (Throwable e) {
-				try {
-					transaction.rollback();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				
-				if(fr!=null)
-					try {
-						fr.close();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					
-					
-				if(fw!=null)
-					try {
-						fw.close();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-			}finally{
-				try {
-					transaction.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-        }catch (Throwable e) {
-			if(LOGGER.isLoggable(Level.SEVERE))
-				LOGGER.log(Level.SEVERE,"Unable to transcode features",e);
-		}
+            FeatureWriter<SimpleFeatureType, SimpleFeature> fw = null;
+            FeatureReader<SimpleFeatureType, SimpleFeature> fr = null;
+            SimpleFeatureBuilder builder = new SimpleFeatureBuilder(destinationDataSource
+                    .getSchema(typeName));
+            try {
+                fw = destinationDataSource.getFeatureWriter(typeName, transaction);
+                fr = sourceDataStore.getFeatureReader(query, transaction);
+                SimpleFeatureType sourceSchema = sourceDataStore.getSchema(typeName);
+                FeatureStore postgisStore = (FeatureStore) destinationDataSource
+                        .getFeatureSource(typeName);
+                while (fr.hasNext()) {
+                    final SimpleFeature oldfeature = fr.next();
+
+                    for (AttributeDescriptor ad : sourceSchema.getAttributeDescriptors()) {
+                        String attribute = ad.getLocalName();
+                        builder.set(attribute, oldfeature.getAttribute(attribute));
+                    }
+                    postgisStore.addFeatures(DataUtilities.collection(builder.buildFeature(null)));
+
+                }
+
+                // close transaction
+                transaction.commit();
+
+                return true;
+            } catch (Throwable e) {
+                try {
+                    transaction.rollback();
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+
+                if (fr != null)
+                    try {
+                        fr.close();
+                    } catch (IOException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+
+                if (fw != null)
+                    try {
+                        fw.close();
+                    } catch (IOException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+            } finally {
+                try {
+                    transaction.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        } catch (Throwable e) {
+            if (LOGGER.isLoggable(Level.SEVERE))
+                LOGGER.log(Level.SEVERE, "Unable to transcode features", e);
+        }
         return false;
 
     }
