@@ -19,21 +19,21 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 public class Shp2PgFileConfigurator extends BaseAction<FileSystemMonitorEvent> {
-	
-	private final static Logger LOGGER = Logger.getLogger(Shp2PgFileConfigurator.class.toString());
+
+    private final static Logger LOGGER = Logger.getLogger(Shp2PgFileConfigurator.class.toString());
 
     private File tempOutDir = null;
-    
-	private Shp2PgActionConfiguration configuration;
+
+    private Shp2PgActionConfiguration configuration;
 
     public Shp2PgFileConfigurator(Shp2PgActionConfiguration configuration) throws IOException {
-    	try {
-			this.configuration=configuration.clone();
-		} catch (CloneNotSupportedException e) {
-			final IOException ioe= new IOException();
-			ioe.initCause(e);
-			throw ioe; 
-		}
+        try {
+            this.configuration = configuration.clone();
+        } catch (CloneNotSupportedException e) {
+            final IOException ioe = new IOException();
+            ioe.initCause(e);
+            throw ioe;
+        }
     }
 
     public Queue<FileSystemMonitorEvent> execute(Queue<FileSystemMonitorEvent> events)
@@ -111,11 +111,13 @@ public class Shp2PgFileConfigurator extends BaseAction<FileSystemMonitorEvent> {
                 shpBaseName = FilenameUtils.getBaseName(zippedFile.getName());
             }
 
-           
             Shp2Pg shp2pg = new Shp2Pg();
-            
-            shp2pg.copy(shapeFile, configuration);
 
+            boolean copy = shp2pg.copy(shapeFile, configuration);
+            if(!copy)
+                LOGGER.info("COPY NOT WORKING");
+            else
+                LOGGER.info("COPY SUCCESS");
             return events;
 
         } catch (Throwable t) {
