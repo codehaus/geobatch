@@ -89,18 +89,18 @@ public class Shp2Pg {
 
             // check if the schema is present in postgis
             boolean schema = false;
-            if (destinationDataSource.getTypeNames().length == 0) {
-                schema = true;
-            } else {
-                for (String tableName : destinationDataSource.getTypeNames()) {
+            if (destinationDataSource.getTypeNames().length != 0) {
+            	for (String tableName : destinationDataSource.getTypeNames()) {
                     if (tableName.equalsIgnoreCase(typeName)) {
                         schema = true;
                     }
                 }
+            } else {
+                schema = false;
             }
             if (!schema)
                 destinationDataSource.createSchema(originalSchema);
-
+            LOGGER.info("SCHEMA" + schema);
             final Transaction transaction = new DefaultTransaction("create");
             FeatureWriter<SimpleFeatureType, SimpleFeature> fw = null;
             FeatureReader<SimpleFeatureType, SimpleFeature> fr = null;
