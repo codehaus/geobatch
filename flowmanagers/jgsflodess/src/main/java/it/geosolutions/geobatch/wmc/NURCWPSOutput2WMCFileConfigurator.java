@@ -53,6 +53,7 @@ import org.geotools.geometry.GeneralEnvelope;
 
 import ucar.ma2.Array;
 import ucar.ma2.Index;
+import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -188,7 +189,7 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 
 			inputFileName = FilenameUtils.getBaseName(inputFileName);
 			ncFileIn = NetcdfFile.open(event.getSource().getAbsolutePath());
-			final File outDir = Utilities.createTodayDirectory(workingDir, FilenameUtils.getBaseName(inputFileName));
+			final File outDir = Utilities.createTodayDirectory(workingDir, FilenameUtils.getBaseName(inputFileName),true);
 
 			// input DIMENSIONS
 			final Dimension timeDim = ncFileIn.findDimension(JGSFLoDeSSIOUtils.TIME_DIM);
@@ -323,6 +324,13 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 								|| NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.HEIGHT_DIM);
 						final boolean hasLocalTime = NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.TIME_DIM) && hasTime;
 						
+						double noData = Double.NaN;
+						
+						Attribute missingValue = var.findAttribute("missing_value");
+			                        if (missingValue != null) {
+			                                noData = missingValue.getNumericValue().doubleValue();
+			                        }
+						
 						for (int z = 0; z < (hasLocalZLevel ? nZeta : 1); z++) {
 							for (int t = 0; t < (hasLocalTime ? nTime : 1); t++) {
 								WritableRaster userRaster = Raster.createWritableRaster(outSampleModel, null);
@@ -356,8 +364,10 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 									coverageName.append(timeDimExists ? sdf.format(matLabStartTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*86400000L) : "00000000T0000000Z");
 								}
 								coverageName.append("-T").append(System.currentTimeMillis());
+								final String nd = Double.isNaN(noData)?"NaN":Double.toString(noData);
+								coverageName.append("_").append(nd);
 
-								File gtiffFile = Utilities.storeCoverageAsGeoTIFF(gtiffOutputDir, coverageName.toString(), variableName, userRaster, Double.NaN, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
+								File gtiffFile = Utilities.storeCoverageAsGeoTIFF(gtiffOutputDir, coverageName.toString(), variableName, userRaster, noData, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
 							}
 						}
 						
