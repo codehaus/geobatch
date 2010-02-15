@@ -240,6 +240,10 @@
 					<groupId>it.geosolutions</groupId>
 					<artifactId>gb-flowmanagers-JGSFLoDeSS</artifactId>
 				</dependency>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-task-executor</artifactId>
+				</dependency>
 			</dependencies>
 		</profile>
 		
@@ -303,6 +307,15 @@
 				<dependency>
 					<groupId>it.geosolutions</groupId>
 					<artifactId>gb-flowmanagers-shapefile</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>task-executor</id>
+			<dependencies>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-task-executor</artifactId>
 				</dependency>
 			</dependencies>
 		</profile>

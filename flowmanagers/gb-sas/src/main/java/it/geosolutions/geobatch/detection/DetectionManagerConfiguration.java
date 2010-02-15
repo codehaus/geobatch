@@ -57,7 +57,7 @@ public class DetectionManagerConfiguration extends ActionConfiguration implement
     
     private String executablePath;
     
-    private String xlsPath;
+    private String xslPath;
     
     private String path;
     
@@ -81,8 +81,8 @@ public class DetectionManagerConfiguration extends ActionConfiguration implement
 		this.executablePath = executablePath;
 	}
 
-	public void setXlsPath(String xlsPath) {
-		this.xlsPath = xlsPath;
+	public void setXslPath(String xslPath) {
+		this.xslPath = xslPath;
 	}
 
 	public void setPath(String path) {
@@ -93,8 +93,8 @@ public class DetectionManagerConfiguration extends ActionConfiguration implement
 		return path;
 	}
 
-	public String getXlsPath() {
-		return xlsPath;
+	public String getXslPath() {
+		return xslPath;
 	}
 
 	public void setGdalData(String gdalData) {
