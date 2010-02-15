@@ -22,13 +22,13 @@
 
 package it.geosolutions.geobatch.task;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-
-import org.apache.commons.beanutils.BeanUtils;
-
 import it.geosolutions.geobatch.catalog.Configuration;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
+
+import org.apache.commons.beanutils.BeanUtils;
 
 
 /**
@@ -71,13 +71,23 @@ public class TaskExecutorConfiguration extends ActionConfiguration implements
 		this.timeOut = timeOut;
 	}
 
-	public List<String> getVariables() {
+	public Map<String,String> getVariables() {
 		return variables;
 	}
 
-	public void setVariables(List<String> variables) {
+	public void setVariables(Map<String,String> variables) {
 		this.variables = variables;
 	}
+	
+	public String getWorkingDirectory() {
+		return workingDirectory;
+	}
+
+	public void setWorkingDirectory(String workingDirectory) {
+		this.workingDirectory = workingDirectory;
+	}
+	
+	private String workingDirectory;
 
 	private String executable;
 	
@@ -87,7 +97,7 @@ public class TaskExecutorConfiguration extends ActionConfiguration implements
 	
 //	private boolean spawn;
 	
-    private List<String> variables;
+    private Map<String,String> variables;
     
     private String xsl;
 	

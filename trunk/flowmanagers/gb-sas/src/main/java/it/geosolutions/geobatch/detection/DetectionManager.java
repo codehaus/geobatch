@@ -44,8 +44,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
@@ -490,27 +491,26 @@ public class DetectionManager extends BaseAction<FileSystemMonitorEvent> impleme
         
     	// //
 		//
-		// 3) Setting the xls path which will contains xls needed to setup a proper XML file 
+		// 3) Setting the xsl path which will contains xsl needed to setup a proper XML file 
 		//
 		// //
-        final String xlsPath = configuration.getXlsPath();
-        if (xlsPath != null && xlsPath.trim().length()>0){
-        	 final File xlsFile = IOUtils.findLocation(xlsPath,
+        final String xslPath = configuration.getXslPath();
+        if (xslPath != null && xslPath.trim().length()>0){
+        	 final File xslFile = IOUtils.findLocation(xslPath,
 	                 new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
-        	if (xlsFile != null && xlsFile.exists()){
-        		taskConfig.setXsl(xlsFile.getAbsolutePath());
+        	if (xslFile != null && xslFile.exists()){
+        		taskConfig.setXsl(xslFile.getAbsolutePath());
         	}
         	else {
-        		throw new IllegalArgumentException("Invalid xls file: " + xlsPath);
+        		throw new IllegalArgumentException("Invalid xsl file: " + xslPath);
         	}
         }
 
         taskConfig.setExecutable(configuration.getExecutablePath());
         taskConfig.setTimeOut(new Long(configuration.getConverterTimeout()));
-		List<String> variables = new ArrayList<String>(2);
-		
-		variables.add("GDAL_DATA " + configuration.getGdalData());
-		variables.add("PATH " + configuration.getPath());
+        final Map<String,String> variables = new HashMap<String, String>();
+		variables.put("GDAL_DATA", configuration.getGdalData());
+		variables.put("PATH", configuration.getPath());
 		
 		taskConfig.setVariables(variables);
 		
