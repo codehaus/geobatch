@@ -24,22 +24,33 @@ package it.geosolutions.geobatch.jgsflodess;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
-import it.geosolutions.geobatch.geoserver.GeoServerActionConfiguration;
-import it.geosolutions.geobatch.geoserver.GeoServerConfiguratorAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
+import it.geosolutions.geobatch.metocs.MetocActionConfiguration;
+import it.geosolutions.geobatch.metocs.MetocConfigurationAction;
+import it.geosolutions.geobatch.metocs.jaxb.model.MetocElementType;
+import it.geosolutions.geobatch.metocs.jaxb.model.Metocs;
 import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.geobatch.utils.io.Utilities;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFConverterUtilities;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFUtilities;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 import javax.media.jai.JAI;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -57,11 +68,22 @@ import ucar.nc2.Variable;
  * Public class to insert NetCDF data file (gliders measurements) into DB
  * 
  */
-public class JGSFLoDeSSSWANFileConfigurator extends
-		GeoServerConfiguratorAction<FileSystemMonitorEvent> {
+public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <FileSystemMonitorEvent> {
 
+	public static final long startTime;
+	public static final long NCOMstartTime;
+
+	static {
+		GregorianCalendar calendar = new GregorianCalendar(1980, 00, 01, 00, 00, 00);
+		calendar.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+		GregorianCalendar NCOMcalendar = new GregorianCalendar(2000, 00, 01, 00, 00, 00);
+		NCOMcalendar.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+		startTime = calendar.getTimeInMillis();
+		NCOMstartTime = NCOMcalendar.getTimeInMillis();
+	}
+	
 	protected JGSFLoDeSSSWANFileConfigurator(
-			GeoServerActionConfiguration configuration) throws IOException {
+			MetocActionConfiguration configuration) throws IOException {
 		super(configuration);
 	}
 
@@ -184,7 +206,7 @@ public class JGSFLoDeSSSWANFileConfigurator extends
 			// ////
 			// ... create the output file data structure
 			// ////
-            final File outputFile = new File(outDir, "waveModel_SWAN.nc");
+            final File outputFile = new File(outDir, "JGSFLoDeSS_SWAN-Forecast-T" + new Date().getTime() + FilenameUtils.getBaseName(inputFileName).replaceAll("-", "") + ".nc");
             ncFileOut = NetcdfFileWriteable.createNew(outputFile.getAbsolutePath());
 
             //NetCDFConverterUtilities.copyGlobalAttributes(ncFileOut, ncFileIn.getGlobalAttributes());
@@ -197,8 +219,19 @@ public class JGSFLoDeSSSWANFileConfigurator extends
             		true, lonDim.getLength()
             );
 
-            final List<Variable> foundVariables = ncFileIn.getVariables();
-			for (Variable var : foundVariables) {
+            //Grabbing the Variables Dictionary
+			JAXBContext context = JAXBContext.newInstance(Metocs.class);
+			Unmarshaller um = context.createUnmarshaller();
+
+			File metocDictionaryFile = IOUtils.findLocation(configuration.getMetocDictionaryPath(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory())); 
+			Metocs metocDictionary = (Metocs) um.unmarshal(new FileReader(metocDictionaryFile));
+            Map<String, Variable> foundVariables        = new HashMap<String, Variable>();
+            Map<String, String> foundVariableLongNames  = new HashMap<String, String>();
+            Map<String, String> foundVariableBriefNames = new HashMap<String, String>();
+            Map<String, String> foundVariableUoM 		= new HashMap<String, String>();
+			
+            for (Object obj : ncFileIn.getVariables()) {
+				final Variable var = (Variable) obj;
 				if (var != null) {
 					String varName = var.getName();
 					if (varName.equalsIgnoreCase(NetCDFUtilities.LATITUDE)
@@ -206,12 +239,47 @@ public class JGSFLoDeSSSWANFileConfigurator extends
 							|| varName.equalsIgnoreCase(NetCDFUtilities.TIME)
 							|| varName.equalsIgnoreCase(NetCDFUtilities.ZETA))
 						continue;
+					
+					if (foundVariables.get(varName) == null){
+						String longName = null;
+            			String briefName = null;
+            			String uom = null;
+            			
+            			for(MetocElementType m : metocDictionary.getMetoc()) {
+            				if(
+            					(varName.equalsIgnoreCase("Significant Wave Height") && m.getName().equals("sigwavheight")) ||
+            					(varName.equalsIgnoreCase("Peak Wave Period") && m.getName().equals("peakwavperiod")) ||
+            					(varName.equalsIgnoreCase("Mean Wave Direction") && m.getName().equals("meanwavdir"))
+            				)
+        					{
+        						longName = m.getName();
+        						briefName = m.getBrief();
+        						uom = m.getDefaultUom();
+        						uom = uom.indexOf(":") > 0 ? URLDecoder.decode(uom.substring(uom.lastIndexOf(":")+1), "UTF-8") : uom;
+        						break;
+        					}
+        				}
+            			
+            			if (longName != null && briefName != null) {	
+            				foundVariables.put(varName, var);
+            				foundVariableLongNames.put(varName, longName);
+            				foundVariableBriefNames.put(varName, briefName);
+            				foundVariableUoM.put(varName, uom);
+            			}
+            		}
+					
+					
+					
 					// defining output variable
 					ncFileOut.addVariable(varName, var.getDataType(), outDimensions);
 	                NetCDFConverterUtilities.setVariableAttributes(var, ncFileOut, new String[] { "positions" });
 				}
 			}
 			
+        	// Setting up global Attributes ...
+        	ncFileOut.addGlobalAttribute("base_time", fromSdf.format(timeOriginDate));
+        	ncFileOut.addGlobalAttribute("tau", TAU);
+        	ncFileOut.addGlobalAttribute("nodata", noData);
             // writing bin data ...
             ncFileOut.create();
 
@@ -238,8 +306,17 @@ public class JGSFLoDeSSSWANFileConfigurator extends
 			ncFileOut.write(JGSFLoDeSSIOUtils.LON_DIM, lon1Data);
 
 			// {} Variables
-			for (Variable var : foundVariables) {
-				if (var != null) {
+			for (Object obj : ncFileIn.getVariables()) {
+				Variable var = (Variable) obj;
+ 				if (var != null) {
+ 					double offset = 0.0;
+					double scale = 1.0;
+					final Attribute offsetAtt = var.findAttribute("add_offset");
+					final Attribute scaleAtt = var.findAttribute("scale_factor");
+					
+					offset = (offsetAtt != null ? offsetAtt.getNumericValue().doubleValue() : offset);
+					scale  = (scaleAtt != null ? scaleAtt.getNumericValue().doubleValue() : scale);
+ 					
 					String varName = var.getName();
 					if (varName.equalsIgnoreCase(NetCDFUtilities.LATITUDE)
 							|| varName.equalsIgnoreCase(NetCDFUtilities.LONGITUDE)
