@@ -213,7 +213,7 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
             for (int t=0; t<nTimes; t++) {
             	long timeValue = timeOriginalData.getLong(timeOriginalData.getIndex().set(t));
             	if (t == 0 && nTimes > 1) {
-        			TAU = (int) (timeOriginalData.getLong(timeOriginalData.getIndex().set(t+1)) - timeValue) * 3600 * 1000;
+        			TAU = (int) Math.ceil((timeOriginalData.getLong(timeOriginalData.getIndex().set(t+1)) - timeValue) / 3600.0);
         		}
             	// adding time offset
             	  timeValue = startTime + (timeValue * 3600000);
@@ -263,9 +263,9 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
             			
             			for(MetocElementType m : metocDictionary.getMetoc()) {
             				if(
-            					(varName.equalsIgnoreCase("sigwavheight") && m.getName().equals("Significant Wave Height")) ||
-            					(varName.equalsIgnoreCase("peakwavperiod") && m.getName().equals("Peak Wave Period")) ||
-            					(varName.equalsIgnoreCase("meanwavdir") && m.getName().equals("Mean Wave Direction"))
+            					(varName.equalsIgnoreCase("sig_wav_ht") && m.getName().equals("significant wave height")) ||
+            					(varName.equalsIgnoreCase("peak_wav_per") && m.getName().equals("peak wave period")) ||
+            					(varName.equalsIgnoreCase("mean_wav_dir") && m.getName().equals("mean wave direction"))
             				)
         					{
         						longName = m.getName();
@@ -290,29 +290,31 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
             double fillValue = Double.NaN;
 			// defining output variable
             for (String varName : foundVariables.keySet()) {
-            	// SIMONE: replaced foundVariables.get(varName).getDataType() with DataType.DOUBLE
-            	ncFileOut.addVariable(foundVariableBriefNames.get(varName), DataType.DOUBLE, outDimensions);
-            	//NetCDFConverterUtilities.setVariableAttributes(foundVariables.get(varName), ncFileOut, foundVariableBriefNames.get(varName), new String[] { "positions" });
-                ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "long_name", foundVariableLongNames.get(varName));
-                ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "units", foundVariableUoM.get(varName));
-                
-                if (Double.isNaN(noData)) {
-                	Attribute missingValue = foundVariables.get(varName).findAttribute("missing_value");
-                	if (missingValue != null) {
-                		noData = missingValue.getNumericValue().doubleValue();
-                		ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "missing_value", noData);
-                	}
-                }
-                
-                if (Double.isNaN(fillValue)) {
-                	Attribute fillV = foundVariables.get(varName).findAttribute("_FillValue");
-                	if (fillV != null) {
-                		fillValue = fillV.getNumericValue().doubleValue();
-                	}
-                	else {
-                		fillValue = noData;
-                	}
-                }
+            	if (foundVariableBriefNames.get(varName) != null) {
+            		// SIMONE: replaced foundVariables.get(varName).getDataType() with DataType.DOUBLE
+                	ncFileOut.addVariable(foundVariableBriefNames.get(varName), DataType.DOUBLE, outDimensions);
+                	//NetCDFConverterUtilities.setVariableAttributes(foundVariables.get(varName), ncFileOut, foundVariableBriefNames.get(varName), new String[] { "positions" });
+                    ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "long_name", foundVariableLongNames.get(varName));
+                    ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "units", foundVariableUoM.get(varName));
+                    
+                    if (Double.isNaN(noData)) {
+                    	Attribute missingValue = foundVariables.get(varName).findAttribute("missing_value");
+                    	if (missingValue != null) {
+                    		noData = missingValue.getNumericValue().doubleValue();
+                    		ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "missing_value", noData);
+                    	}
+                    }
+                    
+                    if (Double.isNaN(fillValue)) {
+                    	Attribute fillV = foundVariables.get(varName).findAttribute("_FillValue");
+                    	if (fillV != null) {
+                    		fillValue = fillV.getNumericValue().doubleValue();
+                    	}
+                    	else {
+                    		fillValue = noData;
+                    	}
+                    }
+            	}
             }
             
             // time Variable data
@@ -366,7 +368,8 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
 					if (varName.equalsIgnoreCase(NetCDFUtilities.LATITUDE)
 							|| varName.equalsIgnoreCase(NetCDFUtilities.LONGITUDE)
 							|| varName.equalsIgnoreCase(NetCDFUtilities.TIME)
-							|| varName.equalsIgnoreCase(NetCDFUtilities.ZETA))
+							|| varName.equalsIgnoreCase(NetCDFUtilities.ZETA)
+							|| foundVariableBriefNames.get(varName) == null)
 						continue;
 					// writing output variable
 					final Array originalVarData = var.read();
