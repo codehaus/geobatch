@@ -359,14 +359,16 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
 						continue;
 					// writing output variable
 					final Array originalVarData = var.read();
-	                final Index varIndex = originalVarData.getIndex();
-	                Attribute fv = var.findAttribute("_FillValue");
-	                float fillValue = Float.NaN;
-	                if (fv != null) {
-	                    fillValue = (fv.getNumericValue()).floatValue();
-	                }
+					Array destArray = NetCDFConverterUtilities.getArray(originalVarData.getShape(), DataType.DOUBLE);
+	                for (int t = 0; t < nTimes; t++)
+						for (int z = 0; z < nZeta; z++)
+							for (int y = 0; y < nLat; y++)
+								for (int x = 0; x < nLon; x++) {
+										int originalValue = originalVarData.getInt(originalVarData.getIndex().set(t, z, y, x));
+										destArray.setDouble(destArray.getIndex().set(t, z, y, x), (originalValue != noData ? (originalValue * scale) + offset : noData));
+								}
 	                
-	                ncFileOut.write(varName, originalVarData);
+	                ncFileOut.write(foundVariableBriefNames.get(varName), destArray);
 				}
 			}
 
