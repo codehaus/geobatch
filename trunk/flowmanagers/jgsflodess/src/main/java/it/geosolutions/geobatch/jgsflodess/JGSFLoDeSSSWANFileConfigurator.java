@@ -287,6 +287,7 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
             }
 					
             double noData = Double.NaN;
+            double fillValue = Double.NaN;
 			// defining output variable
             for (String varName : foundVariables.keySet()) {
             	// SIMONE: replaced foundVariables.get(varName).getDataType() with DataType.DOUBLE
@@ -300,6 +301,16 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
                 	if (missingValue != null) {
                 		noData = missingValue.getNumericValue().doubleValue();
                 		ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "missing_value", noData);
+                	}
+                }
+                
+                if (Double.isNaN(fillValue)) {
+                	Attribute fillV = foundVariables.get(varName).findAttribute("_FillValue");
+                	if (fillV != null) {
+                		fillValue = fillV.getNumericValue().doubleValue();
+                	}
+                	else {
+                		fillValue = noData;
                 	}
                 }
             }
@@ -365,7 +376,7 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
 							for (int y = 0; y < nLat; y++)
 								for (int x = 0; x < nLon; x++) {
 										int originalValue = originalVarData.getInt(originalVarData.getIndex().set(t, z, y, x));
-										destArray.setDouble(destArray.getIndex().set(t, z, y, x), (originalValue != noData ? (originalValue * scale) + offset : noData));
+										destArray.setDouble(destArray.getIndex().set(t, z, y, x), ((originalValue != noData && originalValue != fillValue) ? (originalValue * scale) + offset : noData));
 								}
 	                
 	                ncFileOut.write(foundVariableBriefNames.get(varName), destArray);
