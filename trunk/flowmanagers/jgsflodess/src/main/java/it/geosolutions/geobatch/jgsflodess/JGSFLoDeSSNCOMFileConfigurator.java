@@ -24,10 +24,12 @@ package it.geosolutions.geobatch.jgsflodess;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
-import it.geosolutions.geobatch.geoserver.GeoServerActionConfiguration;
-import it.geosolutions.geobatch.geoserver.GeoServerConfiguratorAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
+import it.geosolutions.geobatch.metocs.MetocActionConfiguration;
+import it.geosolutions.geobatch.metocs.MetocConfigurationAction;
+import it.geosolutions.geobatch.metocs.jaxb.model.MetocElementType;
+import it.geosolutions.geobatch.metocs.jaxb.model.Metocs;
 import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.geobatch.utils.io.Utilities;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFConverterUtilities;
@@ -38,11 +40,14 @@ import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,12 +57,15 @@ import java.util.logging.Level;
 
 import javax.media.jai.JAI;
 import javax.media.jai.RasterFactory;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.geometry.GeneralEnvelope;
 
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriteable;
@@ -69,12 +77,23 @@ import ucar.nc2.Variable;
  * 
  */
 public class JGSFLoDeSSNCOMFileConfigurator extends
-		GeoServerConfiguratorAction<FileSystemMonitorEvent> {
+	MetocConfigurationAction<FileSystemMonitorEvent> {
 
 	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddmm_HHH");
 	
+	public static final long startTime;
+	public static final long NCOMstartTime;
+
+	static {
+		GregorianCalendar calendar = new GregorianCalendar(1980, 00, 01, 00, 00, 00);
+		calendar.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+		GregorianCalendar NCOMcalendar = new GregorianCalendar(2000, 00, 01, 00, 00, 00);
+		NCOMcalendar.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+		startTime = calendar.getTimeInMillis();
+		NCOMstartTime = NCOMcalendar.getTimeInMillis();
+	}
 	protected JGSFLoDeSSNCOMFileConfigurator(
-			GeoServerActionConfiguration configuration) throws IOException {
+			MetocActionConfiguration configuration) throws IOException {
 		super(configuration);
 		sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 	}
@@ -134,11 +153,11 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 
 			if (fileNameFilter != null) {
 				if ((filePrefix.equals(fileNameFilter) || filePrefix.matches(fileNameFilter))
-						&& ("zip".equalsIgnoreCase(fileSuffix) || "tar".equalsIgnoreCase(fileSuffix))) {
+						&& ("zip".equalsIgnoreCase(fileSuffix) || "tar".equalsIgnoreCase(fileSuffix) || "nc".equalsIgnoreCase(fileSuffix))) {
 					// etj: are we missing something here?
 					baseFileName = filePrefix;
 				}
-			} else if ("zip".equalsIgnoreCase(fileSuffix) || "tar".equalsIgnoreCase(fileSuffix)) {
+			} else if ("zip".equalsIgnoreCase(fileSuffix) || "tar".equalsIgnoreCase(fileSuffix) || "nc".equalsIgnoreCase(fileSuffix)) {
 				baseFileName = filePrefix;
 			}
 
@@ -147,12 +166,22 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 				throw new IllegalStateException("Unexpected file '" + inputFileName + "'");
 			}
 
+			inputFileName = FilenameUtils.getName(inputFileName);
+			
 			final File outDir = Utilities.createTodayDirectory(workingDir, FilenameUtils.getBaseName(inputFileName));
 			
-			inputFileName = FilenameUtils.getName(inputFileName);
 			// decompress input file into a temp directory
-			final File tempFile = File.createTempFile(inputFileName, ".tmp");
-			final File ncomsDatasetDirectory = Utilities.decompress("NCOM", event.getSource(), tempFile);
+			final File tempFile = File.createTempFile(inputFileName, ".tmp", outDir);
+			final File ncomsDatasetDirectory = 
+				("zip".equalsIgnoreCase(fileSuffix) || "tar".equalsIgnoreCase(fileSuffix)) ? 
+						Utilities.decompress("NCOM", event.getSource(), tempFile) :
+							Utilities.createTodayPrefixedDirectory("NCOM", outDir);
+			
+			// move the file if it's not an archive
+			if (!("zip".equalsIgnoreCase(fileSuffix) || "tar".equalsIgnoreCase(fileSuffix)))
+				event.getSource().renameTo(new File(ncomsDatasetDirectory, inputFileName));
+			
+			tempFile.delete();
 			
 			// ////
 			// STEP 1: Looking for grid area definition NetCDF file
@@ -266,11 +295,24 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
             		true, X_Index.getLength()
             );
 
-            Map<String, Variable> foundVariables = new HashMap<String, Variable>();
+            //Grabbing the Variables Dictionary
+			JAXBContext context = JAXBContext.newInstance(Metocs.class);
+			Unmarshaller um = context.createUnmarshaller();
+
+			File metocDictionaryFile = IOUtils.findLocation(configuration.getMetocDictionaryPath(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory())); 
+			Metocs metocDictionary = (Metocs) um.unmarshal(new FileReader(metocDictionaryFile));
+
+		
+            Map<String, Variable> foundVariables        = new HashMap<String, Variable>();
+            Map<String, String> foundVariableLongNames  = new HashMap<String, String>();
+            Map<String, String> foundVariableBriefNames = new HashMap<String, String>();
+            Map<String, String> foundVariableUoM 		= new HashMap<String, String>();
+            
+            
             for (File NCOMVarFolder : NCOMVarFolders) {
 				for (File NCOMVar : NCOMVarFolder.listFiles()) {
-					if (FilenameUtils.getExtension(NCOMVar.getName()).equalsIgnoreCase("nc") ||
-							FilenameUtils.getExtension(NCOMVar.getName()).equalsIgnoreCase("netcdf")) {
+					final String extension = FilenameUtils.getExtension(NCOMVar.getName()); 
+					if (extension.equalsIgnoreCase("nc") || extension.equalsIgnoreCase("netcdf")) {
 						NetcdfFile ncVarFile = null;
 						try {
 							ncVarFile = NetcdfFile.open(NCOMVar.getAbsolutePath());
@@ -283,10 +325,35 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 									!varName.equalsIgnoreCase("Z-Index") &&
 									!varName.equalsIgnoreCase("Depth")) {
 									
-									if (foundVariables.get(varName) == null)
-										foundVariables.put(varName, var);
+									if (foundVariables.get(varName) == null){
+										String longName = null;
+				            			String briefName = null;
+				            			String uom = null;
+				            			
+				            			for(MetocElementType m : metocDictionary.getMetoc()) {
+				            				if(
+				            					(varName.equalsIgnoreCase("U_Velocity") && m.getName().equals("water velocity u-component")) ||
+				            					(varName.equalsIgnoreCase("V_Velocity") && m.getName().equals("water velocity v-component"))
+				            				)
+				        					{
+				        						longName = m.getName();
+				        						briefName = m.getBrief();
+				        						uom = m.getDefaultUom();
+				        						uom = uom.indexOf(":") > 0 ? URLDecoder.decode(uom.substring(uom.lastIndexOf(":")+1), "UTF-8") : uom;
+				        						break;
+				        					}
+				        				}
+				            			
+				            			if (longName != null && briefName != null) {	
+				            				foundVariables.put(varName, var);
+				            				foundVariableLongNames.put(varName, longName);
+				            				foundVariableBriefNames.put(varName, briefName);
+				            				foundVariableUoM.put(varName, uom);
+				            			}
+				            		}
 								}
 							}
+							
 						}  finally {
 							if (ncVarFile != null)
 								ncVarFile.close();
@@ -294,11 +361,23 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 					}
 				}
             }
-
+            double noData = Double.NaN;
+            
 			// defining output variable
             for (String varName : foundVariables.keySet()) {
-				ncFileOut.addVariable(varName, foundVariables.get(varName).getDataType(), outDimensions);
-                NetCDFConverterUtilities.setVariableAttributes(foundVariables.get(varName), ncFileOut, new String[] { "positions" });
+            	// SIMONE: replaced foundVariables.get(varName).getDataType() with DataType.DOUBLE
+            	ncFileOut.addVariable(foundVariableBriefNames.get(varName), DataType.DOUBLE, outDimensions);
+            	//NetCDFConverterUtilities.setVariableAttributes(foundVariables.get(varName), ncFileOut, foundVariableBriefNames.get(varName), new String[] { "positions" });
+                ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "long_name", foundVariableLongNames.get(varName));
+                ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "units", foundVariableUoM.get(varName));
+                
+                if (Double.isNaN(noData)) {
+                	Attribute missingValue = foundVariables.get(varName).findAttribute("missing_value");
+                	if (missingValue != null) {
+                		noData = missingValue.getNumericValue().doubleValue();
+                		ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "missing_value", noData);
+                	}
+                }
             }
             
             // writing bin data ...
@@ -346,6 +425,14 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 							
 							for (Object obj : ncVarFile.getVariables()) {
 								final Variable var = (Variable) obj;
+								double offset = 0.0;
+								double scale = 1.0;
+								final Attribute offsetAtt = var.findAttribute("add_offset");
+								final Attribute scaleAtt = var.findAttribute("scale_factor");
+								
+								offset = (offsetAtt != null ? offsetAtt.getNumericValue().doubleValue() : offset);
+								scale  = (scaleAtt != null ? scaleAtt.getNumericValue().doubleValue() : scale);
+								
 								final String varName = var.getName(); 
 								if (!varName.equalsIgnoreCase("X_Index") &&
 									!varName.equalsIgnoreCase("Y_Index") &&
@@ -399,7 +486,7 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 												2, userRaster, 0,
 												false);
 										
-										final Variable outVar = ncFileOut.findVariable(varName);
+										final Variable outVar = ncFileOut.findVariable(foundVariableBriefNames.get(varName));
 										final Array outVarData = outVar.read();
 
 										int tIndex = 0;
@@ -413,8 +500,11 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 					            		}
 					            		
 										for (int y = 0; y < Y_Index.getLength(); y++)
-											for (int x = 0; x < X_Index.getLength(); x++)
-												outVarData.setFloat(outVarData.getIndex().set(tIndex, z, y, x), userRaster.getSampleFloat(x, y, 0));
+											for (int x = 0; x < X_Index.getLength(); x++){
+												int originalValue = userRaster.getSample(x,y,0);
+												outVarData.setDouble(outVarData.getIndex().set(tIndex, z, y, x), (originalValue != noData ? (originalValue * scale) + offset : noData));
+//												outVarData.setFloat(outVarData.getIndex().set(tIndex, z, y, x), userRaster.getSampleFloat(x, y, 0));
+											}
 										
 										ncFileOut.write(varName, outVarData);
 									}
