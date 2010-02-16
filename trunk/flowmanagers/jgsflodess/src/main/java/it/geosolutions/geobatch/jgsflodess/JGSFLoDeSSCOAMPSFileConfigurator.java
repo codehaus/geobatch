@@ -332,11 +332,12 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends MetocConfigurationAction<F
             
 			// defining output variable
             for (String varName : varsFound) {
-            	// SIMONE: replaced foundVariables.get(varName).getDataType() with DataType.DOUBLE
-            	ncFileOut.addVariable(foundVariableBriefNames.get(varName), DataType.DOUBLE, outDimensions);
-            	//NetCDFConverterUtilities.setVariableAttributes(foundVariables.get(varName), ncFileOut, foundVariableBriefNames.get(varName), new String[] { "positions" });
-                ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "long_name", foundVariableLongNames.get(varName));
-                ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "units", foundVariableUoM.get(varName));
+            	String variableBrief = foundVariableBriefNames.get(varName);
+            	if (variableBrief != null) {
+		        	ncFileOut.addVariable(variableBrief, DataType.DOUBLE, outDimensions);
+		            ncFileOut.addVariableAttribute(variableBrief, "long_name", foundVariableLongNames.get(varName));
+		            ncFileOut.addVariableAttribute(variableBrief, "units", foundVariableUoM.get(varName));
+            	}
             }
 			
             // Setting up global Attributes ...
