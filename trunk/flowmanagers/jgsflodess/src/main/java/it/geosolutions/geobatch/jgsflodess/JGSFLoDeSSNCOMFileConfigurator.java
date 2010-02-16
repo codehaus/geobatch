@@ -79,8 +79,6 @@ import ucar.nc2.Variable;
 public class JGSFLoDeSSNCOMFileConfigurator extends
 	MetocConfigurationAction<FileSystemMonitorEvent> {
 
-	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddmm_HHH");
-	
 	public static final long startTime;
 	public static final long NCOMstartTime;
 
@@ -95,7 +93,6 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 	protected JGSFLoDeSSNCOMFileConfigurator(
 			MetocActionConfiguration configuration) throws IOException {
 		super(configuration);
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 	}
 
 	/**
@@ -254,8 +251,9 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 
 			// ////
 			// ... create the output file data structure
+			// "lscv08_MERCATOR-Forecast-T" + new Date().getTime() + FilenameUtils.getBaseName(inputFileName).replaceAll("-", "") + ".nc"
 			// ////
-            final File outputFile = new File(outDir, "currentSpeedModel_NCOM_T"+new Date().getTime()+".nc");
+            final File outputFile = new File(outDir, "JGSFLoDeSS_NCOM-Forecast-T" + new Date().getTime() + FilenameUtils.getBaseName(inputFileName).replaceAll("-", "") + ".nc");
             ncFileOut = NetcdfFileWriteable.createNew(outputFile.getAbsolutePath());
 
             //NetCDFConverterUtilities.copyGlobalAttributes(ncFileOut, ncFileIn.getGlobalAttributes());
@@ -285,7 +283,19 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
             			timesFound.add(timeInstant);
             	}
             }
-            
+
+        	int t0 = Integer.parseInt(timesFound.get(0).substring(timesFound.get(0).lastIndexOf("_") + 1));
+        	int t1 = (timesFound.size() > 0 ? Integer.parseInt(timesFound.get(1).substring(timesFound.get(1).lastIndexOf("_") + 1)) : t0);
+
+            // time Variable data
+            final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddmm_HHH");
+            final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+        	fromSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+        	
+        	final Date timeOriginDate = sdf.parse(timesFound.get(0));
+        	int TAU = t1 - t0;
+        	
             // defining the file header and structure
             final List<Dimension> outDimensions = JGSFLoDeSSIOUtils.createNetCDFCFGeodeticDimensions(
             		ncFileOut,
@@ -380,6 +390,11 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
                 }
             }
             
+        	// Setting up global Attributes ...
+        	ncFileOut.addGlobalAttribute("base_time", fromSdf.format(timeOriginDate));
+        	ncFileOut.addGlobalAttribute("tau", TAU);
+        	ncFileOut.addGlobalAttribute("nodata", noData);
+     
             // writing bin data ...
             ncFileOut.create();
 
@@ -476,8 +491,8 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 										JGSFLoDeSSIOUtils.write2DData(userRaster, var, originalVarArray, false, false, new int[] {z, Y_Index.getLength(), X_Index.getLength()}, false);
 
 										// Resampling to a Regular Grid ...
-										if (LOGGER.isLoggable(Level.INFO))
-											LOGGER.info("Resampling to a Regular Grid ...");
+										if (LOGGER.isLoggable(Level.FINE))
+											LOGGER.fine("Resampling to a Regular Grid ...");
 										userRaster = JGSFLoDeSSIOUtils.warping(
 												bbox, 
 												lonOriginalData, 
