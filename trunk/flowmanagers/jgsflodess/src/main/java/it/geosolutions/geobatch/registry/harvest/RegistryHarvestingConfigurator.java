@@ -58,6 +58,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.io.FilenameUtils;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
@@ -265,7 +266,7 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 		final String srsId = CRS.lookupIdentifier(crs, false);
 		final GeneralEnvelope envelope = reader.getOriginalEnvelope();
         final GridGeometry originalGrid = new GridGeometry2D(reader.getOriginalGridRange(), reader.getOriginalGridToWorld(PixelInCell.CELL_CENTER), reader.getCrs());
-		final GridEnvelope range = originalGrid.getGridRange();
+		final GridEnvelope2D range = (GridEnvelope2D) ((GridGeometry2D) originalGrid).getGridRange();
 		final MathTransform gridToCRS = originalGrid.getGridToCRS();
 		final LinearTransform tx = (LinearTransform) gridToCRS;
         final Matrix matrix = tx.getMatrix();
@@ -321,9 +322,9 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 					res = false;
 				}
 
-				if (!res) {
-					break;
-				}
+//				if (!res) {
+//					break;
+//				}
 			}
 		}
 		// </FOR>

@@ -255,7 +255,7 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 			// ////
 			// ... create the output file data structure
 			// ////
-            final File outputFile = new File(outDir, "currentSpeedModel_NCOM.nc");
+            final File outputFile = new File(outDir, "currentSpeedModel_NCOM_T"+new Date().getTime()+".nc");
             ncFileOut = NetcdfFileWriteable.createNew(outputFile.getAbsolutePath());
 
             //NetCDFConverterUtilities.copyGlobalAttributes(ncFileOut, ncFileIn.getGlobalAttributes());
@@ -510,13 +510,6 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 									}
 								}
 							}
-							
-							// z level Variable data
-				            Array zeta1Data = NetCDFConverterUtilities.getArray(Z_Index.getLength(), DataType.FLOAT);
-				            for (int z = 0; z < depthValuesFound.size(); z++)
-				            	zeta1Data.setLong(zeta1Data.getIndex().set(z), depthValuesFound.get(z));
-				            ncFileOut.write(JGSFLoDeSSIOUtils.DEPTH_DIM, zeta1Data);
-				            
 						} finally {
 							if (ncVarFile != null)
 								ncVarFile.close();
@@ -524,8 +517,12 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 					}
 				}
 			}
-
 			
+			// z level Variable data
+            Array zeta1Data = NetCDFConverterUtilities.getArray(Z_Index.getLength(), DataType.FLOAT);
+            for (int z = 0; z < depthValuesFound.size(); z++)
+            	zeta1Data.setLong(zeta1Data.getIndex().set(z), depthValuesFound.get(z));
+            ncFileOut.write(JGSFLoDeSSIOUtils.DEPTH_DIM, zeta1Data);
             
 			// ... setting up the appropriate event for the next action
 			events.add(new FileSystemMonitorEvent(outputFile, FileSystemMonitorNotifications.FILE_ADDED));

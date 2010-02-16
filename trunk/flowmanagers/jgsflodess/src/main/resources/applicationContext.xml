@@ -17,6 +17,19 @@
     	</property>	
 	</bean>
 	
+    <!-- TDA fluxes  -->
+	<bean id="JGSFLoDeSSNCOMGeneratorService" class="it.geosolutions.geobatch.jgsflodess.JGSFLoDeSSNCOMGeneratorService">
+		<property  name="id">
+    		<value>JGSFLoDeSSNCOMGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>JGSFLoDeSSNCOMGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>JGSFLoDeSSNCOMGeneratorService</value>
+    	</property>	
+	</bean>
+	
 	<bean id="JGSFLoDeSSSWANGeneratorService" class="it.geosolutions.geobatch.jgsflodess.JGSFLoDeSSSWANGeneratorService">
 		<property  name="id">
     		<value>JGSFLoDeSSSWANGeneratorService</value>
@@ -41,29 +54,16 @@
     	</property>	
 	</bean>
 	
-    <!-- TDA fluxes  -->
-	<bean id="JGSFLoDeSSNCOMGeneratorService" class="it.geosolutions.geobatch.jgsflodess.JGSFLoDeSSNCOMGeneratorService">
-		<property  name="id">
-    		<value>JGSFLoDeSSNCOMGeneratorService</value>
-    	</property>
-    	<property name="description">
-    		<value>JGSFLoDeSSNCOMGeneratorService</value>
-    	</property>
-    	<property name="name">
-    		<value>JGSFLoDeSSNCOMGeneratorService</value>
-    	</property>	
-	</bean>
-	
-	<!-- lscv08 fluxes  -->	
+	<!-- lscv08-SEM fluxes  -->	
 	<bean id="MERCATORGeneratorService" class="it.geosolutions.geobatch.lscv08.MERCATORGeneratorService">
 		<property  name="id">
-    		<value>JGSFLoDeSSMERCATORGeneratorService</value>
+    		<value>MERCATORGeneratorService</value>
     	</property>
     	<property name="description">
-    		<value>JGSFLoDeSSMERCATORGeneratorService</value>
+    		<value>MERCATORGeneratorService</value>
     	</property>
     	<property name="name">
-    		<value>JGSFLoDeSSMERCATORGeneratorService</value>
+    		<value>MERCATORGeneratorService</value>
     	</property>	
 	</bean>
 
@@ -81,13 +81,13 @@
 	
 	<bean id="INGVGeneratorService" class="it.geosolutions.geobatch.lscv08.INGVGeneratorService">
 		<property  name="id">
-    		<value>JGSFLoDeSSIGNVGeneratorService</value>
+    		<value>IGNVGeneratorService</value>
     	</property>
     	<property name="description">
-    		<value>JGSFLoDeSSINGVGeneratorService</value>
+    		<value>INGVGeneratorService</value>
     	</property>
     	<property name="name">
-    		<value>JGSFLoDeSSINGVGeneratorService</value>
+    		<value>INGVGeneratorService</value>
     	</property>	
 	</bean>
 	
