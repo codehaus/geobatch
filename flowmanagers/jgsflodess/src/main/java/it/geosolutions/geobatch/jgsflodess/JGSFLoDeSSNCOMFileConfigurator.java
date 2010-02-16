@@ -506,10 +506,17 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 //												outVarData.setFloat(outVarData.getIndex().set(tIndex, z, y, x), userRaster.getSampleFloat(x, y, 0));
 											}
 										
-										ncFileOut.write(varName, outVarData);
+										ncFileOut.write(foundVariableBriefNames.get(varName), outVarData);
 									}
 								}
 							}
+							
+							// z level Variable data
+				            Array zeta1Data = NetCDFConverterUtilities.getArray(Z_Index.getLength(), DataType.FLOAT);
+				            for (int z = 0; z < depthValuesFound.size(); z++)
+				            	zeta1Data.setLong(zeta1Data.getIndex().set(z), depthValuesFound.get(z));
+				            ncFileOut.write(JGSFLoDeSSIOUtils.DEPTH_DIM, zeta1Data);
+				            
 						} finally {
 							if (ncVarFile != null)
 								ncVarFile.close();
@@ -518,11 +525,7 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 				}
 			}
 
-			// z level Variable data
-            Array zeta1Data = NetCDFConverterUtilities.getArray(Z_Index.getLength(), DataType.FLOAT);
-            for (int z = 0; z < depthValuesFound.size(); z++)
-            	zeta1Data.setLong(zeta1Data.getIndex().set(z), depthValuesFound.get(z));
-            ncFileOut.write(JGSFLoDeSSIOUtils.DEPTH_DIM, zeta1Data);
+			
             
 			// ... setting up the appropriate event for the next action
 			events.add(new FileSystemMonitorEvent(outputFile, FileSystemMonitorNotifications.FILE_ADDED));
