@@ -3,7 +3,7 @@
     xmlns="http://www.nurc.nato.int/metocs" 
     xsi:schemaLocation="http://www.nurc.nato.int/metocs metoc-dictionary.xsd">
 	<metoc defaultUom="urn:ogc:def:uom:UCUM::K" type="meteo">
-		<name>air tempurature</name>
+		<name>air temperature</name>
 		<brief>airtemp</brief>
 	</metoc>
 	<metoc defaultUom="dimensionless" type="meteo">

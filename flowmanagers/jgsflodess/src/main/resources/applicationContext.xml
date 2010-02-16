@@ -41,6 +41,19 @@
     	</property>	
 	</bean>
 	
+    <!-- TDA fluxes  -->
+	<bean id="JGSFLoDeSSNCOMGeneratorService" class="it.geosolutions.geobatch.jgsflodess.JGSFLoDeSSNCOMGeneratorService">
+		<property  name="id">
+    		<value>JGSFLoDeSSNCOMGeneratorService</value>
+    	</property>
+    	<property name="description">
+    		<value>JGSFLoDeSSNCOMGeneratorService</value>
+    	</property>
+    	<property name="name">
+    		<value>JGSFLoDeSSNCOMGeneratorService</value>
+    	</property>	
+	</bean>
+	
 	<!-- lscv08 fluxes  -->	
 	<bean id="MERCATORGeneratorService" class="it.geosolutions.geobatch.lscv08.MERCATORGeneratorService">
 		<property  name="id">
@@ -56,13 +69,13 @@
 
 	<bean id="NRLNCOMGeneratorService" class="it.geosolutions.geobatch.lscv08.NRLNCOMGeneratorService">
 		<property  name="id">
-    		<value>JGSFLoDeSSNCOMGeneratorService</value>
+    		<value>NRLNCOMGeneratorService</value>
     	</property>
     	<property name="description">
-    		<value>JGSFLoDeSSNCOMGeneratorService</value>
+    		<value>NRLNCOMGeneratorService</value>
     	</property>
     	<property name="name">
-    		<value>JGSFLoDeSSNCOMGeneratorService</value>
+    		<value>NRLNCOMGeneratorService</value>
     	</property>	
 	</bean>
 	
