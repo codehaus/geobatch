@@ -290,18 +290,17 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
             double fillValue = Double.NaN;
 			// defining output variable
             for (String varName : foundVariables.keySet()) {
-            	if (foundVariableBriefNames.get(varName) != null) {
-            		// SIMONE: replaced foundVariables.get(varName).getDataType() with DataType.DOUBLE
-                	ncFileOut.addVariable(foundVariableBriefNames.get(varName), DataType.DOUBLE, outDimensions);
-                	//NetCDFConverterUtilities.setVariableAttributes(foundVariables.get(varName), ncFileOut, foundVariableBriefNames.get(varName), new String[] { "positions" });
-                    ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "long_name", foundVariableLongNames.get(varName));
-                    ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "units", foundVariableUoM.get(varName));
+            	String variableBrief = foundVariableBriefNames.get(varName);
+            	if (variableBrief != null) {
+                	ncFileOut.addVariable(variableBrief, DataType.DOUBLE, outDimensions);
+                    ncFileOut.addVariableAttribute(variableBrief, "long_name", foundVariableLongNames.get(varName));
+                    ncFileOut.addVariableAttribute(variableBrief, "units", foundVariableUoM.get(varName));
                     
                     if (Double.isNaN(noData)) {
                     	Attribute missingValue = foundVariables.get(varName).findAttribute("missing_value");
                     	if (missingValue != null) {
                     		noData = missingValue.getNumericValue().doubleValue();
-                    		ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "missing_value", noData);
+                    		ncFileOut.addVariableAttribute(variableBrief, "missing_value", noData);
                     	}
                     }
                     
