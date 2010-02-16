@@ -364,7 +364,7 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends MetocConfiguratio
 		int minutes = roundedTimeInstant.get(Calendar.MINUTE);
 		int hours   = roundedTimeInstant.get(Calendar.HOUR);
 		
-		if (minutes > 0 && minutes > 30)
+		if (minutes > 0 && seconds > 30)
 			hours++;
 		
 		roundedTimeInstant.set(Calendar.SECOND, 0);

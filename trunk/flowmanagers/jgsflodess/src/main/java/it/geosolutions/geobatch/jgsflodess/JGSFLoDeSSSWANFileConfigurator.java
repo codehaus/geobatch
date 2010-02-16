@@ -209,7 +209,7 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
             //NetCDFConverterUtilities.copyGlobalAttributes(ncFileOut, ncFileIn.getGlobalAttributes());
             
             Array time1Data = NetCDFConverterUtilities.getArray(nTimes, timeDataType);
-            int TAU;
+            int TAU = 0;;
             for (int t=0; t<nTimes; t++) {
             	long timeValue = timeOriginalData.getLong(timeOriginalData.getIndex().set(t));
             	if (t == 0 && nTimes > 1) {
@@ -263,9 +263,9 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
             			
             			for(MetocElementType m : metocDictionary.getMetoc()) {
             				if(
-            					(varName.equalsIgnoreCase("Significant Wave Height") && m.getName().equals("sigwavheight")) ||
-            					(varName.equalsIgnoreCase("Peak Wave Period") && m.getName().equals("peakwavperiod")) ||
-            					(varName.equalsIgnoreCase("Mean Wave Direction") && m.getName().equals("meanwavdir"))
+            					(varName.equalsIgnoreCase("sigwavheight") && m.getName().equals("Significant Wave Height")) ||
+            					(varName.equalsIgnoreCase("peakwavperiod") && m.getName().equals("Peak Wave Period")) ||
+            					(varName.equalsIgnoreCase("meanwavdir") && m.getName().equals("Mean Wave Direction"))
             				)
         					{
         						longName = m.getName();
@@ -303,6 +303,13 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
                 	}
                 }
             }
+            
+            // time Variable data
+            final SimpleDateFormat toSdf = new SimpleDateFormat("yyyyMMddHH");
+        	toSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+
+        	final Date timeOriginDate = toSdf.parse(inputFileName);
+            
         	// Setting up global Attributes ...
         	ncFileOut.addGlobalAttribute("base_time", fromSdf.format(timeOriginDate));
         	ncFileOut.addGlobalAttribute("tau", TAU);
