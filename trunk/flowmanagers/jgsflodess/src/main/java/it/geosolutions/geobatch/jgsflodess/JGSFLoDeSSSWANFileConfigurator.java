@@ -267,15 +267,26 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
             				foundVariableUoM.put(varName, uom);
             			}
             		}
-					
-					
-					
-					// defining output variable
-					ncFileOut.addVariable(varName, var.getDataType(), outDimensions);
-	                NetCDFConverterUtilities.setVariableAttributes(var, ncFileOut, new String[] { "positions" });
 				}
-			}
-			
+            }
+					
+            double noData = Double.NaN;
+			// defining output variable
+            for (String varName : foundVariables.keySet()) {
+            	// SIMONE: replaced foundVariables.get(varName).getDataType() with DataType.DOUBLE
+            	ncFileOut.addVariable(foundVariableBriefNames.get(varName), DataType.DOUBLE, outDimensions);
+            	//NetCDFConverterUtilities.setVariableAttributes(foundVariables.get(varName), ncFileOut, foundVariableBriefNames.get(varName), new String[] { "positions" });
+                ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "long_name", foundVariableLongNames.get(varName));
+                ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "units", foundVariableUoM.get(varName));
+                
+                if (Double.isNaN(noData)) {
+                	Attribute missingValue = foundVariables.get(varName).findAttribute("missing_value");
+                	if (missingValue != null) {
+                		noData = missingValue.getNumericValue().doubleValue();
+                		ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "missing_value", noData);
+                	}
+                }
+            }
         	// Setting up global Attributes ...
         	ncFileOut.addGlobalAttribute("base_time", fromSdf.format(timeOriginDate));
         	ncFileOut.addGlobalAttribute("tau", TAU);
@@ -306,8 +317,8 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
 			ncFileOut.write(JGSFLoDeSSIOUtils.LON_DIM, lon1Data);
 
 			// {} Variables
-			for (Object obj : ncFileIn.getVariables()) {
-				Variable var = (Variable) obj;
+			for (Object object : ncFileIn.getVariables()) {
+				Variable var = (Variable) object;
  				if (var != null) {
  					double offset = 0.0;
 					double scale = 1.0;
