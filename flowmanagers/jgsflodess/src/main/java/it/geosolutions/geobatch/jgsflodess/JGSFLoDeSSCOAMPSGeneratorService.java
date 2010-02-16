@@ -22,8 +22,8 @@
 package it.geosolutions.geobatch.jgsflodess;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
-import it.geosolutions.geobatch.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.geoserver.GeoServerConfiguratorService;
+import it.geosolutions.geobatch.metocs.MetocActionConfiguration;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  * 
  */
 public class JGSFLoDeSSCOAMPSGeneratorService extends
-		GeoServerConfiguratorService<FileSystemMonitorEvent, GeoServerActionConfiguration> {
+		GeoServerConfiguratorService<FileSystemMonitorEvent, MetocActionConfiguration> {
 	
     private final static Logger LOGGER = Logger.getLogger(JGSFLoDeSSCOAMPSGeneratorService.class.toString());
 
@@ -44,7 +44,7 @@ public class JGSFLoDeSSCOAMPSGeneratorService extends
      *  @param configuration The data base action configuration 
      *  @return new JGSFLoDeSSCOAMPSFileConfigurator()
      */
-    public JGSFLoDeSSCOAMPSFileConfigurator createAction(GeoServerActionConfiguration configuration) {
+    public JGSFLoDeSSCOAMPSFileConfigurator createAction(MetocActionConfiguration configuration) {
         try {
             return new JGSFLoDeSSCOAMPSFileConfigurator(configuration);
         } catch (IOException e) {
@@ -55,7 +55,7 @@ public class JGSFLoDeSSCOAMPSGeneratorService extends
     }
 
     @Override
-    public boolean canCreateAction(GeoServerActionConfiguration configuration) {
+    public boolean canCreateAction(MetocActionConfiguration configuration) {
         final boolean superRetVal = super.canCreateAction(configuration);
         return superRetVal;
     }

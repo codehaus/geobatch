@@ -24,10 +24,12 @@ package it.geosolutions.geobatch.jgsflodess;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorNotifications;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
-import it.geosolutions.geobatch.geoserver.GeoServerActionConfiguration;
-import it.geosolutions.geobatch.geoserver.GeoServerConfiguratorAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
+import it.geosolutions.geobatch.metocs.MetocActionConfiguration;
+import it.geosolutions.geobatch.metocs.MetocConfigurationAction;
+import it.geosolutions.geobatch.metocs.jaxb.model.MetocElementType;
+import it.geosolutions.geobatch.metocs.jaxb.model.Metocs;
 import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.geobatch.utils.io.Utilities;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFConverterUtilities;
@@ -38,18 +40,24 @@ import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
 import javax.media.jai.JAI;
 import javax.media.jai.RasterFactory;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.geometry.GeneralEnvelope;
@@ -66,17 +74,11 @@ import ucar.nc2.Variable;
  * Public class to insert NetCDF data file (gliders measurements) into DB
  * 
  */
-public class JGSFLoDeSSCOAMPSFileConfigurator extends GeoServerConfiguratorAction<FileSystemMonitorEvent> {
+public class JGSFLoDeSSCOAMPSFileConfigurator extends MetocConfigurationAction<FileSystemMonitorEvent> {
 
-	/**
-	 * Static DateFormat Converter
-	 */
-	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
-	
 	protected JGSFLoDeSSCOAMPSFileConfigurator(
-			GeoServerActionConfiguration configuration) throws IOException {
+			MetocActionConfiguration configuration) throws IOException {
 		super(configuration);
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 	}
 
 	/**
@@ -241,9 +243,23 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends GeoServerConfiguratorActio
 			// ////
 			// ... create the output file data structure
 			// ////
-            final File outputFile = new File(outDir, "windModel_COAMPS.nc");
+            final File outputFile = new File(outDir, "JGSFLoDeSS_COAMPS-Forecast-T" + new Date().getTime() + FilenameUtils.getBaseName(inputFileName).replaceAll("-", "") + ".nc");
             ncFileOut = NetcdfFileWriteable.createNew(outputFile.getAbsolutePath());
 
+            //Grabbing the Variables Dictionary
+			JAXBContext context = JAXBContext.newInstance(Metocs.class);
+			Unmarshaller um = context.createUnmarshaller();
+
+			File metocDictionaryFile = IOUtils.findLocation(configuration.getMetocDictionaryPath(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory())); 
+			Metocs metocDictionary = (Metocs) um.unmarshal(new FileReader(metocDictionaryFile));
+
+		
+            Map<String, String> foundVariableLongNames  = new HashMap<String, String>();
+            Map<String, String> foundVariableBriefNames = new HashMap<String, String>();
+            Map<String, String> foundVariableUoM 		= new HashMap<String, String>();
+            
+            double noData = 0.0;
+            
             //NetCDFConverterUtilities.copyGlobalAttributes(ncFileOut, ncFileIn.getGlobalAttributes());
             final List<String> varsFound = new ArrayList<String>();
             final List<String> timesFound = new ArrayList<String>();
@@ -256,8 +272,35 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends GeoServerConfiguratorActio
 					final String timeInstant = COAMPSFileGrid.getTimeGroup().substring(0, COAMPSFileGrid.getTimeGroup().length() - 2) + "_" + COAMPSFileGrid.getForecastTime().substring(1);
 					final Long level = new Long(COAMPSFileGrid.getLevel());
 
-					if (!varsFound.contains(COAMPSFileGrid.getParamName().replaceAll("_", "")))
-						varsFound.add(COAMPSFileGrid.getParamName().replaceAll("_", ""));
+					if (!varsFound.contains(COAMPSFileGrid.getParamName().replaceAll("_", ""))) {
+						String varName = COAMPSFileGrid.getParamName().replaceAll("_", "");
+						varsFound.add(varName);
+						
+						String longName = null;
+            			String briefName = null;
+            			String uom = null;
+            			
+            			for(MetocElementType m : metocDictionary.getMetoc()) {
+            				if(
+            					(varName.equalsIgnoreCase("lndsea") && m.getName().equals("land or sea")) ||
+            					(varName.equalsIgnoreCase("ustrue") && m.getName().equals("wind stress u-component")) ||
+            					(varName.equalsIgnoreCase("vstrue") && m.getName().equals("wind stress v-component"))
+            				)
+        					{
+        						longName = m.getName();
+        						briefName = m.getBrief();
+        						uom = m.getDefaultUom();
+        						uom = uom.indexOf(":") > 0 ? URLDecoder.decode(uom.substring(uom.lastIndexOf(":")+1), "UTF-8") : uom;
+        						break;
+        					}
+        				}
+            			
+            			if (longName != null && briefName != null) {	
+            				foundVariableLongNames.put(varName, longName);
+            				foundVariableBriefNames.put(varName, briefName);
+            				foundVariableUoM.put(varName, uom);
+            			}
+					}
 					
 					if (!timesFound.contains(timeInstant))
 						timesFound.add(timeInstant);
@@ -267,6 +310,18 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends GeoServerConfiguratorActio
 				}
             }
             
+            int t0 = Integer.parseInt(timesFound.get(0).substring(timesFound.get(0).lastIndexOf("_") + 1));
+        	int t1 = (timesFound.size() > 0 ? Integer.parseInt(timesFound.get(1).substring(timesFound.get(1).lastIndexOf("_") + 1)) : t0);
+
+            // time Variable data
+            final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
+            final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+        	fromSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+        	
+        	final Date timeOriginDate = sdf.parse(timesFound.get(0));
+        	int TAU = t1 - t0;
+        	
             final List<Dimension> outDimensions = JGSFLoDeSSIOUtils.createNetCDFCFGeodeticDimensions(
             		ncFileOut,
             		true, timesFound.size(),
@@ -275,12 +330,20 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends GeoServerConfiguratorActio
             		true, width
             );
             
+			// defining output variable
             for (String varName : varsFound) {
-            	// defining output variable
-            	Variable var = ncFileOut.addVariable(varName, DataType.FLOAT, outDimensions);
-            	NetCDFConverterUtilities.setVariableAttributes(var, ncFileOut, new String[] { "positions" });
-			}
+            	// SIMONE: replaced foundVariables.get(varName).getDataType() with DataType.DOUBLE
+            	ncFileOut.addVariable(foundVariableBriefNames.get(varName), DataType.DOUBLE, outDimensions);
+            	//NetCDFConverterUtilities.setVariableAttributes(foundVariables.get(varName), ncFileOut, foundVariableBriefNames.get(varName), new String[] { "positions" });
+                ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "long_name", foundVariableLongNames.get(varName));
+                ncFileOut.addVariableAttribute(foundVariableBriefNames.get(varName), "units", foundVariableUoM.get(varName));
+            }
 			
+            // Setting up global Attributes ...
+        	ncFileOut.addGlobalAttribute("base_time", fromSdf.format(timeOriginDate));
+        	ncFileOut.addGlobalAttribute("tau", TAU);
+        	ncFileOut.addGlobalAttribute("nodata", noData);
+        	
             // writing bin data ...
             ncFileOut.create();
             
@@ -332,8 +395,8 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends GeoServerConfiguratorActio
 					JGSFLoDeSSIOUtils.write2DData(userRaster, COAMPSFileGrid, false, false);
 					
 					// Resampling to a Regular Grid ...
-					if (LOGGER.isLoggable(Level.INFO))
-						LOGGER.info("Resampling to a Regular Grid ...");
+					if (LOGGER.isLoggable(Level.FINE))
+						LOGGER.fine("Resampling to a Regular Grid ...");
 					userRaster = JGSFLoDeSSIOUtils.warping(
 							COAMPSFileGrid, 
 							new double[] {xmin, ymin, xmax, ymax}, 
@@ -344,7 +407,7 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends GeoServerConfiguratorActio
 							false);
 					
 					final String varName = COAMPSFileGrid.getParamName().replaceAll("_", "");
-					final Variable outVar = ncFileOut.findVariable(varName);
+					final Variable outVar = ncFileOut.findVariable(foundVariableBriefNames.get(varName));
 					final Array outVarData = outVar.read();
 
 					int tIndex = 0;
@@ -361,7 +424,7 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends GeoServerConfiguratorActio
             				for (int x = 0; x < width; x++)
             					outVarData.setFloat(outVarData.getIndex().set(tIndex, z, y, x), userRaster.getSampleFloat(x, y, 0));
 					
-					ncFileOut.write(varName, outVarData);
+					ncFileOut.write(foundVariableBriefNames.get(varName), outVarData);
 				}
 			}
 			
