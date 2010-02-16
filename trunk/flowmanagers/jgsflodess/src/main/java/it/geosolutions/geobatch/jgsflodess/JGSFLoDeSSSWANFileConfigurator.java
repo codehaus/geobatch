@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -71,15 +72,11 @@ import ucar.nc2.Variable;
 public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <FileSystemMonitorEvent> {
 
 	public static final long startTime;
-	public static final long NCOMstartTime;
 
 	static {
 		GregorianCalendar calendar = new GregorianCalendar(1980, 00, 01, 00, 00, 00);
 		calendar.setTimeZone(TimeZone.getTimeZone("GMT+0"));
-		GregorianCalendar NCOMcalendar = new GregorianCalendar(2000, 00, 01, 00, 00, 00);
-		NCOMcalendar.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 		startTime = calendar.getTimeInMillis();
-		NCOMstartTime = NCOMcalendar.getTimeInMillis();
 	}
 	
 	protected JGSFLoDeSSSWANFileConfigurator(
@@ -211,6 +208,25 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
 
             //NetCDFConverterUtilities.copyGlobalAttributes(ncFileOut, ncFileIn.getGlobalAttributes());
             
+            Array time1Data = NetCDFConverterUtilities.getArray(nTimes, timeDataType);
+            int TAU;
+            for (int t=0; t<nTimes; t++) {
+            	long timeValue = timeOriginalData.getLong(timeOriginalData.getIndex().set(t));
+            	if (t == 0 && nTimes > 1) {
+        			TAU = (int) (timeOriginalData.getLong(timeOriginalData.getIndex().set(t+1)) - timeValue) * 3600 * 1000;
+        		}
+            	// adding time offset
+            	  timeValue = startTime + (timeValue * 3600000);
+            	// converting back to seconds and storing to data
+				  time1Data.setLong(time1Data.getIndex().set(t), timeValue / 1000 );
+            }
+            
+            // time Variable data
+            final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddmm_HHH");
+            final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+        	fromSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+        	
             final List<Dimension> outDimensions = JGSFLoDeSSIOUtils.createNetCDFCFGeodeticDimensions(
             		ncFileOut,
             		true, timeDim.getLength(),
@@ -295,7 +311,7 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
             ncFileOut.create();
 
             // time Variable data
-			Array time1Data = NetCDFConverterUtilities.getArray(nTimes, timeDataType);
+			
 			NetCDFConverterUtilities.setData1D(timeOriginalData, time1Data, timeDataType, nTimes, false);
 			ncFileOut.write(JGSFLoDeSSIOUtils.TIME_DIM, time1Data);
             
