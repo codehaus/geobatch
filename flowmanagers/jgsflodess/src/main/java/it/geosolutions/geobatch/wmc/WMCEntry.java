@@ -26,6 +26,7 @@ import java.util.Map;
 
 public class WMCEntry {
 
+	private String layerTitle;
 	private String layerName;
 	private String nameSpace;
 	private Map<String, Map<String, String>> dimensions;
@@ -66,6 +67,20 @@ public class WMCEntry {
 			dimensions = new HashMap<String, Map<String,String>>();
 		
 		return dimensions;
+	}
+
+	/**
+	 * @param layerTitle the layerTitle to set
+	 */
+	public void setLayerTitle(String layerTitle) {
+		this.layerTitle = layerTitle;
+	}
+
+	/**
+	 * @return the layerTitle
+	 */
+	public String getLayerTitle() {
+		return layerTitle;
 	}
 	
 }

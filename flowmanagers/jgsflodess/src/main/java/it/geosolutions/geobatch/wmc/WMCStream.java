@@ -33,6 +33,7 @@ import it.geosolutions.geobatch.wmc.model.GeneralWMCConfiguration;
 import it.geosolutions.geobatch.wmc.model.OLBaseClass;
 import it.geosolutions.geobatch.wmc.model.OLDimension;
 import it.geosolutions.geobatch.wmc.model.OLMaxExtent;
+import it.geosolutions.geobatch.wmc.model.OLStyleColorRamps;
 import it.geosolutions.geobatch.wmc.model.ViewContext;
 import it.geosolutions.geobatch.wmc.model.WMCBoundingBox;
 import it.geosolutions.geobatch.wmc.model.WMCExtension;
@@ -168,6 +169,15 @@ public class WMCStream {
     	xstream.aliasField("ol:maxExtent", WMCExtension.class, "maxExtent");
     	xstream.aliasField("ol:dimension", WMCExtension.class, "time");
     	xstream.aliasField("ol:dimension", WMCExtension.class, "elevation");
+    	
+    	xstream.aliasField("ol:styleClassNumber", WMCExtension.class, "styleClassNumber");
+    	xstream.aliasField("ol:styleColorRamps", WMCExtension.class, "styleColorRamps");
+    	xstream.aliasField("ol:styleMaxValue", WMCExtension.class, "styleMinValue");
+    	xstream.aliasField("ol:styleMinValue", WMCExtension.class, "styleMaxValue");
+    	xstream.aliasField("ol:styleRestService", WMCExtension.class, "styleRestService");
+    	
+    	xstream.useAttributeFor(OLStyleColorRamps.class, "defaultRamp");
+    	xstream.aliasField("default", OLStyleColorRamps.class, "defaultRamp");
     	
     	xstream.registerConverter(new Converter() {
 

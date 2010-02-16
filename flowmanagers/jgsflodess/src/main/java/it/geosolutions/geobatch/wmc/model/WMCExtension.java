@@ -48,6 +48,12 @@ public class WMCExtension {
 	private OLDimension time;
 	private OLDimension elevation;
 	
+	private OLStyleClassNumber styleClassNumber;
+	private OLStyleColorRamps  styleColorRamps;
+	private OLStyleMinValue    styleMinValue;
+	private OLStyleMaxValue    styleMaxValue;
+	private OLStyleRestService styleRestService;
+	
 	/**
 	 * @return the id
 	 */
@@ -180,6 +186,66 @@ public class WMCExtension {
 	 */
 	public OLDimension getElevation() {
 		return elevation;
+	}
+	/**
+	 * @param styleClassNumber the styleClassNumber to set
+	 */
+	public void setStyleClassNumber(OLStyleClassNumber styleClassNumber) {
+		this.styleClassNumber = styleClassNumber;
+	}
+	/**
+	 * @return the styleClassNumber
+	 */
+	public OLStyleClassNumber getStyleClassNumber() {
+		return styleClassNumber;
+	}
+	/**
+	 * @param styleColorRamps the styleColorRamps to set
+	 */
+	public void setStyleColorRamps(OLStyleColorRamps styleColorRamps) {
+		this.styleColorRamps = styleColorRamps;
+	}
+	/**
+	 * @return the styleColorRamps
+	 */
+	public OLStyleColorRamps getStyleColorRamps() {
+		return styleColorRamps;
+	}
+	/**
+	 * @param styleMinValue the styleMinValue to set
+	 */
+	public void setStyleMinValue(OLStyleMinValue styleMinValue) {
+		this.styleMinValue = styleMinValue;
+	}
+	/**
+	 * @return the styleMinValue
+	 */
+	public OLStyleMinValue getStyleMinValue() {
+		return styleMinValue;
+	}
+	/**
+	 * @param styleMaxValue the styleMaxValue to set
+	 */
+	public void setStyleMaxValue(OLStyleMaxValue styleMaxValue) {
+		this.styleMaxValue = styleMaxValue;
+	}
+	/**
+	 * @return the styleMaxValue
+	 */
+	public OLStyleMaxValue getStyleMaxValue() {
+		return styleMaxValue;
+	}
+	/**
+	 * @param styleRestService the styleRestService to set
+	 */
+	public void setStyleRestService(OLStyleRestService styleRestService) {
+		this.styleRestService = styleRestService;
+	}
+	/**
+	 * @return the styleRestService
+	 */
+	public OLStyleRestService getStyleRestService() {
+		return styleRestService;
 	}
 
 }

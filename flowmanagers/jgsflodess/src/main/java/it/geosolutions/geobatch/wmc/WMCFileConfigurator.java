@@ -34,6 +34,11 @@ import it.geosolutions.geobatch.wmc.model.OLIsBaseLayer;
 import it.geosolutions.geobatch.wmc.model.OLLayerID;
 import it.geosolutions.geobatch.wmc.model.OLMaxExtent;
 import it.geosolutions.geobatch.wmc.model.OLSingleTile;
+import it.geosolutions.geobatch.wmc.model.OLStyleClassNumber;
+import it.geosolutions.geobatch.wmc.model.OLStyleColorRamps;
+import it.geosolutions.geobatch.wmc.model.OLStyleMaxValue;
+import it.geosolutions.geobatch.wmc.model.OLStyleMinValue;
+import it.geosolutions.geobatch.wmc.model.OLStyleRestService;
 import it.geosolutions.geobatch.wmc.model.OLTransparent;
 import it.geosolutions.geobatch.wmc.model.ViewContext;
 import it.geosolutions.geobatch.wmc.model.WMCBoundingBox;
@@ -160,12 +165,14 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 				final String namespace = props.getProperty("namespace");
 				final String storeid = props.getProperty("storeid");
 				final String layerid = props.getProperty("layerid");
+				final String metocFields = props.getProperty("metocFields");
 				final String driver = props.getProperty("driver");
 				final String path = new File(inputFile.getParentFile(), props.getProperty("path")).getAbsolutePath();
 
 				final AbstractGridCoverage2DReader reader = ((AbstractGridFormat) acquireFormat(driver)).getReader(new File(path).toURI().toURL());
 				
 				WMCEntry entry = new WMCEntry(namespace, layerid);
+				entry.setLayerTitle(getVariableName(metocFields));
 				
 				final String[] metadataNames = reader.getMetadataNames();
 	            
@@ -266,8 +273,9 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 			for (WMCEntry entry : entryList) {
 				final String nameSpace = entry.getNameSpace();
 				final String layerName = entry.getLayerName();
+				final String layerTitle = entry.getLayerTitle();
 
-				WMCLayer newLayer = new WMCLayer("0", "1", nameSpace + ":" + layerName, layerName, crs);
+				WMCLayer newLayer = new WMCLayer("0", "1", nameSpace + ":" + layerName, layerTitle, crs);
 				WMCServer server = new WMCServer("wms", "1.1.1", "wms");
 				List<WMCFormat> formatList = new ArrayList<WMCFormat>();
 				// List<WMCStyle> styleList = new ArrayList<WMCStyle>();
@@ -278,6 +286,12 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 				extension.setSingleTile(new OLSingleTile("false"));
 				extension.setTransparent(new OLTransparent("true"));
 				extension.setDisplayInLayerSwitcher(new OLDisplayInLayerSwitcher("false"));
+				
+				extension.setStyleColorRamps(new OLStyleColorRamps("red,blue,gray"));
+				extension.setStyleMinValue(new OLStyleMinValue("0.0"));
+				extension.setStyleMaxValue(new OLStyleMaxValue("100.0"));
+				extension.setStyleClassNumber(new OLStyleClassNumber("25"));
+				extension.setStyleRestService(new OLStyleRestService(configuration.getGeoserverURL()+"/rest/sldservice/"+nameSpace+":"+layerName+"/rasterize.sld"));
 				
 				if (entry.getDimensions() != null) {
 					for (String dim : entry.getDimensions().keySet()) {
@@ -342,7 +356,12 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 			return null;
 		}
 	}
-	
+
+	/**
+	 * 
+	 * @param filePrefix
+	 * @return
+	 */
 	private String getSessionId(String filePrefix) {
 		String sessionId = "-1"; 
 		
@@ -362,6 +381,29 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 		return sessionId;
 	}
 
+	/**
+	 * 
+	 * @param metocs
+	 * @return
+	 */
+	private String getVariableName(String metocs) {
+		String[] fileParts = metocs.split("_");
+		int p=0;
+		if (fileParts != null && fileParts.length > 0) {
+			for (String part : fileParts) {
+				try {
+					Long.parseLong(part);
+					break;
+				} catch (NumberFormatException e) {
+					p++;
+					continue;
+				}
+			}
+		}
+		
+		return fileParts[p+1];
+	}
+	
 	/**
 	 * 
 	 * @param type

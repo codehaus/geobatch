@@ -45,12 +45,12 @@
 	    <property name="timerTask" ref="storageCleaner" />
 	  </bean>
 	  <!-- And finally the class that instantiates the scheduled tasks and makes them run -->
-	  <bean id="storageCleanerTimerFactory" class="org.springframework.scheduling.timer.TimerFactoryBean"
+	  <!-- bean id="storageCleanerTimerFactory" class="org.springframework.scheduling.timer.TimerFactoryBean"
 	    lazy-init="false">
 	    <property name="scheduledTimerTasks">
 	      <list>
 	        <ref bean="storageCleanerTask" />
 	      </list>
 	    </property>
-	  </bean>
+	  </bean -->
 </beans>
