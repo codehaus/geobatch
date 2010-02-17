@@ -360,11 +360,10 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends MetocConfiguratio
 		final Calendar roundedTimeInstant = new GregorianCalendar(TimeZone.getTimeZone("GMT+0"));
 		roundedTimeInstant.setTimeInMillis(timeValue);
 		
-		int seconds = roundedTimeInstant.get(Calendar.SECOND);
 		int minutes = roundedTimeInstant.get(Calendar.MINUTE);
 		int hours   = roundedTimeInstant.get(Calendar.HOUR);
 		
-		if (minutes > 0 && seconds > 30)
+		if (minutes > 50)
 			hours++;
 		
 		roundedTimeInstant.set(Calendar.SECOND, 0);
