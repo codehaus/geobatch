@@ -64,6 +64,7 @@ import org.geotools.geometry.GeneralEnvelope;
 
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.ma2.Index;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriteable;
@@ -89,7 +90,6 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends MetocConfigurationAction<F
 
 		if (LOGGER.isLoggable(Level.INFO))
 			LOGGER.info("Starting with processing...");
-		NetcdfFile ncGridAreaDefinitionFile = null;
 		NetcdfFileWriteable ncFileOut = null;
 		try {
 			// looking for file
@@ -97,6 +97,8 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends MetocConfigurationAction<F
 				throw new IllegalArgumentException("Wrong number of elements for this action: " + events.size());
 			FileSystemMonitorEvent event = events.remove();
 			final String configId = configuration.getName();
+			
+			final boolean packComponents = configuration.isPackComponents();
 
 			// //
 			// data flow configuration and dataStore name must not be null.
@@ -257,7 +259,7 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends MetocConfigurationAction<F
             Map<String, String> foundVariableLongNames  = new HashMap<String, String>();
             Map<String, String> foundVariableBriefNames = new HashMap<String, String>();
             Map<String, String> foundVariableUoM 		= new HashMap<String, String>();
-            
+            MetocElementType magnitude = null;
             double noData = -9999.0;
             
             //NetCDFConverterUtilities.copyGlobalAttributes(ncFileOut, ncFileIn.getGlobalAttributes());
@@ -308,6 +310,30 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends MetocConfigurationAction<F
 					if (!levelsFound.contains(level))
 						levelsFound.add(level);
 				}
+            }
+            if (packComponents){
+	            if (magnitude == null){	
+	            	for(MetocElementType m : metocDictionary.getMetoc()) {
+    					if (m.getName().equals("wind stress magnitude")){
+    						magnitude = m;
+    						break;
+    					}
+	            	}
+	            }
+            	if (magnitude != null){
+	            	String longName = null;
+	    			String briefName = null;
+	    			String uom = null;
+					longName = magnitude.getName();
+					briefName = magnitude.getBrief();
+					uom = magnitude.getDefaultUom();
+					uom = uom.indexOf(":") > 0 ? URLDecoder.decode(uom.substring(uom.lastIndexOf(":")+1), "UTF-8") : uom;
+					if (longName != null && briefName != null) {	
+	    				foundVariableLongNames.put(magnitude.getName(), longName);
+	    				foundVariableBriefNames.put(magnitude.getName(), briefName);
+	    				foundVariableUoM.put(magnitude.getName(), uom);
+	    			}
+	            }
             }
             
             int t0 = Integer.parseInt(timesFound.get(0).substring(timesFound.get(0).lastIndexOf("_") + 1));
@@ -360,7 +386,7 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends MetocConfigurationAction<F
             // z level Variable data
             Array zeta1Data = NetCDFConverterUtilities.getArray(levelsFound.size(), DataType.FLOAT);
             for (int z = 0; z < levelsFound.size(); z++)
-            	zeta1Data.setLong(zeta1Data.getIndex().set(z), levelsFound.get(z));
+            	zeta1Data.setFloat(zeta1Data.getIndex().set(z), levelsFound.get(z));
             ncFileOut.write(JGSFLoDeSSIOUtils.HEIGHT_DIM, zeta1Data);
             
             final double resY = (envelope.getMaximum(1) - envelope.getMinimum(1)) / height;
@@ -432,6 +458,38 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends MetocConfigurationAction<F
 				}
 			}
 			
+            if (packComponents){
+            	final Variable uVar = ncFileOut.findVariable("windstress-u");
+            	final Variable vVar = ncFileOut.findVariable("windstress-v");
+    			Array u = null;
+    			Array v = null;
+            	if (uVar != null && vVar != null){
+            		u = uVar.read();
+            		v = vVar.read();
+            	}
+				if (u != null && v != null){
+					final String magnitudeName = foundVariableBriefNames.get(magnitude.getName());
+					final Variable magnitudeVar = ncFileOut.findVariable(magnitudeName);
+					final Array magnitudeVarData = magnitudeVar.read();
+					for (int t = 0; t < timesFound.size(); t++) {
+						for (int z = 0; z < levelsFound.size(); z++) {
+							for (int y = 0; y < height; y++){
+								for (int x = 0; x < width; x++){
+									Index index = magnitudeVarData.getIndex().set(t, z, y, x);	
+								
+									double uValue = u.getDouble(index);
+									double vValue = v.getDouble(index);
+									double magnitudeValue = (uValue != noData && vValue != noData) ? Math.sqrt(Math.pow(uValue,2)+Math.pow(vValue,2)) : noData; 
+									magnitudeVarData.setDouble(index, magnitudeValue);
+								}
+							}
+						}
+					}
+					ncFileOut.write(magnitudeName, magnitudeVarData);
+					u = null;
+					v = null;
+				}
+			}
 			// ... setting up the appropriate event for the next action
 			events.add(new FileSystemMonitorEvent(outputFile, FileSystemMonitorNotifications.FILE_ADDED));
 			return events;

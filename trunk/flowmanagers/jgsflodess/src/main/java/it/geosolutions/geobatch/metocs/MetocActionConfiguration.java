@@ -32,6 +32,8 @@ public class MetocActionConfiguration extends ActionConfiguration implements Con
 		// TODO Auto-generated constructor stub
 	}
 
+    private boolean packComponents;
+    
 	private String workingDirectory;
 	
     private String crs;
@@ -94,7 +96,15 @@ public class MetocActionConfiguration extends ActionConfiguration implements Con
         this.workingDirectory = workingDirectory;
     }
 
-    public String getCrs() {
+    public boolean isPackComponents() {
+		return packComponents;
+	}
+
+	public void setPackComponents(boolean packComponents) {
+		this.packComponents = packComponents;
+	}
+
+	public String getCrs() {
         return crs;
     }
 
@@ -137,6 +147,7 @@ public class MetocActionConfiguration extends ActionConfiguration implements Con
 		configuration.setWorkingDirectory(workingDirectory);
 		configuration.setMetocDictionaryPath(metocDictionaryPath);
 		configuration.setMetocHarvesterXMLTemplatePath(metocHarvesterXMLTemplatePath);
+		configuration.setPackComponents(packComponents);
 		
 		return configuration;
 	}

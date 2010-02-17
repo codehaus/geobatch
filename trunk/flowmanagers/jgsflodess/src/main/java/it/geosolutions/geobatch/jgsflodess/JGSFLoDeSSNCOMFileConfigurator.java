@@ -65,6 +65,7 @@ import org.geotools.geometry.GeneralEnvelope;
 
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.ma2.Index;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
@@ -111,6 +112,8 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 				throw new IllegalArgumentException("Wrong number of elements for this action: " + events.size());
 			FileSystemMonitorEvent event = events.remove();
 			final String configId = configuration.getName();
+			
+			final boolean packComponents = configuration.isPackComponents();
 
 			// //
 			// data flow configuration and dataStore name must not be null.
@@ -204,11 +207,11 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 			ncGridAreaDefinitionFile = NetcdfFile.open(NCOMGridAreaFiles[0].getAbsolutePath());
 
 			// input dimensions
-			final Dimension X_Index = ncGridAreaDefinitionFile.findDimension("X_Index");
+			final Dimension xIndex = ncGridAreaDefinitionFile.findDimension("X_Index");
 
-			final Dimension Y_Index = ncGridAreaDefinitionFile.findDimension("Y_Index");
+			final Dimension yIndex = ncGridAreaDefinitionFile.findDimension("Y_Index");
 
-			final Dimension Z_Index = ncGridAreaDefinitionFile.findDimension("Z-Index");
+			Dimension depth = null;
 
 			// input VARIABLES
 			final Variable lonOriginalVar = ncGridAreaDefinitionFile.findVariable("Longitude");
@@ -220,7 +223,7 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 			final Array latOriginalData = latOriginalVar.read();
 			final Array lonOriginalData = lonOriginalVar.read();
 
-			double[] bbox = JGSFLoDeSSIOUtils.computeExtrema(latOriginalData, lonOriginalData, Y_Index, X_Index);
+			double[] bbox = JGSFLoDeSSIOUtils.computeExtrema(latOriginalData, lonOriginalData, yIndex, xIndex);
 			
 			// building Envelope
 			final GeneralEnvelope envelope = new GeneralEnvelope(JGSFLoDeSSIOUtils.WGS_84);
@@ -296,15 +299,6 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
         	final Date timeOriginDate = sdf.parse(timesFound.get(0));
         	int TAU = t1 - t0;
         	
-            // defining the file header and structure
-            final List<Dimension> outDimensions = JGSFLoDeSSIOUtils.createNetCDFCFGeodeticDimensions(
-            		ncFileOut,
-            		true, timesFound.size(),
-            		true, Z_Index.getLength(), JGSFLoDeSSIOUtils.DOWN, 
-            		true, Y_Index.getLength(),
-            		true, X_Index.getLength()
-            );
-
             //Grabbing the Variables Dictionary
 			JAXBContext context = JAXBContext.newInstance(Metocs.class);
 			Unmarshaller um = context.createUnmarshaller();
@@ -317,7 +311,7 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
             Map<String, String> foundVariableLongNames  = new HashMap<String, String>();
             Map<String, String> foundVariableBriefNames = new HashMap<String, String>();
             Map<String, String> foundVariableUoM 		= new HashMap<String, String>();
-            
+            MetocElementType magnitude = null;
             
             for (File NCOMVarFolder : NCOMVarFolders) {
 				for (File NCOMVar : NCOMVarFolder.listFiles()) {
@@ -326,6 +320,8 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 						NetcdfFile ncVarFile = null;
 						try {
 							ncVarFile = NetcdfFile.open(NCOMVar.getAbsolutePath());
+							if (depth == null)
+								depth = ncVarFile.findDimension("Depth");
 							
 							for (Object obj : ncVarFile.getVariables()) {
 								final Variable var = (Variable) obj;
@@ -371,7 +367,43 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 					}
 				}
             }
+            if (packComponents){
+	            if (magnitude == null){	
+	            	for(MetocElementType m : metocDictionary.getMetoc()) {
+    					if (m.getName().equals("water velocity magnitude")){
+    						magnitude = m;
+    						break;
+    					}
+	            	}
+	            }
+            	if (magnitude != null){
+	            	String longName = null;
+	    			String briefName = null;
+	    			String uom = null;
+					longName = magnitude.getName();
+					briefName = magnitude.getBrief();
+					uom = magnitude.getDefaultUom();
+					uom = uom.indexOf(":") > 0 ? URLDecoder.decode(uom.substring(uom.lastIndexOf(":")+1), "UTF-8") : uom;
+					if (longName != null && briefName != null) {	
+	    				foundVariables.put(magnitude.getName(), null);
+	    				foundVariableLongNames.put(magnitude.getName(), longName);
+	    				foundVariableBriefNames.put(magnitude.getName(), briefName);
+	    				foundVariableUoM.put(magnitude.getName(), uom);
+	    			}
+	            }
+            }
+            // defining the file header and structure
+            final List<Dimension> outDimensions = JGSFLoDeSSIOUtils.createNetCDFCFGeodeticDimensions(
+            		ncFileOut,
+            		true, timesFound.size(),
+            		true, depth.getLength(), JGSFLoDeSSIOUtils.DOWN, 
+            		true, yIndex.getLength(),
+            		true, xIndex.getLength()
+            );
+            
+            
             double noData = Double.NaN;
+            double noDataWater = Double.NaN;
             
 			// defining output variable
             for (String varName : foundVariables.keySet()) {
@@ -382,13 +414,23 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 		            ncFileOut.addVariableAttribute(variableBrief, "units", foundVariableUoM.get(varName));
 		            
 		            if (Double.isNaN(noData)) {
+		            	if (varName.equalsIgnoreCase(magnitude.getName())){
+		            		continue;
+		            	}
+		            		
 		            	Attribute missingValue = foundVariables.get(varName).findAttribute("missing_value");
 		            	if (missingValue != null) {
 		            		noData = missingValue.getNumericValue().doubleValue();
 		            		ncFileOut.addVariableAttribute(variableBrief, "missing_value", noData);
+		            		if (variableBrief.equalsIgnoreCase("watvel-v") || (variableBrief.equalsIgnoreCase("watvel-u"))){
+		            			noDataWater = noData;
+		            		}
 		            	}
 		            }
             	}
+            }
+            if (packComponents && !Double.isNaN(noDataWater)){
+            	ncFileOut.addVariableAttribute(magnitude.getBrief(), "missing_value", noDataWater);
             }
             
         	// Setting up global Attributes ...
@@ -408,22 +450,22 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
             }
             ncFileOut.write(JGSFLoDeSSIOUtils.TIME_DIM, time1Data);
             
-            final double resY = (bbox[3] - bbox[1]) / Y_Index.getLength();
-            final double resX = (bbox[2] - bbox[0]) / X_Index.getLength();
+            final double resY = (bbox[3] - bbox[1]) / yIndex.getLength();
+            final double resX = (bbox[2] - bbox[0]) / xIndex.getLength();
             
 			// lat Variable data
-			Array lat1Data = NetCDFConverterUtilities.getArray(Y_Index.getLength(), latDataType);
-			for (int y = 0; y < Y_Index.getLength(); y++)
+			Array lat1Data = NetCDFConverterUtilities.getArray(yIndex.getLength(), latDataType);
+			for (int y = 0; y < yIndex.getLength(); y++)
 				lat1Data.setFloat(lat1Data.getIndex().set(y), (float) (bbox[1] + y*resY));
 			ncFileOut.write(JGSFLoDeSSIOUtils.LAT_DIM, lat1Data);
 
 			// lon Variable data
-			Array lon1Data = NetCDFConverterUtilities.getArray(X_Index.getLength(), lonDataType);
-			for (int x = 0; x < X_Index.getLength(); x++)
+			Array lon1Data = NetCDFConverterUtilities.getArray(xIndex.getLength(), lonDataType);
+			for (int x = 0; x < xIndex.getLength(); x++)
 				lon1Data.setFloat(lon1Data.getIndex().set(x), (float) (bbox[0] + x*resX));
 			ncFileOut.write(JGSFLoDeSSIOUtils.LON_DIM, lon1Data);
             
-			List<Long> depthValuesFound = new ArrayList<Long>();
+			List<Float> depthValuesFound = new ArrayList<Float>();
 			for (File NCOMVarFolder : NCOMVarFolders) {
 				for (File NCOMVar : NCOMVarFolder.listFiles()) {
 					if (FilenameUtils.getExtension(NCOMVar.getName()).equalsIgnoreCase("nc") ||
@@ -475,21 +517,21 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 									
 									SampleModel outSampleModel = RasterFactory.createBandedSampleModel(
 											dataType, //data type
-											X_Index.getLength(), //width
-											Y_Index.getLength(), //height
+											xIndex.getLength(), //width
+											yIndex.getLength(), //height
 											1); //num bands
 
 									Array originalVarArray = var.read();
 									
 									for (int z = 0; z < Depth.getLength(); z++) {
 										
-										if (!depthValuesFound.contains(depthOriginalData.getLong(depthOriginalData.getIndex().set(z)))) {
-											depthValuesFound.add(depthOriginalData.getLong(depthOriginalData.getIndex().set(z)));
+										if (!depthValuesFound.contains(depthOriginalData.getFloat(depthOriginalData.getIndex().set(z)))) {
+											depthValuesFound.add(depthOriginalData.getFloat(depthOriginalData.getIndex().set(z)));
 										}
 										
 										WritableRaster userRaster = Raster.createWritableRaster(outSampleModel, null);
 
-										JGSFLoDeSSIOUtils.write2DData(userRaster, var, originalVarArray, false, false, new int[] {z, Y_Index.getLength(), X_Index.getLength()}, false);
+										JGSFLoDeSSIOUtils.write2DData(userRaster, var, originalVarArray, false, false, new int[] {z, yIndex.getLength(), xIndex.getLength()}, false);
 
 										// Resampling to a Regular Grid ...
 										if (LOGGER.isLoggable(Level.FINE))
@@ -498,7 +540,7 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 												bbox, 
 												lonOriginalData, 
 												latOriginalData, 
-												X_Index.getLength(), Y_Index.getLength(), 
+												xIndex.getLength(), yIndex.getLength(), 
 												2, userRaster, 0,
 												false);
 										
@@ -515,13 +557,12 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 					            			tIndex++;
 					            		}
 					            		
-										for (int y = 0; y < Y_Index.getLength(); y++)
-											for (int x = 0; x < X_Index.getLength(); x++){
+										for (int y = 0; y < yIndex.getLength(); y++)
+											for (int x = 0; x < xIndex.getLength(); x++){
 												int originalValue = userRaster.getSample(x,y,0);
 												outVarData.setDouble(outVarData.getIndex().set(tIndex, z, y, x), (originalValue != noData ? (originalValue * scale) + offset : noData));
 //												outVarData.setFloat(outVarData.getIndex().set(tIndex, z, y, x), userRaster.getSampleFloat(x, y, 0));
 											}
-										
 										ncFileOut.write(foundVariableBriefNames.get(varName), outVarData);
 									}
 								}
@@ -534,11 +575,46 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 				}
 			}
 			
+			
+			
 			// z level Variable data
-            Array zeta1Data = NetCDFConverterUtilities.getArray(Z_Index.getLength(), DataType.FLOAT);
+            Array zeta1Data = NetCDFConverterUtilities.getArray(depth.getLength(), DataType.FLOAT);
             for (int z = 0; z < depthValuesFound.size(); z++)
-            	zeta1Data.setLong(zeta1Data.getIndex().set(z), depthValuesFound.get(z));
+            	zeta1Data.setFloat(zeta1Data.getIndex().set(z), depthValuesFound.get(z));
+            
             ncFileOut.write(JGSFLoDeSSIOUtils.DEPTH_DIM, zeta1Data);
+            if (packComponents){
+            	final Variable uVar = ncFileOut.findVariable("watvel-u");
+            	final Variable vVar = ncFileOut.findVariable("watvel-v");
+    			Array u = null;
+    			Array v = null;
+            	if (uVar != null && vVar != null){
+            		u = uVar.read();
+            		v = vVar.read();
+            	}
+				if (u != null && v != null){
+					final String magnitudeName = foundVariableBriefNames.get(magnitude.getName());
+					final Variable magnitudeVar = ncFileOut.findVariable(magnitudeName);
+					final Array magnitudeVarData = magnitudeVar.read();
+					for (int t = 0; t < timesFound.size(); t++) {
+						for (int z = 0; z < depthValuesFound.size(); z++) {
+							for (int y = 0; y < yIndex.getLength(); y++){
+								for (int x = 0; x < xIndex.getLength(); x++){
+									Index index = magnitudeVarData.getIndex().set(t, z, y, x);	
+								
+									double uValue = u.getDouble(index);
+									double vValue = v.getDouble(index);
+									double magnitudeValue = (uValue != noData && vValue != noData) ? Math.sqrt(Math.pow(uValue,2)+Math.pow(vValue,2)) : noData; 
+									magnitudeVarData.setDouble(index, magnitudeValue);
+								}
+							}
+						}
+					}
+					ncFileOut.write(magnitudeName, magnitudeVarData);
+					u = null;
+					v = null;
+				}
+			}
             
 			// ... setting up the appropriate event for the next action
 			events.add(new FileSystemMonitorEvent(outputFile, FileSystemMonitorNotifications.FILE_ADDED));
