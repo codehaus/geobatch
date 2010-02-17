@@ -336,8 +336,8 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends MetocConfigurationAction<F
 	            }
             }
             
-            int t0 = Integer.parseInt(timesFound.get(0).substring(timesFound.get(0).lastIndexOf("_") + 1));
-        	int t1 = (timesFound.size() > 0 ? Integer.parseInt(timesFound.get(1).substring(timesFound.get(1).lastIndexOf("_") + 1)) : t0);
+            int t0 = Integer.parseInt(timesFound.get(0).substring(timesFound.get(0).lastIndexOf("_") + 1,timesFound.get(0).lastIndexOf("_") + 4 ));
+        	int t1 = (timesFound.size() > 0 ? Integer.parseInt(timesFound.get(1).substring(timesFound.get(1).lastIndexOf("_") + 1,timesFound.get(1).lastIndexOf("_") + 4 )) : t0);
 
             // time Variable data
             final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
