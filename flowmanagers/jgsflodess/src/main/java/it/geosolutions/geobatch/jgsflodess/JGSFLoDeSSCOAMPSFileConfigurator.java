@@ -258,7 +258,7 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends MetocConfigurationAction<F
             Map<String, String> foundVariableBriefNames = new HashMap<String, String>();
             Map<String, String> foundVariableUoM 		= new HashMap<String, String>();
             
-            double noData = 0.0;
+            double noData = -9999.0;
             
             //NetCDFConverterUtilities.copyGlobalAttributes(ncFileOut, ncFileIn.getGlobalAttributes());
             final List<String> varsFound = new ArrayList<String>();
@@ -422,8 +422,11 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends MetocConfigurationAction<F
             		
             		for (int z = 0; z < levelsFound.size(); z++)
             			for (int y = 0; y < height; y++)
-            				for (int x = 0; x < width; x++)
-            					outVarData.setFloat(outVarData.getIndex().set(tIndex, z, y, x), userRaster.getSampleFloat(x, y, 0));
+            				for (int x = 0; x < width; x++) {
+            					float sample = userRaster.getSampleFloat(x, y, 0);
+            					sample = (float) (sample == 0.0 ? noData : sample);
+								outVarData.setFloat(outVarData.getIndex().set(tIndex, z, y, x), sample);
+            				}
 					
 					ncFileOut.write(foundVariableBriefNames.get(varName), outVarData);
 				}
