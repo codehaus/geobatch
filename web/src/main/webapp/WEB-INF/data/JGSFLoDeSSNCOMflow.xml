@@ -20,6 +20,7 @@
 			<workingDirectory>JGSFLoDeSSworkingdir/NCOM</workingDirectory>
 			<crs>EPSG:4326</crs>
 			<envelope/>
+			<packComponents>true</packComponents>
 			<metocDictionaryPath>JGSFLoDeSSworkingdir/config/NURC-2009/Super-Ensemble/metoc-dictionary.xml</metocDictionaryPath>
 			<metocHarvesterXMLTemplatePath>JGSFLoDeSSworkingdir/config/NURC-2009/Super-Ensemble/Nurc-Cim_Schema/2009_11_25/example/iso-models-template.xml</metocHarvesterXMLTemplatePath>
 			<serviceID>JGSFLoDeSSNCOMGeneratorService</serviceID>
