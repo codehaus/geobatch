@@ -363,9 +363,24 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends MetocConfigurationAction<F
 		        	ncFileOut.addVariable(variableBrief, DataType.DOUBLE, outDimensions);
 		            ncFileOut.addVariableAttribute(variableBrief, "long_name", foundVariableLongNames.get(varName));
 		            ncFileOut.addVariableAttribute(variableBrief, "units", foundVariableUoM.get(varName));
+	            	if (varName.equalsIgnoreCase(magnitude.getName())){
+	            		continue;
+	            	}
+            		ncFileOut.addVariableAttribute(variableBrief, "missing_value", noData);
             	}
             }
-			
+            if (packComponents){
+            	final String magnitudeName = magnitude.getName();
+            	String variableBrief = foundVariableBriefNames.get(magnitudeName);
+            	if (variableBrief != null) {
+		        	ncFileOut.addVariable(variableBrief, DataType.DOUBLE, outDimensions);
+		            ncFileOut.addVariableAttribute(variableBrief, "long_name", foundVariableLongNames.get(magnitudeName));
+		            ncFileOut.addVariableAttribute(variableBrief, "units", foundVariableUoM.get(magnitudeName));
+            		ncFileOut.addVariableAttribute(variableBrief, "missing_value", noData);
+            	}
+
+            }
+            
             // Setting up global Attributes ...
         	ncFileOut.addGlobalAttribute("base_time", fromSdf.format(timeOriginDate));
         	ncFileOut.addGlobalAttribute("tau", TAU);
