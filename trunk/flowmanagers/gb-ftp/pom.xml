@@ -20,7 +20,7 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
     <groupId>it.geosolutions</groupId>
-    <artifactId>gb-ftp</artifactId>
+    <artifactId>gb-flowmanagers-ftp</artifactId>
     <name>GeoSolutions GeoBatch FTP Support actions</name>
     <url>http://www.geo-solutions.it/maven_reports/gb/data/</url>
 

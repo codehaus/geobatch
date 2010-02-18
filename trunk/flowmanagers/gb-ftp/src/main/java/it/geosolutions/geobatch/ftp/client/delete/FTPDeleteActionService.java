@@ -21,44 +21,41 @@
  */
 
 
-
-package it.geosolutions.geobatch.flow.event.action.ftp;
+package it.geosolutions.geobatch.ftp.client.delete;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.catalog.impl.BaseService;
-import it.geosolutions.geobatch.configuration.event.action.ftp.FTPUploadActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.ActionService;
+import it.geosolutions.geobatch.ftp.client.configuration.FTPDeleteActionConfiguration;
 
 import java.io.IOException;
 
-/**
- * Comments here ...
- * 
- * @author Ivano Picco
- * 
- * @version $ GeoServerConfiguratorService.java $ Revision: 0.1 $ 12/feb/07 12:07:32
- */
-public class FTPUploadActionService
-        extends BaseService implements ActionService<FileSystemMonitorEvent, FTPUploadActionConfiguration> {
 
-    public FTPUploadActionService() {
+/**
+ * 
+ * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
+ * 
+ */
+public class FTPDeleteActionService
+        extends BaseService implements ActionService<FileSystemMonitorEvent, FTPDeleteActionConfiguration> {
+
+    public FTPDeleteActionService() {
         super(true);
     }
 
-    public boolean canCreateAction(FTPUploadActionConfiguration configuration) {
+    public boolean canCreateAction(FTPDeleteActionConfiguration configuration) {
         // XXX ImPLEMENT ME
         return true;
     }
 
-	public FTPUploadAction createAction(FTPUploadActionConfiguration configuration) {
+	public FTPDeleteAction createAction(FTPDeleteActionConfiguration configuration) {
 		// TODO Auto-generated method stub
 		try {
-			return new FTPUploadAction(configuration);
+			return new FTPDeleteAction(configuration);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
 	}
-
 }

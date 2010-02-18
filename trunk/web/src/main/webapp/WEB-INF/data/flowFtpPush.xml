@@ -8,29 +8,66 @@
        <FileEventRule>
 			<optional>false</optional>
 			<originalOccurrencies>1</originalOccurrencies>
-			<regex>.*\.shp</regex>
+			<regex>.*\.*</regex>
 			<id>r1</id>
 			<description>description</description>
 			<name>test</name>
 		</FileEventRule>
 
-        <FtpServerActionConfiguration>
+        <FTPUploadActionConfiguration>
 			<workingDirectory>flow3workingdir</workingDirectory>
 			<dataTransferMethod/>
 			<timeout>10000</timeout>
-			<zipInput>true</zipInput>
-			<zipFileName>testZip</zipFileName>
-			<ftpserverPWD>.....</ftpserverPWD>
-			<ftpserverUSR>.....</ftpserverUSR>
-			<ftpserverHost>ftp.geo-solutions.it</ftpserverHost>
+			<zipInput>false</zipInput>
+			<zipFileName>ftpZip</zipFileName>
+			<ftpserverPWD>twin2-a</ftpserverPWD>
+			<ftpserverUSR>twin2-a</ftpserverUSR>
+			<ftpserverHost>10.0.0.5</ftpserverHost>
             <ftpserverPort>21</ftpserverPort>
             <connectMode>ACTIVE</connectMode>
+            <localTempDir>C:/gbTemp</localTempDir>
 			<serviceID>ftpUploadActionService</serviceID>
 			<id>a1</id>
 			<description>description</description>
 			<name>test</name>
-		</FtpServerActionConfiguration>
+		</FTPUploadActionConfiguration>
 
+        <FTPDownloadActionConfiguration>
+			<workingDirectory>flow3workingdir</workingDirectory>
+			<dataTransferMethod/>
+			<timeout>10000</timeout>
+			<zipInput>false</zipInput>
+			<zipFileName>ftpZip</zipFileName>
+			<ftpserverPWD>twin2-a</ftpserverPWD>
+			<ftpserverUSR>twin2-a</ftpserverUSR>
+			<ftpserverHost>10.0.0.5</ftpserverHost>
+            <ftpserverPort>21</ftpserverPort>
+            <connectMode>ACTIVE</connectMode>
+            <localTempDir>C:/gbTemp</localTempDir>
+			<serviceID>ftpDownloadActionService</serviceID>
+			<id>a1</id>
+			<description>description</description>
+			<name>test</name>
+		</FTPDownloadActionConfiguration>
+		
+		<FTPDeleteActionConfiguration>
+			<workingDirectory>flow3workingdir</workingDirectory>
+			<dataTransferMethod/>
+			<timeout>10000</timeout>
+			<zipInput>false</zipInput>
+			<zipFileName>ftpZip</zipFileName>
+			<ftpserverPWD>twin2-a</ftpserverPWD>
+			<ftpserverUSR>twin2-a</ftpserverUSR>
+			<ftpserverHost>10.0.0.5</ftpserverHost>
+            <ftpserverPort>21</ftpserverPort>
+            <connectMode>ACTIVE</connectMode>
+            <localTempDir>C:/gbTemp</localTempDir>
+			<serviceID>ftpDeleteActionService</serviceID>
+			<id>a1</id>
+			<description>description</description>
+			<name>test</name>
+		</FTPDeleteActionConfiguration>
+		
 		<id>id</id>
 		<description>description</description>
 		<name>test</name>
@@ -38,7 +75,7 @@
 
 	<eventGeneratorConfiguration class="FsEventGeneratorConfiguration">
 		<wildCard>*.*</wildCard>
-         <watchDirectory>flow3workingdir/in</watchDirectory>
+        <watchDirectory>flow3workingdir/in</watchDirectory>
 		<osType>OS_UNDEFINED</osType>
 		<eventType>FILE_ADDED</eventType>
         <serviceID>fsEventGeneratorService</serviceID>

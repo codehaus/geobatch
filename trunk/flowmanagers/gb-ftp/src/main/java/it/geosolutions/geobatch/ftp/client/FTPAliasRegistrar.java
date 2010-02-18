@@ -20,9 +20,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.geosolutions.geobatch.ftp;
+package it.geosolutions.geobatch.ftp.client;
 
-import it.geosolutions.geobatch.configuration.event.action.ftp.FTPUploadActionConfiguration;
+import it.geosolutions.geobatch.ftp.client.configuration.FTPDeleteActionConfiguration;
+import it.geosolutions.geobatch.ftp.client.configuration.FTPDownloadActionConfiguration;
+import it.geosolutions.geobatch.ftp.client.configuration.FTPUploadActionConfiguration;
 import it.geosolutions.geobatch.registry.AliasRegistrar;
 import it.geosolutions.geobatch.registry.AliasRegistry;
 
@@ -36,7 +38,7 @@ public class FTPAliasRegistrar extends AliasRegistrar {
      public FTPAliasRegistrar(AliasRegistry registry) {
          LOGGER.info(getClass().getSimpleName() + ": registering alias.");
          registry.putAlias("FTPUploadActionConfiguration", FTPUploadActionConfiguration.class);
-         
-         
+         registry.putAlias("FTPDownloadActionConfiguration", FTPDownloadActionConfiguration.class);
+         registry.putAlias("FTPDeleteActionConfiguration", FTPDeleteActionConfiguration.class);
      }
  }

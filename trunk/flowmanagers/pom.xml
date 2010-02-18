@@ -109,7 +109,7 @@
          <module>gb-geoserver</module>
       </modules>
     </profile>
-		<profile>
+    <profile>
         <id>jgsflodess</id>
         <modules>
         	 <module>gb-geoserver</module>
@@ -150,6 +150,7 @@
 			   <module>imagemosaic</module>
 			   <module>shapefile</module>
 			   <module>gb-sas</module>
+               <module>gb-ftp</module>
 			   <module>jgsflodess</module>
 			   <module>ascii-grids</module>
 			</modules>

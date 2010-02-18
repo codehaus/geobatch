@@ -214,6 +214,10 @@
 			<dependencies>
 				<dependency>
 					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-ftp</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
 					<artifactId>gb-flowmanagers-gliders</artifactId>
 				</dependency>
 				<dependency>
@@ -325,6 +329,15 @@
 				<dependency>
 					<groupId>it.geosolutions</groupId>
 					<artifactId>gb-flowmanagers-geowebcache</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>ftp</id>
+			<dependencies>
+				<dependency>
+					<groupId>it.geosolutions</groupId>
+					<artifactId>gb-flowmanagers-ftp</artifactId>
 				</dependency>
 			</dependencies>
 		</profile>
