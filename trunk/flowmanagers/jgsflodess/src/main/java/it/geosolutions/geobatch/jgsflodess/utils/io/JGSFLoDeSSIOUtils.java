@@ -48,6 +48,11 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import ucar.ma2.Array;
+import ucar.ma2.ArrayByte;
+import ucar.ma2.ArrayDouble;
+import ucar.ma2.ArrayFloat;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.ArrayShort;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
@@ -72,6 +77,11 @@ public class JGSFLoDeSSIOUtils {
 	 * NetCDF-CF Dimensions and Variables
 	 */
     public final static String TIME_DIM = "time";
+    
+    public final static String TIME_YEAR = "year";
+    public final static String TIME_MONTH = "month";
+    public final static String TIME_DAY = "day";
+    public final static String TIME_HOUR = "hour";
 
     public final static String DEPTH_DIM = "depth";
 
@@ -85,12 +95,9 @@ public class JGSFLoDeSSIOUtils {
 
     public final static String LON_DIM_LONG = "longitude";
 
-
-
     public final static String LATITUDE = "Latitude";
 
     public final static String LONGITUDE = "Longitude";
-
     
     public static final String POSITIVE = "positive";
     
@@ -152,7 +159,7 @@ public class JGSFLoDeSSIOUtils {
 	 * @throws IOException
 	 * @throws InvalidRangeException
 	 */
-	public static void write2DData(
+	public static Array write2DData(
 			WritableRaster userRaster,
 			Variable var, final Array originalVarData, 
 	        final boolean findNewRange, final boolean updateFillValue, 
@@ -219,9 +226,16 @@ public class JGSFLoDeSSIOUtils {
 					if (flipY) {
 						newYpos = latPositions - yPos - 1;
 					}
-					userRaster.setSample(xPos , newYpos, 0, (double)sVal); // setSample( x, y, band, value )
+					userRaster.setSample(xPos , newYpos, 0, sVal); // setSample( x, y, band, value )
 				}
 			}
+			if (findNewRange){
+				ArrayFloat retArray = new ArrayFloat(new int[]{2});
+				retArray.setFloat(0, min);
+				retArray.setFloat(1, max);
+				return retArray;
+			}
+			return null;
 		} 
 		
 		// //
@@ -260,6 +274,13 @@ public class JGSFLoDeSSIOUtils {
 					userRaster.setSample(xPos , newYpos, 0, sVal); // setSample( x, y, band, value )
 				}
 			}
+			if (findNewRange){
+				ArrayDouble retArray = new ArrayDouble(new int[]{2});
+				retArray.setDouble(0, min);
+				retArray.setDouble(1, max);
+				return retArray;
+			}
+			return null;
 		}
 
 		
@@ -299,6 +320,13 @@ public class JGSFLoDeSSIOUtils {
 					userRaster.setSample(xPos , newYpos, 0, sVal); // setSample( x, y, band, value )
 				}
 			}
+			if (findNewRange){
+				ArrayByte retArray = new ArrayByte(new int[]{2});
+				retArray.setByte(0, min);
+				retArray.setByte(1, max);
+				return retArray;
+			}
+			return null;
 		}
 
 		// //
@@ -337,6 +365,13 @@ public class JGSFLoDeSSIOUtils {
 					userRaster.setSample(xPos , newYpos, 0, sVal); // setSample( x, y, band, value )
 				}
 			}
+			if (findNewRange){
+				ArrayShort retArray = new ArrayShort(new int[]{2});
+				retArray.setShort(0, min);
+				retArray.setShort(1, max);
+				return retArray;
+			}
+			return null;
 		}
 
 		// //
@@ -375,6 +410,13 @@ public class JGSFLoDeSSIOUtils {
 					userRaster.setSample(xPos , newYpos, 0, sVal); // setSample( x, y, band, value )
 				}
 			}
+			if (findNewRange){
+				ArrayInt retArray = new ArrayInt(new int[]{2});
+				retArray.setInt(0, min);
+				retArray.setInt(1, max);
+				return retArray;
+			}
+			return null;
 		}
 
 		else

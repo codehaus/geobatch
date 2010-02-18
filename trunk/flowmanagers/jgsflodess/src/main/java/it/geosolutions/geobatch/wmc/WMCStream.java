@@ -34,6 +34,8 @@ import it.geosolutions.geobatch.wmc.model.OLBaseClass;
 import it.geosolutions.geobatch.wmc.model.OLDimension;
 import it.geosolutions.geobatch.wmc.model.OLMaxExtent;
 import it.geosolutions.geobatch.wmc.model.OLStyleColorRamps;
+import it.geosolutions.geobatch.wmc.model.OLStyleMaxValue;
+import it.geosolutions.geobatch.wmc.model.OLStyleMinValue;
 import it.geosolutions.geobatch.wmc.model.ViewContext;
 import it.geosolutions.geobatch.wmc.model.WMCBoundingBox;
 import it.geosolutions.geobatch.wmc.model.WMCExtension;
@@ -202,6 +204,21 @@ public class WMCStream {
 					OLDimension dimension = (OLDimension) value;
 					writer.addAttribute("name", dimension.getName());
 					writer.addAttribute("default", dimension.getDefaultValue());
+				}
+				
+				if (value instanceof OLStyleMaxValue) {
+					OLStyleMaxValue styleValue = (OLStyleMaxValue) value;
+					writer.addAttribute("default", styleValue.getDefaultValue());
+				}
+				
+				if (value instanceof OLStyleMinValue) {
+					OLStyleMinValue styleValue = (OLStyleMinValue) value;
+					writer.addAttribute("default", styleValue.getDefaultValue());
+				}
+				
+				if (value instanceof OLStyleColorRamps) {
+					OLStyleColorRamps styleValue = (OLStyleColorRamps) value;
+					writer.addAttribute("default", styleValue.getDefaultRamp());
 				}
 				
 				if (ol.getContent() != null)
