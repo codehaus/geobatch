@@ -21,11 +21,9 @@
  */
 
 
-
-package it.geosolutions.geobatch.flow.event.action.ftp;
+package it.geosolutions.geobatch.ftp.client.configuration;
 
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
-import it.geosolutions.geobatch.configuration.event.action.ftp.FTPUploadActionConfiguration;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.BaseAction;
 
@@ -33,21 +31,21 @@ import java.io.IOException;
 import java.util.EventObject;
 import java.util.logging.Logger;
 
+
 /**
- * Comments here ...
  * 
- * @author Ivano Picco
+ * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
  * 
- * @version $ GeoServerConfiguratorAction.java $ Revision: 0.1 $ 12/feb/07 12:07:06
  */
-public abstract class FTPBaseAction<T extends EventObject> extends BaseAction<T>
+public abstract class FTPDeleteBaseAction<T extends EventObject> extends BaseAction<T>
         implements Action<T> {
+	
     /**
      * Default logger
      */
-    protected final static Logger LOGGER = Logger.getLogger(FTPBaseAction.class.toString());
+    protected final static Logger LOGGER = Logger.getLogger(FTPDeleteBaseAction.class.toString());
 
-    protected final FTPUploadActionConfiguration configuration;
+    protected final FTPDeleteActionConfiguration configuration;
 
     protected final String ftpserverHost;
 
@@ -59,30 +57,27 @@ public abstract class FTPBaseAction<T extends EventObject> extends BaseAction<T>
 
     protected final String dataTransferMethod;
 
+    
     /**
      * Constructs a producer. The operation name will be the same than the parameter descriptor
      * name.
      * 
-     * @param descriptor
-     *            The parameters descriptor.
+     * @param descriptor The parameters descriptor.
      * @throws IOException
      */
-    public FTPBaseAction(FTPUploadActionConfiguration configuration)
+    public FTPDeleteBaseAction(FTPDeleteActionConfiguration configuration)
             throws IOException {
+    	
         this.configuration = configuration;
-        // //
-        //
+        
+        // /////////////////////////
         // get required parameters
-        //
-        // //
+        // /////////////////////////
 
-        // ftpserver host
         ftpserverHost = configuration.getFtpserverHost();
         
-        // ftpserver user
         ftpserverUSR = configuration.getFtpserverUSR();
 
-        // ftpserver password
         ftpserverPWD = configuration.getFtpserverPWD();
 
         ftpserverPort = configuration.getFtpserverPort();
@@ -90,22 +85,6 @@ public abstract class FTPBaseAction<T extends EventObject> extends BaseAction<T>
         dataTransferMethod = configuration.getDataTransferMethod();
 
     }
-
-    /**
-     * @param queryParams
-     * @return
-     */
-//    public static String getQueryString(Map<String, String> queryParams) {
-//        String queryString = "";
-//
-//        if (queryParams != null)
-//            for (String key : queryParams.keySet()) {
-//                queryString += (queryString.length() == 0 ? "" : "&") + key + "="
-//                        + queryParams.get(key);
-//            }
-//
-//        return queryString;
-//    }
 
     public ActionConfiguration getConfiguration() {
         return configuration;

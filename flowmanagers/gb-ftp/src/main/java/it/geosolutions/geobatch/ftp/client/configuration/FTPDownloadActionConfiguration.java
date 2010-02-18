@@ -21,34 +21,22 @@
  */
 
 
-
-package it.geosolutions.geobatch.configuration.event.action.ftp;
+package it.geosolutions.geobatch.ftp.client.configuration;
 
 import it.geosolutions.geobatch.catalog.Configuration;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 
+
 /**
- *
- * @author Ivano Picco
+ * 
+ * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
+ * 
  */
-public class FTPUploadActionConfiguration extends ActionConfiguration implements Configuration {
-	
+public class FTPDownloadActionConfiguration extends ActionConfiguration implements Configuration {
 
     public static final String DEFAULT_PORT = "21";
     
-
-	public enum FTPConnectMode{
-		ACTIVE,PASSIVE;
-	}
-    
-	protected FTPUploadActionConfiguration(String id, String name,
-			String description, boolean dirty) {
-		super(id, name, description, dirty);
-	}
-
-
-    
-    public static final int defaultTimeout=5000;//5 seconds default timeout
+    public static final int defaultTimeout = 5000;
 
 	private String ftpserverHost;
 
@@ -68,9 +56,31 @@ public class FTPUploadActionConfiguration extends ActionConfiguration implements
     
     private String zipFileName;
     
-//    private WriteMode writeMode;
-    
 	private FTPConnectMode connectMode;
+	
+	private String localTempDir;
+    
+
+	public enum FTPConnectMode{
+		ACTIVE,PASSIVE;
+	}
+    
+	public FTPDownloadActionConfiguration() {
+        super();
+    }
+	
+	protected FTPDownloadActionConfiguration(String id, String name,
+			String description, boolean dirty) {
+		super(id, name, description, dirty);
+	}
+	
+	public String getLocalTempDir() {
+		return localTempDir;
+	}
+
+	public void setLocalTempDir(String localTempDir) {
+		this.localTempDir = localTempDir;
+	}
     
     public FTPConnectMode getConnectMode() {
 		return connectMode;
@@ -79,15 +89,6 @@ public class FTPUploadActionConfiguration extends ActionConfiguration implements
 	public void setConnectMode(FTPConnectMode connectMode) {
 		this.connectMode = connectMode;
 	}
-
-//    
-//    public WriteMode getWriteMode() {
-//		return writeMode;
-//	}
-//
-//	public void setWriteMode(WriteMode writeMode) {
-//		this.writeMode = writeMode;
-//	}
 
 	public String getZipFileName() {
 		return zipFileName;
@@ -112,10 +113,6 @@ public class FTPUploadActionConfiguration extends ActionConfiguration implements
 	public void setTimeout(int timeout) {
 		this.timeout = timeout;
 	}
-
-	public FTPUploadActionConfiguration() {
-        super();
-    }
 
     public String getFtpserverHost() {
         return ftpserverHost;
@@ -147,7 +144,6 @@ public class FTPUploadActionConfiguration extends ActionConfiguration implements
 
     public void setFtpserverPort(int ftpserverPort) {
         this.ftpserverPort = ftpserverPort;
-
     }
 
     /**
@@ -174,9 +170,9 @@ public class FTPUploadActionConfiguration extends ActionConfiguration implements
     }
 
 	@Override
-	public FTPUploadActionConfiguration clone() throws CloneNotSupportedException {
-		final FTPUploadActionConfiguration configuration= 
-			new FTPUploadActionConfiguration(getId(),getName(),getDescription(),isDirty());
+	public FTPDownloadActionConfiguration clone() throws CloneNotSupportedException {
+		final FTPDownloadActionConfiguration configuration= 
+			new FTPDownloadActionConfiguration(getId(),getName(),getDescription(),isDirty());
 		configuration.setConnectMode(connectMode);
 		configuration.setDataTransferMethod(dataTransferMethod);
 		configuration.setFtpserverHost(ftpserverHost);
@@ -187,8 +183,8 @@ public class FTPUploadActionConfiguration extends ActionConfiguration implements
 		configuration.setTimeout(timeout);
 		configuration.setWorkingDirectory(workingDirectory);
 		configuration.setZipFileName(zipFileName);
-		configuration.setZipInput(zipInput);		
+		configuration.setZipInput(zipInput);	
+		configuration.setLocalTempDir(localTempDir);
 		return configuration;
 	}
-
 }

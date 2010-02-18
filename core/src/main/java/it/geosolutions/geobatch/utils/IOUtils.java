@@ -931,6 +931,116 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 
         return outZipFile;
 	}
+    
+	
+	/**
+	 * @param 
+	 * @param 
+	 * @param 
+	 * @return 
+	 */
+	public static File zip(final File outputDir,
+			final String zipFileBaseName, final File[] files)throws IOException {
+		
+		// Create a buffer for reading the files
+        byte[] buf = new byte[4096];
+
+        final File outZipFile = new File(outputDir, zipFileBaseName + ".zip");
+		
+        try {
+            // Create the ZIP file
+            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(
+                    new FileOutputStream(outZipFile)));
+            
+            // Compress the files
+            for (File file : files){
+            	if(file.isDirectory()){
+            		zipDirectory(file, file, out);
+            	}else{
+            		zipFile(file, out);
+            	}      		
+            } 	            
+
+            // Complete the ZIP file
+            out.close();
+            
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+            return null;
+        }
+		
+        return outZipFile;
+	}
+	
+	/**
+	 * @param 
+	 * @param 
+	 * @param 
+	 * @return 
+	 */
+	 public static void zipDirectory(final File directory, final File base,
+			 final ZipOutputStream out) throws IOException {
+		 
+		    File[] files = directory.listFiles();
+		    byte[] buffer = new byte[4096];
+		    int read = 0;
+		    
+	        try {
+			    for (int i = 0, n = files.length; i < n; i++) {
+			    	if (files[i].isDirectory()) {
+			    		zipDirectory(files[i], base, out);
+			    	}else{
+			    		FileInputStream in = new FileInputStream(files[i]);
+			    		ZipEntry entry = new ZipEntry(base.getName().concat("\\").concat(files[i].getPath().substring(
+			    				base.getPath().length() + 1)));
+			    		out.putNextEntry(entry);
+			    		
+			    		while (-1 != (read = in.read(buffer))) {
+			    			out.write(buffer, 0, read);
+			    		}
+			    		
+		                // Complete the entry
+			    		out.closeEntry();
+		                in.close();
+			    	}
+			    }
+	        }catch (IOException e) {
+	            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+	        }
+	  }
+	 
+	/**
+	 * @param 
+	 * @param 
+	 * @param 
+	 * @return 
+	 */
+	 public static void zipFile(final File file, 
+			 final ZipOutputStream out) throws IOException {
+		 
+			// Create a buffer for reading the files
+	        byte[] buf = new byte[4096];
+	        
+	        try {
+                final FileInputStream in = new FileInputStream(file);
+
+                // Add ZIP entry to output stream.
+                out.putNextEntry(new ZipEntry(FilenameUtils.getName(file.getAbsolutePath())));
+
+                // Transfer bytes from the file to the ZIP file
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+
+                // Complete the entry
+                out.closeEntry();
+                in.close();
+
+	        } catch (IOException e) {
+	            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+	        }
+	  }
 
 	/**
 	 * Unzips the files from a zipfile into a directory.
