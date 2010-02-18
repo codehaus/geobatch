@@ -28,22 +28,30 @@ import it.geosolutions.geobatch.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.geoserver.GeoServerConfiguratorAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
+import it.geosolutions.geobatch.metocs.jaxb.model.MetocElementType;
 import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.geobatch.utils.io.Utilities;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFConverterUtilities;
+import it.geosolutions.imageio.plugins.netcdf.NetCDFUtilities;
+import it.geosolutions.utils.coamps.data.FlatFileGrid;
 
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.TimeZone;
+import java.util.TreeMap;
 import java.util.logging.Level;
 
 import javax.media.jai.JAI;
@@ -52,10 +60,13 @@ import org.apache.commons.io.FilenameUtils;
 import org.geotools.geometry.GeneralEnvelope;
 
 import ucar.ma2.Array;
+import ucar.ma2.ArrayLong;
+import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 /**
@@ -108,20 +119,22 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 
 	private static final String DEFAULT_COMPRESSION_TYPE = "LZW";
 
-	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
+	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
+	private final SimpleDateFormat wpssdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss.SSS'Z'");
 
 	public static final long matLabStartTime;
 	
 	static {
 		GregorianCalendar calendar = new GregorianCalendar(0000, 00, 01, 00, 00, 00);
-		calendar.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+		calendar.setTimeZone(JGSFLoDeSSIOUtils.UTC);
 		matLabStartTime = calendar.getTimeInMillis();
 	}
 	
 	protected NURCWPSOutput2WMCFileConfigurator(
 			GeoServerActionConfiguration configuration) throws IOException {
 		super(configuration);
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+		sdf.setTimeZone(JGSFLoDeSSIOUtils.UTC);
+		wpssdf.setTimeZone(JGSFLoDeSSIOUtils.UTC);
 	}
 
 	/**
@@ -172,6 +185,8 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 			final String fileNameFilter = getConfiguration().getStoreFilePrefix();
 
 			String baseFileName = null;
+			boolean packData = false;
+			boolean isTDA = false;
 
 			if (fileNameFilter != null) {
 				if ((filePrefix.equals(fileNameFilter) || filePrefix.matches(fileNameFilter))
@@ -180,17 +195,146 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 				}
 			} else if ("nc".equalsIgnoreCase(fileSuffix) || "netcdf".equalsIgnoreCase(fileSuffix)) {
 				baseFileName = filePrefix;
+			} else if ("zip".equalsIgnoreCase(fileSuffix) || "tar".equalsIgnoreCase(fileSuffix)) {
+				baseFileName = filePrefix;
+				packData = true;
 			}
 
 			if (baseFileName == null) {
 				LOGGER.log(Level.SEVERE, "Unexpected file '" + inputFileName + "'");
 				throw new IllegalStateException("Unexpected file '" + inputFileName + "'");
 			}
+			
+			String inputBaseName = FilenameUtils.getBaseName(inputFileName); 
+			File outDir = Utilities.createTodayDirectory(workingDir, inputBaseName,true);
+			File outputFile = null;
+			
+			// //
+			//
+			// Pack all nectdf files contained within the zip archive to a single netcdf file
+			//
+			// //
+			if (packData){
+				// 	decompress input file into a temp directory
+				final File tempFile = File.createTempFile(inputBaseName, ".tmp");
+				if (inputFileName.contains("TDA"))
+					isTDA = true;
+				final File wpsDatasetDirectory = Utilities.decompress("WPSOUT", event.getSource(), tempFile);
+				
+				final File[] wpsFiles = wpsDatasetDirectory.listFiles(new FilenameFilter() {
 
-			inputFileName = FilenameUtils.getBaseName(inputFileName);
-			ncFileIn = NetcdfFile.open(event.getSource().getAbsolutePath());
-			final File outDir = Utilities.createTodayDirectory(workingDir, FilenameUtils.getBaseName(inputFileName),true);
+					public boolean accept(File dir, String name) {
+						if (FilenameUtils.getExtension(name).equalsIgnoreCase("nc") ||
+								FilenameUtils.getExtension(name).equalsIgnoreCase("netcdf")) {
+							return true;
+						}
+						return false;
+					}});
+				
+				outputFile = new File(outDir, inputBaseName + ".nc");
+	            final NetcdfFileWriteable ncFileOut = NetcdfFileWriteable.createNew(outputFile.getAbsolutePath());
+	            
+	            final int times = wpsFiles.length;
+	            boolean initialized = false;
+	            List<String> variablesName = new ArrayList<String>();
+	            Map<Long,File> timesMap = new TreeMap<Long, File>();
+	            for (File wpsFile : wpsFiles) {
+	            	final String wpsFileName = wpsFile.getAbsolutePath();
+	            	final String name = FilenameUtils.getBaseName(wpsFileName);
+	            	final String time = name.substring(11,name.indexOf("_",12));
+	            	final Date timeDate = wpssdf.parse(time);
+	            	final Long timeInstant = timeDate.getTime();
+	            	timesMap.put(timeInstant, wpsFile);
+	            }
+	            
+	            int timeIndex = 0;
+	            int nLat=0;
+				int nLon=0;
+	            for (Long timeInstant : timesMap.keySet()) {
+	            	final File wpsFile = timesMap.get(timeInstant);
+					final String extension = FilenameUtils.getExtension(wpsFile.getName());
+					final String wpsFileName = wpsFile.getAbsolutePath();
+					if (extension.equalsIgnoreCase("nc") || extension.equalsIgnoreCase("netcdf")) {
+						NetcdfFile ncVarFile = null;
+						try {
+							ncVarFile = NetcdfFile.open(wpsFileName);
+							if (!initialized){
+								initialized = true;
+								final Dimension lat = ncVarFile.findDimension("lat");
+								final Dimension lon = ncVarFile.findDimension("lon");
+								nLat = lat.getLength();
+								nLon = lon.getLength();
+								final List<Dimension> outDimensions = JGSFLoDeSSIOUtils.createNetCDFCFGeodeticDimensions(
+					            		ncFileOut, true, times, false, 0, "", true, nLat, true, nLon, DataType.INT);
+								for (Object obj : ncVarFile.getVariables()) {
+									final Variable var = (Variable) obj;
+									final String varName = var.getName(); 
+									if (!varName.equalsIgnoreCase("lat") &&
+										!varName.equalsIgnoreCase("lon")) {
+										variablesName.add(varName);
+										final String shortName = varName.replace(" ", "").toLowerCase(); 
+										ncFileOut.addVariable(shortName, DataType.DOUBLE, outDimensions);
+										ncFileOut.addVariableAttribute(shortName, "long_name", varName);
+									    ncFileOut.addVariableAttribute(shortName, "units", "ONE");
+					            		ncFileOut.addVariableAttribute(shortName, "missing_value", -9999.0);
+									}								
+								
+								}
+								final Variable lonOriginalVar = ncVarFile.findVariable(NetCDFUtilities.LON);
+								final Variable latOriginalVar = ncVarFile.findVariable(NetCDFUtilities.LAT);
 
+								final Array latOriginalData = latOriginalVar.read();
+								final Array lonOriginalData = lonOriginalVar.read();
+								
+								Array timeData = new ArrayLong(new int[]{times});
+								int i=0;
+					            for (Long timeI : timesMap.keySet()) {
+					            	long timeValue = (timeI - JGSFLoDeSSIOUtils.startTime) / 1000;
+									timeData.setLong(timeData.getIndex().set(i++), timeValue);
+					            }
+					            ncFileOut.create();
+					            
+								ncFileOut.write(JGSFLoDeSSIOUtils.LAT_DIM, latOriginalData);
+								ncFileOut.write(JGSFLoDeSSIOUtils.LON_DIM, lonOriginalData);
+								ncFileOut.write(JGSFLoDeSSIOUtils.TIME_DIM, timeData);
+							}
+							
+							for (Object obj : ncVarFile.getVariables()) {
+								final Variable var = (Variable) obj;
+								final String varName = var.getName(); 
+								if (!varName.equalsIgnoreCase("lat") &&
+									!varName.equalsIgnoreCase("lon")) {
+									final String shortName = varName.replace(" ", "").toLowerCase(); 
+									final Variable outVar = ncFileOut.findVariable(shortName);
+									final Array outData = outVar.read();
+									final Array inData = var.read();
+									for (int y = 0; y < nLat; y++){
+										for (int x = 0; x < nLon; x++){
+											Index index = outData.getIndex().set(timeIndex, y, x);	
+											Index inIndex = inData.getIndex().set(y,x);
+											outData.setDouble(index, inData.getDouble(inIndex));
+										}
+									}
+									ncFileOut.write(shortName, outData);
+								}								
+							}
+							
+							timeIndex++;
+						}  finally {
+							if (ncVarFile != null)
+								ncVarFile.close();
+						}
+					}
+	            }
+	            ncFileOut.close();
+			}
+			if (outputFile != null){
+				inputFileName = outputFile.getAbsolutePath();
+				inputBaseName = FilenameUtils.getBaseName(inputFileName);
+				outDir = Utilities.createTodayDirectory(workingDir, inputBaseName ,true);
+			}
+			ncFileIn = NetcdfFile.open(inputFileName);
+			
 			// input DIMENSIONS
 			final Dimension timeDim = ncFileIn.findDimension(JGSFLoDeSSIOUtils.TIME_DIM);
 			final boolean timeDimExists = timeDim != null;
@@ -249,7 +393,11 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 				baseTime = sdf.format(dateTime);
 			}
 			else{
-				baseTime = sdf.format(matLabStartTime + timeOriginalData.getLong(timeOriginalIndex.set(0))*86400000L);
+				if (isTDA){
+					baseTime = sdf.format(timeOriginalData.getLong(timeOriginalIndex.set(0))*1000 + JGSFLoDeSSIOUtils.startTime);
+				}
+				else
+					baseTime = sdf.format(matLabStartTime + timeOriginalData.getLong(timeOriginalIndex.set(0))*86400000L);
 			}
 
 			Variable lonOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.LON_DIM);
@@ -306,7 +454,7 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 					
 					boolean canProceed = false;
 					
-					final File gtiffOutputDir = new File(outDir.getAbsolutePath() + File.separator + inputFileName + "_" + varName.replaceAll("_", ""));
+					final File gtiffOutputDir = new File(outDir.getAbsolutePath() + File.separator + inputBaseName + "_" + varName.replaceAll("_", ""));
 					
 					if (!gtiffOutputDir.exists())
 						canProceed = gtiffOutputDir.mkdirs();
@@ -325,11 +473,10 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 						final boolean hasLocalTime = NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.TIME_DIM) && hasTime;
 						
 						double noData = Double.NaN;
-						
 						Attribute missingValue = var.findAttribute("missing_value");
-			                        if (missingValue != null) {
-			                                noData = missingValue.getNumericValue().doubleValue();
-			                        }
+                        if (missingValue != null) {
+                                noData = missingValue.getNumericValue().doubleValue();
+                        }
 						
 						for (int z = 0; z < (hasLocalZLevel ? nZeta : 1); z++) {
 							for (int t = 0; t < (hasLocalTime ? nTime : 1); t++) {
@@ -350,7 +497,7 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 								// ////
 								// producing the Coverage here...
 								// ////
-								final StringBuilder coverageName = new StringBuilder(inputFileName)
+								final StringBuilder coverageName = new StringBuilder(inputBaseName)
 								              .append("_").append(variableName)
 								              .append("_").append(hasLocalZLevel ? elevLevelFormat(zetaOriginalData.getDouble(zetaOriginalData.getIndex().set(z))) : "0000.000")
 								              .append("_").append(hasLocalZLevel ? elevLevelFormat(zetaOriginalData.getDouble(zetaOriginalData.getIndex().set(z))) : "0000.000")
@@ -358,13 +505,17 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 								if (!hasTime)
 									coverageName.append(baseTime);
 								else{
-									coverageName.append(baseTime)
-												.append("_");
-									// Days since 01-01-0000 (Matlab time)	
-									coverageName.append(timeDimExists ? sdf.format(matLabStartTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*86400000L) : "00000000T0000000Z");
+									if (isTDA)
+										// Seconds since 01-01-1980 	
+										coverageName.append(timeDimExists ? sdf.format(JGSFLoDeSSIOUtils.startTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*1000) : "00000000T0000000Z");
+									else {
+										coverageName.append(baseTime).append("_");
+										// Days since 01-01-0000 (Matlab time)	
+										coverageName.append(timeDimExists ? sdf.format(matLabStartTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*86400000L) : "00000000T0000000Z");
+									}
 								}
 								coverageName.append("-T").append(System.currentTimeMillis());
-								final String nd = Double.isNaN(noData)?"NaN":Double.toString(noData);
+								final String nd = Double.isNaN(noData)?"-9999.0":Double.toString(noData);
 								coverageName.append("_").append(nd);
 
 								File gtiffFile = Utilities.storeCoverageAsGeoTIFF(gtiffOutputDir, coverageName.toString(), variableName, userRaster, noData, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);

@@ -130,10 +130,13 @@ public class JGSFLoDeSSIOUtils {
 	}
 
 	public static final long startTime;
+	
+	public static final TimeZone UTC;
 
 	static {
 		GregorianCalendar calendar = new GregorianCalendar(1980, 00, 01, 00, 00, 00);
-		calendar.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+		UTC = TimeZone.getTimeZone("UTC");
+		calendar.setTimeZone(UTC);
 		startTime = calendar.getTimeInMillis();
 	}
 
@@ -776,13 +779,13 @@ public class JGSFLoDeSSIOUtils {
 			final boolean hasTimeDim, final int tDimLength,
 			final boolean hasZetaDim, final int zDimLength, final String zOrder, 
 			final boolean hasLatDim,  final int latDimLength, 
-			final boolean hasLonDim,  final int lonDimLength) {
+			final boolean hasLonDim,  final int lonDimLength, final DataType dataType) {
 		final List<Dimension> dimensions = new ArrayList<Dimension>();
 		
 		if (hasTimeDim) {
 			Dimension timeDim = ncFileOut.addDimension(TIME_DIM, tDimLength);
 
-			ncFileOut.addVariable(TIME_DIM, DataType.FLOAT, new Dimension[] { timeDim });
+			ncFileOut.addVariable(TIME_DIM, dataType, new Dimension[] { timeDim });
 	        ncFileOut.addVariableAttribute(TIME_DIM, LONG_NAME, TIME_DIM);
 	        ncFileOut.addVariableAttribute(TIME_DIM, UNITS, "seconds since 1980-1-1 0:0:0");
 	        
@@ -821,6 +824,18 @@ public class JGSFLoDeSSIOUtils {
 		}
 
 		return dimensions;
+	}
+	
+	public static List<Dimension> createNetCDFCFGeodeticDimensions(
+			NetcdfFileWriteable ncFileOut, 
+			final boolean hasTimeDim, final int tDimLength,
+			final boolean hasZetaDim, final int zDimLength, final String zOrder, 
+			final boolean hasLatDim,  final int latDimLength, 
+			final boolean hasLonDim,  final int lonDimLength) {
+		return createNetCDFCFGeodeticDimensions(ncFileOut, hasTimeDim, tDimLength, hasZetaDim, zDimLength, zOrder, hasLatDim, latDimLength, hasLonDim, lonDimLength, DataType.FLOAT);
+		
+		
+		
 	}
 	
 	/**
