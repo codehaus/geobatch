@@ -49,8 +49,10 @@ import it.geosolutions.geobatch.wmc.model.WMCOnlineResource;
 import it.geosolutions.geobatch.wmc.model.WMCServer;
 import it.geosolutions.geobatch.wmc.model.WMCWindow;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -117,6 +119,7 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 			}
 
 			final List<WMCEntry> entryList = new ArrayList<WMCEntry>();
+			final Map<String,String> statisticsMap = new HashMap<String,String>();
 			
 			LOGGER.info("WMCFileConfigurator ... fetching events...");
 			while (events.size() > 0) {
@@ -168,7 +171,8 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 				final String metocFields = props.getProperty("metocFields");
 				final String driver = props.getProperty("driver");
 				final String path = new File(inputFile.getParentFile(), props.getProperty("path")).getAbsolutePath();
-
+				final String statisticsFile = new StringBuilder(inputFileName.substring(0,inputFileName.length()-6)).append(".statistics").toString();
+				
 				final AbstractGridCoverage2DReader reader = ((AbstractGridFormat) acquireFormat(driver)).getReader(new File(path).toURI().toURL());
 				
 				WMCEntry entry = new WMCEntry(namespace, layerid);
@@ -204,6 +208,7 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 	            }
 	            
 				entryList.add(entry);
+				statisticsMap.put(layerid,statisticsFile);
 			}
 
 			//
@@ -274,6 +279,7 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 				final String nameSpace = entry.getNameSpace();
 				final String layerName = entry.getLayerName();
 				final String layerTitle = entry.getLayerTitle();
+				final String statisticFile = statisticsMap.get(layerName);
 
 				WMCLayer newLayer = new WMCLayer("0", "1", nameSpace + ":" + layerName, layerTitle, crs);
 				WMCServer server = new WMCServer("wms", "1.1.1", "wms");
@@ -286,11 +292,57 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 				extension.setSingleTile(new OLSingleTile("false"));
 				extension.setTransparent(new OLTransparent("true"));
 				extension.setDisplayInLayerSwitcher(new OLDisplayInLayerSwitcher("false"));
-				
-				extension.setStyleColorRamps(new OLStyleColorRamps("red,blue,gray"));
-				extension.setStyleMinValue(new OLStyleMinValue("0.0"));
-				extension.setStyleMaxValue(new OLStyleMaxValue("100.0"));
-				extension.setStyleClassNumber(new OLStyleClassNumber("25"));
+				OLStyleColorRamps ramp = new OLStyleColorRamps("jet,red,blue,gray");
+				ramp.setDefaultRamp("jet");
+				extension.setStyleColorRamps(ramp);
+				final File file = new File(statisticFile);
+				final StringBuilder mins = new StringBuilder();
+				final StringBuilder maxs = new StringBuilder();
+				boolean minMaxSet = false;
+				if (file.exists()){
+					BufferedReader reader = null; 
+					try {
+						reader = new BufferedReader(new FileReader(file));
+						String line;
+						String minDef = null;
+						String maxDef = null;
+						boolean init = false;
+						while ((line = reader.readLine()) != null){
+							String entries[] = line.split(",");
+							final int nEntries = entries.length;
+							String min = entries[nEntries-2];
+							String max = entries[nEntries-1];
+							if (!init){
+								minDef = min;
+								maxDef = max;
+								init = true;
+							}
+							mins.append(min).append(",");
+							maxs.append(max).append(",");
+						}
+						
+						final String minStyle = mins.toString();
+						final String maxStyle = maxs.toString();
+						extension.setStyleMinValue(new OLStyleMinValue(minStyle.substring(0,minStyle.length()-1), minDef));
+						extension.setStyleMaxValue(new OLStyleMaxValue(maxStyle.substring(0,maxStyle.length()-1), maxDef));
+						minMaxSet = true;
+					} finally {
+						if (reader!=null){
+							try{
+								reader.close();
+								reader = null;
+							}catch (Throwable te){
+								
+							}
+						}
+					}
+				}
+					
+				if (!minMaxSet){
+					extension.setStyleMinValue(new OLStyleMinValue("0.0", "0.0"));
+					extension.setStyleMaxValue(new OLStyleMaxValue("100.0", "100.0"));
+				}
+				extension.setStyleClassNumber(new OLStyleClassNumber("100"));
 				extension.setStyleRestService(new OLStyleRestService(configuration.getGeoserverURL()+"/rest/sldservice/"+nameSpace+":"+layerName+"/rasterize.sld"));
 				
 				if (entry.getDimensions() != null) {

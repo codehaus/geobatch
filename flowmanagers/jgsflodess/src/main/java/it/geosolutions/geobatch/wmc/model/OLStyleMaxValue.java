@@ -35,8 +35,19 @@ package it.geosolutions.geobatch.wmc.model;
  */
 public class OLStyleMaxValue extends OLBaseClass {
 
-	public OLStyleMaxValue(String content) {
+private String defaultValue;
+	
+	public OLStyleMaxValue(String content, String defaultValue) {
 		super(content);
+		this.defaultValue = defaultValue;
 	}
+	
+	/**
+	 * @return the defaultValue
+	 */
+	public String getDefaultValue() {
+		return defaultValue;
+	}
+
 
 }

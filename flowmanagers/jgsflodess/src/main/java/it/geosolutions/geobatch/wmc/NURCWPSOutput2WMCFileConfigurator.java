@@ -38,7 +38,9 @@ import it.geosolutions.utils.coamps.data.FlatFileGrid;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -206,7 +208,12 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 			}
 			
 			String inputBaseName = FilenameUtils.getBaseName(inputFileName); 
-			File outDir = Utilities.createTodayDirectory(workingDir, inputBaseName,true);
+			File outDir = null;
+			if (packData){
+				outDir = Utilities.createTodayDirectory(workingDir, inputBaseName+"packed",true);
+			}
+			else
+				outDir = Utilities.createTodayDirectory(workingDir, inputBaseName,true);
 			File outputFile = null;
 			
 			// //
@@ -238,6 +245,8 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 	            boolean initialized = false;
 	            List<String> variablesName = new ArrayList<String>();
 	            Map<Long,File> timesMap = new TreeMap<Long, File>();
+	            
+	            //Gathering available times
 	            for (File wpsFile : wpsFiles) {
 	            	final String wpsFileName = wpsFile.getAbsolutePath();
 	            	final String name = FilenameUtils.getBaseName(wpsFileName);
@@ -259,11 +268,14 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 						try {
 							ncVarFile = NetcdfFile.open(wpsFileName);
 							if (!initialized){
+								//Initialize the output netcdf file
 								initialized = true;
 								final Dimension lat = ncVarFile.findDimension("lat");
 								final Dimension lon = ncVarFile.findDimension("lon");
 								nLat = lat.getLength();
 								nLon = lon.getLength();
+								
+								//Initialize dimensions
 								final List<Dimension> outDimensions = JGSFLoDeSSIOUtils.createNetCDFCFGeodeticDimensions(
 					            		ncFileOut, true, times, false, 0, "", true, nLat, true, nLon, DataType.INT);
 								for (Object obj : ncVarFile.getVariables()) {
@@ -299,6 +311,7 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 								ncFileOut.write(JGSFLoDeSSIOUtils.TIME_DIM, timeData);
 							}
 							
+							//Write variables to the output file
 							for (Object obj : ncVarFile.getVariables()) {
 								final Variable var = (Variable) obj;
 								final String varName = var.getName(); 
@@ -372,7 +385,18 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 
 			// input VARIABLES
 			final Variable timeOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.TIME_DIM);
+			final Variable yearOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.TIME_YEAR);
+			final Variable monthOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.TIME_MONTH);
+			final Variable dayOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.TIME_DAY);
+			final Variable hourOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.TIME_HOUR);
+			Array yearOriginalData = null;
+			Array monthOriginalData = null;
+			Array dayOriginalData = null;
+			Array hourOriginalData = null;
 			
+			GregorianCalendar timeCalendar = new GregorianCalendar();
+			timeCalendar.setTimeZone(JGSFLoDeSSIOUtils.UTC);
+
 			final Array timeOriginalData;
 			final Index timeOriginalIndex; 
 			final boolean hasTime; 
@@ -386,7 +410,19 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 				timeOriginalIndex = null;
 				hasTime = false;
 			}
-			
+			if (yearOriginalVar != null){
+				yearOriginalData = yearOriginalVar.read();
+			}
+			if (monthOriginalVar != null){
+				monthOriginalData = monthOriginalVar.read();
+			}
+			if (dayOriginalVar != null){
+				dayOriginalData = dayOriginalVar.read();
+			}
+			if (hourOriginalVar != null){
+				hourOriginalData = hourOriginalVar.read();
+			}
+
 			String baseTime = null;
 			if (!hasTime){
 				Date dateTime = new Date(System.currentTimeMillis());
@@ -396,8 +432,12 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 				if (isTDA){
 					baseTime = sdf.format(timeOriginalData.getLong(timeOriginalIndex.set(0))*1000 + JGSFLoDeSSIOUtils.startTime);
 				}
-				else
-					baseTime = sdf.format(matLabStartTime + timeOriginalData.getLong(timeOriginalIndex.set(0))*86400000L);
+				else{
+					timeCalendar.set(yearOriginalData.getInt(0), monthOriginalData.getInt(0)-1, dayOriginalData.getInt(0), hourOriginalData.getInt(0), 0, 0);
+					baseTime = sdf.format(timeCalendar.getTime().getTime());
+//					baseTime = sdf.format(matLabStartTime + timeOriginalData.getFloat(timeOriginalIndex.set(0))*86400000L);
+				}
+					
 			}
 
 			Variable lonOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.LON_DIM);
@@ -477,9 +517,12 @@ public class NURCWPSOutput2WMCFileConfigurator extends
                         if (missingValue != null) {
                                 noData = missingValue.getNumericValue().doubleValue();
                         }
-						
-						for (int z = 0; z < (hasLocalZLevel ? nZeta : 1); z++) {
-							for (int t = 0; t < (hasLocalTime ? nTime : 1); t++) {
+
+                        final String variableName = varName.replace("_", "").replace(" ", "");
+                        final ArrayList<String> ranges = new ArrayList<String>((hasLocalTime? nTime:1) * (hasLocalZLevel ? nZeta:1));
+                        
+                        for (int t = 0; t < (hasLocalTime ? nTime : 1); t++) {
+                        	for (int z = 0; z < (hasLocalZLevel ? nZeta : 1); z++) {
 								WritableRaster userRaster = Raster.createWritableRaster(outSampleModel, null);
 
 								int[] dimArray;
@@ -491,29 +534,39 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 									dimArray = new int[] {t, nLat, nLon} ;
 								else
 									dimArray = new int[] {nLat, nLon} ;
-								JGSFLoDeSSIOUtils.write2DData(userRaster, var, originalVarArray, false, false, dimArray, true);
-								final String variableName = varName.replace("_", "").replace(" ", "");
+								
+								//Writing data and looking for min max
+								final Array minMaxArray = JGSFLoDeSSIOUtils.write2DData(userRaster, var, originalVarArray, true, true, dimArray, true);
 								
 								// ////
 								// producing the Coverage here...
 								// ////
+								String refZeta = hasLocalZLevel ? elevLevelFormat(zetaOriginalData.getDouble(zetaOriginalData.getIndex().set(z))) : "0000.000";
 								final StringBuilder coverageName = new StringBuilder(inputBaseName)
-								              .append("_").append(variableName)
-								              .append("_").append(hasLocalZLevel ? elevLevelFormat(zetaOriginalData.getDouble(zetaOriginalData.getIndex().set(z))) : "0000.000")
-								              .append("_").append(hasLocalZLevel ? elevLevelFormat(zetaOriginalData.getDouble(zetaOriginalData.getIndex().set(z))) : "0000.000")
-								              .append("_");
-								if (!hasTime)
+								              .append("_").append(variableName).append("_").append(refZeta).append("_").append(refZeta).append("_");
+								String refTime = null;
+								if (!hasTime){
 									coverageName.append(baseTime);
+									refTime = baseTime;
+								}
 								else{
-									if (isTDA)
-										// Seconds since 01-01-1980 	
-										coverageName.append(timeDimExists ? sdf.format(JGSFLoDeSSIOUtils.startTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*1000) : "00000000T0000000Z");
+									if (isTDA){
+										// Seconds since 01-01-1980
+										refTime = timeDimExists ? sdf.format(JGSFLoDeSSIOUtils.startTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*1000) : "00000000T000000Z";
+										coverageName.append(refTime);
+									}
 									else {
 										coverageName.append(baseTime).append("_");
 										// Days since 01-01-0000 (Matlab time)	
-										coverageName.append(timeDimExists ? sdf.format(matLabStartTime + timeOriginalData.getLong(timeOriginalIndex.set(t))*86400000L) : "00000000T0000000Z");
+										if (timeDimExists)
+											timeCalendar.set(yearOriginalData.getInt(t), monthOriginalData.getInt(t)-1, dayOriginalData.getInt(t), hourOriginalData.getInt(t), 0, 0);
+										String ftime = timeDimExists ? sdf.format(timeCalendar.getTime().getTime()):"00000000T000000Z";
+										coverageName.append(ftime);
+										refTime = ftime;
 									}
 								}
+								ranges.add(new StringBuilder(refTime).append(",").append(refZeta).append(",").
+										append(minMaxArray.getDouble(0)).append(",").append(minMaxArray.getDouble(1)).append("\n").toString());
 								coverageName.append("-T").append(System.currentTimeMillis());
 								final String nd = Double.isNaN(noData)?"-9999.0":Double.toString(noData);
 								coverageName.append("_").append(nd);
@@ -521,6 +574,26 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 								File gtiffFile = Utilities.storeCoverageAsGeoTIFF(gtiffOutputDir, coverageName.toString(), variableName, userRaster, noData, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
 							}
 						}
+                        
+                        //Writing statistics file
+                        File outStatsFile = null;
+                        try{
+                        	outStatsFile = new File(gtiffOutputDir, new StringBuilder(inputBaseName)
+					              .append("_").append(variableName).toString() + ".statistics");
+                        	BufferedWriter writer = new BufferedWriter(new FileWriter(outStatsFile));
+                        	for (String rangeEntry : ranges)
+                        		writer.write(rangeEntry);
+                        	writer.flush();
+                        	writer.close();
+                        } finally{
+                        	try{
+                        		if (outStatsFile != null)
+                        			outStatsFile = null;
+                        	}catch (Throwable t){
+                        		//eat me
+                        	}
+                        }
+						
 						
 						// ... setting up the appropriate event for the next action
 						events.add(new FileSystemMonitorEvent(gtiffOutputDir, FileSystemMonitorNotifications.FILE_ADDED));
