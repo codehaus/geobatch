@@ -29,6 +29,8 @@ import it.geosolutions.geobatch.flow.event.action.ActionService;
 import it.geosolutions.geobatch.ftp.client.configuration.FTPDeleteActionConfiguration;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -39,6 +41,9 @@ import java.io.IOException;
 public class FTPDeleteActionService
         extends BaseService implements ActionService<FileSystemMonitorEvent, FTPDeleteActionConfiguration> {
 
+    private final static Logger LOGGER = Logger.getLogger(FTPDeleteActionService.class
+            .toString());
+    
     public FTPDeleteActionService() {
         super(true);
     }
@@ -49,12 +54,11 @@ public class FTPDeleteActionService
     }
 
 	public FTPDeleteAction createAction(FTPDeleteActionConfiguration configuration) {
-		// TODO Auto-generated method stub
 		try {
 			return new FTPDeleteAction(configuration);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+            if (LOGGER.isLoggable(Level.SEVERE))
+                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
 		}
 		return null;
 	}

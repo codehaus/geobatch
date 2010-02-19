@@ -22,6 +22,8 @@
 
 package it.geosolutions.geobatch.ftp.client;
 
+import java.util.logging.Level;
+
 import it.geosolutions.geobatch.ftp.client.configuration.FTPDeleteActionConfiguration;
 import it.geosolutions.geobatch.ftp.client.configuration.FTPDownloadActionConfiguration;
 import it.geosolutions.geobatch.ftp.client.configuration.FTPUploadActionConfiguration;
@@ -35,8 +37,10 @@ import it.geosolutions.geobatch.registry.AliasRegistry;
  */
 public class FTPAliasRegistrar extends AliasRegistrar {
 
-     public FTPAliasRegistrar(AliasRegistry registry) {
-         LOGGER.info(getClass().getSimpleName() + ": registering alias.");
+     public FTPAliasRegistrar(AliasRegistry registry) {    	 
+         if (LOGGER.isLoggable(Level.INFO))
+        	 LOGGER.info(getClass().getSimpleName() + ": registering alias.");
+         
          registry.putAlias("FTPUploadActionConfiguration", FTPUploadActionConfiguration.class);
          registry.putAlias("FTPDownloadActionConfiguration", FTPDownloadActionConfiguration.class);
          registry.putAlias("FTPDeleteActionConfiguration", FTPDeleteActionConfiguration.class);

@@ -118,7 +118,8 @@ public class FTPUploadAction extends
             //
             // ////////////////////////////////////////////////////////////////////
             
-            LOGGER.info("Sending file to FtpServer ... " + ftpserverHost);
+            if (LOGGER.isLoggable(Level.INFO))
+            	LOGGER.info("Sending file to FtpServer ... " + ftpserverHost);
             
             boolean sent = false;
             final FTPConnectMode connectMode = configuration.getConnectMode().toString().equalsIgnoreCase(FTPConnectMode.ACTIVE.toString()) ?
@@ -178,9 +179,11 @@ public class FTPUploadAction extends
             }
 			
             if (sent)
-                LOGGER.info("FTPUploadAction: file SUCCESSFULLY sent to FtpServer!");
+            	if (LOGGER.isLoggable(Level.INFO))
+            		LOGGER.info("FTPUploadAction: file SUCCESSFULLY sent to FtpServer!");
             else
-                LOGGER.info("FTPUploadAction: file was NOT sent to FtpServer due to connection errors!");
+            	if (LOGGER.isLoggable(Level.INFO))
+            		LOGGER.info("FTPUploadAction: file was NOT sent to FtpServer due to connection errors!");
 
             return events;
             

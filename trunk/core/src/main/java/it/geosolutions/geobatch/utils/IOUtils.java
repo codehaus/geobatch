@@ -932,66 +932,92 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
         return outZipFile;
 	}
     
-	
 	/**
-	 * @param 
-	 * @param 
-	 * @param 
-	 * @return 
+	 * This function zip the input files. 
+	 * 
+	 * @param outputDir The temporary directory where the zip files.
+	 * @param zipFileBaseName The name of the zip file.
+	 * @param files The array files to zip.
+	 * @return The zip file or null.
+	 * @throws IOException
 	 */
 	public static File zip(final File outputDir,
 			final String zipFileBaseName, final File[] files)throws IOException {
 		
-		// Create a buffer for reading the files
-        byte[] buf = new byte[4096];
+		if(outputDir != null && files != null && zipFileBaseName != null){
+			
+			// //////////////////////////////////////////
+			// Create a buffer for reading the files
+			// //////////////////////////////////////////
+	        
+			byte[] buf = new byte[4096];
+	        
+	        final File outZipFile = new File(outputDir, zipFileBaseName + ".zip");
+	        ZipOutputStream out = null;
+	        
+	        try {
+	        	
+	        	// /////////////////////////////////
+	            // Create the ZIP output stream
+	        	// /////////////////////////////////
+	        	
+	            out = new ZipOutputStream(new BufferedOutputStream(
+	                    new FileOutputStream(outZipFile)));
+	            
+	            // /////////////////////
+	            // Compress the files
+	            // /////////////////////
+	            
+	            for (File file : files){
+	            	if(file.isDirectory()){
+	            		zipDirectory(file, file, out);
+	            	}else{
+	            		zipFile(file, out);
+	            	}      		
+	            } 	            
 
-        final File outZipFile = new File(outputDir, zipFileBaseName + ".zip");
-		
-        try {
-            // Create the ZIP file
-            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(
-                    new FileOutputStream(outZipFile)));
-            
-            // Compress the files
-            for (File file : files){
-            	if(file.isDirectory()){
-            		zipDirectory(file, file, out);
-            	}else{
-            		zipFile(file, out);
-            	}      		
-            } 	            
-
-            // Complete the ZIP file
-            out.close();
-            
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-            return null;
-        }
-		
-        return outZipFile;
+	            out.close();
+	            out = null;
+	            
+		        return outZipFile;
+	            
+	        }catch(IOException e) {
+	            if (LOGGER.isLoggable(Level.SEVERE))
+	                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+	            return null;
+	        }finally{
+	        	if(out != null)out.close();
+	        }
+	        
+		}else throw new IOException("One or more input parameters are null!");
 	}
 	
 	/**
-	 * @param 
-	 * @param 
-	 * @param 
-	 * @return 
+	 * This function zip the input directory.
+	 * 
+	 * @param directory The directory to be zipped.
+	 * @param base The base directory.
+	 * @param out The zip output stream.
+	 * @throws IOException
 	 */
 	 public static void zipDirectory(final File directory, final File base,
 			 final ZipOutputStream out) throws IOException {
 		 
+		 if(directory != null && base != null && out != null){
 		    File[] files = directory.listFiles();
 		    byte[] buffer = new byte[4096];
 		    int read = 0;
+		    
+		    FileInputStream in = null;
+		    ZipEntry entry = null;
 		    
 	        try {
 			    for (int i = 0, n = files.length; i < n; i++) {
 			    	if (files[i].isDirectory()) {
 			    		zipDirectory(files[i], base, out);
 			    	}else{
-			    		FileInputStream in = new FileInputStream(files[i]);
-			    		ZipEntry entry = new ZipEntry(base.getName().concat("\\").concat(files[i].getPath().substring(
+			    		in = new FileInputStream(files[i]);
+			    		entry = new ZipEntry(base.getName().concat("\\").concat(files[i].getPath().substring(
 			    				base.getPath().length() + 1)));
 			    		out.putNextEntry(entry);
 			    		
@@ -999,47 +1025,82 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 			    			out.write(buffer, 0, read);
 			    		}
 			    		
+			    		// //////////////////////
 		                // Complete the entry
+			    		// //////////////////////
+			    		
 			    		out.closeEntry();
+			    		
 		                in.close();
+		                in = null;
 			    	}
 			    }
+			    
 	        }catch (IOException e) {
-	            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+	            if (LOGGER.isLoggable(Level.SEVERE))
+	                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+	        }finally{
+	        	if(in != null)in.close();
 	        }
+	        
+		 }else throw new IOException("One or more input parameters are null!");
 	  }
 	 
-	/**
-	 * @param 
-	 * @param 
-	 * @param 
-	 * @return 
-	 */
+	 /**
+	  * This function zip the input file.
+	  * 
+	  * @param file The input file to be zipped.
+	  * @param out The zip output stream.
+	  * @throws IOException
+	  */
 	 public static void zipFile(final File file, 
 			 final ZipOutputStream out) throws IOException {
 		 
+		 if(file != null && out != null){
+			 
+			// /////////////////////////////////////////// 
 			// Create a buffer for reading the files
+			// ///////////////////////////////////////////
+			 
 	        byte[] buf = new byte[4096];
 	        
+	        FileInputStream in = null;
+	        
 	        try {
-                final FileInputStream in = new FileInputStream(file);
+                in = new FileInputStream(file);
 
+                // //////////////////////////////////
                 // Add ZIP entry to output stream.
+                // //////////////////////////////////
+                
                 out.putNextEntry(new ZipEntry(FilenameUtils.getName(file.getAbsolutePath())));
 
+                // //////////////////////////////////////////////
                 // Transfer bytes from the file to the ZIP file
+                // //////////////////////////////////////////////
+                
                 int len;
                 while ((len = in.read(buf)) > 0) {
                     out.write(buf, 0, len);
                 }
 
+                // //////////////////////
                 // Complete the entry
+                // //////////////////////
+                
                 out.closeEntry();
+                
                 in.close();
+                in = null;
 
-	        } catch (IOException e) {
-	            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+	        }catch (IOException e) {
+	            if (LOGGER.isLoggable(Level.SEVERE))
+	                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+	        }finally{
+	        	if(in != null)in.close();
 	        }
+	        
+		 }else throw new IOException("One or more input parameters are null!");
 	  }
 
 	/**

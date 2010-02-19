@@ -29,6 +29,8 @@ import it.geosolutions.geobatch.flow.event.action.ActionService;
 import it.geosolutions.geobatch.ftp.client.configuration.FTPDownloadActionConfiguration;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -39,6 +41,9 @@ import java.io.IOException;
 public class FTPDownloadActionService
         extends BaseService implements ActionService<FileSystemMonitorEvent, FTPDownloadActionConfiguration> {
 
+    private final static Logger LOGGER = Logger.getLogger(FTPDownloadActionService.class
+            .toString());
+    
     public FTPDownloadActionService() {
         super(true);
     }
@@ -49,12 +54,11 @@ public class FTPDownloadActionService
     }
 
 	public FTPDownloadAction createAction(FTPDownloadActionConfiguration configuration) {
-		// TODO Auto-generated method stub
 		try {
 			return new FTPDownloadAction(configuration);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+            if (LOGGER.isLoggable(Level.SEVERE))
+                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
 		}
 		return null;
 	}

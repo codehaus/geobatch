@@ -118,7 +118,8 @@ public class FTPDownloadAction extends
             //
             // /////////////////////////////////////////
             
-            LOGGER.info("Downloading file from FtpServer ... " + ftpserverHost);
+            if (LOGGER.isLoggable(Level.INFO))
+            	LOGGER.info("Downloading file from FtpServer ... " + ftpserverHost);
             
             boolean sent = false;
             final FTPConnectMode connectMode = configuration.getConnectMode().toString().equalsIgnoreCase(FTPConnectMode.ACTIVE.toString()) ?
@@ -130,6 +131,15 @@ public class FTPDownloadAction extends
             
             String path = "path";
             String localTempDir = configuration.getLocalTempDir();
+            
+        	// //////////////////////////////////////////////////////////////////
+        	// Build in the local temp directory to download 
+        	// //////////////////////////////////////////////////////////////////
+        	
+        	File dir = new File(localTempDir);
+        	if(!dir.exists()){
+        		dir.mkdir();
+        	}
             
             if(zipOutput){
             	
@@ -169,9 +179,11 @@ public class FTPDownloadAction extends
             }
             
             if (sent)
-                LOGGER.info("FTPDownloadAction: file SUCCESSFULLY downloaded from FtpServer!");
+            	if (LOGGER.isLoggable(Level.INFO))
+            		LOGGER.info("FTPDownloadAction: file SUCCESSFULLY downloaded from FtpServer!");
             else
-                LOGGER.info("FTPDownloadAction: file was NOT downloaded from FtpServer due to connection errors!");
+            	if (LOGGER.isLoggable(Level.INFO))
+            		LOGGER.info("FTPDownloadAction: file was NOT downloaded from FtpServer due to connection errors!");
 
             return events;
             
@@ -199,7 +211,7 @@ public class FTPDownloadAction extends
     	final int timeout = configuration.getTimeout();
 
     	// //////////////////////////////////////////////////////////////////
-    	// Build in the local temp directory to download 
+    	// Build in the local sub directory to download 
     	// //////////////////////////////////////////////////////////////////
     	
     	File dir = new File(localPath.concat("\\").concat(dirName));
