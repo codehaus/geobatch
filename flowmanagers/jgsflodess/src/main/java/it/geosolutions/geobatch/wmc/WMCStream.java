@@ -174,8 +174,8 @@ public class WMCStream {
     	
     	xstream.aliasField("ol:styleClassNumber", WMCExtension.class, "styleClassNumber");
     	xstream.aliasField("ol:styleColorRamps", WMCExtension.class, "styleColorRamps");
-    	xstream.aliasField("ol:styleMaxValue", WMCExtension.class, "styleMinValue");
-    	xstream.aliasField("ol:styleMinValue", WMCExtension.class, "styleMaxValue");
+    	xstream.aliasField("ol:styleMaxValue", WMCExtension.class, "styleMaxValue");
+    	xstream.aliasField("ol:styleMinValue", WMCExtension.class, "styleMinValue");
     	xstream.aliasField("ol:styleRestService", WMCExtension.class, "styleRestService");
     	
     	xstream.useAttributeFor(OLStyleColorRamps.class, "defaultRamp");
