@@ -287,7 +287,7 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 										final String shortName = varName.replace(" ", "").toLowerCase(); 
 										ncFileOut.addVariable(shortName, DataType.DOUBLE, outDimensions);
 										ncFileOut.addVariableAttribute(shortName, "long_name", varName);
-									    ncFileOut.addVariableAttribute(shortName, "units", "ONE");
+									    ncFileOut.addVariableAttribute(shortName, "units", "dimensionless");
 					            		ncFileOut.addVariableAttribute(shortName, "missing_value", -9999.0);
 									}								
 								
