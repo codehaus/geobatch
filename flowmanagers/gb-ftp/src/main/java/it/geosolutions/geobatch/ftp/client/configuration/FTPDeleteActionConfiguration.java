@@ -74,74 +74,128 @@ public class FTPDeleteActionConfiguration extends ActionConfiguration implements
 		super(id, name, description, dirty);
 	}
 	
+    /**
+     * @return the localTempDir
+     */
 	public String getLocalTempDir() {
 		return localTempDir;
 	}
 
+    /**
+     * @param localTempDir  the localTempDir to set
+     */
 	public void setLocalTempDir(String localTempDir) {
 		this.localTempDir = localTempDir;
 	}
     
+    /**
+     * @return the connectMode
+     */
     public FTPConnectMode getConnectMode() {
 		return connectMode;
 	}
 
+    /**
+     * @param connectMode  the connectMode to set
+     */
 	public void setConnectMode(FTPConnectMode connectMode) {
 		this.connectMode = connectMode;
 	}
 
+    /**
+     * @return the zipFileName
+     */
 	public String getZipFileName() {
 		return zipFileName;
 	}
 
+    /**
+     * @param zipFileName  the zipFileName to set
+     */
 	public void setZipFileName(String zipFileName) {
 		this.zipFileName = zipFileName;
 	}
 
+    /**
+     * @return the zipInput.
+     */
 	public boolean isZipInput() {
 		return zipInput;
 	}
 
+    /**
+     * @param zipInput  the zipInput to set
+     */
 	public void setZipInput(boolean zipInput) {
 		this.zipInput = zipInput;
 	}
 
+    /**
+     * @return the timeout
+     */
 	public int getTimeout() {
 		return timeout;
 	}
 
+    /**
+     * @param timeout  the timeout to set
+     */
 	public void setTimeout(int timeout) {
 		this.timeout = timeout;
 	}
 
+    /**
+     * @return the ftpserverHost
+     */
     public String getFtpserverHost() {
         return ftpserverHost;
     }
 
+    /**
+     * @param ftpserverHost  the ftpserverHost to set
+     */
     public void setFtpserverHost(String ftpserverHost) {
         this.ftpserverHost = ftpserverHost;
     }
 
+    /**
+     * @return the ftpserverUSR
+     */
     public String getFtpserverUSR() {
         return ftpserverUSR;
     }
 
+    /**
+     * @param ftpserverUSR  the ftpserverUSR to set
+     */
     public void setFtpserverUSR(String ftpserverUSR) {
         this.ftpserverUSR = ftpserverUSR;
     }
 
+    /**
+     * @return the ftpserverPWD
+     */
     public String getFtpserverPWD() {
         return ftpserverPWD;
     }
 
+    /**
+     * @param ftpserverPWD  the ftpserverPWD to set
+     */
     public void setFtpserverPWD(String ftpserverPWD) {
         this.ftpserverPWD = ftpserverPWD;
     }
 
+    /**
+     * @return the ftpserverPort
+     */
     public int getFtpserverPort() {
         return ftpserverPort;
     }
 
+    /**
+     * @param ftpserverPort  the ftpserverPort to set
+     */
     public void setFtpserverPort(int ftpserverPort) {
         this.ftpserverPort = ftpserverPort;
     }
@@ -154,17 +208,22 @@ public class FTPDeleteActionConfiguration extends ActionConfiguration implements
     }
 
     /**
-     * @param workingDirectory
-     *            the workingDirectory to set
+     * @param workingDirectory  the workingDirectory to set
      */
     public void setWorkingDirectory(String workingDirectory) {
         this.workingDirectory = workingDirectory;
     }
 
+    /**
+     * @return the dataTransferMethod
+     */
     public String getDataTransferMethod() {
         return dataTransferMethod;
     }
 
+    /**
+     * @param dataTransferMethod  the dataTransferMethod to set
+     */
     public void setDataTransferMethod(String dataTransferMethod) {
         this.dataTransferMethod = dataTransferMethod;
     }

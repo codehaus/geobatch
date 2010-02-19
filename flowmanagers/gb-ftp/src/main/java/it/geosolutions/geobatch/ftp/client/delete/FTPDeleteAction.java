@@ -118,7 +118,8 @@ public class FTPDeleteAction extends
             //
             // /////////////////////////////////////////
             
-            LOGGER.info("Deleting file from FtpServer ... " + ftpserverHost);
+            if (LOGGER.isLoggable(Level.INFO))
+            	LOGGER.info("Deleting file from FtpServer ... " + ftpserverHost);
             
             boolean sent = false;
             final FTPConnectMode connectMode = configuration.getConnectMode().toString().equalsIgnoreCase(FTPConnectMode.ACTIVE.toString()) ?
@@ -177,9 +178,11 @@ public class FTPDeleteAction extends
             }
             
             if (sent)
-                LOGGER.info("FTPDeleteAction: file SUCCESSFULLY deleted from FtpServer!");
+            	if (LOGGER.isLoggable(Level.INFO))
+            		LOGGER.info("FTPDeleteAction: file SUCCESSFULLY deleted from FtpServer!");
             else
-                LOGGER.info("FTPDeleteAction: file was NOT deleted from FtpServer due to connection errors!");
+            	if (LOGGER.isLoggable(Level.INFO))
+            		LOGGER.info("FTPDeleteAction: file was NOT deleted from FtpServer due to connection errors!");
             
             return events;
             

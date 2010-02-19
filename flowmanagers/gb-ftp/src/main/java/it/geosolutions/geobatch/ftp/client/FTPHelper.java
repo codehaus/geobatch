@@ -47,15 +47,16 @@ public class FTPHelper {
     private static final Logger LOGGER = Logger.getLogger(FTPHelper.class.toString());
 
     /**
-     *
-     * @param ftpserverHost
-     * @param binaryFile
-     * @param ftpserverUser
-     * @param ftpserverPassword
-     * @param writeMode 
-     * @param connectMode 
-     * @param timeout 
-     * @return
+     * Function to put binary file.
+     * 
+     * @param ftpserverHost The remote server host.
+     * @param binaryFile The file name.
+     * @param ftpserverUser The user name.
+     * @param ftpserverPassword The user password.
+     * @param writeMode  The write mode.
+     * @param connectMode The connection mode.
+     * @param timeout The connection timeout.
+     * @return If true the upload has been successful.
      */
     public static boolean putBinaryFileTo(String ftpserverHost, String binaryFile, String path,
             String ftpserverUser, String ftpserverPassword,int ftpserverPort, WriteMode writeMode, FTPConnectMode connectMode, int timeout ) {
@@ -68,34 +69,32 @@ public class FTPHelper {
          
          if(LOGGER.isLoggable(Level.INFO))
      		LOGGER.info("[FTP::PutFileTo]: " + "end");
-         return res;
          
+         return res;         
     }
-
-	/**
-	 * @param ftpserverHost
-	 * @param binaryFile
-	 * @param ftpserverUser
-	 * @param ftpserverPassword
-	 * @param ftpserverPort
-	 * @param transferType 
-	 * @param writeMode 
-	 * @param connectMode 
-	 * @param timeout 
-	 * @return
-	 */
-	private static boolean putFile(String ftpserverHost, String binaryFile, String path, String ftpserverUser,
+    
+    /**
+     * This function manage the FTP client connection.
+     * 
+     * @param ftpserverHost The remote server host.
+     * @param ftpserverUser The user name.
+     * @param ftpserverPassword The user password.
+     * @param ftpserverPort The remote server port.
+     * @param transferType The transfer type.
+     * @param writeMode The write mode.
+     * @param connectMode The connection mode.
+     * @param timeout The connection timeout.
+     * @return the FTP client.
+     */
+    private static FTPClient connectTo(String ftpserverHost, String ftpserverUser,
 			String ftpserverPassword, int ftpserverPort, FTPTransferType transferType, 
-			WriteMode writeMode, FTPConnectMode connectMode, int timeout) {
-		
-		boolean res = false;
+			WriteMode writeMode, FTPConnectMode connectMode, int timeout){
 
         final String host = ftpserverHost;
         final String login = ftpserverUser;
         final String password = ftpserverPassword;
         final int port = ftpserverPort;
 
-        String remoteFileName = null;
         FTPClient ftp = null;
 
         try {
@@ -128,6 +127,72 @@ public class FTPHelper {
 			
             ftp.setType(transferType);
             
+            return ftp;
+            
+        }catch(FTPException ftpe){
+            if (LOGGER.isLoggable(Level.SEVERE))
+                LOGGER.log(Level.SEVERE, ftpe.getLocalizedMessage(), ftpe);
+            
+        	// ///////////////////////////////
+        	// Disconnect to the FTP server 
+        	// ///////////////////////////////
+        	
+        	if(ftp != null && ftp.connected())
+        		try{
+        			ftp.quitImmediately();
+        		}catch (Throwable t) {
+                    if(LOGGER.isLoggable(Level.FINE))
+                		LOGGER.log(Level.FINE,t.getLocalizedMessage(),t);
+				}
+        		
+            return null;
+        }catch(IOException ioe){
+            if (LOGGER.isLoggable(Level.SEVERE))
+                LOGGER.log(Level.SEVERE, ioe.getLocalizedMessage(), ioe);
+            
+        	// ///////////////////////////////
+        	// Disconnect to the FTP server 
+        	// ///////////////////////////////
+        	
+        	if(ftp != null && ftp.connected())
+        		try{
+        			ftp.quitImmediately();
+        		}catch (Throwable t) {
+                    if(LOGGER.isLoggable(Level.FINE))
+                		LOGGER.log(Level.FINE,t.getLocalizedMessage(),t);
+				}
+        		
+            return null;
+        }
+    }
+
+	/**
+	 * This function manage the FTP file upload. 
+	 * 
+	 * @param ftpserverHost The remote server host.
+	 * @param binaryFile The binary file to upload. 
+	 * @param ftpserverUser The user name. 
+	 * @param ftpserverPassword The user password.
+	 * @param ftpserverPort The remote server port.
+	 * @param transferType The transfer type. 
+	 * @param writeMode The write mode.
+	 * @param connectMode The connection mode.
+	 * @param timeout The timeout of teh FTP connection.
+	 * @return true if the upload has been successful.
+	 */
+	private static boolean putFile(String ftpserverHost, String binaryFile, String path, String ftpserverUser,
+			String ftpserverPassword, int ftpserverPort, FTPTransferType transferType, 
+			WriteMode writeMode, FTPConnectMode connectMode, int timeout) {
+		
+		boolean res = false;
+
+        String remoteFileName = null;
+        FTPClient ftp = null;
+
+        try {
+            ftp = connectTo(ftpserverHost, ftpserverUser, ftpserverPassword, 
+            		ftpserverPort, transferType, writeMode, connectMode, timeout);
+            
             // ///////////////////////////////
             // Get the remote file name
             // ///////////////////////////////
@@ -136,7 +201,7 @@ public class FTPHelper {
             remoteFileName = remoteFileName.substring(remoteFileName.lastIndexOf("/") + 1, remoteFileName.length());
 
             if(LOGGER.isLoggable(Level.INFO))
-            		LOGGER.info("[FTP::PutFileTo]: " + "Connecting to :" + host + ":" + port);            
+            		LOGGER.info("[FTP::PutFileTo]: " + "Connecting to :" + ftpserverHost + ":" + ftpserverPort);            
 
             if(LOGGER.isLoggable(Level.INFO))
             		LOGGER.info("[FTP::FileTo]: " + "sending: " + binaryFile + " to: " + remoteFileName);
@@ -162,16 +227,19 @@ public class FTPHelper {
             if(LOGGER.isLoggable(Level.INFO))
         		LOGGER.info("[FTP::FileTo]: " + "sent: " + binaryFile + " to: " + remoteFileNameReturned);
             
-            res = true;
+            if(remoteFileNameReturned != null)res = true;
             
-        } catch (FTPException e) {
-            LOGGER.log(Level.SEVERE,"FTP ERROR: " + e.getLocalizedMessage(),e);
+        }catch (FTPException ftpe) {
+        	if (LOGGER.isLoggable(Level.SEVERE))
+        		LOGGER.log(Level.SEVERE,"FTP ERROR: " + ftpe.getLocalizedMessage(),ftpe);
             res = false;
-        }catch (IOException e) {
-        	LOGGER.log(Level.SEVERE,"FTP ERROR: " + e.getLocalizedMessage(),e);
+        }catch (IOException ioe) {
+        	if (LOGGER.isLoggable(Level.SEVERE))
+        		LOGGER.log(Level.SEVERE,"FTP ERROR: " + ioe.getLocalizedMessage(),ioe);
             res = false;
-        }catch (Throwable e) {
-        	LOGGER.log(Level.SEVERE,"FTP ERROR: " + e.getLocalizedMessage(),e);
+        }catch (Throwable t) {
+        	if (LOGGER.isLoggable(Level.SEVERE))
+        		LOGGER.log(Level.SEVERE,"FTP ERROR: " + t.getLocalizedMessage(),t);
             res = false;
         }finally{
         	
@@ -179,7 +247,7 @@ public class FTPHelper {
         	// Disconnect to the FTP server 
         	// ///////////////////////////////
         	
-        	if(ftp!=null&&ftp.connected())
+        	if(ftp != null && ftp.connected())
         		try{
         			ftp.quitImmediately();
         		}catch (Throwable t) {
@@ -192,15 +260,16 @@ public class FTPHelper {
 	}
 
     /**
-     *
-     * @param ftpserverHost
-     * @param textFile
-     * @param ftpserverUser
-     * @param ftpserverPassword
-     * @param writeMode 
-     * @param connectMode 
-     * @param timeout 
-     * @return
+     * Function to put text file.
+     * 
+     * @param ftpserverHost The remote server host.
+     * @param textFile The file name.
+     * @param ftpserverUser The user name.
+     * @param ftpserverPassword The user password.
+     * @param writeMode The write mode.
+     * @param connectMode The connection mode.
+     * @param timeout The connection timeout.
+     * @return If true the upload has been successful.
      */
 	public static boolean putTextFileTo(String ftpserverHost, String textFile, String path,
 	            String ftpserverUser, String ftpserverPassword, int ftpserverPort, WriteMode writeMode, FTPConnectMode connectMode, int timeout) {
@@ -215,61 +284,34 @@ public class FTPHelper {
 	     
 	     return res;
 	}
-
+	
 	/**
-	*
-	* @param ftpserverHost
-	* @param textFile
-	* @param ftpserverUser
-	* @param ftpserverPassword
-	* @param writeMode 
-	* @param connectMode 
-	* @param timeout 
-	* @return
-	*/
+	 * This function create a remote directory.
+	 * 
+	 * @param ftpserverHost The remote server host.
+	 * @param binaryFile The remote directory name.
+	 * @param path The remote directory path.
+	 * @param ftpserverUser The user name.
+	 * @param ftpserverPassword The user password.
+	 * @param ftpserverPort The remote server port.
+	 * @param transferType The transfer type.
+	 * @param writeMode The write mode.
+	 * @param connectMode The connection mode.
+	 * @param timeout The connection timeout.
+	 * @return true if the remote directory has successfully created.
+	 */
 	public static boolean createDirectory(String ftpserverHost, String binaryFile, String path, String ftpserverUser,
 			String ftpserverPassword, int ftpserverPort, FTPTransferType transferType, 
 			WriteMode writeMode, FTPConnectMode connectMode, int timeout){
 		
 		boolean res = false;
 
-        final String host = ftpserverHost;
-        final String login = ftpserverUser;
-        final String password = ftpserverPassword;
-        final int port = ftpserverPort;
-
         String remoteFileName = null;
         FTPClient ftp = null;
 
         try {
-            ftp = new FTPClient();
-            ftp.setRemoteHost(host);
-            ftp.setRemotePort(port);
-			ftp.setTimeout(timeout);
-            final FTPMessageCollector listener = new FTPMessageCollector();
-            ftp.setMessageListener(listener);
-
-            if(LOGGER.isLoggable(Level.INFO))
-        		LOGGER.info("Connecting");
-            
-			ftp.connect();
-
-			if(LOGGER.isLoggable(Level.INFO))
-        		LOGGER.info("Logging in");
-			
-			ftp.login(login, password);
-			
-			// /////////////////////////////////////
-            // Transfer mode (ACTIVE vs PASSIVE)
-			// /////////////////////////////////////
-			
-			ftp.setConnectMode(connectMode);
-			
-			// //////////////////////////////////
-            // Transfer type (BINARY vs ASCII)
-			// //////////////////////////////////
-			
-            ftp.setType(transferType);
+            ftp = connectTo(ftpserverHost, ftpserverUser, ftpserverPassword, 
+            		ftpserverPort, transferType, writeMode, connectMode, timeout);
             
             // ///////////////////////////////
             // Get the remote file name
@@ -279,10 +321,10 @@ public class FTPHelper {
             remoteFileName = remoteFileName.substring(remoteFileName.lastIndexOf("/") + 1, remoteFileName.length());
 
             if(LOGGER.isLoggable(Level.INFO))
-            		LOGGER.info("[FTP::PutFileTo]: " + "Connecting to :" + host + ":" + port);            
+            		LOGGER.info("[FTP::createDirectory]: " + "Connecting to :" + ftpserverHost + ":" + ftpserverPort);            
 
             if(LOGGER.isLoggable(Level.INFO))
-            		LOGGER.info("[FTP::FileTo]: " + "sending: " + binaryFile + " to: " + remoteFileName);
+            		LOGGER.info("[FTP::createDirectory]: " + "sending: " + binaryFile + " to: " + remoteFileName);
 
             // /////////////////////////////////////////////
             // Checking to change remote working directory 
@@ -304,14 +346,17 @@ public class FTPHelper {
             
             res = true;
 
-        }catch (FTPException e) {
-            LOGGER.log(Level.SEVERE,"FTP ERROR: " + e.getLocalizedMessage(),e);
+        }catch (FTPException ftpe) {
+        	if (LOGGER.isLoggable(Level.SEVERE))
+        		LOGGER.log(Level.SEVERE,"FTP ERROR: " + ftpe.getLocalizedMessage(),ftpe);
             res = false;
-        }catch (IOException e) {
-        	LOGGER.log(Level.SEVERE,"FTP ERROR: " + e.getLocalizedMessage(),e);
+        }catch (IOException ioe) {
+        	if (LOGGER.isLoggable(Level.SEVERE))
+        		LOGGER.log(Level.SEVERE,"FTP ERROR: " + ioe.getLocalizedMessage(),ioe);
             res = false;
-        }catch (Throwable e) {
-        	LOGGER.log(Level.SEVERE,"FTP ERROR: " + e.getLocalizedMessage(),e);
+        }catch (Throwable t) {
+        	if (LOGGER.isLoggable(Level.SEVERE))
+        		LOGGER.log(Level.SEVERE,"FTP ERROR: " + t.getLocalizedMessage(),t);
             res = false;
         }finally{
         	
@@ -331,54 +376,38 @@ public class FTPHelper {
 		return res;
 	}
 	
+	/**
+	 * This function download a file.
+	 * 
+	 * @param ftpserverHost The remote server host.
+	 * @param localPath The local path.
+	 * @param remotePath The remote path.
+	 * @param remoteFile The remote file name.
+	 * @param ftpserverUser The user name.
+	 * @param ftpserverPassword The user password.
+	 * @param ftpserverPort The remote server port.
+	 * @param transferType The transfer type.
+	 * @param writeMode The write mode. 
+	 * @param connectMode The connection mode.
+	 * @param timeout The connection timeout.
+	 * @return true if the remote file has been successfully downloaded.
+	 */
 	public static boolean downloadFile(String ftpserverHost, String localPath, String remotePath, String remoteFile, String ftpserverUser,
 			String ftpserverPassword, int ftpserverPort, FTPTransferType transferType, 
 			WriteMode writeMode, FTPConnectMode connectMode, int timeout){
 		
 		boolean res = false;
-
-        final String host = ftpserverHost;
-        final String login = ftpserverUser;
-        final String password = ftpserverPassword;
-        final int port = ftpserverPort;
-
         FTPClient ftp = null;
 
         try {
-            ftp = new FTPClient();
-            ftp.setRemoteHost(host);
-            ftp.setRemotePort(port);
-			ftp.setTimeout(timeout);
-            final FTPMessageCollector listener = new FTPMessageCollector();
-            ftp.setMessageListener(listener);
+            ftp = connectTo(ftpserverHost, ftpserverUser, ftpserverPassword, 
+            		ftpserverPort, transferType, writeMode, connectMode, timeout);
 
             if(LOGGER.isLoggable(Level.INFO))
-        		LOGGER.info("Connecting");
-            
-			ftp.connect();
-
-			if(LOGGER.isLoggable(Level.INFO))
-        		LOGGER.info("Logging in");
-			
-			ftp.login(login, password);
-			
-			// /////////////////////////////////////
-            // Transfer mode (ACTIVE vs PASSIVE)
-			// /////////////////////////////////////
-			
-			ftp.setConnectMode(connectMode);
-			
-			// //////////////////////////////////
-            // Transfer type (BINARY vs ASCII)
-			// //////////////////////////////////
-			
-            ftp.setType(transferType);
+            	LOGGER.info("[FTP::downloadFile]: " + "Connecting to :" + ftpserverHost + ":" + ftpserverPort);            
 
             if(LOGGER.isLoggable(Level.INFO))
-            	LOGGER.info("[FTP::PutFileTo]: " + "Connecting to :" + host + ":" + port);            
-
-            if(LOGGER.isLoggable(Level.INFO))
-            	LOGGER.info("[FTP::FileTo]: " + "downloading: " + remoteFile + " from: " + remoteFile);
+            	LOGGER.info("[FTP::downloadFile]: " + "downloading: " + remoteFile + " from: " + remoteFile);
 
             // /////////////////////////////////////////////
             // Checking to change remote working directory 
@@ -399,18 +428,21 @@ public class FTPHelper {
             ftp.get(localPath, remoteFile);
             
             if(LOGGER.isLoggable(Level.INFO))
-        		LOGGER.info("[FTP::FileTo]: " + "downloaded: " + remoteFile + " from: " + remoteFile);
+        		LOGGER.info("[FTP::downloadFile]: " + "downloaded: " + remoteFile + " from: " + remoteFile);
             
             res = true;
             
-        }catch (FTPException e) {
-            LOGGER.log(Level.SEVERE,"FTP ERROR: " + e.getLocalizedMessage(),e);
+        }catch (FTPException ftpe) {
+        	if (LOGGER.isLoggable(Level.SEVERE))
+        		LOGGER.log(Level.SEVERE,"FTP ERROR: " + ftpe.getLocalizedMessage(),ftpe);
             res = false;
-        }catch (IOException e) {
-        	LOGGER.log(Level.SEVERE,"FTP ERROR: " + e.getLocalizedMessage(),e);
+        }catch (IOException ioe) {
+        	if (LOGGER.isLoggable(Level.SEVERE))
+        		LOGGER.log(Level.SEVERE,"FTP ERROR: " + ioe.getLocalizedMessage(),ioe);
             res = false;
-        }catch (Throwable e) {
-        	LOGGER.log(Level.SEVERE,"FTP ERROR: " + e.getLocalizedMessage(),e);
+        }catch (Throwable t) {
+        	if (LOGGER.isLoggable(Level.SEVERE))
+        		LOGGER.log(Level.SEVERE,"FTP ERROR: " + t.getLocalizedMessage(),t);
             res = false;
         }finally{
         	
@@ -430,52 +462,36 @@ public class FTPHelper {
 		return res;		
 	}
 	
+	/**
+	 * Function to get the remote directory details. 
+	 * 
+	 * @param ftpserverHost The remote server host.
+	 * @param dirName The remote directory name.
+	 * @param remotePath The remote directory path.
+	 * @param ftpserverUser The user name.
+	 * @param ftpserverPassword The user password.
+	 * @param ftpserverPort The remote server port.
+	 * @param transferType The transfer type.
+	 * @param writeMode The write mode.
+	 * @param connectMode The connection mode.
+	 * @param timeout The connection timeout.
+	 * @return The content details of the remote directory.
+	 */
 	public static FTPFile[] dirDetails(String ftpserverHost, String dirName, String remotePath, String ftpserverUser,
 			String ftpserverPassword, int ftpserverPort, FTPTransferType transferType, 
 			WriteMode writeMode, FTPConnectMode connectMode, int timeout){
 		
 		boolean res = false;
-		FTPFile[] ftpFiles = null;
-
-        final String host = ftpserverHost;
-        final String login = ftpserverUser;
-        final String password = ftpserverPassword;
-        final int port = ftpserverPort;
-        
+		
+		FTPFile[] ftpFiles = null;        
         FTPClient ftp = null;
 
         try {
-            ftp = new FTPClient();
-            ftp.setRemoteHost(host);
-            ftp.setRemotePort(port);
-			ftp.setTimeout(timeout);
-            final FTPMessageCollector listener = new FTPMessageCollector();
-            ftp.setMessageListener(listener);
+            ftp = connectTo(ftpserverHost, ftpserverUser, ftpserverPassword, 
+            		ftpserverPort, transferType, writeMode, connectMode, timeout);
 
             if(LOGGER.isLoggable(Level.INFO))
-        		LOGGER.info("Connecting");
-            
-			ftp.connect();
-
-			if(LOGGER.isLoggable(Level.INFO))
-        		LOGGER.info("Logging in");
-			
-			ftp.login(login, password);
-
-			// /////////////////////////////////////
-            // Transfer mode (ACTIVE vs PASSIVE)
-			// /////////////////////////////////////
-			
-			ftp.setConnectMode(connectMode);
-			
-			// //////////////////////////////////
-            // Transfer type (BINARY vs ASCII)
-			// //////////////////////////////////
-			
-            ftp.setType(transferType);
-
-            if(LOGGER.isLoggable(Level.INFO))
-            	LOGGER.info("[FTP::PutFileTo]: " + "Connecting to :" + host + ":" + port);
+            	LOGGER.info("[FTP::dirDetails]: " + "Connecting to :" + ftpserverHost + ":" + ftpserverPort);
       
             // /////////////////////////////////////////////
             // Checking to change remote working directory 
@@ -496,16 +512,18 @@ public class FTPHelper {
             ftpFiles = ftp.dirDetails(dirName);
 
             if(ftpFiles != null)res = true;
-            else res = false;
             
-        }catch (FTPException e) {
-            LOGGER.log(Level.SEVERE,"FTP ERROR: " + e.getLocalizedMessage(),e);
+        }catch (FTPException ftpe) {
+        	if (LOGGER.isLoggable(Level.SEVERE))
+        		LOGGER.log(Level.SEVERE,"FTP ERROR: " + ftpe.getLocalizedMessage(),ftpe);
             res = false;
-        }catch (IOException e) {
-        	LOGGER.log(Level.SEVERE,"FTP ERROR: " + e.getLocalizedMessage(),e);
+        }catch (IOException ioe) {
+        	if (LOGGER.isLoggable(Level.SEVERE))
+        		LOGGER.log(Level.SEVERE,"FTP ERROR: " + ioe.getLocalizedMessage(),ioe);
             res = false;
-        }catch (Throwable e) {
-        	LOGGER.log(Level.SEVERE,"FTP ERROR: " + e.getLocalizedMessage(),e);
+        }catch (Throwable t) {
+        	if (LOGGER.isLoggable(Level.SEVERE))
+        		LOGGER.log(Level.SEVERE,"FTP ERROR: " + t.getLocalizedMessage(),t);
             res = false;
         }finally{
         	
@@ -526,6 +544,20 @@ public class FTPHelper {
         else return null;
 	}
 	
+	/**
+	 * Function to delete remote file or directory.
+	 * 
+	 * @param ftpserverHost The remote server host.
+	 * @param remoteFile The remote file or directory name.
+	 * @param isDir to distinguish file or directory.
+	 * @param remotePath The file or directory remote path.
+	 * @param ftpserverUser The user name.
+	 * @param ftpserverPassword The user password.
+	 * @param ftpserverPort The remote server port.
+	 * @param connectMode The connection mode.
+	 * @param timeout The connection timeout.
+	 * @return If true the remote file or directory has been successfully deleted.
+	 */
 	public static boolean deleteFileOrDirectory(String ftpserverHost, String remoteFile, boolean isDir, String remotePath, String ftpserverUser,
 			String ftpserverPassword, int ftpserverPort, FTPConnectMode connectMode, int timeout){
 		
@@ -552,10 +584,10 @@ public class FTPHelper {
 			ftp.connect();
 			
             if(LOGGER.isLoggable(Level.INFO))
-            	LOGGER.info("[FTP::PutFileTo]: " + "Connecting to :" + host + ":" + port);            
+            	LOGGER.info("[FTP::deleteFileOrDirectory]: " + "Connecting to :" + host + ":" + port);            
 
             if(LOGGER.isLoggable(Level.INFO))
-            	LOGGER.info("[FTP::FileTo]: " + "removing: " + remoteFile + " from: " + remoteFile);
+            	LOGGER.info("[FTP::deleteFileOrDirectory]: " + "removing: " + remoteFile + " from: " + remoteFile);
         	
             // /////////////////////////////////////////////
             // Checking to change remote working directory 
@@ -579,18 +611,21 @@ public class FTPHelper {
             	ftp.deleteFile(remoteFile);
             
             if(LOGGER.isLoggable(Level.INFO))
-        		LOGGER.info("[FTP::FileTo]: " + "removed: " + remoteFile + " from: " + remoteFile);
+        		LOGGER.info("[FTP::deleteFileOrDirectory]: " + "removed: " + remoteFile + " from: " + remoteFile);
             
             res = true;
             
-        }catch (FTPException e) {
-            LOGGER.log(Level.SEVERE,"FTP ERROR: " + e.getLocalizedMessage(),e);
+        }catch (FTPException ftpe) {
+        	if (LOGGER.isLoggable(Level.SEVERE))
+        		LOGGER.log(Level.SEVERE,"FTP ERROR: " + ftpe.getLocalizedMessage(),ftpe);
             res = false;
-        }catch (IOException e) {
-        	LOGGER.log(Level.SEVERE,"FTP ERROR: " + e.getLocalizedMessage(),e);
+        }catch (IOException ioe) {
+        	if (LOGGER.isLoggable(Level.SEVERE))
+        		LOGGER.log(Level.SEVERE,"FTP ERROR: " + ioe.getLocalizedMessage(),ioe);
             res = false;
-        }catch (Throwable e) {
-        	LOGGER.log(Level.SEVERE,"FTP ERROR: " + e.getLocalizedMessage(),e);
+        }catch (Throwable t) {
+        	if (LOGGER.isLoggable(Level.SEVERE))
+        		LOGGER.log(Level.SEVERE,"FTP ERROR: " + t.getLocalizedMessage(),t);
             res = false;
         }finally{
         	

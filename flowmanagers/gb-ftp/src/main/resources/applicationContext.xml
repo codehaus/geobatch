@@ -50,6 +50,6 @@
     
     <bean id="ftpSupportRegistrar" class="it.geosolutions.geobatch.ftp.client.FTPAliasRegistrar" lazy-init="false">
         <constructor-arg ref="aliasRegistry" />
-    </bean>    
-    
+    </bean>   
+        
 </beans>
