@@ -36,8 +36,7 @@ import java.util.logging.Logger;
  * 
  * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
  */
-public abstract class FTPBaseAction <T extends EventObject> extends BaseAction<T>
-        implements Action<T> {
+public abstract class FTPBaseAction <T extends EventObject> extends BaseAction<T> implements Action<T> {
 	
     /**
      * Default logger
@@ -46,17 +45,6 @@ public abstract class FTPBaseAction <T extends EventObject> extends BaseAction<T
 
     protected final FTPActionConfiguration configuration;
 
-    protected final String ftpserverHost;
-
-    protected final String ftpserverPWD;
-
-    protected final String ftpserverUSR;
-
-    protected final int ftpserverPort;
-
-    protected final String dataTransferMethod;
-
-    
     /**
      * Constructs a producer. The operation name will be the same than the parameter descriptor
      * name.
@@ -66,22 +54,14 @@ public abstract class FTPBaseAction <T extends EventObject> extends BaseAction<T
      */
     public FTPBaseAction(FTPActionConfiguration configuration) throws IOException {
     	
-        this.configuration = configuration;
-        
-        // /////////////////////////
-        // get required parameters
-        // /////////////////////////
-
-        ftpserverHost = configuration.getFtpserverHost();
-        
-        ftpserverUSR = configuration.getFtpserverUSR();
-
-        ftpserverPWD = configuration.getFtpserverPWD();
-
-        ftpserverPort = configuration.getFtpserverPort();
-
-        dataTransferMethod = configuration.getDataTransferMethod();
-
+        try {
+			this.configuration = configuration.clone();
+		} catch (CloneNotSupportedException e) {
+			final IOException ioe= new IOException();
+			ioe.initCause(e);
+			throw ioe;
+		}
+ 
     }
 
     /**
