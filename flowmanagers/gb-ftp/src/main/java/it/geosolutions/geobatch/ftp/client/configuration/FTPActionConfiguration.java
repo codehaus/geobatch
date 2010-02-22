@@ -20,7 +20,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package it.geosolutions.geobatch.ftp.client.configuration;
 
 import it.geosolutions.geobatch.catalog.Configuration;
@@ -28,11 +27,11 @@ import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 
 
 /**
+ * This class represent a basic configuration to FTP actions.
  * 
  * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
- * 
  */
-public class FTPDeleteActionConfiguration extends ActionConfiguration implements Configuration {
+public class FTPActionConfiguration  extends ActionConfiguration implements Configuration {
 
     public static final String DEFAULT_PORT = "21";
     
@@ -58,18 +57,28 @@ public class FTPDeleteActionConfiguration extends ActionConfiguration implements
     
 	private FTPConnectMode connectMode;
 	
-	private String localTempDir;
-    
+	private String localTempDir;    
 
 	public enum FTPConnectMode{
 		ACTIVE,PASSIVE;
 	}
     
-	public FTPDeleteActionConfiguration() {
+	/**
+	 * Basic constructor
+	 */
+	public FTPActionConfiguration() {
         super();
     }
 	
-	protected FTPDeleteActionConfiguration(String id, String name,
+	/**
+	 * Constructor specifying action identifiers.
+	 * 
+	 * @param id The action identifier.
+	 * @param name The action name.
+	 * @param description The action description.
+	 * @param dirty 
+	 */
+	protected FTPActionConfiguration(String id, String name,
 			String description, boolean dirty) {
 		super(id, name, description, dirty);
 	}
@@ -229,9 +238,9 @@ public class FTPDeleteActionConfiguration extends ActionConfiguration implements
     }
 
 	@Override
-	public FTPDeleteActionConfiguration clone() throws CloneNotSupportedException {
-		final FTPDeleteActionConfiguration configuration= 
-			new FTPDeleteActionConfiguration(getId(),getName(),getDescription(),isDirty());
+	public FTPActionConfiguration clone() throws CloneNotSupportedException {
+		final FTPActionConfiguration configuration= 
+			new FTPActionConfiguration(getId(),getName(),getDescription(),isDirty());
 		configuration.setConnectMode(connectMode);
 		configuration.setDataTransferMethod(dataTransferMethod);
 		configuration.setFtpserverHost(ftpserverHost);
@@ -246,4 +255,5 @@ public class FTPDeleteActionConfiguration extends ActionConfiguration implements
 		configuration.setLocalTempDir(localTempDir);
 		return configuration;
 	}
+
 }

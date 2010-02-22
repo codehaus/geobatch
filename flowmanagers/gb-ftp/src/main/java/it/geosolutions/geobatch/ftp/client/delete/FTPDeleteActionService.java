@@ -26,7 +26,7 @@ package it.geosolutions.geobatch.ftp.client.delete;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.catalog.impl.BaseService;
 import it.geosolutions.geobatch.flow.event.action.ActionService;
-import it.geosolutions.geobatch.ftp.client.configuration.FTPDeleteActionConfiguration;
+import it.geosolutions.geobatch.ftp.client.configuration.FTPActionConfiguration;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -34,32 +34,48 @@ import java.util.logging.Logger;
 
 
 /**
+ * This class manage the delete service running the FTP delete action.
  * 
  * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
  * 
  */
 public class FTPDeleteActionService
-        extends BaseService implements ActionService<FileSystemMonitorEvent, FTPDeleteActionConfiguration> {
+        extends BaseService implements ActionService<FileSystemMonitorEvent, FTPActionConfiguration> {
 
     private final static Logger LOGGER = Logger.getLogger(FTPDeleteActionService.class
             .toString());
     
+    /**
+     * The FTPDeleteActionServiceb basic constructor.
+     */
     public FTPDeleteActionService() {
         super(true);
     }
 
-    public boolean canCreateAction(FTPDeleteActionConfiguration configuration) {
-        // XXX ImPLEMENT ME
+    /**
+     * Method to verify if the action creation is available.
+     * 
+     * @param configuration The FTP action configuration.
+     * @return boolean
+     */
+    public boolean canCreateAction(FTPActionConfiguration configuration) {
         return true;
     }
 
-	public FTPDeleteAction createAction(FTPDeleteActionConfiguration configuration) {
+    /**
+     * Method to create a delete action using the FTP action configuration.
+     * 
+     * @param configuration The FTP action configuration.
+     * @return The FTPDeleteAction
+     */
+	public FTPDeleteAction createAction(FTPActionConfiguration configuration) {
 		try {
 			return new FTPDeleteAction(configuration);
 		} catch (IOException e) {
             if (LOGGER.isLoggable(Level.SEVERE))
                 LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
 		}
+		
 		return null;
 	}
 }

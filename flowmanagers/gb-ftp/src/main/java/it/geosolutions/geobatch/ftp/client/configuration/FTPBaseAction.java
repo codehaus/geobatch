@@ -20,7 +20,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package it.geosolutions.geobatch.ftp.client.configuration;
 
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
@@ -33,19 +32,19 @@ import java.util.logging.Logger;
 
 
 /**
+ * This class represent a basic FTP action.
  * 
  * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
- * 
  */
-public abstract class FTPDeleteBaseAction<T extends EventObject> extends BaseAction<T>
+public abstract class FTPBaseAction <T extends EventObject> extends BaseAction<T>
         implements Action<T> {
 	
     /**
      * Default logger
      */
-    protected final static Logger LOGGER = Logger.getLogger(FTPDeleteBaseAction.class.toString());
+    protected final static Logger LOGGER = Logger.getLogger(FTPBaseAction.class.toString());
 
-    protected final FTPDeleteActionConfiguration configuration;
+    protected final FTPActionConfiguration configuration;
 
     protected final String ftpserverHost;
 
@@ -65,8 +64,7 @@ public abstract class FTPDeleteBaseAction<T extends EventObject> extends BaseAct
      * @param descriptor The parameters descriptor.
      * @throws IOException
      */
-    public FTPDeleteBaseAction(FTPDeleteActionConfiguration configuration)
-            throws IOException {
+    public FTPBaseAction(FTPActionConfiguration configuration) throws IOException {
     	
         this.configuration = configuration;
         
@@ -86,6 +84,9 @@ public abstract class FTPDeleteBaseAction<T extends EventObject> extends BaseAct
 
     }
 
+    /**
+     * @return The configuration of the action.
+     */
     public ActionConfiguration getConfiguration() {
         return configuration;
     }

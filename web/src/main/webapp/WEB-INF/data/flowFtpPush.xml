@@ -15,7 +15,7 @@
 			<name>test</name>
 		</FileEventRule>
 
-		<FTPUploadActionConfiguration>
+		<FTPActionConfiguration>
 			<workingDirectory>ftpflowworkingdir
 			</workingDirectory>
 			<dataTransferMethod />
@@ -32,9 +32,9 @@
 			<id>a1</id>
 			<description>description</description>
 			<name>test</name>
-		</FTPUploadActionConfiguration>
+		</FTPActionConfiguration>
 
-		<FTPDownloadActionConfiguration>
+		<FTPActionConfiguration>
 			<workingDirectory>ftpflowworkingdir
 			</workingDirectory>
 			<dataTransferMethod />
@@ -52,9 +52,9 @@
 			<id>a1</id>
 			<description>description</description>
 			<name>test</name>
-		</FTPDownloadActionConfiguration>
+		</FTPActionConfiguration>
 
-		<FTPDeleteActionConfiguration>
+		<FTPActionConfiguration>
 			<workingDirectory>ftpflowworkingdir
 			</workingDirectory>
 			<dataTransferMethod />
@@ -71,7 +71,7 @@
 			<id>a1</id>
 			<description>description</description>
 			<name>test</name>
-		</FTPDeleteActionConfiguration>
+		</FTPActionConfiguration>
 
 		<id>id</id>
 		<description>description</description>
