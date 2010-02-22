@@ -1035,10 +1035,10 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 			    
 	        }catch (IOException e) {
 	            if (LOGGER.isLoggable(Level.SEVERE))
-	                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+	                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);	            
+	            if(out != null)out.close();
 	        }finally{
-	        	if(in != null)
-	        		in.close();
+	        	if(in != null)in.close();
 	        }
 	        
 		 }else throw new IOException("One or more input parameters are null!");
@@ -1094,6 +1094,7 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 	        }catch (IOException e) {
 	            if (LOGGER.isLoggable(Level.SEVERE))
 	                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+	            if(out != null)out.close();
 	        }finally{
 	        	if(in != null)in.close();
 	        }

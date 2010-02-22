@@ -26,7 +26,7 @@ package it.geosolutions.geobatch.ftp.client.download;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.catalog.impl.BaseService;
 import it.geosolutions.geobatch.flow.event.action.ActionService;
-import it.geosolutions.geobatch.ftp.client.configuration.FTPDownloadActionConfiguration;
+import it.geosolutions.geobatch.ftp.client.configuration.FTPActionConfiguration;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -34,32 +34,48 @@ import java.util.logging.Logger;
 
 
 /**
+ * This class manage the download service running the FTP download action.
  * 
  * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
  * 
  */
 public class FTPDownloadActionService
-        extends BaseService implements ActionService<FileSystemMonitorEvent, FTPDownloadActionConfiguration> {
+        extends BaseService implements ActionService<FileSystemMonitorEvent, FTPActionConfiguration> {
 
     private final static Logger LOGGER = Logger.getLogger(FTPDownloadActionService.class
             .toString());
     
+    /**
+     * The FTPDownloadActionService basic constructor.
+     */
     public FTPDownloadActionService() {
         super(true);
     }
 
-    public boolean canCreateAction(FTPDownloadActionConfiguration configuration) {
-        // XXX ImPLEMENT ME
+    /**
+     * Method to verify if the action creation is available.
+     * 
+     * @param configuration The FTP action configuration.
+     * @return boolean
+     */
+    public boolean canCreateAction(FTPActionConfiguration configuration) {
         return true;
     }
 
-	public FTPDownloadAction createAction(FTPDownloadActionConfiguration configuration) {
+    /**
+     * Method to create a download action using the FTP action configuration.
+     * 
+     * @param configuration The FTP action configuration.
+     * @return The FTPDownloadAction
+     */
+	public FTPDownloadAction createAction(FTPActionConfiguration configuration) {
 		try {
 			return new FTPDownloadAction(configuration);
 		} catch (IOException e) {
             if (LOGGER.isLoggable(Level.SEVERE))
                 LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
 		}
+		
 		return null;
 	}
 }

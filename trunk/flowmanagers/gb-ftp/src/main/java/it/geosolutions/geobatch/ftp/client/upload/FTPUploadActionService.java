@@ -25,32 +25,48 @@ package it.geosolutions.geobatch.ftp.client.upload;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.catalog.impl.BaseService;
 import it.geosolutions.geobatch.flow.event.action.ActionService;
-import it.geosolutions.geobatch.ftp.client.configuration.FTPUploadActionConfiguration;
+import it.geosolutions.geobatch.ftp.client.configuration.FTPActionConfiguration;
 
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * This class manage the upload service running the FTP upload action.
  * 
+ * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
  * @author Ivano Picco
  */
 public class FTPUploadActionService
-        extends BaseService implements ActionService<FileSystemMonitorEvent, FTPUploadActionConfiguration> {
+        extends BaseService implements ActionService<FileSystemMonitorEvent, FTPActionConfiguration> {
 
     private final static Logger LOGGER = Logger.getLogger(FTPUploadActionService.class
             .toString());
     
+    /**
+     * The FTPUploadActionService basic constructor.
+     */
     public FTPUploadActionService() {
         super(true);
     }
 
-    public boolean canCreateAction(FTPUploadActionConfiguration configuration) {
-        // XXX ImPLEMENT ME
+    /**
+     * Method to verify if the action creation is available.
+     * 
+     * @param configuration The FTP action configuration.
+     * @return boolean
+     */
+    public boolean canCreateAction(FTPActionConfiguration configuration) {
         return true;
     }
 
-	public FTPUploadAction createAction(FTPUploadActionConfiguration configuration) {
+    /**
+     * Method to create an upload action using the FTP action configuration.
+     * 
+     * @param configuration The FTP action configuration.
+     * @return The FTPUploadAction
+     */
+	public FTPUploadAction createAction(FTPActionConfiguration configuration) {
 		try {
 			return new FTPUploadAction(configuration);
 		} catch (IOException e) {

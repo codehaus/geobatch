@@ -22,13 +22,11 @@
 
 package it.geosolutions.geobatch.ftp.client;
 
-import java.util.logging.Level;
-
-import it.geosolutions.geobatch.ftp.client.configuration.FTPDeleteActionConfiguration;
-import it.geosolutions.geobatch.ftp.client.configuration.FTPDownloadActionConfiguration;
-import it.geosolutions.geobatch.ftp.client.configuration.FTPUploadActionConfiguration;
+import it.geosolutions.geobatch.ftp.client.configuration.FTPActionConfiguration;
 import it.geosolutions.geobatch.registry.AliasRegistrar;
 import it.geosolutions.geobatch.registry.AliasRegistry;
+
+import java.util.logging.Level;
 
 /**
  * Register XStream aliases for the relevant services we ship in this class.
@@ -37,12 +35,15 @@ import it.geosolutions.geobatch.registry.AliasRegistry;
  */
 public class FTPAliasRegistrar extends AliasRegistrar {
 
+	/**
+	 * A basic constructor to put the FTP Action Configuration alias in to registry.
+	 * 
+	 * @param registry The alias registry.
+	 */
      public FTPAliasRegistrar(AliasRegistry registry) {    	 
          if (LOGGER.isLoggable(Level.INFO))
         	 LOGGER.info(getClass().getSimpleName() + ": registering alias.");
          
-         registry.putAlias("FTPUploadActionConfiguration", FTPUploadActionConfiguration.class);
-         registry.putAlias("FTPDownloadActionConfiguration", FTPDownloadActionConfiguration.class);
-         registry.putAlias("FTPDeleteActionConfiguration", FTPDeleteActionConfiguration.class);
+           registry.putAlias("FTPActionConfiguration", FTPActionConfiguration.class);
      }
  }

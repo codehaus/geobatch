@@ -26,8 +26,8 @@ package it.geosolutions.geobatch.ftp.client.delete;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.ftp.client.FTPHelper;
-import it.geosolutions.geobatch.ftp.client.configuration.FTPDeleteActionConfiguration;
-import it.geosolutions.geobatch.ftp.client.configuration.FTPDeleteBaseAction;
+import it.geosolutions.geobatch.ftp.client.configuration.FTPActionConfiguration;
+import it.geosolutions.geobatch.ftp.client.configuration.FTPBaseAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.utils.IOUtils;
 
@@ -45,19 +45,32 @@ import com.enterprisedt.net.ftp.WriteMode;
 
 
 /**
+ * This class represent an extended FTP action to delete remote files or directory.
  * 
  * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
  * 
  */
 public class FTPDeleteAction extends
-        FTPDeleteBaseAction<FileSystemMonitorEvent> {
+        FTPBaseAction<FileSystemMonitorEvent> {
 
 
-	protected FTPDeleteAction(FTPDeleteActionConfiguration configuration)
+	/**
+	 * The constructor of the delete action.
+	 * 
+	 * @param configuration The action configuration.
+	 * @throws IOException
+	 */
+	protected FTPDeleteAction(FTPActionConfiguration configuration)
             throws IOException {
         super(configuration);
     }
 
+	/**
+	 * Method to launch the action operations when a file system monitor event occurred. 
+	 * 
+	 * @param events The events queue.
+	 * @throws IOException
+	 */
     public Queue<FileSystemMonitorEvent> execute(Queue<FileSystemMonitorEvent> events)throws Exception {
     	
         try {

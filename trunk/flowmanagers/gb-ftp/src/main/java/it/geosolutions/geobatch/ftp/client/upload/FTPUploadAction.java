@@ -27,8 +27,8 @@ package it.geosolutions.geobatch.ftp.client.upload;
 import it.geosolutions.filesystemmonitor.monitor.FileSystemMonitorEvent;
 import it.geosolutions.geobatch.catalog.file.FileBaseCatalog;
 import it.geosolutions.geobatch.ftp.client.FTPHelper;
-import it.geosolutions.geobatch.ftp.client.configuration.FTPUploadBaseAction;
-import it.geosolutions.geobatch.ftp.client.configuration.FTPUploadActionConfiguration;
+import it.geosolutions.geobatch.ftp.client.configuration.FTPActionConfiguration;
+import it.geosolutions.geobatch.ftp.client.configuration.FTPBaseAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.utils.IOUtils;
 
@@ -45,19 +45,32 @@ import com.enterprisedt.net.ftp.WriteMode;
 
 
 /**
+ * This class represent an extended FTP action to upload local files or directory.
  * 
  * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
  * @author Ivano Picco
  */
 public class FTPUploadAction extends
-        FTPUploadBaseAction<FileSystemMonitorEvent> {
+        FTPBaseAction<FileSystemMonitorEvent> {
 
-
-	protected FTPUploadAction(FTPUploadActionConfiguration configuration)
+	
+	/**
+	 * The constructor of the upload action.
+	 * 
+	 * @param configuration The action configuration.
+	 * @throws IOException
+	 */
+	protected FTPUploadAction(FTPActionConfiguration configuration)
             throws IOException {
         super(configuration);
     }
 
+	/**
+	 * Method to launch the action operations when a file system monitor event occurred. 
+	 * 
+	 * @param events The events queue.
+	 * @throws IOException
+	 */
     public Queue<FileSystemMonitorEvent> execute(Queue<FileSystemMonitorEvent> events)throws Exception {
 
         try {
