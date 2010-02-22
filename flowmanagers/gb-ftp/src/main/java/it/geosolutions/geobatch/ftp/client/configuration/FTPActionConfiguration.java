@@ -22,6 +22,8 @@
 
 package it.geosolutions.geobatch.ftp.client.configuration;
 
+import org.springframework.beans.BeanUtils;
+
 import it.geosolutions.geobatch.catalog.Configuration;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 
@@ -64,25 +66,13 @@ public class FTPActionConfiguration  extends ActionConfiguration implements Conf
 	}
     
 	/**
-	 * Basic constructor
+	 * Default constructor
 	 */
 	public FTPActionConfiguration() {
         super();
     }
 	
-	/**
-	 * Constructor specifying action identifiers.
-	 * 
-	 * @param id The action identifier.
-	 * @param name The action name.
-	 * @param description The action description.
-	 * @param dirty 
-	 */
-	protected FTPActionConfiguration(String id, String name,
-			String description, boolean dirty) {
-		super(id, name, description, dirty);
-	}
-	
+
     /**
      * @return the localTempDir
      */
@@ -239,20 +229,8 @@ public class FTPActionConfiguration  extends ActionConfiguration implements Conf
 
 	@Override
 	public FTPActionConfiguration clone() throws CloneNotSupportedException {
-		final FTPActionConfiguration configuration= 
-			new FTPActionConfiguration(getId(),getName(),getDescription(),isDirty());
-		configuration.setConnectMode(connectMode);
-		configuration.setDataTransferMethod(dataTransferMethod);
-		configuration.setFtpserverHost(ftpserverHost);
-		configuration.setFtpserverPort(ftpserverPort);
-		configuration.setFtpserverPWD(ftpserverPWD);
-		configuration.setFtpserverUSR(ftpserverUSR);
-		configuration.setServiceID(getServiceID());
-		configuration.setTimeout(timeout);
-		configuration.setWorkingDirectory(workingDirectory);
-		configuration.setZipFileName(zipFileName);
-		configuration.setZipInput(zipInput);	
-		configuration.setLocalTempDir(localTempDir);
+		final FTPActionConfiguration configuration= new FTPActionConfiguration();
+		BeanUtils.copyProperties(this, configuration);
 		return configuration;
 	}
 
