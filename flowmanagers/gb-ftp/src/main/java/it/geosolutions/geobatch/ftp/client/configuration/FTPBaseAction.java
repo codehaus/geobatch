@@ -57,11 +57,10 @@ public abstract class FTPBaseAction <T extends EventObject> extends BaseAction<T
         try {
 			this.configuration = configuration.clone();
 		} catch (CloneNotSupportedException e) {
-			final IOException ioe= new IOException();
+			final IOException ioe = new IOException();
 			ioe.initCause(e);
 			throw ioe;
-		}
- 
+		} 
     }
 
     /**

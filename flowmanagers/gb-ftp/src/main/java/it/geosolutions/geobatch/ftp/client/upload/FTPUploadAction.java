@@ -104,6 +104,11 @@ public class FTPUploadAction extends
                 throw new IllegalStateException("FTP client data directory is null or does not exist.");
             }
 
+            String ftpserverHost = configuration.getFtpserverHost();
+            String ftpserverUSR = configuration.getFtpserverUSR();
+            String ftpserverPWD = configuration.getFtpserverPWD();
+            int ftpserverPort = configuration.getFtpserverPort();
+            
             if ((ftpserverHost == null) || "".equals(ftpserverHost)) {
                 throw new IllegalStateException("FtpServerHost is null.");
             }
@@ -217,9 +222,14 @@ public class FTPUploadAction extends
     private boolean putDirectory(final File file, final String path){
 		
     	boolean sent = false;
+    	
     	final FTPConnectMode connectMode = configuration.getConnectMode().toString().equalsIgnoreCase(FTPConnectMode.ACTIVE.toString()) ?
     			FTPConnectMode.ACTIVE : FTPConnectMode.PASV;
     	final int timeout = configuration.getTimeout();
+        String ftpserverHost = configuration.getFtpserverHost();
+        String ftpserverUSR = configuration.getFtpserverUSR();
+        String ftpserverPWD = configuration.getFtpserverPWD();
+        int ftpserverPort = configuration.getFtpserverPort();
     	
     	String dirName = file.getName();    	
     	

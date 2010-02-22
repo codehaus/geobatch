@@ -46,7 +46,7 @@ public class FTPDownloadActionService
             .toString());
     
     /**
-     * The FTPDownloadActionService basic constructor.
+     * The FTPDownloadActionService default constructor.
      */
     public FTPDownloadActionService() {
         super(true);

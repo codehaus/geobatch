@@ -22,14 +22,14 @@
 
 package it.geosolutions.geobatch.ftp.client.configuration;
 
-import org.springframework.beans.BeanUtils;
-
 import it.geosolutions.geobatch.catalog.Configuration;
 import it.geosolutions.geobatch.configuration.event.action.ActionConfiguration;
 
+import org.springframework.beans.BeanUtils;
+
 
 /**
- * This class represent a basic configuration to FTP actions.
+ * This class represent a basic configuration to FTP action.
  * 
  * @author Tobia Di Pisa (tobia.dipisa@geo-solutions.it)
  */
@@ -71,7 +71,6 @@ public class FTPActionConfiguration  extends ActionConfiguration implements Conf
 	public FTPActionConfiguration() {
         super();
     }
-	
 
     /**
      * @return the localTempDir
@@ -233,5 +232,4 @@ public class FTPActionConfiguration  extends ActionConfiguration implements Conf
 		BeanUtils.copyProperties(this, configuration);
 		return configuration;
 	}
-
 }

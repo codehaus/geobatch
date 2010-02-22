@@ -2,8 +2,7 @@
 <FlowConfiguration>
 	<workingDirectory>ftpflowworkingdir</workingDirectory>
 	<EventConsumerConfiguration>
-		<workingDirectory>ftpflowworkingdir
-		</workingDirectory>
+		<workingDirectory>ftpflowworkingdir</workingDirectory>
 		<performBackup>false</performBackup>
 
 		<FileEventRule>
@@ -16,8 +15,7 @@
 		</FileEventRule>
 
 		<FTPActionConfiguration>
-			<workingDirectory>ftpflowworkingdir
-			</workingDirectory>
+			<workingDirectory>ftpflowworkingdir</workingDirectory>
 			<dataTransferMethod />
 			<timeout>10000</timeout>
 			<zipInput>false</zipInput>
@@ -35,8 +33,7 @@
 		</FTPActionConfiguration>
 
 		<FTPActionConfiguration>
-			<workingDirectory>ftpflowworkingdir
-			</workingDirectory>
+			<workingDirectory>ftpflowworkingdir</workingDirectory>
 			<dataTransferMethod />
 			<timeout>10000</timeout>
 			<zipInput>false</zipInput>
@@ -47,16 +44,14 @@
 			<ftpserverPort>21</ftpserverPort>
 			<connectMode>ACTIVE</connectMode>
 			<localTempDir>C:/gbTemp</localTempDir>
-			<serviceID>ftpDownloadActionService
-			</serviceID>
+			<serviceID>ftpDownloadActionService</serviceID>
 			<id>a1</id>
 			<description>description</description>
 			<name>test</name>
 		</FTPActionConfiguration>
 
 		<FTPActionConfiguration>
-			<workingDirectory>ftpflowworkingdir
-			</workingDirectory>
+			<workingDirectory>ftpflowworkingdir</workingDirectory>
 			<dataTransferMethod />
 			<timeout>10000</timeout>
 			<zipInput>false</zipInput>
