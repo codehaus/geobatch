@@ -46,7 +46,7 @@ public class FTPDeleteActionService
             .toString());
     
     /**
-     * The FTPDeleteActionServiceb basic constructor.
+     * The FTPDeleteActionServiceb default constructor.
      */
     public FTPDeleteActionService() {
         super(true);

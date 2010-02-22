@@ -44,7 +44,7 @@ public class FTPUploadActionService
             .toString());
     
     /**
-     * The FTPUploadActionService basic constructor.
+     * The FTPUploadActionService default constructor.
      */
     public FTPUploadActionService() {
         super(true);

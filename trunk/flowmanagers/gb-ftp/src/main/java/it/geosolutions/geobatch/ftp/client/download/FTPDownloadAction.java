@@ -104,6 +104,11 @@ public class FTPDownloadAction extends
                 throw new IllegalStateException("FTP client data directory is null or does not exist.");
             }
 
+            String ftpserverHost = configuration.getFtpserverHost();
+            String ftpserverUSR = configuration.getFtpserverUSR();
+            String ftpserverPWD = configuration.getFtpserverPWD();
+            int ftpserverPort = configuration.getFtpserverPort();
+            
             if ((ftpserverHost == null) || "".equals(ftpserverHost)) {
                 throw new IllegalStateException("FtpServerHost is null.");
             }
@@ -219,9 +224,14 @@ public class FTPDownloadAction extends
     private boolean getDirectory(final String dirName, final String remotePath, final String localPath){
 		
     	boolean sent = false;
+    	
     	final FTPConnectMode connectMode = configuration.getConnectMode().toString().equalsIgnoreCase(FTPConnectMode.ACTIVE.toString()) ?
     			FTPConnectMode.ACTIVE : FTPConnectMode.PASV;
     	final int timeout = configuration.getTimeout();
+        String ftpserverHost = configuration.getFtpserverHost();
+        String ftpserverUSR = configuration.getFtpserverUSR();
+        String ftpserverPWD = configuration.getFtpserverPWD();
+        int ftpserverPort = configuration.getFtpserverPort();
 
     	// //////////////////////////////////////////////////////////////////
     	// Build in the local sub directory to download 
