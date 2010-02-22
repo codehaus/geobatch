@@ -46,13 +46,11 @@ public class FileBasedEventConsumerConfiguration extends BaseConfiguration imple
 	protected FileBasedEventConsumerConfiguration(String id, String name,
 			String description, boolean dirty) {
 		super(id, name, description, dirty);
-		// TODO Auto-generated constructor stub
 	}
 
 	protected FileBasedEventConsumerConfiguration(String id, String name,
 			String description) {
 		super(id, name, description);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**

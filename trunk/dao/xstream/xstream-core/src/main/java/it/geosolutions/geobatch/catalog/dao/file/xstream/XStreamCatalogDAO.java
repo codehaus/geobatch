@@ -29,9 +29,12 @@ import it.geosolutions.geobatch.catalog.dao.CatalogConfigurationDAO;
 import it.geosolutions.geobatch.configuration.CatalogConfiguration;
 import it.geosolutions.geobatch.configuration.flow.file.FileBasedCatalogConfiguration;
 
+import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.geobatch.xstream.Alias;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 /**
@@ -48,17 +51,20 @@ public class XStreamCatalogDAO extends XStreamDAO<CatalogConfiguration> implemen
         super(directory, alias);
     }
 
-    public CatalogConfiguration find(CatalogConfiguration exampleInstance, boolean lock) {
+    public CatalogConfiguration find(CatalogConfiguration exampleInstance, boolean lock)  throws IOException{
         return find(exampleInstance.getId(), lock);
     }
 
-    public CatalogConfiguration find(String id, boolean lock) {
+    public CatalogConfiguration find(String id, boolean lock) throws IOException {
+    	InputStream inStream=null;
         try {
             final File entityfile = new File(getBaseDirectory(), id + ".xml");
             if (entityfile.canRead() && !entityfile.isDirectory()) {
+
+            	inStream=new FileInputStream(entityfile);
                 XStream xstream = new XStream();
                 alias.setAliases(xstream);
-                FileBasedCatalogConfiguration obj = (FileBasedCatalogConfiguration) xstream.fromXML(new FileInputStream(entityfile));
+                FileBasedCatalogConfiguration obj = (FileBasedCatalogConfiguration) xstream.fromXML(inStream);
                 if (obj.getWorkingDirectory() == null)
                     obj.setWorkingDirectory(getBaseDirectory());
                 if(LOGGER.isLoggable(Level.INFO))
@@ -67,9 +73,14 @@ public class XStreamCatalogDAO extends XStreamDAO<CatalogConfiguration> implemen
 
             }
         } catch (Throwable e) {
-           if(LOGGER.isLoggable(Level.SEVERE))
-        	   LOGGER.log(Level.SEVERE,e.getLocalizedMessage(),e);
-           }
+        	final IOException ioe= new IOException("Unable to load flow config:"+id);
+        	ioe.initCause(e);
+        	throw ioe;
+        }
+        finally{
+        	if(inStream!=null)
+        		IOUtils.closeQuietly(inStream);
+        }        
         return null;
     }
 

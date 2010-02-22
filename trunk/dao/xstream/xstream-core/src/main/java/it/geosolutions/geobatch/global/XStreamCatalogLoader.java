@@ -146,6 +146,15 @@ public class XStreamCatalogLoader extends CatalogHolder implements ApplicationCo
         System.out.println("----------------------------------");
         System.out.println("- GEOBATCH_DATA_DIR: " + dataDir.getAbsolutePath());
         System.out.println("----------------------------------");
+        
+
+
+        // //
+        //
+        // force loading all alias registerers
+        //
+        // //
+        context.getBeansOfType(AliasRegistrar.class);
 
         // //
         //
@@ -153,7 +162,6 @@ public class XStreamCatalogLoader extends CatalogHolder implements ApplicationCo
         //
         // //
         final Catalog catalog = getCatalog();
-        System.out.println("CATALOG IS " + catalog.getClass().getName());
         final FileBasedCatalogConfiguration configuration = new FileBasedCatalogConfiguration();
         configuration.setId(catalog.getId());
         catalog.setConfiguration(configuration);
@@ -179,13 +187,6 @@ public class XStreamCatalogLoader extends CatalogHolder implements ApplicationCo
                         .append(service.getClass().toString()).toString());
             catalog.add(servicePair.getValue());
         }
-
-        // //
-        //
-        // force loading all alias registerers
-        //
-        // //
-        context.getBeansOfType(AliasRegistrar.class);
         
         // //
         //

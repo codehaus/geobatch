@@ -342,7 +342,7 @@ public class FileBasedEventGenerator<T extends EventObject> extends BaseEventGen
      */
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("GeoSolutions - GB FileBasedEventGenerator {");
+        final StringBuilder sb = new StringBuilder("FileBasedEventGenerator {");
 
         sb.append(this.fsMonitor.toString()).append("; ");
         sb.append(this.watchDirectory.getAbsolutePath()).append("; ");

@@ -949,9 +949,6 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 			// //////////////////////////////////////////
 			// Create a buffer for reading the files
 			// //////////////////////////////////////////
-	        
-			byte[] buf = new byte[4096];
-	        
 	        final File outZipFile = new File(outputDir, zipFileBaseName + ".zip");
 	        ZipOutputStream out = null;
 	        
@@ -1040,7 +1037,8 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 	            if (LOGGER.isLoggable(Level.SEVERE))
 	                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
 	        }finally{
-	        	if(in != null)in.close();
+	        	if(in != null)
+	        		in.close();
 	        }
 	        
 		 }else throw new IOException("One or more input parameters are null!");
@@ -1250,6 +1248,10 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
      * java.io.File)
      */
     public static File findLocation(String location, File directory) throws IOException {
+    	
+    	// trim spaces
+    	location=location.trim();
+    	
         // first to an existance check
         File file = new File(location);
 

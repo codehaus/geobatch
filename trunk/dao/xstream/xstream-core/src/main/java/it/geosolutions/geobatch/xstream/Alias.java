@@ -26,6 +26,7 @@ package it.geosolutions.geobatch.xstream;
 import com.thoughtworks.xstream.XStream;
 import it.geosolutions.geobatch.registry.AliasRegistry;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -50,6 +51,8 @@ public class Alias {
 
     public void setAliases(XStream xstream) {
 
+    	if(LOGGER.isLoggable(Level.INFO))
+    		LOGGER.info("Setting aliases.");
         xstream.alias("CatalogConfiguration",
 						it.geosolutions.geobatch.configuration.flow.file.FileBasedCatalogConfiguration.class);
 
@@ -61,13 +64,19 @@ public class Alias {
         xstream.alias("EventConsumerConfiguration",
                         it.geosolutions.geobatch.configuration.event.consumer.EventConsumerConfiguration.class,
                         it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration.class);
+        
+        xstream.alias("EventGeneratorConfiguration",
+                it.geosolutions.geobatch.configuration.event.generator.EventGeneratorConfiguration.class,
+                it.geosolutions.geobatch.configuration.event.generator.file.FileBasedEventGeneratorConfiguration.class);
 
         xstream.aliasField("EventConsumerConfiguration",
 						it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class,
 						"eventConsumerConfiguration");
         
-     
-        xstream.alias("FsEventGeneratorConfiguration", it.geosolutions.geobatch.configuration.event.generator.file.FileBasedEventGeneratorConfiguration.class);
+        xstream.aliasField("EventGeneratorConfiguration",
+        		it.geosolutions.geobatch.configuration.event.generator.file.FileBasedEventGeneratorConfiguration.class,
+				"eventGeneratorConfiguration");
+        
 
         xstream.addImplicitCollection(
                         it.geosolutions.geobatch.configuration.event.consumer.file.FileBasedEventConsumerConfiguration.class,

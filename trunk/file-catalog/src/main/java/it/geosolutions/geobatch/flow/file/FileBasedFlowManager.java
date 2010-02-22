@@ -232,9 +232,8 @@ public class FileBasedFlowManager
     private EventDispatcher dispatcher;
 
     /**
-     * File System Monitor
+     * EventGenerator
      */
-//    private FileBasedEventGenerator eventGenerator;
     private EventGenerator eventGenerator;
 
     private final List<BaseEventConsumer<FileSystemMonitorEvent, FileBasedEventConsumerConfiguration>> collectingEventConsumers = new ArrayList<BaseEventConsumer<FileSystemMonitorEvent, FileBasedEventConsumerConfiguration>>();
@@ -284,7 +283,8 @@ public class FileBasedFlowManager
      * @see it.geosolutions.geobatch.catalog.FlowManager#dispose()
      */
     public synchronized void dispose() {
-        LOGGER.info("Disposing: " + this.getId());
+        if(LOGGER.isLoggable(Level.INFO))
+        		LOGGER.info("Disposing: " + this.getId());
         this.termination = true;
         this.notify();
     }
@@ -393,7 +393,8 @@ public class FileBasedFlowManager
      * @see it.geosolutions.geobatch.catalog.FlowManager#start()
      */
     public synchronized void resume() {
-        LOGGER.info("Resuming: " + this.getId());
+    	if(LOGGER.isLoggable(Level.INFO))
+        	LOGGER.info("Resuming: " + this.getId());
 
         if (!started) {
             getCatalog().getExecutor().execute(this);
@@ -411,7 +412,8 @@ public class FileBasedFlowManager
      * @see it.geosolutions.geobatch.catalog.FlowManager#stop()
      */
     public synchronized void pause() {
-        LOGGER.info("Pausing: " + this.getId());
+    	if(LOGGER.isLoggable(Level.INFO))
+        	LOGGER.info("Pausing: " + this.getId());
 
         if (isRunning()) {
             this.paused = true;
@@ -458,14 +460,6 @@ public class FileBasedFlowManager
     public boolean isTermination() {
         return termination;
     }
-
-    public boolean autorun() {
-        return autorun;
-    }
-
-    public void setautorun(boolean autorun) {
-        this.autorun = autorun;
-    }
     
     /**
      * @return the workingDirectory
@@ -501,13 +495,12 @@ public class FileBasedFlowManager
 
     }
 
-    public void setConfiguration(FileBasedFlowConfiguration configuration) {
+    public synchronized void setConfiguration(FileBasedFlowConfiguration configuration) {
         super.setConfiguration(configuration);
         try {
             initialize(configuration);
         } catch (IOException e) {
-            // XXX
-            e.printStackTrace();
+           throw new RuntimeException(e);
         }
 
     }
