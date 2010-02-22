@@ -74,7 +74,7 @@ public class Alias {
 						"eventConsumerConfiguration");
         
         xstream.aliasField("EventGeneratorConfiguration",
-        		it.geosolutions.geobatch.configuration.event.generator.file.FileBasedEventGeneratorConfiguration.class,
+        		it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration.class,
 				"eventGeneratorConfiguration");
         
 
