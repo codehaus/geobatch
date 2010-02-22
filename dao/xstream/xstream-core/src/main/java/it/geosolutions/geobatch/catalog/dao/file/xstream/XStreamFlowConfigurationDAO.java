@@ -27,12 +27,14 @@ package it.geosolutions.geobatch.catalog.dao.file.xstream;
 import it.geosolutions.geobatch.catalog.dao.FlowManagerConfigurationDAO;
 import it.geosolutions.geobatch.configuration.flow.FlowConfiguration;
 import it.geosolutions.geobatch.configuration.flow.file.FileBasedFlowConfiguration;
+import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.geobatch.xstream.Alias;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Logger;
 
 import com.thoughtworks.xstream.XStream;
@@ -57,23 +59,28 @@ public class XStreamFlowConfigurationDAO
             XStream xstream = new XStream();
             alias.setAliases(xstream);
 
+            InputStream inStream=null;
             try{
-            FileBasedFlowConfiguration obj = (FileBasedFlowConfiguration) xstream
-                    .fromXML(new BufferedInputStream(new FileInputStream(entityfile)));
+            	inStream= new FileInputStream(entityfile);
+            	FileBasedFlowConfiguration obj = (FileBasedFlowConfiguration) xstream.fromXML(new BufferedInputStream(inStream));
 
-			if(obj.getEventConsumerConfiguration() == null)
-				LOGGER.severe("FileBasedFlowConfiguration " + obj + " does not have a ConsumerCfg");
-
-			if(obj.getEventGeneratorConfiguration() == null)
-				LOGGER.severe("FileBasedFlowConfiguration " + obj + " does not have a GeneratorCfg");
-			
-            return obj;
+				if(obj.getEventConsumerConfiguration() == null)
+					LOGGER.severe("FileBasedFlowConfiguration " + obj + " does not have a ConsumerCfg");
+	
+				if(obj.getEventGeneratorConfiguration() == null)
+					LOGGER.severe("FileBasedFlowConfiguration " + obj + " does not have a GeneratorCfg");
+				
+	            return obj;
             }
             catch (Throwable e) {
             	final IOException ioe= new IOException("Unable to load flow config:"+id);
             	ioe.initCause(e);
             	throw ioe;
 			}
+            finally{
+            	if(inStream!=null)
+            		IOUtils.closeQuietly(inStream);
+            }
         }
         return null;
     }

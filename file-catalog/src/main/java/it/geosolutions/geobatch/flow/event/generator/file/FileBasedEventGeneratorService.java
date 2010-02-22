@@ -63,7 +63,6 @@ public class FileBasedEventGeneratorService
             return false;
         final File sensedDir;
         try {
-        	System.out.println("BaseDirectory : " + ((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory());
             sensedDir = IOUtils.findLocation(configuration.getWorkingDirectory(), new File(((FileBaseCatalog) CatalogHolder.getCatalog()).getBaseDirectory()));
             if (sensedDir != null) {
                 if (sensedDir.exists() && sensedDir.isDirectory() && sensedDir.canRead()) // TODO message

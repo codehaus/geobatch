@@ -2,10 +2,11 @@
 <FlowConfiguration>
 	<workingDirectory>ftpflowworkingdir</workingDirectory>
 	<EventConsumerConfiguration>
-		<workingDirectory>ftpflowworkingdir</workingDirectory>
+		<workingDirectory>ftpflowworkingdir
+		</workingDirectory>
 		<performBackup>false</performBackup>
 
-       <FileEventRule>
+		<FileEventRule>
 			<optional>false</optional>
 			<originalOccurrencies>1</originalOccurrencies>
 			<regex>.*\.*</regex>
@@ -14,77 +15,81 @@
 			<name>test</name>
 		</FileEventRule>
 
-        <FTPUploadActionConfiguration>
-			<workingDirectory>ftpflowworkingdir</workingDirectory>
-			<dataTransferMethod/>
+		<FTPUploadActionConfiguration>
+			<workingDirectory>ftpflowworkingdir
+			</workingDirectory>
+			<dataTransferMethod />
 			<timeout>10000</timeout>
 			<zipInput>false</zipInput>
 			<zipFileName>ftpZip</zipFileName>
 			<ftpserverPWD>twin2-a</ftpserverPWD>
 			<ftpserverUSR>twin2-a</ftpserverUSR>
 			<ftpserverHost>10.0.0.5</ftpserverHost>
-            <ftpserverPort>21</ftpserverPort>
-            <connectMode>ACTIVE</connectMode>
-            <localTempDir>C:/gbTemp</localTempDir>
+			<ftpserverPort>21</ftpserverPort>
+			<connectMode>ACTIVE</connectMode>
+			<localTempDir>C:/gbTemp</localTempDir>
 			<serviceID>ftpUploadActionService</serviceID>
 			<id>a1</id>
 			<description>description</description>
 			<name>test</name>
 		</FTPUploadActionConfiguration>
 
-        <FTPDownloadActionConfiguration>
-			<workingDirectory>ftpflowworkingdir</workingDirectory>
-			<dataTransferMethod/>
+		<FTPDownloadActionConfiguration>
+			<workingDirectory>ftpflowworkingdir
+			</workingDirectory>
+			<dataTransferMethod />
 			<timeout>10000</timeout>
 			<zipInput>false</zipInput>
 			<zipFileName>ftpZip</zipFileName>
 			<ftpserverPWD>twin2-a</ftpserverPWD>
 			<ftpserverUSR>twin2-a</ftpserverUSR>
 			<ftpserverHost>10.0.0.5</ftpserverHost>
-            <ftpserverPort>21</ftpserverPort>
-            <connectMode>ACTIVE</connectMode>
-            <localTempDir>C:/gbTemp</localTempDir>
-			<serviceID>ftpDownloadActionService</serviceID>
+			<ftpserverPort>21</ftpserverPort>
+			<connectMode>ACTIVE</connectMode>
+			<localTempDir>C:/gbTemp</localTempDir>
+			<serviceID>ftpDownloadActionService
+			</serviceID>
 			<id>a1</id>
 			<description>description</description>
 			<name>test</name>
 		</FTPDownloadActionConfiguration>
-		
+
 		<FTPDeleteActionConfiguration>
-			<workingDirectory>ftpflowworkingdir</workingDirectory>
-			<dataTransferMethod/>
+			<workingDirectory>ftpflowworkingdir
+			</workingDirectory>
+			<dataTransferMethod />
 			<timeout>10000</timeout>
 			<zipInput>false</zipInput>
 			<zipFileName>ftpZip</zipFileName>
 			<ftpserverPWD>twin2-a</ftpserverPWD>
 			<ftpserverUSR>twin2-a</ftpserverUSR>
 			<ftpserverHost>10.0.0.5</ftpserverHost>
-            <ftpserverPort>21</ftpserverPort>
-            <connectMode>ACTIVE</connectMode>
-            <localTempDir>C:/gbTemp</localTempDir>
+			<ftpserverPort>21</ftpserverPort>
+			<connectMode>ACTIVE</connectMode>
+			<localTempDir>C:/gbTemp</localTempDir>
 			<serviceID>ftpDeleteActionService</serviceID>
 			<id>a1</id>
 			<description>description</description>
 			<name>test</name>
 		</FTPDeleteActionConfiguration>
-		
+
 		<id>id</id>
 		<description>description</description>
 		<name>test</name>
 	</EventConsumerConfiguration>
 
-	<eventGeneratorConfiguration class="FsEventGeneratorConfiguration">
+	<EventGeneratorConfiguration>
 		<wildCard>*.*</wildCard>
-        <watchDirectory>ftpflowworkingdir/in</watchDirectory>
+		<watchDirectory>ftpflowworkingdir/in</watchDirectory>
 		<osType>OS_UNDEFINED</osType>
 		<eventType>FILE_ADDED</eventType>
-        <serviceID>fsEventGeneratorService</serviceID>
+		<serviceID>fsEventGeneratorService</serviceID>
 		<id>id</id>
 		<description>description</description>
 		<name>test</name>
-	</eventGeneratorConfiguration>
+	</EventGeneratorConfiguration>
 
-    <id>flowFtpPush</id>
+	<id>flowFtpPush</id>
 	<description>test ftp push</description>
 	<name>flowFtpPush</name>
 </FlowConfiguration>

@@ -33,7 +33,7 @@ import it.geosolutions.geobatch.registry.AliasRegistry;
 /**
  * Register XStream aliases for the relevant services we ship in this class.
  * 
- * @author ETj <etj at geo-solutions.it>
+ * @author Simone Giannecchini, GeoSolutions S.A.S.
  */
 public class FTPAliasRegistrar extends AliasRegistrar {
 

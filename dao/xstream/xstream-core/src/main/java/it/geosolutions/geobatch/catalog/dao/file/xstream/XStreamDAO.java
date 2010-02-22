@@ -24,17 +24,20 @@
 
 package it.geosolutions.geobatch.catalog.dao.file.xstream;
 
-import com.thoughtworks.xstream.XStream;
 import it.geosolutions.geobatch.catalog.Configuration;
 import it.geosolutions.geobatch.catalog.dao.DAO;
 import it.geosolutions.geobatch.catalog.dao.file.BaseFileBaseDAO;
-
+import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.geobatch.xstream.Alias;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+
+import com.thoughtworks.xstream.XStream;
 
 public abstract class XStreamDAO<T extends Configuration> 
         extends BaseFileBaseDAO<T>
@@ -48,15 +51,19 @@ public abstract class XStreamDAO<T extends Configuration>
     }
 
     public T persist(T entity)throws IOException {
+    	OutputStream os=null;
         try {
             XStream xstream = new XStream();
             alias.setAliases(xstream);
-
-            xstream.toXML(entity, new BufferedOutputStream(new FileOutputStream(new File(
-                    getBaseDirectory(), entity.getId() + ".xml"))));
+            final File outFile= new File(getBaseDirectory(), entity.getId() + ".xml");
+            os = new FileOutputStream(outFile);
+            xstream.toXML(entity, new BufferedOutputStream(os));
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        finally{
+        	if(os!=null)
+        		IOUtils.closeQuietly(os);
         }
 
         return entity;
@@ -68,10 +75,14 @@ public abstract class XStreamDAO<T extends Configuration>
 
     public boolean remove(T entity)throws IOException {
 
-        // XXX use file cleaner
+        
         final File entityfile = new File(getBaseDirectory(), entity.getId() + ".xml");
-        if (entityfile.exists() && entityfile.delete())
-            return true;
+        if (entityfile.exists())
+        {
+        	if(! entityfile.delete())
+                IOUtils.deleteFile(entityfile);
+        	return true;
+        }
         return false;
 
     }
