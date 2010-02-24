@@ -295,17 +295,31 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
                 	ncFileOut.addVariable(variableBrief, DataType.DOUBLE, outDimensions);
                     ncFileOut.addVariableAttribute(variableBrief, "long_name", foundVariableLongNames.get(varName));
                     ncFileOut.addVariableAttribute(variableBrief, "units", foundVariableUoM.get(varName));
+                    Variable var = foundVariables.get(varName);
+                    Number offset = 0.0;
+					Number scale = 1.0;
+					double outNoData;
+					final Attribute offsetAtt = var.findAttribute("add_offset");
+					final Attribute scaleAtt = var.findAttribute("scale_factor");
+					if (offsetAtt != null){
+						Number off = offsetAtt.getNumericValue();
+						offset = off;
+					}
+					if (scaleAtt != null){
+						Number scl = scaleAtt.getNumericValue();
+						scale = scl;
+					}
+                    
                     
                     if (Double.isNaN(noData)) {
-                    	Attribute missingValue = foundVariables.get(varName).findAttribute("missing_value");
+                    	Attribute missingValue = var.findAttribute("missing_value");
                     	if (missingValue != null) {
                     		noData = missingValue.getNumericValue().doubleValue();
-                    		ncFileOut.addVariableAttribute(variableBrief, "missing_value", noData);
                     	}
                     }
                     
                     if (Double.isNaN(fillValue)) {
-                    	Attribute fillV = foundVariables.get(varName).findAttribute("_FillValue");
+                    	Attribute fillV = var.findAttribute("_FillValue");
                     	if (fillV != null) {
                     		fillValue = fillV.getNumericValue().doubleValue();
                     	}
@@ -313,7 +327,18 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
                     		fillValue = noData;
                     	}
                     }
+                    
+                    if (!Double.isNaN(fillValue)){
+						outNoData = (float)JGSFLoDeSSIOUtils.rescaleValue(fillValue, scale, offset);  
+					} else if (!Double.isNaN(noData)){
+						outNoData = noData;
+					} else {
+						outNoData = noData;
+					}
+                    ncFileOut.addVariableAttribute(variableBrief, "missing_value", outNoData);
             	}
+            	noData = Double.NaN;
+            	fillValue = Double.NaN;
             }
             
             // time Variable data
@@ -355,14 +380,6 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
 			for (Object object : ncFileIn.getVariables()) {
 				Variable var = (Variable) object;
  				if (var != null) {
- 					double offset = 0.0;
-					double scale = 1.0;
-					final Attribute offsetAtt = var.findAttribute("add_offset");
-					final Attribute scaleAtt = var.findAttribute("scale_factor");
-					
-					offset = (offsetAtt != null ? offsetAtt.getNumericValue().doubleValue() : offset);
-					scale  = (scaleAtt != null ? scaleAtt.getNumericValue().doubleValue() : scale);
- 					
 					String varName = var.getName();
 					if (varName.equalsIgnoreCase(NetCDFUtilities.LATITUDE)
 							|| varName.equalsIgnoreCase(NetCDFUtilities.LONGITUDE)
@@ -370,6 +387,39 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
 							|| varName.equalsIgnoreCase(NetCDFUtilities.ZETA)
 							|| foundVariableBriefNames.get(varName) == null)
 						continue;
+					
+					Number offset = 0.0;
+					Number scale = 1.0;
+					final Attribute offsetAtt = var.findAttribute("add_offset");
+					final Attribute scaleAtt = var.findAttribute("scale_factor");
+					if (offsetAtt != null){
+						Number off = offsetAtt.getNumericValue();
+						offset = off;
+					}
+					if (scaleAtt != null){
+						Number scl = scaleAtt.getNumericValue();
+						scale = scl;
+					}
+					
+					double outNoData;
+					double nData = Double.NaN;
+					double fV = Double.NaN;
+                	Attribute missingValue = var.findAttribute("missing_value");
+                	if (missingValue != null) {
+                		nData = missingValue.getNumericValue().doubleValue();
+                	}
+                    
+                	Attribute fillV = var.findAttribute("_FillValue");
+                	if (fillV != null) {
+                		fV = fillV.getNumericValue().doubleValue();
+                	}
+					if (!Double.isNaN(fV)){
+						outNoData = (float) JGSFLoDeSSIOUtils.rescaleValue(fV, scale, offset);
+					} else if (!Double.isNaN(nData)){
+						outNoData = nData;
+					} else {
+						outNoData = noData;
+					}
 					// writing output variable
 					final Array originalVarData = var.read();
 					Array destArray = NetCDFConverterUtilities.getArray(originalVarData.getShape(), DataType.DOUBLE);
@@ -378,7 +428,8 @@ public class JGSFLoDeSSSWANFileConfigurator extends MetocConfigurationAction <Fi
 							for (int y = 0; y < nLat; y++)
 								for (int x = 0; x < nLon; x++) {
 										int originalValue = originalVarData.getInt(originalVarData.getIndex().set(t, z, y, x));
-										destArray.setDouble(destArray.getIndex().set(t, z, y, x), ((originalValue != noData && originalValue != fillValue) ? (originalValue * scale) + offset : noData));
+										destArray.setDouble(destArray.getIndex().set(t, z, y, x), (float)
+												((originalValue != noData && originalValue != fillValue) ? JGSFLoDeSSIOUtils.rescaleValue(originalValue,scale,offset): outNoData));
 								}
 	                
 	                ncFileOut.write(foundVariableBriefNames.get(varName), destArray);

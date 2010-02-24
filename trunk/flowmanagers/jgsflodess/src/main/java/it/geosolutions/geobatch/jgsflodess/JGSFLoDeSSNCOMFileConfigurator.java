@@ -483,13 +483,15 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 							
 							for (Object obj : ncVarFile.getVariables()) {
 								final Variable var = (Variable) obj;
-								double offset = 0.0;
-								double scale = 1.0;
+								Number offset = 0.0;
+								Number scale = 1.0;
 								final Attribute offsetAtt = var.findAttribute("add_offset");
 								final Attribute scaleAtt = var.findAttribute("scale_factor");
 								
-								offset = (offsetAtt != null ? offsetAtt.getNumericValue().doubleValue() : offset);
-								scale  = (scaleAtt != null ? scaleAtt.getNumericValue().doubleValue() : scale);
+								if (offsetAtt != null)
+									offset = offsetAtt.getNumericValue();
+								if (scaleAtt != null)
+									scale= scaleAtt.getNumericValue();
 								
 								final String varName = var.getName(); 
 								if (!varName.equalsIgnoreCase("X_Index") &&
@@ -541,7 +543,7 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 												lonOriginalData, 
 												latOriginalData, 
 												xIndex.getLength(), yIndex.getLength(), 
-												2, userRaster, 0,
+												2, userRaster, (float) noData,
 												false);
 										
 										final Variable outVar = ncFileOut.findVariable(foundVariableBriefNames.get(varName));
@@ -560,7 +562,7 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 										for (int y = 0; y < yIndex.getLength(); y++)
 											for (int x = 0; x < xIndex.getLength(); x++){
 												int originalValue = userRaster.getSample(x,y,0);
-												outVarData.setDouble(outVarData.getIndex().set(tIndex, z, y, x), (originalValue != noData ? (originalValue * scale) + offset : noData));
+												outVarData.setDouble(outVarData.getIndex().set(tIndex, z, y, x), (originalValue != noData ? JGSFLoDeSSIOUtils.rescaleValue(originalValue, scale, offset) : noData));
 //												outVarData.setFloat(outVarData.getIndex().set(tIndex, z, y, x), userRaster.getSampleFloat(x, y, 0));
 											}
 										ncFileOut.write(foundVariableBriefNames.get(varName), outVarData);

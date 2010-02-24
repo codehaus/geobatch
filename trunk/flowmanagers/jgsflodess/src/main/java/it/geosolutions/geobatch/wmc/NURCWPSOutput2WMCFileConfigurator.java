@@ -28,12 +28,10 @@ import it.geosolutions.geobatch.geoserver.GeoServerActionConfiguration;
 import it.geosolutions.geobatch.geoserver.GeoServerConfiguratorAction;
 import it.geosolutions.geobatch.global.CatalogHolder;
 import it.geosolutions.geobatch.jgsflodess.utils.io.JGSFLoDeSSIOUtils;
-import it.geosolutions.geobatch.metocs.jaxb.model.MetocElementType;
 import it.geosolutions.geobatch.utils.IOUtils;
 import it.geosolutions.geobatch.utils.io.Utilities;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFConverterUtilities;
 import it.geosolutions.imageio.plugins.netcdf.NetCDFUtilities;
-import it.geosolutions.utils.coamps.data.FlatFileGrid;
 
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
@@ -43,16 +41,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.logging.Level;
 
@@ -576,19 +571,22 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 						}
                         
                         //Writing statistics file
-                        File outStatsFile = null;
+                        File outInfoFile = null;
                         try{
-                        	outStatsFile = new File(gtiffOutputDir, new StringBuilder(inputBaseName)
-					              .append("_").append(variableName).toString() + ".statistics");
-                        	BufferedWriter writer = new BufferedWriter(new FileWriter(outStatsFile));
+                        	outInfoFile = new File(gtiffOutputDir, new StringBuilder(inputBaseName)
+					              .append("_").append(variableName).toString() + WMCFileConfigurator.INFO_EXTENSION);
+                        	BufferedWriter writer = new BufferedWriter(new FileWriter(outInfoFile));
                         	for (String rangeEntry : ranges)
                         		writer.write(rangeEntry);
+                        	if(!isTDA){
+                        		writer.write(var.getDescription());
+                        	}
                         	writer.flush();
                         	writer.close();
                         } finally{
                         	try{
-                        		if (outStatsFile != null)
-                        			outStatsFile = null;
+                        		if (outInfoFile != null)
+                        			outInfoFile = null;
                         	}catch (Throwable t){
                         		//eat me
                         	}

@@ -54,6 +54,7 @@ import org.geotools.geometry.GeneralEnvelope;
 
 import ucar.ma2.Array;
 import ucar.ma2.Index;
+import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -291,6 +292,11 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends MetocConfiguratio
 								nLon, nLat,1); 
 
 						Array originalVarArray = var.read();
+						Attribute missingValue = var.findAttribute("missing_value");
+	                	double localNoData = noData; 
+						if (missingValue != null) {
+	                		localNoData = missingValue.getNumericValue().doubleValue();
+	                	}
 						final boolean hasLocalZLevel = NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.DEPTH_DIM)
 								|| NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.HEIGHT_DIM);
 						
@@ -310,7 +316,7 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends MetocConfiguratio
 								              .append("_").append(baseTime)
 											  .append("_").append(timeDimExists ? sdf.format(getTimeInstant(timeOriginalData, timeOriginalIndex, t)) : "00000000T0000000Z")
 											  .append("_").append(TAU)
-											  .append("_").append(noData);
+											  .append("_").append(localNoData);
 
 								File gtiffFile = Utilities.storeCoverageAsGeoTIFF(gtiffOutputDir, coverageName.toString(), varName, userRaster, noData, envelope, DEFAULT_COMPRESSION_TYPE, DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
 							}
