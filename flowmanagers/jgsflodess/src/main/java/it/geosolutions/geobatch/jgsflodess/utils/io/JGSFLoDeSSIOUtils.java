@@ -924,4 +924,16 @@ public class JGSFLoDeSSIOUtils {
         
         return res;
 	}
+
+	public static double rescaleValue(int value, Number scale, Number offset) {
+		if (scale == null || offset == null)
+			throw new IllegalArgumentException("Scale and Offset shouldn't be NULL");
+		return (value * (scale instanceof Float? scale.floatValue() : scale.doubleValue())) + (offset instanceof Float ? offset.floatValue():offset.doubleValue()) ;
+	}
+
+	public static double rescaleValue(double value, Number scale, Number offset) {
+		if (scale == null || offset == null)
+			throw new IllegalArgumentException("Scale and Offset shouldn't be NULL");
+		return (value * (scale instanceof Float? scale.floatValue() : scale.doubleValue())) + (offset instanceof Float ? offset.floatValue():offset.doubleValue()) ;
+	}
 }
