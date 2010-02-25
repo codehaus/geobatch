@@ -53,6 +53,7 @@ public class WMCExtension {
 	private OLStyleMinValue    styleMinValue;
 	private OLStyleMaxValue    styleMaxValue;
 	private OLStyleRestService styleRestService;
+	private OLStyleLegendService styleLegendService;
 	
 	/**
 	 * @return the id
@@ -247,5 +248,19 @@ public class WMCExtension {
 	public OLStyleRestService getStyleRestService() {
 		return styleRestService;
 	}
+	/**
+	 * @return the styleLegendService
+	 */
+	public OLStyleLegendService getStyleLegendService() {
+		return styleLegendService;
+	}
+	/**
+	 * @param styleLegendService the styleLegendService to set
+	 */
+	public void setStyleLegendService(OLStyleLegendService styleLegendService) {
+		this.styleLegendService = styleLegendService;
+	}
+
+	
 
 }
