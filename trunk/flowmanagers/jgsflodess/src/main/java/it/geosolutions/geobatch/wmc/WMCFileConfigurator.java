@@ -36,6 +36,7 @@ import it.geosolutions.geobatch.wmc.model.OLMaxExtent;
 import it.geosolutions.geobatch.wmc.model.OLSingleTile;
 import it.geosolutions.geobatch.wmc.model.OLStyleClassNumber;
 import it.geosolutions.geobatch.wmc.model.OLStyleColorRamps;
+import it.geosolutions.geobatch.wmc.model.OLStyleLegendService;
 import it.geosolutions.geobatch.wmc.model.OLStyleMaxValue;
 import it.geosolutions.geobatch.wmc.model.OLStyleMinValue;
 import it.geosolutions.geobatch.wmc.model.OLStyleRestService;
@@ -298,8 +299,10 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 				ramp.setDefaultRamp("jet");
 				extension.setStyleColorRamps(ramp);
 				setAdditionalInfo(infoFile,extension,newLayer);
-				extension.setStyleClassNumber(new OLStyleClassNumber("100"));
+				extension.setStyleClassNumber(new OLStyleClassNumber("25"));
 				extension.setStyleRestService(new OLStyleRestService(configuration.getGeoserverURL()+"/rest/sldservice/"+nameSpace+":"+layerName+"/rasterize.sld"));
+				extension.setStyleLegendService(new OLStyleLegendService(configuration.getGeoserverURL()+
+						"/wms?REQUEST=GetLegendGraphic"));
 				
 				if (entry.getDimensions() != null) {
 					for (String dim : entry.getDimensions().keySet()) {
