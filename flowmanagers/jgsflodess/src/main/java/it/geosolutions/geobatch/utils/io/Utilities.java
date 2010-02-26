@@ -22,6 +22,7 @@
 package it.geosolutions.geobatch.utils.io;
 
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.SampleModel;
@@ -43,6 +44,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import javax.measure.unit.Unit;
+import javax.media.jai.InterpolationNearest;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
 import javax.media.jai.TiledImage;
@@ -53,9 +55,12 @@ import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
+import org.geotools.coverage.grid.GridEnvelope2D;
+import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverageWriter;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.imageio.GeoToolsWriteParams;
+import org.geotools.coverage.processing.Operations;
 import org.geotools.factory.Hints;
 import org.geotools.gce.geotiff.GeoTiffFormat;
 import org.geotools.gce.geotiff.GeoTiffWriteParams;
@@ -64,9 +69,12 @@ import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.util.NumberRange;
 import org.opengis.coverage.grid.GridCoverage;
+import org.opengis.coverage.grid.GridEnvelope;
+import org.opengis.coverage.grid.GridGeometry;
 import org.opengis.geometry.Envelope;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import ucar.ma2.DataType;
 
@@ -84,11 +92,38 @@ public class Utilities {
 	 */
 	public final static String DEFAULT_GEOSERVER_VERSION = "2.x";
 	
+	private final static Operations OPERATIONS = new Operations(new Hints(Hints.LENIENT_DATUM_SHIFT, Boolean.TRUE));
+	
 	protected final static Logger LOGGER = Logger.getLogger(Utilities.class.toString());
 	
 	private Utilities(){
 		
 	}
+	
+	/**
+         * @param outDir 
+         * @param fileName 
+         * @param varName 
+         * @param userRaster
+         * @param envelope 
+         * @param compressionType 
+         * @param compressionRatio 
+         * @param tileSize 
+         * @return 
+         * @throws IOException 
+         * @throws IllegalArgumentException 
+         */
+	public static File storeCoverageAsGeoTIFF(
+                final File outDir, 
+                final String coverageName, 
+                final CharSequence varName, 
+                WritableRaster userRaster,
+                final double inNoData,
+                Envelope envelope, 
+                final String compressionType, final double compressionRatio, final int tileSize) throws IllegalArgumentException, IOException{
+	    return storeCoverageAsGeoTIFF(outDir, coverageName, varName, userRaster, inNoData, envelope, compressionType, compressionRatio, tileSize, Double.NaN);
+	}
+	
 	
 	/**
 	 * 
@@ -100,6 +135,7 @@ public class Utilities {
 	 * @param compressionType 
 	 * @param compressionRatio 
 	 * @param tileSize 
+	 * @param overResamplingFactor
 	 * @return 
 	 * @throws IOException 
 	 * @throws IllegalArgumentException 
@@ -111,7 +147,10 @@ public class Utilities {
 			WritableRaster userRaster,
 			final double inNoData,
 			Envelope envelope, 
-			final String compressionType, final double compressionRatio, final int tileSize) 
+			final String compressionType, 
+			final double compressionRatio, 
+			final int tileSize,
+			final double overResamplingFactor) 
 	throws IllegalArgumentException, IOException {
 		// /////////////////////////////////////////////////////////////////////
 		//
@@ -193,8 +232,18 @@ public class Utilities {
         	coverage = factory.create(varName, image, envelope, new GridSampleDimension[] { band }, null, properties);
         else
         	coverage = factory.create(varName, userRaster, envelope, new GridSampleDimension[] { band });
-        
-		final AbstractGridCoverageWriter writer = (AbstractGridCoverageWriter) new GeoTiffWriter(outFile);
+		
+                if (!Double.isNaN(overResamplingFactor)){
+                    final GridGeometry originalGG = coverage.getGridGeometry();
+                    final GridEnvelope range = originalGG.getGridRange();
+                    final Envelope covEnvelope = coverage.getEnvelope();
+                    final CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem();
+                    final GridEnvelope newRange = new GridEnvelope2D(new Rectangle(0,0,(int)((range.getHigh(0)+1)*overResamplingFactor),(int)((range.getHigh(1)+1)*overResamplingFactor)));
+                    final GridGeometry2D gg = new GridGeometry2D(newRange , covEnvelope);
+                    coverage = (GridCoverage) OPERATIONS.resample(coverage, crs ,gg,new InterpolationNearest());
+                    
+                }
+                final AbstractGridCoverageWriter writer = (AbstractGridCoverageWriter) new GeoTiffWriter(outFile);
 		writer.write(coverage, (GeneralParameterValue[]) wparams.values().toArray(new GeneralParameterValue[1]));
 
 		// /////////////////////////////////////////////////////////////////////
