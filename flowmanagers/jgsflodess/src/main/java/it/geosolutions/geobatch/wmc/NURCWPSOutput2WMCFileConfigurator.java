@@ -581,7 +581,15 @@ public class NURCWPSOutput2WMCFileConfigurator extends
                         	for (String rangeEntry : ranges)
                         		writer.write(rangeEntry);
                         	if(!isTDA){
-                        		writer.write(var.getDescription());
+                        	        final StringBuilder title = new StringBuilder(var.getDescription());
+                        	        final Attribute units = var.findAttribute("units");
+                        	        if (units != null){
+                        	            final String uom = units.getStringValue();
+                        	            if (uom != null && uom.trim().length()>0){
+                        	                title.append(" [").append(uom).append("]");
+                        	            }
+                        	        }
+                        		writer.write(title.toString());
                         	}
                         	writer.flush();
                         	writer.close();
