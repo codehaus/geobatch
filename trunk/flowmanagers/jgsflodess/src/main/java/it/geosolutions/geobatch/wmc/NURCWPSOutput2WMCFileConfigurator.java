@@ -565,10 +565,9 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 								coverageName.append("-T").append(System.currentTimeMillis());
 								final String nd = Double.isNaN(noData)?"-9999.0":Double.toString(noData);
 								coverageName.append("_").append(nd);
-								double oversamplingFactor = isTDA?Double.NaN:10;
 								Utilities.storeCoverageAsGeoTIFF(gtiffOutputDir, coverageName.toString(), variableName, 
 								        userRaster, noData, envelope, DEFAULT_COMPRESSION_TYPE, 
-								        DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE, oversamplingFactor);
+								        DEFAULT_COMPRESSION_RATIO, DEFAULT_TILE_SIZE);
 							}
 						}
                         
