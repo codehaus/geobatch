@@ -121,6 +121,9 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 
 	public static final long matLabStartTime;
 	
+	private final static String IS_VISIBLE = "isVisible";
+	private final static String SHOW_ATTRIBUTE = "show_attribute";
+	
 	static {
 		GregorianCalendar calendar = new GregorianCalendar(0000, 00, 01, 00, 00, 00);
 		calendar.setTimeZone(JGSFLoDeSSIOUtils.UTC);
@@ -377,6 +380,7 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 			int nZeta = 0;
 			int nLat  = latDim.getLength();
 			int nLon  = lonDim.getLength();
+			final String showAttribute = isTDA? IS_VISIBLE:SHOW_ATTRIBUTE;
 
 			// input VARIABLES
 			final Variable timeOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.TIME_DIM);
@@ -512,6 +516,12 @@ public class NURCWPSOutput2WMCFileConfigurator extends
                         if (missingValue != null) {
                                 noData = missingValue.getNumericValue().doubleValue();
                         }
+                        
+                        Attribute showAtt = var.findAttribute(showAttribute);
+                        String isMainLayer = "true";
+                        if (showAtt != null) {
+                                isMainLayer = missingValue.getStringValue();
+                        }
 
                         final String variableName = varName.replace("_", "").replace(" ", "");
                         final ArrayList<String> ranges = new ArrayList<String>((hasLocalTime? nTime:1) * (hasLocalZLevel ? nZeta:1));
@@ -579,17 +589,18 @@ public class NURCWPSOutput2WMCFileConfigurator extends
                         	BufferedWriter writer = new BufferedWriter(new FileWriter(outInfoFile));
                         	for (String rangeEntry : ranges)
                         		writer.write(rangeEntry);
+                        	final StringBuilder title = new StringBuilder(var.getDescription());
                         	if(!isTDA){
-                        	        final StringBuilder title = new StringBuilder(var.getDescription());
-                        	        final Attribute units = var.findAttribute("units");
-                        	        if (units != null){
-                        	            final String uom = units.getStringValue();
-                        	            if (uom != null && uom.trim().length()>0){
-                        	                title.append(" [").append(uom).append("]");
-                        	            }
-                        	        }
-                        		writer.write(title.toString());
+                    	        final Attribute units = var.findAttribute("units");
+                    	        if (units != null){
+                    	            final String uom = units.getStringValue();
+                    	            if (uom != null && uom.trim().length()>0){
+                    	                title.append(" [").append(uom).append("]");
+                    	            }
+                    	        }
                         	}
+                        	title.append("|").append(isMainLayer);
+                        	writer.write(title.toString());
                         	writer.flush();
                         	writer.close();
                         } finally{

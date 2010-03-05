@@ -29,6 +29,7 @@ public class WMCEntry {
 	private String layerTitle;
 	private String layerName;
 	private String nameSpace;
+	private String layerAOI; 
 	private Map<String, Map<String, String>> dimensions;
 
 	public String getLayerName() {
@@ -81,6 +82,14 @@ public class WMCEntry {
 	 */
 	public String getLayerTitle() {
 		return layerTitle;
+	}
+	
+	public String getLayerAOI() {
+		return layerAOI;
+	}
+
+	public void setLayerAOI(String layerAOI) {
+		this.layerAOI = layerAOI;
 	}
 	
 }

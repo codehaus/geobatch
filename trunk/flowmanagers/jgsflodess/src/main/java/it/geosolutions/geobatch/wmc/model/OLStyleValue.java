@@ -33,10 +33,20 @@ package it.geosolutions.geobatch.wmc.model;
  * @author Fabiani
  *
  */
-public class OLStyleLegendService extends OLBaseClass {
+public class OLStyleValue extends OLBaseClass {
 
-	public OLStyleLegendService(String content) {
+	private String defaultValue;
+	
+	public OLStyleValue(String content, String defaultValue) {
 		super(content);
+		this.defaultValue = defaultValue;
+	}
+	
+	/**
+	 * @return the defaultValue
+	 */
+	public String getDefaultValue() {
+		return defaultValue;
 	}
 
 }
