@@ -37,23 +37,24 @@ package it.geosolutions.geobatch.wmc.model;
  */
 public class WMCExtension {
 	private OLLayerID id;
-	private OLTransparent transparent;
-	private OLIsBaseLayer isBaseLayer;
+	private OLBaseClass transparent;
+	private OLBaseClass isBaseLayer;
 	private OLOpacity opacity;
-	private OLDisplayInLayerSwitcher displayInLayerSwitcher;
+	private OLBaseClass displayInLayerSwitcher;
 	private OLSingleTile singleTile;
 	private OLNumZoomLevels numZoomLevels;
 	private OLUnits units;
-	private OLMaxExtent maxExtent;
+	private OLExtent maxExtent;
 	private OLDimension time;
 	private OLDimension elevation;
+	private OLBaseClass mainLayer;
 	
-	private OLStyleClassNumber styleClassNumber;
+	private OLBaseClass styleClassNumber;
 	private OLStyleColorRamps  styleColorRamps;
-	private OLStyleMinValue    styleMinValue;
-	private OLStyleMaxValue    styleMaxValue;
-	private OLStyleRestService styleRestService;
-	private OLStyleLegendService styleLegendService;
+	private OLStyleValue    styleMinValue;
+	private OLStyleValue    styleMaxValue;
+	private OLBaseClass styleRestService;
+	private OLBaseClass styleLegendService;
 	
 	/**
 	 * @return the id
@@ -70,25 +71,25 @@ public class WMCExtension {
 	/**
 	 * @return the transparent
 	 */
-	public OLTransparent getTransparent() {
+	public OLBaseClass getTransparent() {
 		return transparent;
 	}
 	/**
 	 * @param transparent the transparent to set
 	 */
-	public void setTransparent(OLTransparent transparent) {
+	public void setTransparent(OLBaseClass transparent) {
 		this.transparent = transparent;
 	}
 	/**
 	 * @return the isBaseLayer
 	 */
-	public OLIsBaseLayer getIsBaseLayer() {
+	public OLBaseClass getIsBaseLayer() {
 		return isBaseLayer;
 	}
 	/**
 	 * @param isBaseLayer the isBaseLayer to set
 	 */
-	public void setIsBaseLayer(OLIsBaseLayer isBaseLayer) {
+	public void setIsBaseLayer(OLBaseClass isBaseLayer) {
 		this.isBaseLayer = isBaseLayer;
 	}
 	/**
@@ -106,14 +107,14 @@ public class WMCExtension {
 	/**
 	 * @return the displayInLayerSwitcher
 	 */
-	public OLDisplayInLayerSwitcher getDisplayInLayerSwitcher() {
+	public OLBaseClass getDisplayInLayerSwitcher() {
 		return displayInLayerSwitcher;
 	}
 	/**
 	 * @param displayInLayerSwitcher the displayInLayerSwitcher to set
 	 */
 	public void setDisplayInLayerSwitcher(
-			OLDisplayInLayerSwitcher displayInLayerSwitcher) {
+			OLBaseClass displayInLayerSwitcher) {
 		this.displayInLayerSwitcher = displayInLayerSwitcher;
 	}
 	/**
@@ -155,15 +156,16 @@ public class WMCExtension {
 	/**
 	 * @return the maxExtent
 	 */
-	public OLMaxExtent getMaxExtent() {
+	public OLExtent getMaxExtent() {
 		return maxExtent;
 	}
 	/**
 	 * @param maxExtent the maxExtent to set
 	 */
-	public void setMaxExtent(OLMaxExtent maxExtent) {
+	public void setMaxExtent(OLExtent maxExtent) {
 		this.maxExtent = maxExtent;
 	}
+	
 	/**
 	 * @param time the time to set
 	 */
@@ -191,13 +193,13 @@ public class WMCExtension {
 	/**
 	 * @param styleClassNumber the styleClassNumber to set
 	 */
-	public void setStyleClassNumber(OLStyleClassNumber styleClassNumber) {
+	public void setStyleClassNumber(OLBaseClass styleClassNumber) {
 		this.styleClassNumber = styleClassNumber;
 	}
 	/**
 	 * @return the styleClassNumber
 	 */
-	public OLStyleClassNumber getStyleClassNumber() {
+	public OLBaseClass getStyleClassNumber() {
 		return styleClassNumber;
 	}
 	/**
@@ -215,50 +217,57 @@ public class WMCExtension {
 	/**
 	 * @param styleMinValue the styleMinValue to set
 	 */
-	public void setStyleMinValue(OLStyleMinValue styleMinValue) {
+	public void setStyleMinValue(OLStyleValue styleMinValue) {
 		this.styleMinValue = styleMinValue;
 	}
 	/**
 	 * @return the styleMinValue
 	 */
-	public OLStyleMinValue getStyleMinValue() {
+	public OLStyleValue getStyleMinValue() {
 		return styleMinValue;
 	}
 	/**
 	 * @param styleMaxValue the styleMaxValue to set
 	 */
-	public void setStyleMaxValue(OLStyleMaxValue styleMaxValue) {
+	public void setStyleMaxValue(OLStyleValue styleMaxValue) {
 		this.styleMaxValue = styleMaxValue;
 	}
 	/**
 	 * @return the styleMaxValue
 	 */
-	public OLStyleMaxValue getStyleMaxValue() {
+	public OLStyleValue getStyleMaxValue() {
 		return styleMaxValue;
 	}
 	/**
 	 * @param styleRestService the styleRestService to set
 	 */
-	public void setStyleRestService(OLStyleRestService styleRestService) {
+	public void setStyleRestService(OLBaseClass styleRestService) {
 		this.styleRestService = styleRestService;
 	}
 	/**
 	 * @return the styleRestService
 	 */
-	public OLStyleRestService getStyleRestService() {
+	public OLBaseClass getStyleRestService() {
 		return styleRestService;
 	}
 	/**
 	 * @return the styleLegendService
 	 */
-	public OLStyleLegendService getStyleLegendService() {
+	public OLBaseClass getStyleLegendService() {
 		return styleLegendService;
 	}
 	/**
 	 * @param styleLegendService the styleLegendService to set
 	 */
-	public void setStyleLegendService(OLStyleLegendService styleLegendService) {
+	public void setStyleLegendService(OLBaseClass styleLegendService) {
 		this.styleLegendService = styleLegendService;
+	}
+	
+	public OLBaseClass getMainLayer() {
+		return mainLayer;
+	}
+	public void setMainLayer(OLBaseClass mainLayer) {
+		this.mainLayer = mainLayer;
 	}
 
 	

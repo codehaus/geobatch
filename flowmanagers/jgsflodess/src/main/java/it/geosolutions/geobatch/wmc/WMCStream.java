@@ -32,10 +32,9 @@ package it.geosolutions.geobatch.wmc;
 import it.geosolutions.geobatch.wmc.model.GeneralWMCConfiguration;
 import it.geosolutions.geobatch.wmc.model.OLBaseClass;
 import it.geosolutions.geobatch.wmc.model.OLDimension;
-import it.geosolutions.geobatch.wmc.model.OLMaxExtent;
+import it.geosolutions.geobatch.wmc.model.OLExtent;
 import it.geosolutions.geobatch.wmc.model.OLStyleColorRamps;
-import it.geosolutions.geobatch.wmc.model.OLStyleMaxValue;
-import it.geosolutions.geobatch.wmc.model.OLStyleMinValue;
+import it.geosolutions.geobatch.wmc.model.OLStyleValue;
 import it.geosolutions.geobatch.wmc.model.ViewContext;
 import it.geosolutions.geobatch.wmc.model.WMCBoundingBox;
 import it.geosolutions.geobatch.wmc.model.WMCExtension;
@@ -172,6 +171,7 @@ public class WMCStream {
     	xstream.aliasField("ol:dimension", WMCExtension.class, "time");
     	xstream.aliasField("ol:dimension", WMCExtension.class, "elevation");
     	
+    	xstream.aliasField("ol:mainLayer", WMCExtension.class, "mainLayer");
     	xstream.aliasField("ol:styleClassNumber", WMCExtension.class, "styleClassNumber");
     	xstream.aliasField("ol:styleColorRamps", WMCExtension.class, "styleColorRamps");
     	xstream.aliasField("ol:styleMaxValue", WMCExtension.class, "styleMaxValue");
@@ -193,12 +193,12 @@ public class WMCStream {
 				
 				writer.addAttribute("xmlns:ol", ol.getXmlns_ol());
 				
-				if (value instanceof OLMaxExtent) {
-					OLMaxExtent maxExtent = (OLMaxExtent) value;
-					writer.addAttribute("minx", String.valueOf(maxExtent.getMinx()));
-					writer.addAttribute("miny", String.valueOf(maxExtent.getMiny()));
-					writer.addAttribute("maxx", String.valueOf(maxExtent.getMaxx()));
-					writer.addAttribute("maxy", String.valueOf(maxExtent.getMaxy()));
+				if (value instanceof OLExtent) {
+					OLExtent extent = (OLExtent) value;
+					writer.addAttribute("minx", extent.getMinx());
+					writer.addAttribute("miny", extent.getMiny());
+					writer.addAttribute("maxx", extent.getMaxx());
+					writer.addAttribute("maxy", extent.getMaxy());
 				}
 				
 				if (value instanceof OLDimension) {
@@ -207,13 +207,8 @@ public class WMCStream {
 					writer.addAttribute("default", dimension.getDefaultValue());
 				}
 				
-				if (value instanceof OLStyleMaxValue) {
-					OLStyleMaxValue styleValue = (OLStyleMaxValue) value;
-					writer.addAttribute("default", styleValue.getDefaultValue());
-				}
-				
-				if (value instanceof OLStyleMinValue) {
-					OLStyleMinValue styleValue = (OLStyleMinValue) value;
+				if (value instanceof OLStyleValue) {
+					OLStyleValue styleValue = (OLStyleValue) value;
 					writer.addAttribute("default", styleValue.getDefaultValue());
 				}
 				
@@ -231,11 +226,11 @@ public class WMCStream {
 				
 				if (reader.getAttribute("minx") != null && reader.getAttribute("miny") != null && 
 						reader.getAttribute("maxx") != null && reader.getAttribute("maxy") != null) {
-					ol = new OLMaxExtent(reader.getValue());
-					((OLMaxExtent) ol).setMinx(Double.parseDouble(reader.getAttribute("minx")));
-					((OLMaxExtent) ol).setMaxx(Double.parseDouble(reader.getAttribute("maxx")));
-					((OLMaxExtent) ol).setMiny(Double.parseDouble(reader.getAttribute("miny")));
-					((OLMaxExtent) ol).setMaxy(Double.parseDouble(reader.getAttribute("maxy")));
+					ol = new OLExtent(reader.getValue());
+					((OLExtent) ol).setMinx(reader.getAttribute("minx"));
+					((OLExtent) ol).setMaxx(reader.getAttribute("maxx"));
+					((OLExtent) ol).setMiny(reader.getAttribute("miny"));
+					((OLExtent) ol).setMaxy(reader.getAttribute("maxy"));
 				} else if (reader.getAttribute("name") != null && reader.getAttribute("default") != null) {
 					ol = new OLDimension(reader.getValue(), reader.getAttribute("name"), reader.getAttribute("default")); 
 				} else {

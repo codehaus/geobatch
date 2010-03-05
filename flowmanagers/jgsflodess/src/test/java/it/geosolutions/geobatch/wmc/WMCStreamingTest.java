@@ -30,12 +30,11 @@
 package it.geosolutions.geobatch.wmc;
 
 import it.geosolutions.geobatch.wmc.model.GeneralWMCConfiguration;
+import it.geosolutions.geobatch.wmc.model.OLBaseClass;
 import it.geosolutions.geobatch.wmc.model.OLDimension;
-import it.geosolutions.geobatch.wmc.model.OLIsBaseLayer;
+import it.geosolutions.geobatch.wmc.model.OLExtent;
 import it.geosolutions.geobatch.wmc.model.OLLayerID;
-import it.geosolutions.geobatch.wmc.model.OLMaxExtent;
 import it.geosolutions.geobatch.wmc.model.OLSingleTile;
-import it.geosolutions.geobatch.wmc.model.OLTransparent;
 import it.geosolutions.geobatch.wmc.model.ViewContext;
 import it.geosolutions.geobatch.wmc.model.WMCBoundingBox;
 import it.geosolutions.geobatch.wmc.model.WMCExtension;
@@ -80,10 +79,10 @@ public class WMCStreamingTest {
     	List<WMCStyle> styleList = new ArrayList<WMCStyle>();
     	WMCExtension extension = new WMCExtension();
     	extension.setId(new OLLayerID("observations"));
-    	extension.setMaxExtent(new OLMaxExtent(null));
-    	extension.setIsBaseLayer(new OLIsBaseLayer("TRUE"));
+    	extension.setMaxExtent(new OLExtent(null));
+    	extension.setIsBaseLayer(new OLBaseClass("TRUE"));
     	extension.setSingleTile(new OLSingleTile("FALSE"));
-    	extension.setTransparent(new OLTransparent("FALSE"));
+    	extension.setTransparent(new OLBaseClass("FALSE"));
     	extension.setTime(new OLDimension("0000-00-00T00:00:000Z", "TIME", "current"));
     	extension.setElevation(new OLDimension("0.0,10.0", "ELEVATION", "0.0"));
     	
