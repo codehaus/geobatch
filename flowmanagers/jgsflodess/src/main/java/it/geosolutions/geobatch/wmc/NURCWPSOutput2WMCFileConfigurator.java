@@ -121,8 +121,9 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 
 	public static final long matLabStartTime;
 	
-	private final static String IS_VISIBLE = "isVisible";
-	private final static String SHOW_ATTRIBUTE = "show_attribute";
+	private final static String SHOW_ATTRIBUTE = "show_variable";
+
+	private static final String UNITS_ATTRIBUTE = "units";
 	
 	static {
 		GregorianCalendar calendar = new GregorianCalendar(0000, 00, 01, 00, 00, 00);
@@ -282,14 +283,29 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 									if (!varName.equalsIgnoreCase("lat") &&
 										!varName.equalsIgnoreCase("lon")) {
 										variablesName.add(varName);
+										final String longName = var.getDescription();
 										final String shortName = varName.replace(" ", "").toLowerCase(); 
 										ncFileOut.addVariable(shortName, DataType.DOUBLE, outDimensions);
-										ncFileOut.addVariableAttribute(shortName, "long_name", varName);
-									    ncFileOut.addVariableAttribute(shortName, "units", "dimensionless");
+										ncFileOut.addVariableAttribute(shortName, "long_name", longName);
+									    
 					            		ncFileOut.addVariableAttribute(shortName, "missing_value", -9999.0);
+					            		final Attribute showAtt = var.findAttribute(SHOW_ATTRIBUTE);
+				                        if (showAtt != null) {
+				                                final String show  = showAtt.getStringValue();
+				                                ncFileOut.addVariableAttribute(shortName, SHOW_ATTRIBUTE, show);
+				                        }
+				                        final Attribute unit = var.findAttribute(UNITS_ATTRIBUTE);
+				                        if (unit != null) {
+				                                final String units  = unit.getStringValue();
+				                                ncFileOut.addVariableAttribute(shortName, UNITS_ATTRIBUTE, units);
+				                        }
+				                        else {
+				                        	final String units  = var.getUnitsString();
+					                        ncFileOut.addVariableAttribute(shortName, UNITS_ATTRIBUTE, units);
+				                        }
 									}								
-								
 								}
+								
 								final Variable lonOriginalVar = ncVarFile.findVariable(NetCDFUtilities.LON);
 								final Variable latOriginalVar = ncVarFile.findVariable(NetCDFUtilities.LAT);
 
@@ -380,7 +396,6 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 			int nZeta = 0;
 			int nLat  = latDim.getLength();
 			int nLon  = lonDim.getLength();
-			final String showAttribute = isTDA? IS_VISIBLE:SHOW_ATTRIBUTE;
 
 			// input VARIABLES
 			final Variable timeOriginalVar = ncFileIn.findVariable(JGSFLoDeSSIOUtils.TIME_DIM);
@@ -517,10 +532,10 @@ public class NURCWPSOutput2WMCFileConfigurator extends
                                 noData = missingValue.getNumericValue().doubleValue();
                         }
                         
-                        Attribute showAtt = var.findAttribute(showAttribute);
+                        Attribute showAtt = var.findAttribute(SHOW_ATTRIBUTE);
                         String isMainLayer = "true";
                         if (showAtt != null) {
-                                isMainLayer = missingValue.getStringValue();
+                                isMainLayer = showAtt.getStringValue();
                         }
 
                         final String variableName = varName.replace("_", "").replace(" ", "");
@@ -590,7 +605,7 @@ public class NURCWPSOutput2WMCFileConfigurator extends
                         	for (String rangeEntry : ranges)
                         		writer.write(rangeEntry);
                         	final StringBuilder title = new StringBuilder(var.getDescription());
-                        	if(!isTDA){
+//                        	if(!isTDA){
                     	        final Attribute units = var.findAttribute("units");
                     	        if (units != null){
                     	            final String uom = units.getStringValue();
@@ -598,7 +613,7 @@ public class NURCWPSOutput2WMCFileConfigurator extends
                     	                title.append(" [").append(uom).append("]");
                     	            }
                     	        }
-                        	}
+//                        	}
                         	title.append("|").append(isMainLayer);
                         	writer.write(title.toString());
                         	writer.flush();
