@@ -305,9 +305,6 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 				extension.setStyleLegendService(new OLBaseClass(configuration.getGeoserverURL()+
 						"/wms?REQUEST=GetLegendGraphic"));
 				setExtent(extension,layerAOI);
-				
-				extension.setMainLayer(new OLBaseClass("TRUE"));
-				
 				if (entry.getDimensions() != null) {
 					for (String dim : entry.getDimensions().keySet()) {
 						final String values = entry.getDimensions().get(dim).get("values");
@@ -413,7 +410,7 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 				while ((line = reader.readLine()) != null){
 					String entries[] = line.split(",");
 					final int nEntries = entries.length;
-					if (nEntries < 2){
+					if (nEntries < 4){
 						String title="";
 						String[] elements = entries[0].split("\\|");
 						title = elements[0];
