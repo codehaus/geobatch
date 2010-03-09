@@ -115,9 +115,10 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 	private static final double DEFAULT_COMPRESSION_RATIO = 0.75;
 
 	private static final String DEFAULT_COMPRESSION_TYPE = "LZW";
-
-	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
-	private final SimpleDateFormat wpssdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss.SSS'Z'");
+	
+	private final static String SDF_FORMAT = "yyyyMMdd'T'HHmmss'Z'";
+	
+	private final static String WPS_SDF_FORMAT = "yyyyMMdd'T'HHmmss.SSS'Z'";
 
 	public static final long matLabStartTime;
 	
@@ -134,8 +135,6 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 	protected NURCWPSOutput2WMCFileConfigurator(
 			GeoServerActionConfiguration configuration) throws IOException {
 		super(configuration);
-		sdf.setTimeZone(JGSFLoDeSSIOUtils.UTC);
-		wpssdf.setTimeZone(JGSFLoDeSSIOUtils.UTC);
 	}
 
 	/**
@@ -178,7 +177,11 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 				LOGGER.log(Level.SEVERE, "WorkingDirectory is null or does not exist.");
 				throw new IllegalStateException("WorkingDirectory is null or does not exist.");
 			}
-
+			final SimpleDateFormat sdf = new SimpleDateFormat(SDF_FORMAT);
+			final SimpleDateFormat wpssdf = new SimpleDateFormat(WPS_SDF_FORMAT);
+			sdf.setTimeZone(JGSFLoDeSSIOUtils.UTC);
+			wpssdf.setTimeZone(JGSFLoDeSSIOUtils.UTC);
+			
 			// ... BUSINESS LOGIC ... //
 			String inputFileName = event.getSource().getAbsolutePath();
 			final String filePrefix = FilenameUtils.getBaseName(inputFileName);
@@ -291,7 +294,7 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 					            		ncFileOut.addVariableAttribute(shortName, "missing_value", -9999.0);
 					            		final Attribute showAtt = var.findAttribute(SHOW_ATTRIBUTE);
 				                        if (showAtt != null) {
-				                                final String show  = showAtt.getStringValue();
+				                                final String show = showAtt.getStringValue();
 				                                ncFileOut.addVariableAttribute(shortName, SHOW_ATTRIBUTE, show);
 				                        }
 				                        final Attribute unit = var.findAttribute(UNITS_ATTRIBUTE);
@@ -535,7 +538,15 @@ public class NURCWPSOutput2WMCFileConfigurator extends
                         Attribute showAtt = var.findAttribute(SHOW_ATTRIBUTE);
                         String isMainLayer = "true";
                         if (showAtt != null) {
-                                isMainLayer = showAtt.getStringValue();
+                        	final String show = showAtt.getStringValue();
+                        	if (show != null && show.trim().length()>0){
+                        		isMainLayer = show.equalsIgnoreCase("false")?"false":"true";
+                        	} else{
+                        		final float d = showAtt.getNumericValue().floatValue();
+                        		if (d<1.0){
+                        			isMainLayer = "false";
+                        		}
+                        	}
                         }
 
                         final String variableName = varName.replace("_", "").replace(" ", "");
