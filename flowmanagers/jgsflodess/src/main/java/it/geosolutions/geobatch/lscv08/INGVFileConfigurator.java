@@ -78,8 +78,6 @@ import ucar.nc2.Variable;
 public class INGVFileConfigurator extends
 			MetocConfigurationAction<FileSystemMonitorEvent> {
 
-	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddmm_HHH");
-	
 	public static final long startTime;
 
 	static {
@@ -98,7 +96,6 @@ public class INGVFileConfigurator extends
 	protected INGVFileConfigurator(
 			MetocActionConfiguration configuration) throws IOException {
 		super(configuration);
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 	}
 
 	/**
@@ -279,7 +276,7 @@ public class INGVFileConfigurator extends
 			// ////
 			// ... create the output file data structure
 			// ////
-            outputFile = new File(outDir, "lscv08_INGVMFS-Forecast-T" + new Date().getTime() + FilenameUtils.getBaseName(inputFileName).replaceAll("-", "") + ".nc");
+            outputFile = new File(outDir, "lscv08_INGVMFS-Forecast-T" + new Date().getTime()+ Utilities.getRandomDigits() + FilenameUtils.getBaseName(inputFileName).replaceAll("-", "") + ".nc");
             ncFileOut = NetcdfFileWriteable.createNew(outputFile.getAbsolutePath());
 
             //NetCDFConverterUtilities.copyGlobalAttributes(ncFileOut, ncFileIn.getGlobalAttributes());

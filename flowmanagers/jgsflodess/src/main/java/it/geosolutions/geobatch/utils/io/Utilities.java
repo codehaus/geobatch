@@ -96,6 +96,10 @@ public class Utilities {
 	
 	protected final static Logger LOGGER = Logger.getLogger(Utilities.class.toString());
 	
+	private final static int THOUS = 1000;
+	
+	private final static long nanoSecondsStartTime = System.nanoTime();
+	
 	private Utilities(){
 		
 	}
@@ -509,6 +513,11 @@ public class Utilities {
 				width, //width
 				height, //height
 				numBands); //num bands
+	}
+	
+	public static int getRandomDigits(){
+	    final long nanosecs = nanoSecondsStartTime - System.nanoTime();
+	    return Math.abs((int)(nanosecs%THOUS));
 	}
 
 }

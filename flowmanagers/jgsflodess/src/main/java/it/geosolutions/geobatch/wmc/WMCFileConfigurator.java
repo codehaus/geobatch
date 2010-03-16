@@ -288,10 +288,8 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 				WMCLayer newLayer = new WMCLayer("0", "1", nameSpace + ":" + layerName, layerTitle, crs);
 				WMCServer server = new WMCServer("wms", "1.1.1", "wms");
 				List<WMCFormat> formatList = new ArrayList<WMCFormat>();
-				// List<WMCStyle> styleList = new ArrayList<WMCStyle>();
 				WMCExtension extension = new WMCExtension();
 				extension.setId(new OLLayerID(layerName));
-//				extension.setMaxExtent(new OLExtent(null));
 				extension.setIsBaseLayer(new OLBaseClass("false"));
 				extension.setSingleTile(new OLSingleTile("false"));
 				extension.setTransparent(new OLBaseClass("true"));
@@ -319,7 +317,6 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 				}
 
 				formatList.add(new WMCFormat("1", "image/png"));
-				// styleList.add(new WMCStyle("1", new WMCSLD(new WMCOnlineResource("simple", "http://localhost:8081/NurcCruises/resources/xml/SLDDefault.xml"))));
 
 				server.setOnlineResource(new WMCOnlineResource("simple", geoserverUrl));
 				newLayer.setServer(server);
@@ -369,7 +366,7 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 		}
 	}
 
-	private void setExtent(WMCExtension extension, String layerAOI) {
+	private void setExtent(final WMCExtension extension, final String layerAOI) {
 		if (layerAOI != null && layerAOI.trim().length()>0){
 			final String extent[] = layerAOI.split("\\|");
 			if (extent.length == 4){
@@ -412,7 +409,7 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 					final int nEntries = entries.length;
 					if (nEntries < 4){
 						String title="";
-						String[] elements = entries[0].split("\\|");
+						String[] elements = line.split("\\|");
 						title = elements[0];
 						if (elements.length>1){
 							if (elements[1].equalsIgnoreCase("false"))
@@ -420,8 +417,7 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 						} 
 						newLayer.setTitle(title);
 						
-					}
-					else{
+					} else {
 						String min = entries[nEntries-2];
 						String max = entries[nEntries-1];
 						if (!init){
@@ -440,7 +436,7 @@ public class WMCFileConfigurator extends BaseAction<FileSystemMonitorEvent>
 				extension.setStyleMaxValue(new OLStyleValue(maxStyle.substring(0,maxStyle.length()-1), maxDef));
 				minMaxSet = true;
 			} finally {
-				if (reader!=null){
+				if (reader != null){
 					try{
 						reader.close();
 						reader = null;

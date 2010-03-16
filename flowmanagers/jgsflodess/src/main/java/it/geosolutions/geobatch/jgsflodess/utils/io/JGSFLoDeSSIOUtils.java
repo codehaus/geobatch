@@ -146,6 +146,37 @@ public class JGSFLoDeSSIOUtils {
 		calendar.setTimeZone(UTC);
 		startTime = calendar.getTimeInMillis();
 	}
+	
+	public static Array write2DData(
+                WritableRaster userRaster,
+                Variable var, final Array originalVarData, 
+        final boolean findNewRange, final boolean updateFillValue, 
+        final int[] loopLengths,
+        final boolean flipY) throws IOException, InvalidRangeException {
+	    return write2DData(userRaster, var, originalVarData, findNewRange, updateFillValue, loopLengths, flipY, Double.NaN);
+	}
+	
+	/**
+         * 
+         * @param userRaster
+         * @param var
+         * @param originalVarData
+         * @param findNewRange
+         * @param updateFillValue
+         * @param loopLengths
+         * @param flipY
+         * @throws IOException
+         * @throws InvalidRangeException
+         */
+        public static Array write2DData(
+                        WritableRaster userRaster,
+                        Variable var, final Array originalVarData, 
+                final boolean findNewRange, final boolean updateFillValue, 
+                final int[] loopLengths,
+                final boolean flipY, final double globalMissingValue) throws IOException, InvalidRangeException {
+            return write2DData(userRaster, var, originalVarData, findNewRange, updateFillValue, loopLengths, flipY, globalMissingValue, false);
+        }
+	
 
 	/**
 	 * 
@@ -164,7 +195,7 @@ public class JGSFLoDeSSIOUtils {
 			Variable var, final Array originalVarData, 
 	        final boolean findNewRange, final boolean updateFillValue, 
 	        final int[] loopLengths,
-	        final boolean flipY) throws IOException, InvalidRangeException {
+	        final boolean flipY, final double globalMissingValue, final boolean isMaskCase) throws IOException, InvalidRangeException {
 		
 		int tPos 		 = -1;
 		int zPos 		 = -1;
@@ -193,17 +224,51 @@ public class JGSFLoDeSSIOUtils {
 			fv = var.findAttribute(NetCDFUtilities.DatasetAttribs.FILL_VALUE);
 		Index varIndex = originalVarData.getIndex();
 
+		if (isMaskCase) {
+                    byte min = 0;
+                    byte max = 1;
+                    
+                    for (int yPos = 0; yPos < latPositions; yPos++) {
+                            for (int xPos = 0; xPos < lonPositions; xPos++) {
+                                    int sVal = originalVarData.getInt(
+                                                    tPos >= 0 ? 
+                                                                    (zPos >= 0 ? varIndex.set(tPos, zPos, yPos, xPos) : varIndex.set(tPos, yPos, xPos))
+                                                                    :
+                                                                    (zPos >= 0 ? varIndex.set(zPos, yPos, xPos) : varIndex.set(yPos, xPos))
+                                    );
+                                    
+                                    // Flipping y
+                                    int newYpos = yPos;
+                                    // Flipping y
+                                    if (flipY) {
+                                            newYpos = latPositions - yPos - 1;
+                                    }
+                                    userRaster.setSample(xPos , newYpos, 0, sVal); // setSample( x, y, band, value )
+                            }
+                    }
+                    if (findNewRange){
+                        ArrayByte retArray = new ArrayByte(new int[]{2});
+                            retArray.setByte(0, min);
+                            retArray.setByte(1, max);
+                            return retArray;
+                    }
+                    return null;
+            }
+		
+		
 		// //
 		//
 		// FLOAT
 		//
 		// //
-		if (varDataType == DataType.FLOAT) {
+		else if (varDataType == DataType.FLOAT) {
 			float min = Float.MAX_VALUE;
-			float max = Float.MIN_VALUE;
+			float max = -Float.MAX_VALUE;
 			float fillValue = Float.MAX_VALUE;
 			if (fv != null) {
 				fillValue = (fv.getNumericValue()).floatValue();
+			} else if (!Double.isNaN(globalMissingValue)){
+			    fillValue = (float)globalMissingValue;
 			}
 
 			for (int yPos = 0; yPos < latPositions; yPos++) {
@@ -231,6 +296,12 @@ public class JGSFLoDeSSIOUtils {
 			}
 			if (findNewRange){
 				ArrayFloat retArray = new ArrayFloat(new int[]{2});
+				if (min == Float.MAX_VALUE){
+				    min = Float.NaN;
+				}
+				if (max == - Float.MAX_VALUE){
+				    max = Float.NaN;
+				}
 				retArray.setFloat(0, min);
 				retArray.setFloat(1, max);
 				return retArray;
@@ -245,7 +316,7 @@ public class JGSFLoDeSSIOUtils {
 		// //
 		else if (varDataType == DataType.DOUBLE) {
 			double min = Double.MAX_VALUE;
-			double max = Double.MIN_VALUE;
+			double max = -Double.MAX_VALUE;
 			double fillValue = Double.MAX_VALUE;
 			if (fv != null) {
 				fillValue = (fv.getNumericValue()).doubleValue();
@@ -276,6 +347,12 @@ public class JGSFLoDeSSIOUtils {
 			}
 			if (findNewRange){
 				ArrayDouble retArray = new ArrayDouble(new int[]{2});
+				if (min == Double.MAX_VALUE){
+                                    min = Double.NaN;
+                                }
+                                if (max == -Double.MAX_VALUE){
+                                    max = Double.NaN;
+                                }
 				retArray.setDouble(0, min);
 				retArray.setDouble(1, max);
 				return retArray;
@@ -367,6 +444,12 @@ public class JGSFLoDeSSIOUtils {
 			}
 			if (findNewRange){
 				ArrayShort retArray = new ArrayShort(new int[]{2});
+				if (min == Short.MAX_VALUE){
+                                    min = fillValue;
+                                }
+                                if (max == Short.MIN_VALUE){
+                                    max = fillValue;
+                                }
 				retArray.setShort(0, min);
 				retArray.setShort(1, max);
 				return retArray;
@@ -412,6 +495,12 @@ public class JGSFLoDeSSIOUtils {
 			}
 			if (findNewRange){
 				ArrayInt retArray = new ArrayInt(new int[]{2});
+				if (min == Integer.MAX_VALUE){
+                                    min = fillValue;
+                                }
+                                if (max == Integer.MIN_VALUE){
+                                    max = fillValue;
+                                }
 				retArray.setInt(0, min);
 				retArray.setInt(1, max);
 				return retArray;
