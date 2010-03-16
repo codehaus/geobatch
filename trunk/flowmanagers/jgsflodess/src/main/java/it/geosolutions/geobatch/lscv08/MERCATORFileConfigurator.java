@@ -78,10 +78,8 @@ import ucar.nc2.Variable;
 public class MERCATORFileConfigurator extends
 			MetocConfigurationAction<FileSystemMonitorEvent> {
 
-	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddmm_HHH");
-	
 	public static final long startTime;
-
+	
 	static {
 		GregorianCalendar calendar = new GregorianCalendar(1980, 00, 01, 00, 00, 00);
 		calendar.setTimeZone(TimeZone.getTimeZone("GMT+0"));
@@ -92,7 +90,6 @@ public class MERCATORFileConfigurator extends
 	protected MERCATORFileConfigurator(
 			MetocActionConfiguration configuration) throws IOException {
 		super(configuration);
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 	}
 
 	/**
@@ -237,7 +234,9 @@ public class MERCATORFileConfigurator extends
 			// ////
 			// ... create the output file data structure
 			// ////
-            outputFile = new File(outDir, "lscv08_MERCATOR-Forecast-T" + new Date().getTime() + FilenameUtils.getBaseName(inputFileName).replaceAll("-", "") + ".nc");
+	    
+	    
+            outputFile = new File(outDir, "lscv08_MERCATOR-Forecast-T" + new Date().getTime() + Utilities.getRandomDigits() + FilenameUtils.getBaseName(inputFileName).replaceAll("-", "") + ".nc");
             ncFileOut = NetcdfFileWriteable.createNew(outputFile.getAbsolutePath());
 
             //NetCDFConverterUtilities.copyGlobalAttributes(ncFileOut, ncFileIn.getGlobalAttributes());

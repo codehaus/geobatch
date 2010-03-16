@@ -247,7 +247,7 @@ public class NRLNCOMFileConfigurator extends
 			// ////
 			// ... create the output file data structure
 			// ////
-            outputFile = new File(outDir, "lscv08_NCOM" + (inputFileName.contains("nest") ? "nest"+inputFileName.substring(inputFileName.indexOf("nest")+"nest".length(), inputFileName.indexOf("nest")+"nest".length()+1) : "") + "-Forecast-T" + new Date().getTime() + FilenameUtils.getBaseName(inputFileName).replaceAll("-", "") + ".nc");
+            outputFile = new File(outDir, "lscv08_NCOM" + (inputFileName.contains("nest") ? "nest"+inputFileName.substring(inputFileName.indexOf("nest")+"nest".length(), inputFileName.indexOf("nest")+"nest".length()+1) : "") + "-Forecast-T" + new Date().getTime()+Utilities.getRandomDigits() + FilenameUtils.getBaseName(inputFileName).replaceAll("-", "") + ".nc");
             ncFileOut = NetcdfFileWriteable.createNew(outputFile.getAbsolutePath());
 
             //NetCDFConverterUtilities.copyGlobalAttributes(ncFileOut, ncFileIn.getGlobalAttributes());

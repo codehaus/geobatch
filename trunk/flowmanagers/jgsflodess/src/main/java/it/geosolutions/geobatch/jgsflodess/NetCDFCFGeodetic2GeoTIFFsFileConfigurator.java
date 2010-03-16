@@ -111,12 +111,11 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends MetocConfiguratio
 	/**
 	 * Static DateFormat Converter
 	 */
-	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
+	
 	
 	protected NetCDFCFGeodetic2GeoTIFFsFileConfigurator(
 			MetocActionConfiguration configuration) throws IOException {
 		super(configuration);
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 	}
 
 	/**
@@ -263,7 +262,9 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends MetocConfiguratio
 			final List<Variable> foundVariables = ncFileIn.getVariables();
 			final ArrayList<String> variables = new ArrayList<String>();
 			int numVars = 0;
-
+			final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
+	                sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+	                
 			for (Variable var : foundVariables) {
 				if (var != null) {
 					String varName = var.getName();
@@ -277,7 +278,7 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends MetocConfiguratio
 					
 					boolean canProceed = false;
 					
-					final File gtiffOutputDir = new File(outDir.getAbsolutePath() + File.separator + inputFileName + "_" + varName.replaceAll("_", "") + "_T" + new Date().getTime());
+					final File gtiffOutputDir = new File(outDir.getAbsolutePath() + File.separator + inputFileName + "_" + varName.replaceAll("_", "") + "_T" + new Date().getTime() + Utilities.getRandomDigits());
 					
 					if (!gtiffOutputDir.exists())
 						canProceed = gtiffOutputDir.mkdirs();

@@ -495,7 +495,13 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 			final List<Variable> foundVariables = ncFileIn.getVariables();
 			final ArrayList<String> variables = new ArrayList<String>();
 			int numVars = 0;
-
+			double globalNoData = Double.NaN;
+			if (!isTDA){
+			    Attribute globMissingValue = ncFileIn.findGlobalAttribute("missing_value");
+			    if (globMissingValue != null) {
+			        globalNoData = globMissingValue.getNumericValue().doubleValue();
+                            }
+			}
 			for (Variable var : foundVariables) {
 				if (var != null) {
 					String varName = var.getName();
@@ -522,7 +528,8 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 						// //
 						// defining the SampleModel data type
 						// //
-						final SampleModel outSampleModel = Utilities.getSampleModel(var.getDataType(), nLon, nLat,1);
+					        
+						final SampleModel outSampleModel = Utilities.getSampleModel(var.getName().equalsIgnoreCase("mask")?ucar.ma2.DataType.BYTE: var.getDataType(), nLon, nLat,1);
 
 						Array originalVarArray = var.read();
 						final boolean hasLocalZLevel = NetCDFConverterUtilities.hasThisDimension(var, JGSFLoDeSSIOUtils.DEPTH_DIM)
@@ -533,6 +540,8 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 						Attribute missingValue = var.findAttribute("missing_value");
                         if (missingValue != null) {
                                 noData = missingValue.getNumericValue().doubleValue();
+                        } else {
+                            noData = globalNoData;
                         }
                         
                         Attribute showAtt = var.findAttribute(SHOW_ATTRIBUTE);
@@ -567,8 +576,15 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 									dimArray = new int[] {nLat, nLon} ;
 								
 								//Writing data and looking for min max
-								final Array minMaxArray = JGSFLoDeSSIOUtils.write2DData(userRaster, var, originalVarArray, true, true, dimArray, true);
-								
+								final Array minMaxArray;
+								if (isTDA)
+								    minMaxArray = JGSFLoDeSSIOUtils.write2DData(userRaster, var, originalVarArray, true, true, dimArray, true);
+								else {
+								    if (!variableName.equalsIgnoreCase("mask"))
+								        minMaxArray = JGSFLoDeSSIOUtils.write2DData(userRaster, var, originalVarArray, true, true, dimArray, true, globalNoData);
+								    else
+								        minMaxArray = JGSFLoDeSSIOUtils.write2DData(userRaster, var, originalVarArray, true, true, dimArray, true, -1, true);
+								}
 								// ////
 								// producing the Coverage here...
 								// ////
@@ -599,7 +615,11 @@ public class NURCWPSOutput2WMCFileConfigurator extends
 								ranges.add(new StringBuilder(refTime).append(",").append(refZeta).append(",").
 										append(minMaxArray.getDouble(0)).append(",").append(minMaxArray.getDouble(1)).append("\n").toString());
 								coverageName.append("-T").append(System.currentTimeMillis());
-								final String nd = Double.isNaN(noData)?"-9999.0":Double.toString(noData);
+								final String nd;
+								if (!varName.equalsIgnoreCase("mask"))
+								    nd = Double.isNaN(noData)?"-9999.0":Double.toString(noData);
+								else 
+								    nd = "-1";
 								coverageName.append("_").append(nd);
 								Utilities.storeCoverageAsGeoTIFF(gtiffOutputDir, coverageName.toString(), variableName, 
 								        userRaster, noData, envelope, DEFAULT_COMPRESSION_TYPE, 
