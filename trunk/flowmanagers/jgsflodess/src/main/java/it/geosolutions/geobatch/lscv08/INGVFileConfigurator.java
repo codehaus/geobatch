@@ -386,7 +386,7 @@ public class INGVFileConfigurator extends
 
             // time Variable data
             final SimpleDateFormat toSdf = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss", Locale.ENGLISH);
-        	final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
+        	final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
         	toSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
         	fromSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 

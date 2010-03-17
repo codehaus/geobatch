@@ -42,7 +42,7 @@ public class NURCWPSOutput2WMCGeneratorService extends
      *  Action creator
      * 
      *  @param configuration The data base action configuration 
-     *  @return new JGSFLoDeSSSWANFileConfigurator()
+     *  @return new NURCWPSOutput2WMCFileConfigurator()
      */
     public NURCWPSOutput2WMCFileConfigurator createAction(GeoServerActionConfiguration configuration) {
         try {

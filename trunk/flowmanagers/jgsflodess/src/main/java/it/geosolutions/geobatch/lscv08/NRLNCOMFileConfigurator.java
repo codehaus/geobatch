@@ -72,8 +72,6 @@ import ucar.nc2.Variable;
 public class NRLNCOMFileConfigurator extends
 		MetocConfigurationAction<FileSystemMonitorEvent> {
 
-	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddmm_HHH");
-	
 	public static final long startTime;
 	public static final long NCOMstartTime;
 
@@ -90,7 +88,6 @@ public class NRLNCOMFileConfigurator extends
 	protected NRLNCOMFileConfigurator(
 			MetocActionConfiguration configuration) throws IOException {
 		super(configuration);
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 	}
 
 	/**
@@ -336,7 +333,7 @@ public class NRLNCOMFileConfigurator extends
             
             // time Variable data
             final SimpleDateFormat toSdf = new SimpleDateFormat("yyyyMMdd");
-            final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
+            final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
         	toSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
         	fromSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
         	

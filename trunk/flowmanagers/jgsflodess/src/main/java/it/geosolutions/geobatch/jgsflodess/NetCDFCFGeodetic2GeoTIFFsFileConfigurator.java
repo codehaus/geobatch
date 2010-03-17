@@ -262,7 +262,7 @@ public class NetCDFCFGeodetic2GeoTIFFsFileConfigurator extends MetocConfiguratio
 			final List<Variable> foundVariables = ncFileIn.getVariables();
 			final ArrayList<String> variables = new ArrayList<String>();
 			int numVars = 0;
-			final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
+			final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
 	                sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 	                
 			for (Variable var : foundVariables) {
