@@ -292,7 +292,7 @@ public class JGSFLoDeSSNCOMFileConfigurator extends
 
             // time Variable data
             final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddmm_HHH");
-            final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
+            final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
             sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
         	fromSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
         	

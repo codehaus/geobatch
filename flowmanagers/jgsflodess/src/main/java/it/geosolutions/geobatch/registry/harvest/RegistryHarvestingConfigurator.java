@@ -378,7 +378,7 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
             String inLine = null;
             //final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
             final SimpleDateFormat sdfMetadata = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
-            final SimpleDateFormat sdfMetoc = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
+            final SimpleDateFormat sdfMetoc = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
             
             while ((inLine = inputStream.readLine()) != null) {
             	// Handle KeyWords

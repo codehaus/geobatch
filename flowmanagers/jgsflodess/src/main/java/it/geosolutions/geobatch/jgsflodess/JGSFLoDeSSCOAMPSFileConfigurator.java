@@ -340,9 +340,9 @@ public class JGSFLoDeSSCOAMPSFileConfigurator extends MetocConfigurationAction<F
 
             // time Variable data
             final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHHmmss");
-            final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
+            final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
             sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
-        	fromSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+            fromSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
         	
         	final Date timeOriginDate = sdf.parse(timesFound.get(0));
         	int TAU = t1 - t0;

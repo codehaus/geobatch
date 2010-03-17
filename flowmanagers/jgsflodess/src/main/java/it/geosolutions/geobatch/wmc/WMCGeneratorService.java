@@ -46,7 +46,7 @@ public class WMCGeneratorService extends BaseService implements
      *  Action creator
      * 
      *  @param configuration The data base action configuration 
-     *  @return new JGSFLoDeSSSWANFileConfigurator()
+     *  @return new WMCFileConfigurator()
      */
     public WMCFileConfigurator createAction(WMCActionConfiguration configuration) {
         try {

@@ -42,7 +42,7 @@ public class NetCDFCFGeodetic2GeoTIFFsGeneratorService extends
      *  Action creator
      * 
      *  @param configuration The data base action configuration 
-     *  @return new JGSFLoDeSSSWANFileConfigurator()
+     *  @return new NetCDFCFGeodetic2GeoTIFFsFileConfigurator
      */
     public NetCDFCFGeodetic2GeoTIFFsFileConfigurator createAction(MetocActionConfiguration configuration) {
         try {

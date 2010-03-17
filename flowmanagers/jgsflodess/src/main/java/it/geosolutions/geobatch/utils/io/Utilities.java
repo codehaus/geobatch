@@ -459,7 +459,7 @@ public class Utilities {
          * @return the created directory.
          */
         public final static File createTodayDirectory(File destDir, String inputFileName, final boolean withTime) {
-                final SimpleDateFormat SDF = withTime? new SimpleDateFormat("yyyy_MM_dd_hhmmsss"):new SimpleDateFormat("yyyy_MM_dd");
+                final SimpleDateFormat SDF = withTime? new SimpleDateFormat("yyyy_MM_dd_hhmmss"):new SimpleDateFormat("yyyy_MM_dd");
                 final String newPath = (new StringBuffer(destDir.getAbsolutePath()
                                 .trim()).append(File.separatorChar).append(SDF
                                 .format(new Date())).append("_").append(inputFileName)).toString();
@@ -480,7 +480,7 @@ public class Utilities {
 	 * @return the created directory.
 	 */
 	public static File createTodayPrefixedDirectory(final String prefix, final File parent) {
-		final SimpleDateFormat SDF_HMS = new SimpleDateFormat("yyyy_MM_dd_hhmmsss");
+		final SimpleDateFormat SDF_HMS = new SimpleDateFormat("yyyy_MM_dd_hhmmss");
 		final String newPath = (new StringBuffer(parent.getAbsolutePath().trim())
 				.append(File.separatorChar).append(prefix).append(File.separatorChar)
 				.append(SDF_HMS.format(new Date()))).toString();

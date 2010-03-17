@@ -323,7 +323,7 @@ public class MERCATORFileConfigurator extends
             Attribute forecastDate  = ncGridFile.findGlobalAttributeIgnoreCase("forecast_range");
 
             final SimpleDateFormat toSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd'T'HHmmsss'Z'");
+            final SimpleDateFormat fromSdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
         	toSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
         	fromSdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
         	
