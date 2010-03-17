@@ -199,13 +199,14 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 				
 				if (res) {
 					// forwarding to the next Action
-					LOGGER.info("RegistryHarvestingAction ... forwarding to the next Action: " + inputFile.getAbsolutePath());
-					generatedEvents.add(new FileSystemMonitorEvent(inputFile, FileSystemMonitorNotifications.FILE_ADDED));
+					if (LOGGER.isLoggable(Level.FINE))
+						LOGGER.fine("RegistryHarvestingAction ... forwarding to the next Action: " + inputFile.getAbsolutePath());
+					/** TODO: remove this --- generatedEvents.add(new FileSystemMonitorEvent(inputFile, FileSystemMonitorNotifications.FILE_ADDED)); **/
 				}
 			}
 			
-			if (generatedEvents != null)
-				events.addAll(generatedEvents);
+			/** TODO: remove this --- if (generatedEvents != null)
+				events.addAll(generatedEvents); **/
 			return events;
 		} catch (Throwable t) {
 			LOGGER.log(Level.SEVERE, t.getLocalizedMessage(), t);
@@ -316,12 +317,12 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 						coverageName, zOrder, metocDictionary, srsId, envelope, range,
 						matrix, metocFieldsParts, timePosition, elevation);
 
-				try {
-					res = JGSFLoDeSSIOUtils.sendHarvestRequest(registryURL, providerURL, fileName);
-				} catch (Exception e) {
-					res = false;
-				}
-
+//				try {
+//					res = JGSFLoDeSSIOUtils.sendHarvestRequest(registryURL, providerURL, fileName);
+//				} catch (Exception e) {
+//					res = false;
+//				}
+				
 //				if (!res) {
 //					break;
 //				}
@@ -331,7 +332,7 @@ public class RegistryHarvestingConfigurator extends RegistryConfiguratorAction<F
 
 		reader.dispose();
 
-		return res;
+		return /** TODO: remove this ---- res **/ true;
 	}
 
 	/**
